@@ -1,0 +1,10 @@
+.link {
+  color: #FFA500;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
