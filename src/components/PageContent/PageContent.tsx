@@ -83,13 +83,25 @@ export const PageContent = () => {
               <ListItem>
                   <Bolt />
                   <a className="link" href={ process.env.PUBLIC_URL + '/pdfs/en-uselessshit-card-front.pdf'} target="_blank">
-                    <ListItemText primary="Useless Shit Card Front" />
+                    <ListItemText primary="[ENG] Useless Shit Card Front" />
                   </a>
               </ListItem>
               <ListItem>
                   <Bolt />
                   <a className="link" href={ process.env.PUBLIC_URL + '/pdfs/en-uselessshit-card-back.pdf'} target="_blank">
-                    <ListItemText primary="Useless Shit Card Back" />
+                    <ListItemText primary="[ENG] Useless Shit Card Back" />
+                  </a>
+              </ListItem>
+              <ListItem>
+                  <Bolt />
+                  <a className="link" href={ process.env.PUBLIC_URL + '/pdfs/pl-uselessshit-card-front.pdf'} target="_blank">
+                      <ListItemText primary="[PL] Useless Shit Card Front" />
+                  </a>
+              </ListItem>
+              <ListItem>
+                  <Bolt />
+                  <a className="link" href={ process.env.PUBLIC_URL + '/pdfs/pl-uselessshit-card-back.pdf'} target="_blank">
+                      <ListItemText primary="[PL] Useless Shit Card Back" />
                   </a>
               </ListItem>
           </List>
