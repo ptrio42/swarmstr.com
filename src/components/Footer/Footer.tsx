@@ -17,7 +17,7 @@ export const Footer = () => {
     return (
         <Grid container direction="column" justifyContent="center" alignContent="center" sx={{ width: '100%', height: '133px', background: '#000', color: '#C0C0C0' }}>
             <Item>
-                &copy; 2022 UselessShit.co
+                &copy; 2022 UselessShit.co |&nbsp; <a className="link1" href="https://opensource.org/licenses/MIT" target="_blank">License</a>
             </Item>
             <Grid item>
                 <Item sx={{ display: 'inline-flex' }}>
