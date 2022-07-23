@@ -15,8 +15,8 @@ export const NavBar = () => {
                 <Toolbar>
                     <Avatar style={{ border: '3px solid #fff' }} alt="Useless Shit" src={process.env.PUBLIC_URL + '/images/uselessshit-logo.png'} />
                     <Grid container justifyContent="flex-end" sx={{ color: '#000' }}>
-                        <Button sx={{ fontWeight: 'bold' }} variant="text" color="inherit" component={Link} to="/#were-handed-a-card">Were handed a card?</Button>
-                        <Button sx={{ fontWeight: 'bold' }} variant="text" color="inherit" component={Link} to="/#let-s-shame-someone">Let's shame someone!</Button>
+                        <Button sx={{ fontWeight: 'bold' }} variant="text" color="inherit" component={Link} to="/#were-handed-a-card">Got a card?</Button>
+                        <Button sx={{ fontWeight: 'bold' }} variant="text" color="inherit" component={Link} to="/#let-s-shame-someone">Shame someone</Button>
                         <Button sx={{ fontWeight: 'bold' }} variant="text" color="inherit" component={Link} to="/#credits" startIcon={<Receipt />}>Credits</Button>
                     </Grid>
                 </Toolbar>
