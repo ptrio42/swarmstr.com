@@ -65,7 +65,7 @@ export const NavBar = () => {
         <Box sx={{ flexGrow: 1 }}>
             <AppBar style={{ background: '#F0E68C' }} position="static">
                 <Toolbar>
-                    <Avatar style={{ border: '3px solid #fff' }} alt="Useless Shit" src={process.env.PUBLIC_URL + '/images/uselessshit-logo.png'} />
+                    <img width="40px" alt="Useless Shit" src={process.env.PUBLIC_URL + '/images/uselessshit-logo.png'} />
                     <Grid container justifyContent="flex-end" sx={{ color: '#000' }}>
                         <Media query={{ maxWidth: '422px' }} render={() => (
                             <React.Fragment>
