@@ -1,8 +1,20 @@
 import React, { useEffect } from 'react';
 import {Route, Routes, useLocation} from 'react-router-dom';
-import logo from './logo.svg';
 import './App.css';
 import {Footer, NavBar, PageContent} from "./components";
+import createTheme from "@mui/material/styles/createTheme";
+import ThemeProvider from "@mui/material/styles/ThemeProvider";
+
+const theme = createTheme({
+  typography: {
+    fontFamily: [
+        'Merriweather',
+        'Roboto',
+        'Oxygen',
+        'sans-serif'
+    ].join(',')
+  }
+});
 
 function App() {
   const { pathname, hash, key } = useLocation();
@@ -24,11 +36,13 @@ function App() {
 
   return (
     <div className="App">
-      <NavBar />
-      <Routes>
-        <Route path="/" element={<PageContent />} />
-      </Routes>
-      <Footer />
+        <ThemeProvider theme={theme}>
+            <NavBar />
+            <Routes>
+                <Route path="/" element={<PageContent />} />
+            </Routes>
+            <Footer />
+        </ThemeProvider>
     </div>
   );
 }
