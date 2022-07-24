@@ -9,10 +9,7 @@ import Campaign from '@mui/icons-material/Campaign';
 import CardGiftcard from '@mui/icons-material/CardGiftcard';
 import Receipt from '@mui/icons-material/Receipt';
 import './PageContent.css';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import FormatQuote from '@mui/icons-material/FormatQuote';
-import {Testimonials} from "../Testimonials/Testimonials";
+import {Testimonials} from "../";
 
 export const PageContent = () => {
     return (

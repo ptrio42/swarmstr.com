@@ -1,4 +1,3 @@
-import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
@@ -6,6 +5,7 @@ import styled from "@mui/material/styles/styled";
 import Favorite from '@mui/icons-material/Favorite';
 import Twitter from '@mui/icons-material/Twitter';
 import GitHub from '@mui/icons-material/GitHub';
+import {BitcoinPrice} from "../BitcoinPrice/BitcoinPrice";
 
 const Item = styled(Paper)(({ theme }) => ({
     ...theme.typography.body1,
@@ -30,6 +30,7 @@ export const Footer = () => {
                     Check out our <GitHub sx={{ margin: 'auto 0.25em' }} /> <a className="link1" href="https://github.com/ptrio42/uselessshit.co" target="_blank">repository</a>.
                 </Item>
             </Grid>
+            <Item><BitcoinPrice /></Item>
         </Grid>
     );
 };
