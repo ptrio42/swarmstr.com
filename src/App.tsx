@@ -6,14 +6,19 @@ import createTheme from "@mui/material/styles/createTheme";
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
 
 const theme = createTheme({
-  typography: {
+    typography: {
     fontFamily: [
         'Merriweather',
         'Roboto',
         'Oxygen',
         'sans-serif'
     ].join(',')
-  }
+    },
+    palette: {
+        primary: {
+            main: '#F0E68C'
+        }
+    }
 });
 
 function App() {

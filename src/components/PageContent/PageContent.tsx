@@ -1,6 +1,7 @@
 import React from 'react';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
@@ -9,7 +10,7 @@ import Campaign from '@mui/icons-material/Campaign';
 import CardGiftcard from '@mui/icons-material/CardGiftcard';
 import Receipt from '@mui/icons-material/Receipt';
 import './PageContent.css';
-import {Testimonials} from "../";
+import {FiatToSatsCalculator, Testimonials} from "../";
 
 export const PageContent = () => {
     return (
@@ -114,6 +115,12 @@ export const PageContent = () => {
                         </a>
                     </ListItem>
                 </List>
+                <Typography id="converter" sx={{ fontSize: '18px' }} variant="body1" component="div">
+                    In case you're looking for a way to quickly convert the USD shitcoin amount to sats, you can use the calculator listed below.
+                </Typography>
+                <Grid sx={{ margin: '3em 0' }} container justifyContent="center">
+                    <FiatToSatsCalculator />
+                </Grid>
 
                 <Receipt sx={{ fontSize: '80px' }} />
                 <Typography id="credits" variant="h3" component="div" gutterBottom>

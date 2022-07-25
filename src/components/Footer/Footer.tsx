@@ -5,7 +5,6 @@ import styled from "@mui/material/styles/styled";
 import Favorite from '@mui/icons-material/Favorite';
 import Twitter from '@mui/icons-material/Twitter';
 import GitHub from '@mui/icons-material/GitHub';
-import {BitcoinPrice} from "../BitcoinPrice/BitcoinPrice";
 
 const Item = styled(Paper)(({ theme }) => ({
     ...theme.typography.body1,
@@ -22,7 +21,7 @@ export const Footer = () => {
             </Item>
             <Grid item>
                 <Item sx={{ display: 'inline-flex' }}>
-                    Made with <Favorite sx={{ color: '#FFA500', margin: 'auto 0.25em' }} /> in Warsaw by <Twitter sx={{ color: '#1976D2', margin: 'auto 0.25em' }} /> <Link href="https://twitter.com/pitiunited" target="_blank">pitiunited</Link>
+                    Made with <Favorite sx={{ color: '#FFA500', margin: 'auto 0.25em' }} /> in Warsaw by <Twitter sx={{ color: '#1976D2', margin: 'auto 0.25em' }} /> <Link sx={{ color: '#1976D2' }} href="https://twitter.com/pitiunited" target="_blank">pitiunited</Link>
                 </Item>
             </Grid>
             <Grid item>
@@ -30,7 +29,6 @@ export const Footer = () => {
                     Check out our <GitHub sx={{ margin: 'auto 0.25em' }} /> <a className="link1" href="https://github.com/ptrio42/uselessshit.co" target="_blank">repository</a>.
                 </Item>
             </Grid>
-            <Item><BitcoinPrice /></Item>
         </Grid>
     );
 };
