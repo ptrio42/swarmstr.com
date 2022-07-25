@@ -26,7 +26,6 @@ export const FiatToSatsCalculator = () => {
     };
 
     const handleFiatAmountChange = (values: { fiatAmount: number }) => {
-      console.log({amount: values.fiatAmount});
       const estimatedSats = parseFloat((values.fiatAmount / bitcoinPrice).toFixed(8)) * 100000000;
       setEstimatedSats(estimatedSats);
     };
