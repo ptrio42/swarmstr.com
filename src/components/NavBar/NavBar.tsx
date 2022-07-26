@@ -44,9 +44,9 @@ export const NavBar = () => {
                         <ListItemText sx={{ textTransform: 'uppercase' }} primary="Got a card?" />
                     </ListItemButton>
                 </ListItem>
-                <ListItem disablePadding component={Link} to="/#let-s-shame-someone"  sx={{ color: '#000' }}>
+                <ListItem disablePadding component={Link} to="/#spread-the-word"  sx={{ color: '#000' }}>
                     <ListItemButton>
-                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Shame someone" />
+                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Spread the word!" />
                     </ListItemButton>
                 </ListItem>
                 <ListItem disablePadding component={Link} to="/#credits" sx={{ color: '#000' }}>
@@ -67,7 +67,7 @@ export const NavBar = () => {
                 <Toolbar>
                     <img width="40px" alt="Useless Shit" src={process.env.PUBLIC_URL + '/images/uselessshit-logo.png'} />
                     <Grid container justifyContent="flex-end" sx={{ color: '#000' }}>
-                        <Media query={{ maxWidth: '427px' }} render={() => (
+                        <Media query={{ maxWidth: '442px' }} render={() => (
                             <React.Fragment>
                                 <IconButton onClick={toggleDrawer(true)}><Menu /></IconButton>
                                 <Drawer
@@ -79,7 +79,7 @@ export const NavBar = () => {
                                 </Drawer>
                             </React.Fragment>
                         )} />
-                        <Media query={{ minWidth: '428px' }} render={() => (
+                        <Media query={{ minWidth: '443px' }} render={() => (
                             <React.Fragment>
                                 <Button
                                     sx={{ fontWeight: 'bold' }}
@@ -95,9 +95,9 @@ export const NavBar = () => {
                                     variant="text"
                                     color="inherit"
                                     component={Link}
-                                    to="/#let-s-shame-someone"
+                                    to="/#spread-the-word"
                                 >
-                                    Shame someone
+                                    Spread the word!
                                 </Button>
                                 <Button
                                     sx={{ fontWeight: 'bold' }}
