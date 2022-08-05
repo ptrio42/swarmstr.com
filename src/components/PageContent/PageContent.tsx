@@ -11,17 +11,22 @@ import CardGiftcard from '@mui/icons-material/CardGiftcard';
 import Receipt from '@mui/icons-material/Receipt';
 import './PageContent.css';
 import {Carousel, FiatToSatsCalculator, Testimonials} from "../";
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 export const PageContent = () => {
     const carouselSlides = [
         {
+            title: 'Useless Shit card back',
+            image: `${process.env.PUBLIC_URL}/images/uselessshit-card-2.png`
+        },
+        {
             title: 'Useless Shit card front',
             image: `${process.env.PUBLIC_URL}/images/uselessshit-card-1.png`
         },
-        {
-            title: 'Useless Shit card back',
-            image: `${process.env.PUBLIC_URL}/images/uselessshit-card-2.png`
-        }
+
     ];
 
     return (
@@ -130,7 +135,48 @@ export const PageContent = () => {
                             <ListItemText primary="[ENG] Card Back" />
                         </a>
                     </ListItem>
+                    <ListItem>
+                        <Bolt />
+                        <a className="link" href={ process.env.PUBLIC_URL + '/pdfs/new-uselessshit-card-front-1.pdf'} target="_blank">
+                            <ListItemText primary="[ENG] Card Front #1" />
+                        </a>
+                    </ListItem>
+                    <ListItem>
+                        <Bolt />
+                        <a className="link" href={ process.env.PUBLIC_URL + '/pdfs/new-uselessshit-card-back-1.pdf'} target="_blank">
+                            <ListItemText primary="[ENG] Card Back #1" />
+                        </a>
+                    </ListItem>
                 </List>
+                <Accordion sx={{ marginBottom: '3em' }}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="card-sources-content" id="card-sources-header">
+                        Sources
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <Typography
+                            variant="body1"
+                            component="div"
+                            align="justify"
+                            gutterBottom
+                            sx={{ lineHeight: '2', fontSize: '18px' }}
+                        >
+                            <List>
+                                <ListItem>
+                                    <Bolt />
+                                    <a className="link" href={ process.env.PUBLIC_URL + '/pdfs/new-uselessshit-card-front.pdf'} target="_blank">
+                                        <ListItemText primary="uselessshit-card-front-1.xcf" />
+                                    </a>
+                                </ListItem>
+                                <ListItem>
+                                    <Bolt />
+                                    <a className="link" href={ process.env.PUBLIC_URL + '/pdfs/new-uselessshit-card-back.pdf'} target="_blank">
+                                        <ListItemText primary="uselessshit-card-back-1.xcf" />
+                                    </a>
+                                </ListItem>
+                            </List>
+                        </Typography>
+                    </AccordionDetails>
+                </Accordion>
                 <Typography variant="h4" component="div" gutterBottom>
                     Spicing things up a bit
                 </Typography>

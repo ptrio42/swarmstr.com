@@ -5,7 +5,7 @@ import Paper from '@mui/material/Paper';
 import './Carousel.css';
 import {styled} from "@mui/material/styles";
 
-interface Props {
+interface SlidesProps {
     slides: any[]
 }
 
@@ -17,14 +17,14 @@ const Slide = styled(Paper)(({ theme }) => ({
     ...theme.typography.body2
 }));
 
-export const Carousel = ({ slides }: Props) => {
+export const Carousel = ({ slides }: SlidesProps) => {
     const [activeSlide, setActiveSlide] = useState(1);
     const [onDragState, setOnDragState] = useState(0);
 
     useEffect(() => {
         setTimeout(() => {
             handleNextSlide();
-        }, 10000);
+        }, 5000);
     }, [activeSlide]);
 
     const handleNextSlide = () => {
