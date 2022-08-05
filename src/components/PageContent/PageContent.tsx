@@ -137,13 +137,13 @@ export const PageContent = () => {
                     </ListItem>
                     <ListItem>
                         <Bolt />
-                        <a className="link" href={ process.env.PUBLIC_URL + '/pdfs/new-uselessshit-card-front-1.pdf'} target="_blank">
+                        <a className="link" href={ process.env.PUBLIC_URL + '/pdfs/uselessshit-card-front-1.pdf'} target="_blank">
                             <ListItemText primary="[ENG] Card Front #1" />
                         </a>
                     </ListItem>
                     <ListItem>
                         <Bolt />
-                        <a className="link" href={ process.env.PUBLIC_URL + '/pdfs/new-uselessshit-card-back-1.pdf'} target="_blank">
+                        <a className="link" href={ process.env.PUBLIC_URL + '/pdfs/uselessshit-card-back-1.pdf'} target="_blank">
                             <ListItemText primary="[ENG] Card Back #1" />
                         </a>
                     </ListItem>
