@@ -147,6 +147,12 @@ export const PageContent = () => {
                             <ListItemText primary="[ENG] Card Back #1" />
                         </a>
                     </ListItem>
+                    <ListItem>
+                        <Bolt />
+                        <a className="link" href={ process.env.PUBLIC_URL + '/pdfs/uselessshit-card-back-2.pdf'} target="_blank">
+                            <ListItemText primary="[ENG] Card Back #2" />
+                        </a>
+                    </ListItem>
                 </List>
                 <Accordion sx={{ marginBottom: '3em' }}>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="card-sources-content" id="card-sources-header">
