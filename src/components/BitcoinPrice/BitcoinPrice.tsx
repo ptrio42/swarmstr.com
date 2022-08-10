@@ -1,25 +1,53 @@
 import {useEffect, useState} from "react";
 import {getBitcoinPrice} from "../../services/bitcoinPrice";
 
-interface Props {
-    handlePrice?: (value: number) => void
+interface BitcoinPriceProps {
+    handlePrice?: (value: number) => void,
+    currency?: Currency
 }
 
-export const BitcoinPrice = ({ handlePrice }: Props) => {
+export type Currency = {
+    name: 'usd' | 'eur' | 'gbp' | 'pln',
+    symbol: '$' | '€' | '£' | 'zł'
+};
+
+export const currencies: Currency[] = [
+    {
+        name: 'usd',
+        symbol: '$'
+    },
+    {
+        name: 'eur',
+        symbol: '€'
+    },
+    {
+        name: 'gbp',
+        symbol: '£'
+    },
+    {
+        name: 'pln',
+        symbol: 'zł'
+    }
+];
+
+export const BitcoinPrice = ({ handlePrice, currency }: BitcoinPriceProps) => {
   const [bitcoinPrice, setBitcoinPrice] = useState(0);
 
   useEffect(() => {
       const fetchBitcoinPrice = async () => {
-          const bitcoinPrice = await getBitcoinPrice();
+          if (!currency) {
+              currency = currencies[0];
+          }
+          const bitcoinPrice = await getBitcoinPrice(currency);
           setBitcoinPrice(bitcoinPrice);
           handlePrice && handlePrice(bitcoinPrice);
       };
 
       fetchBitcoinPrice()
           .catch(console.error);
-  }, []);
+  }, [currency]);
 
   return (
-      <div>${ bitcoinPrice }</div>
+      <div>{currency?.symbol} { bitcoinPrice }</div>
   );
 };
