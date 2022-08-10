@@ -2,7 +2,6 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
-import Avatar from '@mui/material/Avatar';
 import Grid from '@mui/material/Grid';
 import {Link} from "react-router-dom";
 import Button from '@mui/material/Button';
@@ -16,6 +15,8 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Drawer from '@mui/material/Drawer';
 import ListItemIcon from '@mui/material/ListItemIcon';
+import SwapVerticalCircleIcon from '@mui/icons-material/SwapVerticalCircle';
+import pink from "@mui/material/colors/pink";
 
 export const NavBar = () => {
     const [state, setState] = React.useState(false);
@@ -49,6 +50,14 @@ export const NavBar = () => {
                         <ListItemText sx={{ textTransform: 'uppercase' }} primary="Spread the word!" />
                     </ListItemButton>
                 </ListItem>
+                <ListItem disablePadding component={Link} to="/#converter" sx={{ color: '#000' }}>
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <SwapVerticalCircleIcon />
+                        </ListItemIcon>
+                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Converter" />
+                    </ListItemButton>
+                </ListItem>
                 <ListItem disablePadding component={Link} to="/#credits" sx={{ color: '#000' }}>
                     <ListItemButton>
                         <ListItemIcon>
@@ -67,7 +76,7 @@ export const NavBar = () => {
                 <Toolbar>
                     <img width="40px" alt="Useless Shit" src={process.env.PUBLIC_URL + '/images/uselessshit-logo.png'} />
                     <Grid container justifyContent="flex-end" sx={{ color: '#000' }}>
-                        <Media query={{ maxWidth: '442px' }} render={() => (
+                        <Media query={{ maxWidth: '569px' }} render={() => (
                             <React.Fragment>
                                 <IconButton onClick={toggleDrawer(true)}><Menu /></IconButton>
                                 <Drawer
@@ -79,7 +88,7 @@ export const NavBar = () => {
                                 </Drawer>
                             </React.Fragment>
                         )} />
-                        <Media query={{ minWidth: '443px' }} render={() => (
+                        <Media query={{ minWidth: '570px' }} render={() => (
                             <React.Fragment>
                                 <Button
                                     sx={{ fontWeight: 'bold' }}
@@ -104,8 +113,18 @@ export const NavBar = () => {
                                     variant="text"
                                     color="inherit"
                                     component={Link}
+                                    to="/#converter"
+                                    startIcon={<SwapVerticalCircleIcon color="success" />}
+                                >
+                                    Converter
+                                </Button>
+                                <Button
+                                    sx={{ fontWeight: 'bold' }}
+                                    variant="text"
+                                    color="inherit"
+                                    component={Link}
                                     to="/#credits"
-                                    startIcon={<Receipt />}
+                                    startIcon={<Receipt sx={{ color: pink[500] }} />}
                                 >
                                     Credits
                                 </Button>

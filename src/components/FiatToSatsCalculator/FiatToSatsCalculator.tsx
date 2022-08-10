@@ -78,7 +78,7 @@ export const FiatToSatsCalculator = () => {
                               placeholder={'Enter amount in ' + selectedCurrency.name.toUpperCase()}
                               value={formik.values.fiatAmount}
                               onChange={formik.handleChange}
-                          />F
+                          />
                       </Item>
                       <Item>
                           <TextField

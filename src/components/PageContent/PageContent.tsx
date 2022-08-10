@@ -26,7 +26,14 @@ export const PageContent = () => {
             title: 'Useless Shit card front',
             image: `${process.env.PUBLIC_URL}/images/uselessshit-card-1.png`
         },
-
+        {
+            title: 'Card front in action',
+            image: `${process.env.PUBLIC_URL}/images/card-1.jpeg`
+        },
+        {
+            title: 'Cards in action',
+            image: `${process.env.PUBLIC_URL}/images/card-2.jpeg`
+        }
     ];
 
     return (
