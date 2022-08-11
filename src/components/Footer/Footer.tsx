@@ -5,17 +5,23 @@ import styled from "@mui/material/styles/styled";
 import Favorite from '@mui/icons-material/Favorite';
 import Twitter from '@mui/icons-material/Twitter';
 import GitHub from '@mui/icons-material/GitHub';
+import './Footer.css';
 
 const Item = styled(Paper)(({ theme }) => ({
     ...theme.typography.body1,
     textAlign: 'center',
     background: 'transparent',
-    color: '#C0C0C0'
+    color: '#FFF'
 }));
 
 export const Footer = () => {
     return (
-        <Grid container direction="column" justifyContent="center" alignContent="center" sx={{ width: '100%', height: '153px', background: '#000', color: '#C0C0C0' }}>
+        <Grid
+            className="footer"
+            container
+            direction="column"
+            justifyContent="center"
+            alignContent="center" sx={{ color: '#C0C0C0' }}>
             <Item>
                 &copy; 2022 UselessShit.co |&nbsp; <a className="link1" href="https://opensource.org/licenses/MIT" target="_blank">License</a>
             </Item>

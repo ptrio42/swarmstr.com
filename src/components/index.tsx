@@ -5,3 +5,5 @@ export { Testimonials } from './Testimonials/Testimonials';
 export { BitcoinPrice } from './BitcoinPrice/BitcoinPrice';
 export { FiatToSatsCalculator } from './FiatToSatsCalculator/FiatToSatsCalculator';
 export { Carousel } from './Carousel/Carousel';
+export { SpreadTheWord } from './SpreadTheWord/SpreadTheWord';
+export { BitcoinResources } from './BitcoinResources/BitcoinResources';

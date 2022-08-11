@@ -4,11 +4,12 @@ import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import FormatQuote from "@mui/icons-material/FormatQuote";
+import './Testimonials.css';
 
 
 export const Testimonials = () => {
   return (
-      <Box sx={{ background: '#FAFAFA', paddingBottom: '3em' }}>
+      <Box className="testimonials">
           <Box sx={{ width: '80%', margin: '0px auto' }}>
               <Typography variant="h3" component="div" gutterBottom sx={{ marginTop: '3em', paddingTop: '0.5em' }}>
                   Testimonials

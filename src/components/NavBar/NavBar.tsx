@@ -17,6 +17,7 @@ import Drawer from '@mui/material/Drawer';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import SwapVerticalCircleIcon from '@mui/icons-material/SwapVerticalCircle';
 import pink from "@mui/material/colors/pink";
+import './NavBar.css';
 
 export const NavBar = () => {
     const [state, setState] = React.useState(false);
@@ -72,10 +73,16 @@ export const NavBar = () => {
 
     return (
         <Box sx={{ flexGrow: 1 }}>
-            <AppBar style={{ background: '#F0E68C' }} position="static">
+            <AppBar
+                className="navbar"
+                position="static"
+            >
                 <Toolbar>
                     <img width="40px" alt="Useless Shit" src={process.env.PUBLIC_URL + '/images/uselessshit-logo.png'} />
-                    <Grid container justifyContent="flex-end" sx={{ color: '#000' }}>
+                    <Grid
+                        container
+                        justifyContent="flex-end"
+                        className="navbar-actions">
                         <Media query={{ maxWidth: '569px' }} render={() => (
                             <React.Fragment>
                                 <IconButton onClick={toggleDrawer(true)}><Menu /></IconButton>
