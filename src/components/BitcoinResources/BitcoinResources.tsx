@@ -58,13 +58,27 @@ export const BitcoinResources = () => {
                 Follow the white rabbit...
             </Typography>
             <Tabs value={tab} onChange={handleTabChange} aria-label="Bitcoin resources" textColor="secondary">
+                <Tab label="People to follow" />
                 <Tab label="Podcasts" />
                 <Tab label="Books" />
                 <Tab label="Apps & sites" />
+                <Tab label="Wallets" />
             </Tabs>
             <Grid container>
                 <Grid item xs={8}>
-                    <TabPanel value={tab} index={0}>
+                    <TabPanel index={0} value={tab}>
+                        <List>
+                            <ListItem>Jeff Booth</ListItem>
+                            <ListItem>Robert Breedlove</ListItem>
+                            <ListItem>Knut Svanholm</ListItem>
+                            <ListItem>Saifedean Ammous</ListItem>
+                            <ListItem>Michael Saylor</ListItem>
+                            <ListItem>Der Gigi</ListItem>
+                            <ListItem>Andreas Antonopoulos</ListItem>
+                            <ListItem>Max Keiser & Stacy Herbert</ListItem>
+                        </List>
+                    </TabPanel>
+                    <TabPanel value={tab} index={1}>
                         <List>
                             <ListItem>
                                 What is Money? Show
@@ -93,7 +107,7 @@ export const BitcoinResources = () => {
 
                         </List>
                     </TabPanel>
-                    <TabPanel index={1} value={tab}>
+                    <TabPanel index={2} value={tab}>
                         <List>
                             <ListItem>21 lessons by Der Gigi</ListItem>
                             <ListItem>Everything divided by 21 million by Knut Svanholm</ListItem>
@@ -101,12 +115,23 @@ export const BitcoinResources = () => {
                             <ListItem>Fiat Standard by Saifedean Ammous</ListItem>
                         </List>
                     </TabPanel>
-                    <TabPanel index={2} value={tab}>
+                    <TabPanel index={3} value={tab}>
                         <List>
                             <ListItem>Fountain</ListItem>
                             <ListItem>Breez</ListItem>
                             <ListItem>stacker.news</ListItem>
                             <ListItem>satsback.com</ListItem>
+                            <ListItem>lightning.gifts</ListItem>
+                        </List>
+                    </TabPanel>
+                    <TabPanel index={4} value={tab}>
+                        <List>
+                            <ListItem>Muun</ListItem>
+                            <ListItem>Breez</ListItem>
+                            <ListItem>Wallet of Satoshi</ListItem>
+                            <ListItem>Blue Wallet</ListItem>
+                            <ListItem>Phoenix</ListItem>
+                            <ListItem>LN Bits</ListItem>
                         </List>
                     </TabPanel>
                 </Grid>

@@ -10,7 +10,7 @@ import './Testimonials.css';
 export const Testimonials = () => {
   return (
       <Box className="testimonials">
-          <Box sx={{ width: '80%', margin: '0px auto' }}>
+          <Box sx={{ width: '95%', margin: '0px auto' }}>
               <Typography variant="h3" component="div" gutterBottom sx={{ marginTop: '3em', paddingTop: '0.5em' }}>
                   Testimonials
               </Typography>

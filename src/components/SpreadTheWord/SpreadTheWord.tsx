@@ -13,7 +13,7 @@ import Box from "@mui/material/Box";
 
 export const SpreadTheWord = () => {
     return (
-      <Box sx={{ width: '80%', margin: '0px auto', marginTop: '1em'  }}>
+      <Box sx={{ marginTop: '1em'  }}>
           <Campaign sx={{ fontSize: '80px' }} />
           <Typography id="spread-the-word" variant="h3" component="div" gutterBottom>
               Spread the word!
