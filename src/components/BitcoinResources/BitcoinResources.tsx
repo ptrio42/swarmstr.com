@@ -76,6 +76,13 @@ export const BitcoinResources = () => {
                             <ListItem>Der Gigi</ListItem>
                             <ListItem>Andreas Antonopoulos</ListItem>
                             <ListItem>Max Keiser & Stacy Herbert</ListItem>
+                            <ListItem>Preston Pysh</ListItem>
+                            <ListItem>Eric Cason</ListItem>
+                            <ListItem>Guy Swann</ListItem>
+                            <ListItem>Alex Gladstein</ListItem>
+                            <ListItem>Brandon Quittem</ListItem>
+                            <ListItem>John Vallis</ListItem>
+                            <ListItem>Daniel Prince</ListItem>
                         </List>
                     </TabPanel>
                     <TabPanel value={tab} index={1}>
@@ -104,7 +111,6 @@ export const BitcoinResources = () => {
                             <ListItem>
                                 Kevin Rooke Show
                             </ListItem>
-
                         </List>
                     </TabPanel>
                     <TabPanel index={2} value={tab}>
@@ -122,6 +128,8 @@ export const BitcoinResources = () => {
                             <ListItem>stacker.news</ListItem>
                             <ListItem>satsback.com</ListItem>
                             <ListItem>lightning.gifts</ListItem>
+                            <ListItem>microlancer.io</ListItem>
+                            <ListItem>sMiles</ListItem>
                         </List>
                     </TabPanel>
                     <TabPanel index={4} value={tab}>

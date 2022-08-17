@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import {Route, Routes, useLocation} from 'react-router-dom';
 import './App.css';
-import {BitcoinResources, Footer, NavBar, PageContent, SpreadTheWord} from "./components";
+import {BitcoinResources, Footer, GiftCard, NavBar, PageContent, SpreadTheWord} from "./components";
 import createTheme from "@mui/material/styles/createTheme";
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
 
@@ -50,6 +50,7 @@ function App() {
                 <Route path="/" element={<PageContent />} />
                 <Route path="/spread-the-word" element={<SpreadTheWord />} />
                 <Route path="/bitcoin-resources" element={<BitcoinResources />} />
+                <Route path="/gift-card" element={<GiftCard />} />
             </Routes>
             <Footer />
         </ThemeProvider>

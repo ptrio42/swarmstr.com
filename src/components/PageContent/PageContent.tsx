@@ -99,13 +99,13 @@ export const PageContent = () => {
                 <Typography variant="body1" component="div" align="justify" gutterBottom sx={{ lineHeight: '2', fontSize: '18px' }}>
                     For more resources,
                     <Button
-                    component={Link}
-                    to="/bitcoin-resources"
-                    color="secondary"
-                    startIcon={<CurrencyBitcoin />}
-                >
-                    Follow the white rabbit
-                </Button> & check our dedicated page, where you'll find a list of bitcoin related podcasts, books, apps & sites.
+                        component={Link}
+                        to="/bitcoin-resources"
+                        color="secondary"
+                        startIcon={<CurrencyBitcoin />}
+                    >
+                        Follow the white rabbit
+                    </Button> & check our dedicated page, where you'll find a list of bitcoin related podcasts, books, apps & sites.
 
 
                 </Typography>

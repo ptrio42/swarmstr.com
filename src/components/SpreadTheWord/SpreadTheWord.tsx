@@ -1,8 +1,8 @@
 import React from 'react';
-import {Typography} from "@mui/material";
+import {Button, Typography} from "@mui/material";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
-import {Bolt} from "@mui/icons-material";
+import {Bolt, CurrencyBitcoin} from "@mui/icons-material";
 import ListItemText from "@mui/material/ListItemText";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -10,6 +10,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Campaign from '@mui/icons-material/Campaign';
 import Box from "@mui/material/Box";
+import {Link} from "react-router-dom";
 
 export const SpreadTheWord = () => {
     return (
@@ -106,6 +107,25 @@ export const SpreadTheWord = () => {
                   </Typography>
               </AccordionDetails>
           </Accordion>
+          <Typography variant="h4" component="div" gutterBottom>
+              Create your own card
+          </Typography>
+          <Typography
+              variant="body1"
+              component="div"
+              align="justify"
+              gutterBottom
+              sx={{ lineHeight: '2', fontSize: '18px', marginBottom: '3em' }}
+          >
+              If you're feeling creative <Button
+              component={Link}
+              to="/gift-card"
+              color="secondary"
+          >
+              check our card generator
+          </Button> and create your own personalized card, which you can then download, print & hand to your friends, family or haters. For now the cards are pretty basic, with a single image and text.
+          </Typography>
+
           <Typography variant="h4" component="div" gutterBottom>
               Spicing things up a bit
           </Typography>
