@@ -7,6 +7,7 @@ import Typography from "@mui/material/Typography";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import Grid from "@mui/material/Grid";
+import Media from 'react-media';
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -57,7 +58,15 @@ export const BitcoinResources = () => {
                 <br/><br/>
                 Follow the white rabbit...
             </Typography>
-            <Tabs value={tab} onChange={handleTabChange} aria-label="Bitcoin resources" textColor="secondary">
+            <Tabs
+                value={tab}
+                onChange={handleTabChange}
+                aria-label="Bitcoin resources"
+                textColor="secondary"
+                variant="scrollable"
+                scrollButtons
+                allowScrollButtonsMobile
+            >
                 <Tab label="People to follow" />
                 <Tab label="Podcasts" />
                 <Tab label="Books" />
@@ -144,7 +153,12 @@ export const BitcoinResources = () => {
                     </TabPanel>
                 </Grid>
                 <Grid item xs={4}>
-                    <img height="380" src={process.env.PUBLIC_URL + '/images/white-rabbit.png'} />
+                    <Media query={{ maxWidth: '661px' }} render={() => (
+                        <img height="280" src={process.env.PUBLIC_URL + '/images/white-rabbit.png'} />
+                    )} />
+                    <Media query={{ minWidth: '662px' }} render={() => (
+                        <img height="380" src={process.env.PUBLIC_URL + '/images/white-rabbit.png'} />
+                    )} />
                 </Grid>
             </Grid>
         </Box>
