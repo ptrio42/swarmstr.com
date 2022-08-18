@@ -44,6 +44,7 @@ export const BitcoinResources = () => {
 
     return (
         <Box sx={{ width: '80%', margin: '0px auto', marginTop: '1em', minHeight: '500px'  }}>
+            <img height="128" src={process.env.PUBLIC_URL + '/images/white-rabbit.png'} />
             <Typography id="were-handed-a-card" variant="h3" component="div" gutterBottom>
                 Bitcoin Resources
             </Typography>
@@ -72,9 +73,10 @@ export const BitcoinResources = () => {
                 <Tab label="Books" />
                 <Tab label="Apps & sites" />
                 <Tab label="Wallets" />
+                <Tab label="Hardware Wallets" />
             </Tabs>
             <Grid container>
-                <Grid item xs={8}>
+                <Grid item xs={12}>
                     <TabPanel index={0} value={tab}>
                         <List>
                             <ListItem>Jeff Booth</ListItem>
@@ -92,6 +94,7 @@ export const BitcoinResources = () => {
                             <ListItem>Brandon Quittem</ListItem>
                             <ListItem>John Vallis</ListItem>
                             <ListItem>Daniel Prince</ListItem>
+                            <ListItem>Lyn Alden</ListItem>
                         </List>
                     </TabPanel>
                     <TabPanel value={tab} index={1}>
@@ -109,7 +112,7 @@ export const BitcoinResources = () => {
                                 Bitcoin Audible
                             </ListItem>
                             <ListItem>
-                                Once Bitten!
+                                Once Bitten! A Bitcoin Podcast
                             </ListItem>
                             <ListItem>
                                 Orange Pill Podcast
@@ -139,6 +142,7 @@ export const BitcoinResources = () => {
                             <ListItem>lightning.gifts</ListItem>
                             <ListItem>microlancer.io</ListItem>
                             <ListItem>sMiles</ListItem>
+                            <ListItem>Tweetoshi</ListItem>
                         </List>
                     </TabPanel>
                     <TabPanel index={4} value={tab}>
@@ -151,14 +155,14 @@ export const BitcoinResources = () => {
                             <ListItem>LN Bits</ListItem>
                         </List>
                     </TabPanel>
-                </Grid>
-                <Grid item xs={4}>
-                    <Media query={{ maxWidth: '661px' }} render={() => (
-                        <img height="280" src={process.env.PUBLIC_URL + '/images/white-rabbit.png'} />
-                    )} />
-                    <Media query={{ minWidth: '662px' }} render={() => (
-                        <img height="380" src={process.env.PUBLIC_URL + '/images/white-rabbit.png'} />
-                    )} />
+                    <TabPanel index={5} value={tab}>
+                        <List>
+                            <ListItem>COLDCARD</ListItem>
+                            <ListItem>BitBox02</ListItem>
+                            <ListItem>Ledger</ListItem>
+                            <ListItem>Passport</ListItem>
+                        </List>
+                    </TabPanel>
                 </Grid>
             </Grid>
         </Box>

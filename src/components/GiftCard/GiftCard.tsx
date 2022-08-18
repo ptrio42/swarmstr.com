@@ -12,6 +12,7 @@ import Input from "@mui/material/Input";
 import TextField from "@mui/material/TextField";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
+import CardActions from "@mui/material/CardActions";
 
 const Item = styled(Paper)(({ theme }) => ({
     background: 'transparent',
@@ -57,10 +58,15 @@ export const GiftCard = () => {
                         image={cardContent.image}
                     />
                     <CardContent>
-                        <Typography sx={{ fontSize: '12pt' }} gutterBottom variant="h5" component="div">
+                        <Typography sx={{ fontSize: '14px' }} gutterBottom variant="h5" component="div">
                             {cardContent.text}
                         </Typography>
                     </CardContent>
+                    <CardActions>
+                        <Typography sx={{ fontSize: '10px', color: '#1B3D2F' }}>
+                            https://uselessshit.co/#were-handed-a-card
+                        </Typography>
+                    </CardActions>
                 </CardActionArea>
             </Card>
         </React.Fragment>
@@ -69,7 +75,8 @@ export const GiftCard = () => {
     const downloadCard = () => {
         const imageData = new Image();
         imageData.src = cardContent.image;
-        card.setFontSize(12);
+        card.setFontSize(14);
+        card.setFont('Merriweather');
         card.addImage({
             imageData,
             x: 1.5,
@@ -79,7 +86,12 @@ export const GiftCard = () => {
 
         });
         card.text(cardContent.text, 1.75, 1.25, { align: 'center', maxWidth: 3 });
-        card.save('card.pdf')
+
+        card.setFontSize(10);
+        card.setTextColor('#1B3D2F');
+        card.text('https://uselessshit.co/#were-handed-a-card', 1.75, 1.75, { align: 'center' });
+
+        card.save('custom-card.pdf')
     };
 
     return (
@@ -98,6 +110,7 @@ export const GiftCard = () => {
                             label="Enter text"
                             sx={{ width: '80%' }}
                             value={formik.values.cardText}
+                            inputProps={{ maxLength: 74 }}
                             onChange={(event) => {
                                 formik.handleChange(event);
                                 setCardContent({
