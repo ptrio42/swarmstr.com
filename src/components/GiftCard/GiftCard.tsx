@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {Box, styled} from "@mui/material";
 import { jsPDF } from 'jspdf';
 import Button from "@mui/material/Button";
@@ -13,6 +13,13 @@ import TextField from "@mui/material/TextField";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import CardActions from "@mui/material/CardActions";
+import {LightningGift} from "../LightningGift/LightningGift";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import InputAdornment from "@mui/material/InputAdornment";
+import QRCode from "react-qr-code";
+import html2canvas from 'html2canvas';
+import {LoadingAnimation} from "../LoadingAnimation/LoadingAnimation";
 
 const Item = styled(Paper)(({ theme }) => ({
     background: 'transparent',
@@ -32,10 +39,19 @@ export const GiftCard = () => {
         image: new Image().src = process.env.PUBLIC_URL + '/images/sign.png'
     });
 
+    const [includeLightningGift, setIncludeLightningGift] = useState(false);
+
+    const [redeemLnurl, setRedeemLnurl] = useState('');
+
+    const [isLoading, setIsLoading] = useState(false);
+
+    const qrCodeRef = useRef();
+
     const formik = useFormik({
         initialValues: {
             cardText: cardContent.text,
-            cardImage: null
+            cardImage: null,
+            satsAmount: 0
         },
         onSubmit: (values) => {
             setCardContent({
@@ -45,6 +61,18 @@ export const GiftCard = () => {
         }
     });
 
+    const toggleIncludeLightningGift = () => {
+        setIncludeLightningGift(!includeLightningGift);
+    };
+
+    const handleRedeemLnurl = (lnurl: string) => {
+        setRedeemLnurl(lnurl);
+    };
+
+    const handleIsLoading = (isLoading: boolean) => {
+        setIsLoading(isLoading);
+    };
+
     const cardHTML = () => (
         <React.Fragment>
             <Typography variant="h6" component="div" gutterBottom sx={{ textAlign: 'left' }}>
@@ -52,11 +80,19 @@ export const GiftCard = () => {
             </Typography>
             <Card sx={{ width: '3.5in', height: '2in', margin: '0 auto 3em auto' }}>
                 <CardActionArea sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    <CardMedia
-                        component="img"
-                        sx={{ width: '0.5in', height: '0.5in', objectFit: 'fill' }}
-                        image={cardContent.image}
-                    />
+                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                        <CardMedia
+                            component="img"
+                            sx={{ width: '0.75in', height: '0.75in', objectFit: 'fill' }}
+                            image={cardContent.image}
+                        />
+                        {
+                            includeLightningGift &&
+                            <Box sx={{ width: '0.75in', height: '0.75in', marginLeft: '0.1in' }} ref={qrCodeRef}>
+                                <QRCode size={72} value={redeemLnurl} />
+                            </Box>
+                        }
+                    </Box>
                     <CardContent>
                         <Typography sx={{ fontSize: '14px' }} gutterBottom variant="h5" component="div">
                             {cardContent.text}
@@ -72,25 +108,50 @@ export const GiftCard = () => {
         </React.Fragment>
     );
 
-    const downloadCard = () => {
+    const downloadCard = async () => {
+        handleIsLoading(true);
         const imageData = new Image();
         imageData.src = cardContent.image;
         card.setFontSize(14);
         card.setFont('Merriweather');
-        card.addImage({
-            imageData,
-            x: 1.5,
-            y: 0.5,
-            width: 0.5,
-            height: 0.5,
+        if (includeLightningGift) {
+            card.addImage({
+                imageData,
+                x: 0.95,
+                y: 0.375,
+                width: 0.75,
+                height: 0.75,
 
-        });
-        card.text(cardContent.text, 1.75, 1.25, { align: 'center', maxWidth: 3 });
+            });
+
+            const qrCodeElement: HTMLElement = qrCodeRef.current as unknown as HTMLElement;
+            const qrCodeCanvas = await html2canvas(qrCodeElement);
+            const qrCodeImage = qrCodeCanvas.toDataURL('image/png');
+
+            card.addImage({
+                imageData: qrCodeImage,
+                x: 1.8,
+                y: 0.375,
+                width: 0.75,
+                height: 0.75
+            });
+        } else {
+            card.addImage({
+                imageData,
+                x: 1.375,
+                y: 0.375,
+                width: 0.75,
+                height: 0.75,
+
+            });
+        }
+
+        card.text(cardContent.text, 1.75, 1.35, { align: 'center', maxWidth: 3 });
 
         card.setFontSize(10);
         card.setTextColor('#1B3D2F');
-        card.text('https://uselessshit.co/#were-handed-a-card', 1.75, 1.75, { align: 'center' });
-
+        card.text('https://uselessshit.co/#were-handed-a-card', 1.75, 1.95, { align: 'center' });
+        handleIsLoading(false);
         card.save('custom-card.pdf')
     };
 
@@ -135,11 +196,52 @@ export const GiftCard = () => {
                         }} />
                     </Item>
                     <Item>
-                        <Button sx={{ fontWeight: 'bold' }} variant="contained" onClick={downloadCard}>Download Card!</Button>
+                        <FormControlLabel
+                            control={<Checkbox checked={includeLightningGift} onChange={toggleIncludeLightningGift} />}
+                            label="Include Lightning Gift"
+                        />
+                    </Item>
+                    {
+                        includeLightningGift &&
+                        <React.Fragment>
+                            <Item>
+                                <Input
+                                    id="satsAmount"
+                                    name="satsAmount"
+                                    type="number"
+                                    inputProps={{
+                                        step: "1",
+                                        min: 100
+                                    }}
+                                    startAdornment={
+                                        <InputAdornment position="start">₿</InputAdornment>
+                                    }
+                                    placeholder={'Enter amount in sats'}
+                                    value={formik.values.satsAmount}
+                                    onChange={formik.handleChange}
+                                />
+                            </Item>
+                            <Item>
+                                <LightningGift
+                                    handleRedeemLnurl={handleRedeemLnurl}
+                                    handleIsLoading={handleIsLoading}
+                                    satsAmount={formik.values.satsAmount} />
+                            </Item>
+                        </React.Fragment>
+                    }
+                    <Item>
+                        <Button
+                            sx={{ fontWeight: 'bold' }}
+                            variant="contained"
+                            onClick={downloadCard}
+                            disabled={includeLightningGift && redeemLnurl === ''}
+                        >
+                            Download Card!
+                        </Button>
                     </Item>
                 </Stack>
             </form>
+            <LoadingAnimation isLoading={isLoading} />
         </Box>
-
-    )
+    );
 };

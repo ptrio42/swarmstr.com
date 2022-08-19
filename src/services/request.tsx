@@ -4,15 +4,16 @@ type ApiRequest = {
     method?: 'GET' | 'POST',
     endpoint?: string,
     url: string;
+    body?: any;
 }
 
 export const request = async (request: ApiRequest) => {
     try {
-        const { method = 'GET', endpoint, url } = request;
+        const { method = 'GET', endpoint, url, body } = request;
 
         const axiosRequest = {
             timeout: 30000,
-            data: {},
+            ...(body ? { data: body } : {}),
             headers: {},
             method,
             url

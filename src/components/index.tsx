@@ -8,3 +8,4 @@ export { Carousel } from './Carousel/Carousel';
 export { SpreadTheWord } from './SpreadTheWord/SpreadTheWord';
 export { BitcoinResources } from './BitcoinResources/BitcoinResources';
 export { GiftCard } from './GiftCard/GiftCard';
+export { LightningGift } from './LightningGift/LightningGift';
