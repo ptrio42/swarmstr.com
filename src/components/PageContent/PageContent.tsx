@@ -94,6 +94,12 @@ export const PageContent = () => {
                             <ListItemText primary="Find out about a world where prices of goods go down indefinitely with Knut Svanholm" />
                         </a>
                     </ListItem>
+                    <ListItem>
+                        <Bolt />
+                        <a className="link" href="https://www.theinvestorspodcast.com/bitcoin-fundamentals/bitcoin-common-misconceptions-w-robert-breedlove/" target="_blank">
+                            Bitcoin Common Misconceptions with Robert Breedlove, hosted by Preston Pysh
+                        </a>
+                    </ListItem>
                 </List>
 
                 <Typography variant="body1" component="div" align="justify" gutterBottom sx={{ lineHeight: '2', fontSize: '18px' }}>

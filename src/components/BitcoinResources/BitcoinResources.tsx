@@ -69,12 +69,14 @@ export const BitcoinResources = () => {
                             <ListItem>John Vallis</ListItem>
                             <ListItem>Daniel Prince</ListItem>
                             <ListItem>Lyn Alden</ListItem>
+                            <ListItem>Kevin Rooke</ListItem>
+                            <ListItem>Matt Odell</ListItem>
                         </List>
                     </TabPanel>
                     <TabPanel value={tab} index={1}>
                         <List>
                             <ListItem>
-                                What is Money? Show
+                                <a className="link" href="https://whatismoneypodcast.com/" target="_blank">What is Money? Show</a>
                             </ListItem>
                             <ListItem>
                                 What Bitcoin Did
@@ -117,6 +119,7 @@ export const BitcoinResources = () => {
                             <ListItem>microlancer.io</ListItem>
                             <ListItem>sMiles</ListItem>
                             <ListItem>Tweetoshi</ListItem>
+                            <ListItem>konsensus.network</ListItem>
                         </List>
                     </TabPanel>
                     <TabPanel index={4} value={tab}>
