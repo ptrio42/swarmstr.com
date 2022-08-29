@@ -27,7 +27,7 @@ const Item = styled(Paper)(({ theme }) => ({
     ...theme.typography.body2
 }));
 
-export const GiftCard = () => {
+export const CardGenerator = () => {
     const card = new jsPDF({
         orientation: 'landscape',
         unit: 'in',

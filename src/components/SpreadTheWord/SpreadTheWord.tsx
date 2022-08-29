@@ -119,7 +119,7 @@ export const SpreadTheWord = () => {
           >
               If you're feeling creative <Button
               component={Link}
-              to="/gift-card"
+              to="/card-generator"
               color="secondary"
           >
               check our card generator

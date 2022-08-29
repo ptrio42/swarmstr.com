@@ -71,7 +71,7 @@ export const NavBar = () => {
                         <ListItemText sx={{ textTransform: 'uppercase' }} primary="Converter" />
                     </ListItemButton>
                 </ListItem>
-                <ListItem disablePadding component={Link} to="/gift-card" sx={{ color: '#000' }}>
+                <ListItem disablePadding component={Link} to="/card-generator" sx={{ color: '#000' }}>
                     <ListItemButton>
                         <ListItemIcon>
                             <Payments />
@@ -182,7 +182,7 @@ export const NavBar = () => {
                                     <MenuItem
                                         onClick={handleToolsMenuClose}
                                         component={Link}
-                                        to="/gift-card"
+                                        to="/card-generator"
                                     >
                                         <ListItemIcon>
                                             <Payments color="secondary" />
