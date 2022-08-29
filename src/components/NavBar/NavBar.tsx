@@ -7,7 +7,7 @@ import {Link} from "react-router-dom";
 import Button from '@mui/material/Button';
 import Receipt from '@mui/icons-material/Receipt';
 import Media from 'react-media';
-import Menu from '@mui/icons-material/Menu';
+import {Build, Menu as MenuIcon, Payments} from '@mui/icons-material';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -15,12 +15,24 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Drawer from '@mui/material/Drawer';
 import ListItemIcon from '@mui/material/ListItemIcon';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import SwapVerticalCircleIcon from '@mui/icons-material/SwapVerticalCircle';
 import pink from "@mui/material/colors/pink";
 import './NavBar.css';
 
 export const NavBar = () => {
     const [state, setState] = React.useState(false);
+    const [toolsMenuAnchorEl, setToolsMenuAnchorEl] = React.useState<null | HTMLElement>(null);
+    const toolsMenuOpen = Boolean(toolsMenuAnchorEl);
+
+    const handleToolsMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setToolsMenuAnchorEl(event.currentTarget);
+    };
+
+    const handleToolsMenuClose = () => {
+        setToolsMenuAnchorEl(null);
+    };
 
     const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
         if (
@@ -59,6 +71,14 @@ export const NavBar = () => {
                         <ListItemText sx={{ textTransform: 'uppercase' }} primary="Converter" />
                     </ListItemButton>
                 </ListItem>
+                <ListItem disablePadding component={Link} to="/gift-card" sx={{ color: '#000' }}>
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <Payments />
+                        </ListItemIcon>
+                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Card generator" />
+                    </ListItemButton>
+                </ListItem>
                 <ListItem disablePadding component={Link} to="/#credits" sx={{ color: '#000' }}>
                     <ListItemButton>
                         <ListItemIcon>
@@ -85,7 +105,7 @@ export const NavBar = () => {
                         className="navbar-actions">
                         <Media query={{ maxWidth: '569px' }} render={() => (
                             <React.Fragment>
-                                <IconButton onClick={toggleDrawer(true)}><Menu /></IconButton>
+                                <IconButton onClick={toggleDrawer(true)}><MenuIcon /></IconButton>
                                 <Drawer
                                     anchor="right"
                                     open={state}
@@ -116,14 +136,17 @@ export const NavBar = () => {
                                     Spread the word!
                                 </Button>
                                 <Button
+                                    id="tools-menu-button"
                                     sx={{ fontWeight: 'bold' }}
                                     variant="text"
                                     color="inherit"
-                                    component={Link}
-                                    to="/#converter"
-                                    startIcon={<SwapVerticalCircleIcon color="success" />}
+                                    aria-controls={toolsMenuOpen ? 'tools-menu' : undefined}
+                                    aria-haspopup="true"
+                                    aria-expanded={toolsMenuOpen ? 'true' : undefined}
+                                    startIcon={<Build color="warning" />}
+                                    onClick={handleToolsMenuClick}
                                 >
-                                    Converter
+                                    Tools
                                 </Button>
                                 <Button
                                     sx={{ fontWeight: 'bold' }}
@@ -135,6 +158,40 @@ export const NavBar = () => {
                                 >
                                     Credits
                                 </Button>
+                                <Menu
+                                    id="tools-menu"
+                                    anchorEl={toolsMenuAnchorEl}
+                                    open={toolsMenuOpen}
+                                    onClose={handleToolsMenuClose}
+                                    MenuListProps={{
+                                        'aria-labelledby': 'tools-menu-button'
+                                    }}
+                                >
+                                    <MenuItem
+                                        onClick={handleToolsMenuClose}
+                                        component={Link}
+                                        to="/#converter"
+                                    >
+                                        <ListItemIcon>
+                                            <SwapVerticalCircleIcon color="success" />
+                                        </ListItemIcon>
+                                        <ListItemText>
+                                            FIAT TO SATS CONVERTER
+                                        </ListItemText>
+                                    </MenuItem>
+                                    <MenuItem
+                                        onClick={handleToolsMenuClose}
+                                        component={Link}
+                                        to="/gift-card"
+                                    >
+                                        <ListItemIcon>
+                                            <Payments color="secondary" />
+                                        </ListItemIcon>
+                                        <ListItemText>
+                                            CARD GENERATOR
+                                        </ListItemText>
+                                    </MenuItem>
+                                </Menu>
                             </React.Fragment>
                         )} />
                     </Grid>
