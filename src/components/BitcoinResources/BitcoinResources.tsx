@@ -8,13 +8,90 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import Grid from "@mui/material/Grid";
 import {TabPanel} from "../TabPanel/TabPanel";
+import Stack from "@mui/material/Stack";
+import Pagination from "@mui/material/Pagination";
 
 export const BitcoinResources = () => {
     const [tab, setTab] = useState(0);
+    const [page, setPage] = useState(1);
+    const itemsPerPage = 10;
+
+    const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+        setPage(value);
+    };
 
     const handleTabChange = (event: React.SyntheticEvent, newTabValue: number) => {
         setTab(newTabValue);
     };
+
+    const peopleToFollow = [
+        {
+            name: 'Jeff Booth'
+        },
+        {
+            name: 'Robert Breedlove'
+        },
+        {
+            name: 'Knut Svanholm'
+        },
+        {
+            name: 'Saifedean Ammous'
+        },
+        {
+            name: 'Michael Saylor'
+        },
+        {
+            name: 'Der Gigi'
+        },
+        {
+            name: 'Andreas Antonopoulos'
+        },
+        {
+            name: 'Max Keiser & Stacy Herbert'
+        },
+        {
+            name: 'Daniel Prince'
+        },
+        {
+            name: 'John Vallis'
+        },
+        {
+            name: 'Brandon Quittem'
+        },
+        {
+            name: 'Alex Gladstein'
+        },
+        {
+            name: 'Guy Swann'
+        },
+        {
+            name: 'Eric Cason'
+        },
+        {
+            name: 'Preston Pysh'
+        },
+        {
+            name: 'Adam Curry'
+        },
+        {
+            name: 'Jack Mallers'
+        },
+        {
+            name: 'Matt Odell'
+        },
+        {
+            name: 'Kevin Rooke'
+        },
+        {
+            name: 'Lyn Alden'
+        },
+        {
+            name: 'Adam Back'
+        },
+        {
+            name: 'Nayib Bukele'
+        }
+    ];
 
     return (
         <Box sx={{ width: '80%', margin: '0px auto', marginTop: '1em', minHeight: '500px'  }}>
@@ -53,29 +130,15 @@ export const BitcoinResources = () => {
                 <Grid item xs={12}>
                     <TabPanel index={0} value={tab}>
                         <List>
-                            <ListItem>Jeff Booth</ListItem>
-                            <ListItem>Robert Breedlove</ListItem>
-                            <ListItem>Knut Svanholm</ListItem>
-                            <ListItem>Saifedean Ammous</ListItem>
-                            <ListItem>Michael Saylor</ListItem>
-                            <ListItem>Der Gigi</ListItem>
-                            <ListItem>Andreas Antonopoulos</ListItem>
-                            <ListItem>Max Keiser & Stacy Herbert</ListItem>
-                            <ListItem>Preston Pysh</ListItem>
-                            <ListItem>Eric Cason</ListItem>
-                            <ListItem>Guy Swann</ListItem>
-                            <ListItem>Alex Gladstein</ListItem>
-                            <ListItem>Brandon Quittem</ListItem>
-                            <ListItem>John Vallis</ListItem>
-                            <ListItem>Daniel Prince</ListItem>
-                            <ListItem>Lyn Alden</ListItem>
-                            <ListItem>Kevin Rooke</ListItem>
-                            <ListItem>Matt Odell</ListItem>
-                            <ListItem>Jack Mallers</ListItem>
-                            <ListItem>Adam Curry</ListItem>
-                            <ListItem>Nayib Bukele</ListItem>
-                            <ListItem>Adam Back</ListItem>
+                            {
+                                peopleToFollow.slice((page - 1) * itemsPerPage, page * itemsPerPage).map(person => (
+                                    <ListItem>{ person.name }</ListItem>
+                                ))
+                            }
                         </List>
+                        <Stack sx={{ alignItems: 'center' }} spacing={2}>
+                            <Pagination count={Math.ceil(peopleToFollow.length / itemsPerPage)} page={page} onChange={handlePageChange} />
+                        </Stack>
                     </TabPanel>
                     <TabPanel value={tab} index={1}>
                         <List>
