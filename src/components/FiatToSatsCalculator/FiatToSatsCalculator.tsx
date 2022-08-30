@@ -13,6 +13,7 @@ import { styled } from "@mui/material/styles";
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import {currencies, Currency} from "../BitcoinPrice/BitcoinPrice";
+import ReactDOM from 'react-dom';
 
 const Item = styled(Paper)(({ theme }) => ({
     background: 'transparent',
@@ -99,7 +100,7 @@ export const FiatToSatsCalculator = () => {
                           </TextField>
                       </Item>
                       <Item>
-                          { estimatedSats > 0 && <Typography variant="body2" component="div">Estimated sats: { estimatedSats }</Typography>}
+                          { estimatedSats > 0 && <Typography variant="body2" component="div">Estimated sats: { estimatedSats } 丰</Typography>}
                       </Item>
                       <Item>
                           <Button sx={{ fontWeight: 'bold' }} variant="contained" type="submit">Convert!</Button>
@@ -109,4 +110,8 @@ export const FiatToSatsCalculator = () => {
           </CardContent>
       </Card>
     );
+};
+
+export const init = () => {
+    ReactDOM.render(<FiatToSatsCalculator />, document.getElementById('uselessshit-calculator') as HTMLElement);
 };

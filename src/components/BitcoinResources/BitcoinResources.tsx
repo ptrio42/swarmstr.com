@@ -71,6 +71,10 @@ export const BitcoinResources = () => {
                             <ListItem>Lyn Alden</ListItem>
                             <ListItem>Kevin Rooke</ListItem>
                             <ListItem>Matt Odell</ListItem>
+                            <ListItem>Jack Mallers</ListItem>
+                            <ListItem>Adam Curry</ListItem>
+                            <ListItem>Nayib Bukele</ListItem>
+                            <ListItem>Adam Back</ListItem>
                         </List>
                     </TabPanel>
                     <TabPanel value={tab} index={1}>
@@ -103,9 +107,9 @@ export const BitcoinResources = () => {
                     </TabPanel>
                     <TabPanel index={2} value={tab}>
                         <List>
+                            <ListItem>Bitcoin Standard by Saifedean Ammous</ListItem>
                             <ListItem>21 lessons by Der Gigi</ListItem>
                             <ListItem>Everything divided by 21 million by Knut Svanholm</ListItem>
-                            <ListItem>Bitcoin Standard by Saifedean Ammous</ListItem>
                             <ListItem>Fiat Standard by Saifedean Ammous</ListItem>
                         </List>
                     </TabPanel>
@@ -120,6 +124,10 @@ export const BitcoinResources = () => {
                             <ListItem>sMiles</ListItem>
                             <ListItem>Tweetoshi</ListItem>
                             <ListItem>konsensus.network</ListItem>
+                            <ListItem>ln.cash</ListItem>
+                            <ListItem>Strike</ListItem>
+                            <ListItem>swanbitcoin.com</ListItem>
+                            <ListItem>Relai</ListItem>
                         </List>
                     </TabPanel>
                     <TabPanel index={4} value={tab}>
