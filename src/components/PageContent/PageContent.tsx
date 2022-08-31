@@ -14,7 +14,6 @@ import {Link} from "react-router-dom";
 import {Button} from "@mui/material";
 import {Calculate, CurrencyBitcoin} from "@mui/icons-material";
 import Paper from "@mui/material/Paper";
-import htmr from 'htmr';
 
 export const PageContent = () => {
     const carouselSlides = [
