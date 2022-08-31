@@ -79,12 +79,12 @@ export const NavBar = () => {
                         <ListItemText sx={{ textTransform: 'uppercase' }} primary="Card generator" />
                     </ListItemButton>
                 </ListItem>
-                <ListItem disablePadding component={Link} to="/#credits" sx={{ color: '#000' }}>
+                <ListItem disablePadding component={Link} to="/bitcoin-resources" sx={{ color: '#000' }}>
                     <ListItemButton>
                         <ListItemIcon>
                             <Receipt />
                         </ListItemIcon>
-                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Credits" />
+                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Resources" />
                     </ListItemButton>
                 </ListItem>
             </List>
@@ -103,7 +103,7 @@ export const NavBar = () => {
                         container
                         justifyContent="flex-end"
                         className="navbar-actions">
-                        <Media query={{ maxWidth: '569px' }} render={() => (
+                        <Media query={{ maxWidth: '570px' }} render={() => (
                             <React.Fragment>
                                 <IconButton onClick={toggleDrawer(true)}><MenuIcon /></IconButton>
                                 <Drawer
@@ -115,7 +115,7 @@ export const NavBar = () => {
                                 </Drawer>
                             </React.Fragment>
                         )} />
-                        <Media query={{ minWidth: '570px' }} render={() => (
+                        <Media query={{ minWidth: '571px' }} render={() => (
                             <React.Fragment>
                                 <Button
                                     sx={{ fontWeight: 'bold' }}
@@ -153,10 +153,10 @@ export const NavBar = () => {
                                     variant="text"
                                     color="inherit"
                                     component={Link}
-                                    to="/#credits"
+                                    to="/bitcoin-resources"
                                     startIcon={<Receipt sx={{ color: pink[500] }} />}
                                 >
-                                    Credits
+                                    Resources
                                 </Button>
                                 <Menu
                                     id="tools-menu"
