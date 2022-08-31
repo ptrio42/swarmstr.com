@@ -12,7 +12,9 @@ import './PageContent.css';
 import {Carousel, FiatToSatsCalculator, SpreadTheWord, Testimonials} from "../";
 import {Link} from "react-router-dom";
 import {Button} from "@mui/material";
-import {CurrencyBitcoin} from "@mui/icons-material";
+import {Calculate, CurrencyBitcoin} from "@mui/icons-material";
+import Paper from "@mui/material/Paper";
+import htmr from 'htmr';
 
 export const PageContent = () => {
     const carouselSlides = [
@@ -33,6 +35,14 @@ export const PageContent = () => {
             image: `${process.env.PUBLIC_URL}/images/card-2.jpeg`
         }
     ];
+
+    const converterEmbeddableCode = `
+    <div id="uselessshit-calculator"></div>
+    <script src="https://uselessshit.co/tools/calculator.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        calculator.init();
+    </script>
+    `;
 
     return (
         <React.Fragment>
@@ -118,12 +128,32 @@ export const PageContent = () => {
 
                 <SpreadTheWord />
 
+                <Calculate sx={{ fontSize: '80px' }} />
+
                 <Typography id="converter" sx={{ fontSize: '18px' }} variant="body1" component="div">
-                    In case you're looking for a way to quickly convert the USD shitcoin amount to sats, you can use the calculator listed below.
+                    In case you're looking for a way to quickly convert the shitcoin amount to sats, you can use the calculator listed below.
+                    Available fiat currencies are: USD, GBP, EUR and PLN.
                 </Typography>
                 <Grid sx={{ margin: '3em 0' }} container justifyContent="center">
                     <FiatToSatsCalculator />
                 </Grid>
+
+                <Typography variant="h4" component="div" gutterBottom>
+                    Embed the converter on your site
+                </Typography>
+
+                <Typography id="converter" sx={{ fontSize: '18px' }} variant="body1" component="div" align="justify" gutterBottom>
+                    The Fiat2SatsConverter is available as a embeddable widget. If you feel this is something you would like to have it on your site,
+                    simply copy and paste the code below anywhere inside your document's body.
+
+                    <Paper sx={{ marginTop: '1em', backgroundColor: '#1B3D2F', color: '#FFF', fontSize: '12px', overflowX: 'scroll' }} elevation={0}>
+                        <pre>
+                            <code>
+                                {converterEmbeddableCode}
+                            </code>
+                        </pre>
+                    </Paper>
+                </Typography>
 
                 <Receipt sx={{ fontSize: '80px' }} />
                 <Typography id="credits" variant="h3" component="div" gutterBottom>
