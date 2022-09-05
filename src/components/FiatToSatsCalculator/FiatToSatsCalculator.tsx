@@ -14,6 +14,7 @@ import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import {currencies, Currency} from "../BitcoinPrice/BitcoinPrice";
 import ReactDOM from 'react-dom';
+import {PriceReceipt} from "../PriceReceipt/PriceReceipt";
 
 const Item = styled(Paper)(({ theme }) => ({
     background: 'transparent',
@@ -104,6 +105,14 @@ export const FiatToSatsCalculator = () => {
                       </Item>
                       <Item>
                           <Button sx={{ fontWeight: 'bold' }} variant="contained" type="submit">Convert!</Button>
+                      </Item>
+                      <Item>
+                          <PriceReceipt
+                              bitcoinPrice={bitcoinPrice}
+                              currencySymbol={selectedCurrency.symbol}
+                              fiatAmount={formik.values.fiatAmount}
+                              satsAmount={estimatedSats}
+                          />
                       </Item>
                   </Stack>
               </form>
