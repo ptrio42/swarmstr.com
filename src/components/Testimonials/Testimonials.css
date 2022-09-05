@@ -2,3 +2,12 @@
     background-color: #FEFAE6;
     padding-bottom: 3em;
 }
+
+.theme--dark .testimonials {
+    background-color: #8C8C8C;
+}
+
+.theme--dark .testimonials-content {
+    background-color: #000000;
+    color: #FFFFFF;
+}

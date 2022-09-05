@@ -10,6 +10,7 @@ import Grid from "@mui/material/Grid";
 import {TabPanel} from "../TabPanel/TabPanel";
 import Stack from "@mui/material/Stack";
 import Pagination from "@mui/material/Pagination";
+import './BitcoinResources.css';
 
 export const BitcoinResources = () => {
     const [tab, setTab] = useState(0);
@@ -109,9 +110,17 @@ export const BitcoinResources = () => {
                 Bitcoin Resources
             </Typography>
             <Typography sx={{ marginBottom: '3em' }} align="justify" gutterBottom>
-                As the Bitcoin network keeps evolving, becoming more wide spread and more secure, our understanding of bitcoin becomes broader. Seems like the deeper you go into the rabbit hole, the better you understand how little you know. There isn’t such a thing as owning enough bitcoin , and so there isn’t such a thing as definite understanding of bitcoin.
+                As the Bitcoin network keeps evolving, becoming more wide spread and more secure, our understanding of bitcoin becomes broader.
+                In a sense, bitcoin is a new element, as prior to it's invention (or arguably discovery) in 2009, we haven't had anything like it.
                 <br/><br/>
-                It’s usually hard to wrap your head around bitcoin when you first encounter it. It takes a bit of time to build adequate mental models to be able to conceive the true value proposition of bitcoin. But rest assured, once you see bitcoin, as it is, you cannot unsee it.
+                For this very reason, it’s usually hard to wrap your head around bitcoin when you first encounter it.
+                <br/><br/>
+                It takes a bit of time to build adequate mental models to be able to conceive the true value proposition of bitcoin.
+                These can be built by studying the history, which gives us some insights as to why our money is broken,
+                and why it's the root of most struggle/evil in the world.
+                <br/><br/>
+                Through bitcoin lens we're able to see the truth, and no longer be the fish in the water, which is completely unaware
+                of it's existence, as it was born in it.
                 <br/><br/>
                 Below, you’ll find a list of bitcoin podcasts & books that will help you get a wider understanding of bitcoin.
                 <br/><br/>
@@ -120,6 +129,7 @@ export const BitcoinResources = () => {
                 Follow the white rabbit...
             </Typography>
             <Tabs
+                className="tabs"
                 value={tab}
                 onChange={handleTabChange}
                 aria-label="Bitcoin resources"
@@ -146,7 +156,7 @@ export const BitcoinResources = () => {
                             }
                         </List>
                         <Stack sx={{ alignItems: 'center' }} spacing={2}>
-                            <Pagination count={Math.ceil(peopleToFollow.length / itemsPerPage)} page={page} onChange={handlePageChange} />
+                            <Pagination className="pagination" count={Math.ceil(peopleToFollow.length / itemsPerPage)} page={page} onChange={handlePageChange} />
                         </Stack>
                     </TabPanel>
                     <TabPanel value={tab} index={1}>

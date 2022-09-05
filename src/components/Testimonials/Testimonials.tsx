@@ -15,7 +15,7 @@ export const Testimonials = () => {
                   Testimonials
               </Typography>
               <Typography variant="body1" component="div" align="justify" gutterBottom sx={{ lineHeight: '2', fontSize: '18px' }}>
-                  <Card sx={{ width: '80%', margin: '0px auto' }}>
+                  <Card className="testimonials-content" sx={{ width: '80%', margin: '0px auto' }}>
                       <CardContent sx={{ padding: '1.5em' }}>
                           <FormatQuote />My pal went shopping to buy shorts but came back with two pairs, additional two pairs of trousers and four t-shirts.
                           When I found out about it, a voice started rumbling in my head. Perhaps it was the voice of Satoshi.

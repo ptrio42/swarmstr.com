@@ -1,0 +1,12 @@
+.theme--dark .card-generator-form input {
+    color: #FFFFFF;
+    background: #8C8C8C;
+}
+
+.theme--dark label, .theme--dark .icon p {
+    color: #FFFFFF;
+}
+
+.theme--dark .checkbox {
+    color: #F0E68C;
+}

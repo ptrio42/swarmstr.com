@@ -20,6 +20,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import QRCode from "react-qr-code";
 import html2canvas from 'html2canvas';
 import {LoadingAnimation} from "../LoadingAnimation/LoadingAnimation";
+import './CardGenerator.css';
 
 const Item = styled(Paper)(({ theme }) => ({
     background: 'transparent',
@@ -161,7 +162,7 @@ export const CardGenerator = () => {
             <Typography gutterBottom component="div" variant="h6" sx={{ textAlign: 'left' }}>
                 Create card
             </Typography>
-            <form onSubmit={formik.handleSubmit}>
+            <form className="card-generator-form" onSubmit={formik.handleSubmit}>
                 <Stack spacing={3}>
                     <Item>
                         <TextField
@@ -197,7 +198,7 @@ export const CardGenerator = () => {
                     </Item>
                     <Item>
                         <FormControlLabel
-                            control={<Checkbox checked={includeLightningGift} onChange={toggleIncludeLightningGift} />}
+                            control={<Checkbox className="checkbox" checked={includeLightningGift} onChange={toggleIncludeLightningGift} />}
                             label="Include Lightning Gift"
                         />
                     </Item>
@@ -214,7 +215,7 @@ export const CardGenerator = () => {
                                         min: 100
                                     }}
                                     startAdornment={
-                                        <InputAdornment position="start">₿</InputAdornment>
+                                        <InputAdornment className="icon" position="start">₿</InputAdornment>
                                     }
                                     placeholder={'Enter amount in sats'}
                                     value={formik.values.satsAmount}
