@@ -28,7 +28,6 @@ export const PriceReceipt = ({ bitcoinPrice, currencySymbol, fiatAmount, satsAmo
         handleIsLoading(true);
         receipt.setFont('Merriweather');
 
-        // const image = new Image().src = process.env.PUBLIC_URL + '/images/bitcoin.png';
         const imageData: any = new Image();
         imageData.src = process.env.PUBLIC_URL + '/images/bitcoin.png';
 

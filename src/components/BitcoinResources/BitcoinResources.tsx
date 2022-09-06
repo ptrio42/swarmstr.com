@@ -11,6 +11,7 @@ import {TabPanel} from "../TabPanel/TabPanel";
 import Stack from "@mui/material/Stack";
 import Pagination from "@mui/material/Pagination";
 import './BitcoinResources.css';
+import ListItemText from "@mui/material/ListItemText";
 
 export const BitcoinResources = () => {
     const [tab, setTab] = useState(0);
@@ -23,6 +24,10 @@ export const BitcoinResources = () => {
 
     const handleTabChange = (event: React.SyntheticEvent, newTabValue: number) => {
         setTab(newTabValue);
+    };
+
+    const text = {
+        color: '#1B3D2F'
     };
 
     const peopleToFollow = [
@@ -103,8 +108,70 @@ export const BitcoinResources = () => {
         }
     ];
 
+    const apps = [
+        {
+
+        }
+    ];
+
+    const lightningWallets = [
+        {
+            name: 'Muun',
+            url: 'https://muun.com/',
+            description: 'Muun is a self-custodial wallet for bitcoin and lightning.'
+        },
+        {
+            name: 'Breez',
+            url: 'https://breez.technology/',
+            description: 'Breez is the simplest, fastest and safest way to spend your bitcoins. Breez aims to drive bitcoin adoption in everyday commerce by providing a seamless Bitcoin usage. All powered by Lightning Network.'
+        },
+        {
+            name: 'Wallet of Satoshi',
+            url: 'https://www.walletofsatoshi.com/',
+            description: 'Wallet of Satoshi is a mobile app for iOS and Android that lets you send and receive Bitcoin and Lightning payments.'
+        },
+        {
+            name: 'Blue Wallet',
+            url: 'https://bluewallet.io/',
+            description: 'Bitcoin wallet and Lightning wallet for iOS and Android focus on security and UX.'
+        },
+        {
+            name: 'Phoenix',
+            url: 'https://phoenix.acinq.co/',
+            description: 'It is a Bitcoin wallet. It allows you to send and receive bitcoins.'
+        },
+        {
+            name: 'LN Bits',
+            url: 'https://lnbits.com/',
+            description: 'Use instantly and directly in browser on desktop or phone, no need to download any apps.'
+        }
+    ];
+
+    const signingDevices = [
+        {
+            name: 'COLDCARD',
+            url: 'https://coldcard.com/',
+            description: 'COLDCARD is the world’s most trusted and secure Bitcoin Signing Device (a.k.a Bitcoin hardware wallet)'
+        },
+        {
+            name: 'BitBox02',
+            url: 'https://shiftcrypto.ch/bitbox02/',
+            description: 'Protect your coins with the latest Swiss made hardware wallet'
+        },
+        {
+            name: 'Ledger',
+            url: 'https://www.ledger.com/',
+            description: 'At Ledger we are developing hardware wallet technology that provides the highest level of security for crypto assets.'
+        },
+        {
+            name: 'Passport',
+            url: 'https://foundationdevices.com/passport/',
+            description: 'The next generation hardware wallet. Airgapped security, fully open source, assembled in the USA.'
+        }
+    ];
+
     return (
-        <Box sx={{ width: '80%', margin: '0px auto', marginTop: '1em', minHeight: '500px'  }}>
+        <Box className="bitcoin-resources" sx={{ width: '80%', margin: '0px auto', marginTop: '1em', minHeight: '500px'  }}>
             <img height="128" src={process.env.PUBLIC_URL + '/images/white-rabbit.png'} />
             <Typography id="were-handed-a-card" variant="h3" component="div" gutterBottom>
                 Bitcoin Resources
@@ -215,20 +282,24 @@ export const BitcoinResources = () => {
                     </TabPanel>
                     <TabPanel index={4} value={tab}>
                         <List>
-                            <ListItem>Muun</ListItem>
-                            <ListItem>Breez</ListItem>
-                            <ListItem>Wallet of Satoshi</ListItem>
-                            <ListItem>Blue Wallet</ListItem>
-                            <ListItem>Phoenix</ListItem>
-                            <ListItem>LN Bits</ListItem>
+                            {
+                                lightningWallets.map(wallet => (
+                                    <ListItem className="link" component="a" href={wallet.url} target="_blank">
+                                        <ListItemText secondaryTypographyProps={{ style: text }} primary={wallet.name} secondary={wallet.url} />
+                                    </ListItem>
+                                ))
+                            }
                         </List>
                     </TabPanel>
                     <TabPanel index={5} value={tab}>
                         <List>
-                            <ListItem>COLDCARD</ListItem>
-                            <ListItem>BitBox02</ListItem>
-                            <ListItem>Ledger</ListItem>
-                            <ListItem>Passport</ListItem>
+                            {
+                                signingDevices.map(device => (
+                                    <ListItem className="link" component="a" href={device.url} target="_blank">
+                                        <ListItemText secondaryTypographyProps={{ style: text }} primary={device.name} secondary={device.url} />
+                                    </ListItem>
+                                ))
+                            }
                         </List>
                     </TabPanel>
                 </Grid>
