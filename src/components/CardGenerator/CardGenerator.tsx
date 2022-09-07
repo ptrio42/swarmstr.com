@@ -21,6 +21,7 @@ import QRCode from "react-qr-code";
 import html2canvas from 'html2canvas';
 import {LoadingAnimation} from "../LoadingAnimation/LoadingAnimation";
 import './CardGenerator.css';
+import {Helmet} from "react-helmet";
 
 const Item = styled(Paper)(({ theme }) => ({
     background: 'transparent',
@@ -158,6 +159,10 @@ export const CardGenerator = () => {
 
     return (
         <Box sx={{ width: '80%', margin: '1em auto' }}>
+            <Helmet>
+                <title>Useless Shit - Card Generator</title>
+            </Helmet>
+
             {cardHTML()}
             <Typography gutterBottom component="div" variant="h6" sx={{ textAlign: 'left' }}>
                 Create card

@@ -21,6 +21,7 @@
     "jspdf": "^2.5.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-helmet": "^6.1.0",
     "react-media": "^1.10.0",
     "react-qr-code": "^2.0.7",
     "react-router-dom": "^6.3.0",
@@ -55,6 +56,7 @@
     ]
   },
   "devDependencies": {
+    "@types/react-helmet": "^6.1.5",
     "@types/react-router-hash-link": "^2.4.5"
   }
 }

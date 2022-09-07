@@ -12,6 +12,7 @@ import Stack from "@mui/material/Stack";
 import Pagination from "@mui/material/Pagination";
 import './BitcoinResources.css';
 import ListItemText from "@mui/material/ListItemText";
+import { Helmet } from 'react-helmet';
 
 export const BitcoinResources = () => {
     const [tab, setTab] = useState(0);
@@ -172,6 +173,9 @@ export const BitcoinResources = () => {
 
     return (
         <Box className="bitcoin-resources" sx={{ width: '80%', margin: '0px auto', marginTop: '1em', minHeight: '500px'  }}>
+            <Helmet>
+                <title>Useless Shit - Bitcoin Resources</title>
+            </Helmet>
             <img height="128" src={process.env.PUBLIC_URL + '/images/white-rabbit.png'} />
             <Typography id="were-handed-a-card" variant="h3" component="div" gutterBottom>
                 Bitcoin Resources
