@@ -22,6 +22,10 @@ import html2canvas from 'html2canvas';
 import {LoadingAnimation} from "../LoadingAnimation/LoadingAnimation";
 import './CardGenerator.css';
 import {Helmet} from "react-helmet";
+import FormControl from "@mui/material/FormControl";
+import FormLabel from "@mui/material/FormLabel";
+import RadioGroup from "@mui/material/RadioGroup";
+import Radio from "@mui/material/Radio";
 
 const Item = styled(Paper)(({ theme }) => ({
     background: 'transparent',
@@ -30,11 +34,18 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 export const CardGenerator = () => {
-    const card = new jsPDF({
-        orientation: 'landscape',
-        unit: 'in',
-        format: [3.5, 2]
-    });
+    const formats: { [key: string]: any } = {
+        'business-card': {
+            format: [3.5, 2],
+            orientation: 'landscape'
+        },
+        'bookmark': {
+            format: [2, 6],
+            orientation: 'portrait'
+        }
+    };
+
+    const [selectedFormat, setSelectedFormat] = useState('business-card');
 
     const [cardContent, setCardContent] = useState<{ text: string, image: any }>({
         text: 'UselessShit.co',
@@ -75,22 +86,36 @@ export const CardGenerator = () => {
         setIsLoading(isLoading);
     };
 
+    const handleSelectedFormatChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSelectedFormat((event.target as HTMLInputElement).value);
+    };
+
     const cardHTML = () => (
         <React.Fragment>
             <Typography variant="h6" component="div" gutterBottom sx={{ textAlign: 'left' }}>
                 Card Preview
             </Typography>
-            <Card sx={{ width: '3.5in', height: '2in', margin: '0 auto 3em auto' }}>
-                <CardActionArea sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Card sx={{
+                width: `${formats[selectedFormat].format[0]}in`,
+                height: `${formats[selectedFormat].format[1]}in`,
+                margin: '0 auto 3em auto' }}
+            >
+                <CardActionArea sx={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: selectedFormat === 'business-card' ? 'center' : 'flex-start' }}
+                >
+                    <Box sx={{ display: 'flex', justifyContent: selectedFormat === 'business-card' ? 'center' : 'flex-start' }}>
                         <CardMedia
                             component="img"
-                            sx={{ width: '0.75in', height: '0.75in', objectFit: 'fill' }}
+                            sx={{ width: '0.75in', height: '0.75in', objectFit: 'fill', marginTop: selectedFormat === 'business-card' ? 0 : '0.15in' }}
                             image={cardContent.image}
                         />
                         {
                             includeLightningGift &&
-                            <Box sx={{ width: '0.75in', height: '0.75in', marginLeft: '0.1in' }} ref={qrCodeRef}>
+                            <Box sx={{ width: '0.75in', height: '0.75in', marginLeft: '0.1in', marginTop: selectedFormat === 'business-card' ? 0 : '0.15in' }} ref={qrCodeRef}>
                                 <QRCode size={72} value={redeemLnurl} />
                             </Box>
                         }
@@ -102,7 +127,7 @@ export const CardGenerator = () => {
                     </CardContent>
                     <CardActions>
                         <Typography sx={{ fontSize: '10px', color: '#1B3D2F' }}>
-                            https://uselessshit.co/#were-handed-a-card
+                            { selectedFormat === 'business-card' ? 'https://uselessshit.co/#were-handed-a-card' : 'https://uselessshit.co' }
                         </Typography>
                     </CardActions>
                 </CardActionArea>
@@ -111,15 +136,21 @@ export const CardGenerator = () => {
     );
 
     const downloadCard = async () => {
+        const card = new jsPDF({
+            orientation: formats[selectedFormat].orientation,
+            unit: 'in',
+            format: formats[selectedFormat].format
+        });
         handleIsLoading(true);
         const imageData = new Image();
         imageData.src = cardContent.image;
         card.setFontSize(14);
         card.setFont('Merriweather');
+
         if (includeLightningGift) {
             card.addImage({
                 imageData,
-                x: 0.95,
+                x: (formats[selectedFormat].format[0] / 2) - 0.8,
                 y: 0.375,
                 width: 0.75,
                 height: 0.75,
@@ -132,7 +163,7 @@ export const CardGenerator = () => {
 
             card.addImage({
                 imageData: qrCodeImage,
-                x: 1.8,
+                x: (formats[selectedFormat].format[0] / 2) + 0.05,
                 y: 0.375,
                 width: 0.75,
                 height: 0.75
@@ -140,19 +171,29 @@ export const CardGenerator = () => {
         } else {
             card.addImage({
                 imageData,
-                x: 1.375,
+                x: (formats[selectedFormat].format[0] / 2) - 0.375,
                 y: 0.375,
                 width: 0.75,
-                height: 0.75,
-
+                height: 0.75
             });
         }
 
-        card.text(cardContent.text, 1.75, 1.35, { align: 'center', maxWidth: 3 });
+        card.text(cardContent.text, formats[selectedFormat].format[0] / 2, 1.35, { align: 'center', maxWidth: formats[selectedFormat].format[0] - 0.5 });
 
         card.setFontSize(10);
         card.setTextColor('#1B3D2F');
-        card.text('https://uselessshit.co/#were-handed-a-card', 1.75, 1.95, { align: 'center' });
+        card.text(selectedFormat === 'business-card' ? 'https://uselessshit.co/#were-handed-a-card' : 'https://uselessshit.co', formats[selectedFormat].format[0] / 2, 1.95, { align: 'center' });
+
+        if (selectedFormat === 'bookmark') {
+            card.addImage({
+                imageData: new Image().src = process.env.PUBLIC_URL + '/images/bookmark-bottom.png',
+                x: 0,
+                y: formats[selectedFormat].format[1] - 0.5,
+                width: 2,
+                height: 0.5
+            })
+        }
+
         handleIsLoading(false);
         card.save('custom-card.pdf')
     };
@@ -164,11 +205,27 @@ export const CardGenerator = () => {
             </Helmet>
 
             {cardHTML()}
+
             <Typography gutterBottom component="div" variant="h6" sx={{ textAlign: 'left' }}>
                 Create card
             </Typography>
             <form className="card-generator-form" onSubmit={formik.handleSubmit}>
                 <Stack spacing={3}>
+                    <Item>
+                        <FormControl>
+                            <FormLabel id="card-format-label">Format</FormLabel>
+                            <RadioGroup
+                                row
+                                aria-labelledby="card-format-label"
+                                value={selectedFormat}
+                                onChange={handleSelectedFormatChange}
+                                name="radio-buttons-group"
+                            >
+                                <FormControlLabel value="business-card" control={<Radio />} label="Business Card" />
+                                <FormControlLabel value="bookmark" control={<Radio />} label="Bookmark" />
+                            </RadioGroup>
+                        </FormControl>
+                    </Item>
                     <Item>
                         <TextField
                             id="cardText"

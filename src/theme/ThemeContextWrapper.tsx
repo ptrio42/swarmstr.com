@@ -11,22 +11,14 @@ export const ThemeContextWrapper = ({ children }: ThemeContextWrapperProps) => {
     const toggleTheme = (theme: string) => {
         localStorage.setItem('theme', theme);
         setTheme(theme);
-        console.log('toggle')
     };
 
     useEffect(() => {
        const selectedTheme = localStorage.getItem('theme');
-           console.log('ef', selectedTheme)
        if (selectedTheme) {
-           console.log('t', selectedTheme)
            setTheme(selectedTheme);
        }
     }, []);
-
-    // useEffect(() => {
-    //     localStorage.setItem('theme', theme);
-    //     console.log('setting', theme)
-    // }, [theme]);
 
     useEffect(() => {
         switch (theme) {
