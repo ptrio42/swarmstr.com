@@ -106,6 +106,12 @@ export const BitcoinResources = () => {
         },
         {
             name: 'Greg Foss'
+        },
+        {
+            name: 'Cory Klippsten'
+        },
+        {
+            name: 'Samson Mow'
         }
     ];
 
@@ -265,6 +271,14 @@ export const BitcoinResources = () => {
                             <ListItem>21 lessons by Der Gigi</ListItem>
                             <ListItem>Everything divided by 21 million by Knut Svanholm</ListItem>
                             <ListItem>Fiat Standard by Saifedean Ammous</ListItem>
+                            <ListItem>The Bullish case for Bitcoin by Vijay Boyapati</ListItem>
+                            <ListItem>Mastering Bitcoin by Andreas M. Antonopoulos</ListItem>
+                            <ListItem>Bitcoin is Venice by Allen Farrington & Sacha Meyers</ListItem>
+                            <ListItem>Three minute reads on Bitcoin by Knut Svanholm</ListItem>
+                            <ListItem>The Book of Satoshi by Phil Champagne</ListItem>
+                            <ListItem>Check your financial privilege by Alex Gladstein</ListItem>
+                            <ListItem>The price of tomorrow by Jeff Booth</ListItem>
+                            <ListItem>Inventing Bitcoin by Yan Pritzker</ListItem>
                         </List>
                     </TabPanel>
                     <TabPanel index={3} value={tab}>
@@ -282,6 +296,7 @@ export const BitcoinResources = () => {
                             <ListItem>Strike</ListItem>
                             <ListItem>swanbitcoin.com</ListItem>
                             <ListItem>Relai</ListItem>
+                            <ListItem>Carrot</ListItem>
                         </List>
                     </TabPanel>
                     <TabPanel index={4} value={tab}>

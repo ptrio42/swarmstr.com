@@ -26,6 +26,10 @@ export const PageContent = () => {
             image: `${process.env.PUBLIC_URL}/images/uselessshit-card-1.png`
         },
         {
+            title: 'Useless Shit Bookmarks',
+            image: `${process.env.PUBLIC_URL}/images/uselessshit-bookmarks.jpeg`
+        },
+        {
             title: 'Card front in action',
             image: `${process.env.PUBLIC_URL}/images/card-1.jpeg`
         },
