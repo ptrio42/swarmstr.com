@@ -26,11 +26,54 @@ import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
 import RadioGroup from "@mui/material/RadioGroup";
 import Radio from "@mui/material/Radio";
+import { SketchPicker } from 'react-color';
 
 enum CardType {
     BusinessCard = 'business-card',
     Bookmark = 'bookmark'
 }
+
+interface CardProps {
+    slogan: string;
+    sloganColor: string;
+    mainImage: any;
+    backgroundImage?: any;
+    satsAmount?: number;
+    copies: number;
+    type: CardType;
+    url: string;
+    urlColor: string;
+}
+
+const initialCardProps: CardProps = {
+    slogan: 'UselessShit.co',
+    sloganColor: '#000000',
+    mainImage: new Image().src = process.env.PUBLIC_URL + '/images/sign.png',
+    satsAmount: 0,
+    copies: 1,
+    backgroundImage: null,
+    type: CardType.BusinessCard,
+    url: 'https://uselessshit.co/#were-handed-a-card',
+    urlColor: '#1B3D2F'
+};
+
+interface CardsConfig {
+    [key: string]: {
+        format: number[],
+        orientation: 'p' | 'l' | 'portrait' | 'landscape'
+    }
+}
+
+const cardsConfig: CardsConfig = {
+    [CardType.BusinessCard]: {
+        format: [3.5, 2],
+        orientation: 'landscape'
+    },
+    [CardType.Bookmark]: {
+        format: [2, 6],
+        orientation: 'portrait'
+    }
+};
 
 const Item = styled(Paper)(({ theme }) => ({
     background: 'transparent',
@@ -39,25 +82,7 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 export const CardGenerator = () => {
-    const formats: { [key: string]: any } = {
-        [CardType.BusinessCard]: {
-            format: [3.5, 2],
-            orientation: 'landscape'
-        },
-        [CardType.Bookmark]: {
-            format: [2, 6],
-            orientation: 'portrait'
-        }
-    };
-
-    const [copies, setCopies] = useState(1);
-
-    const [selectedFormat, setSelectedFormat] = useState(CardType.BusinessCard);
-
-    const [cardContent, setCardContent] = useState<{ text: string, image: any }>({
-        text: 'UselessShit.co',
-        image: new Image().src = process.env.PUBLIC_URL + '/images/sign.png'
-    });
+    const [cardProps, setCardProps] = useState<CardProps>({ ...initialCardProps });
 
     const [includeLightningGift, setIncludeLightningGift] = useState(false);
 
@@ -69,15 +94,12 @@ export const CardGenerator = () => {
 
     const formik = useFormik({
         initialValues: {
-            cardText: cardContent.text,
-            cardImage: null,
-            satsAmount: 0,
-            copies
+            ...initialCardProps
         },
         onSubmit: (values) => {
-            setCardContent({
-                ...cardContent,
-                text: values.cardText
+            setCardProps({
+                ...cardProps,
+                slogan: values.slogan
             });
         }
     });
@@ -94,26 +116,24 @@ export const CardGenerator = () => {
         setIsLoading(isLoading);
     };
 
-    const handleSelectedFormatChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setSelectedFormat((event.target as HTMLInputElement).value as CardType);
-        setCopies(1);
-        formik.setFieldValue('copies', 1);
-    };
-
     const handleSetCopies = (copies: number) => {
         if (copies === 0) {
             copies = 1;
         }
-        if (selectedFormat === CardType.BusinessCard && copies > 9) {
+        if (cardProps.type === CardType.BusinessCard && copies > 9) {
             copies = 9;
         }
-        if (selectedFormat === CardType.Bookmark && copies > 5) {
+        if (cardProps.type === CardType.Bookmark && copies > 5) {
             copies = 5;
         }
         if (copies > 1) {
             setIncludeLightningGift(false);
         }
-        setCopies(copies);
+
+        setCardProps({
+            ...cardProps,
+            copies
+        });
     };
 
     const cardHTML = () => (
@@ -122,38 +142,42 @@ export const CardGenerator = () => {
                 Card Preview
             </Typography>
             <Card sx={{
-                width: `${formats[selectedFormat].format[0]}in`,
-                height: `${formats[selectedFormat].format[1]}in`,
-                margin: '0 auto 3em auto' }}
-            >
+                width: `${cardsConfig[cardProps.type].format[0]}in`,
+                height: `${cardsConfig[cardProps.type].format[1]}in`,
+                margin: '0 auto 3em auto',
+                background: cardProps.backgroundImage ? `url(${cardProps.backgroundImage})` : 'none',
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+                backgroundPositionY: cardProps.type === CardType.Bookmark ? '2in' : '0'
+            }}>
                 <CardActionArea sx={{
                     width: '100%',
                     height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: selectedFormat === CardType.BusinessCard ? 'center' : 'flex-start' }}
+                    justifyContent: cardProps.type === CardType.BusinessCard ? 'center' : 'flex-start' }}
                 >
-                    <Box sx={{ display: 'flex', justifyContent: selectedFormat === CardType.BusinessCard ? 'center' : 'flex-start' }}>
+                    <Box sx={{ display: 'flex', justifyContent: cardProps.type === CardType.BusinessCard ? 'center' : 'flex-start' }}>
                         <CardMedia
                             component="img"
-                            sx={{ width: '0.75in', height: '0.75in', objectFit: 'fill', marginTop: selectedFormat === CardType.BusinessCard ? 0 : '0.15in' }}
-                            image={cardContent.image}
+                            sx={{ width: '0.75in', height: '0.75in', objectFit: 'fill', marginTop: cardProps.type === CardType.BusinessCard ? 0 : '0.15in' }}
+                            image={cardProps.mainImage}
                         />
                         {
                             includeLightningGift &&
-                            <Box sx={{ width: '0.75in', height: '0.75in', marginLeft: '0.1in', marginTop: selectedFormat === CardType.BusinessCard ? 0 : '0.15in' }} ref={qrCodeRef}>
+                            <Box sx={{ width: '0.75in', height: '0.75in', marginLeft: '0.1in', marginTop: cardProps.type === CardType.BusinessCard ? 0 : '0.15in' }} ref={qrCodeRef}>
                                 <QRCode size={72} value={redeemLnurl} />
                             </Box>
                         }
                     </Box>
                     <CardContent>
-                        <Typography sx={{ fontSize: '14px' }} gutterBottom variant="h5" component="div">
-                            {cardContent.text}
+                        <Typography sx={{ fontSize: '14px', color: cardProps.sloganColor }} gutterBottom variant="h5" component="div">
+                            {cardProps.slogan}
                         </Typography>
                     </CardContent>
                     <CardActions>
-                        <Typography sx={{ fontSize: '10px', color: '#1B3D2F' }}>
-                            { selectedFormat === CardType.BusinessCard ? 'https://uselessshit.co/#were-handed-a-card' : 'https://uselessshit.co' }
+                        <Typography sx={{ fontSize: '10px', color: cardProps.urlColor }}>
+                            { cardProps.url }
                         </Typography>
                     </CardActions>
                 </CardActionArea>
@@ -162,25 +186,25 @@ export const CardGenerator = () => {
     );
 
     const getCardFormat = () => {
-        const format = formats[selectedFormat].format;
+        const format = cardsConfig[cardProps.type].format;
 
-        switch (selectedFormat) {
+        switch (cardProps.type) {
             case CardType.BusinessCard: {
-                if (copies > 3) {
+                if (cardProps.copies > 3) {
                     return [
                         format[0] * 3,
-                        format[1] * Math.ceil(copies / 3)
+                        format[1] * Math.ceil(cardProps.copies / 3)
                     ];
                 } else {
                     return [
-                        format[0] * copies,
+                        format[0] * cardProps.copies,
                         format[1]
                     ];
                 }
             }
             case CardType.Bookmark: {
                 return [
-                    format[0] * copies,
+                    format[0] * cardProps.copies,
                     format[1]
                 ];
             }
@@ -193,9 +217,9 @@ export const CardGenerator = () => {
             x: 0,
             y: 0
         };
-        const format = formats[selectedFormat].format;
+        const format = cardsConfig[cardProps.type].format;
 
-        switch (selectedFormat) {
+        switch (cardProps.type) {
             case CardType.BusinessCard: {
                 if (iterator > 2) {
                     position.x = (format[0] / 2) + (((iterator + 1) % 3) * format[0]);
@@ -222,6 +246,21 @@ export const CardGenerator = () => {
         return position;
     };
 
+    const getBackgroundImagePosition = (iterator: number) => {
+        const position = {
+            x: 0,
+            y: 0
+        };
+        if (iterator > 2) {
+            position.x = (((iterator + 1) % 3) * cardsConfig[cardProps.type].format[0]);
+            position.y = (cardsConfig[cardProps.type].format[1] * (Math.floor(iterator / 3)));
+        } else {
+            position.x = (iterator * cardsConfig[cardProps.type].format[0]);
+            position.y = 0;
+        }
+        return position;
+    };
+
     const getQrCodeImagePosition = (iterator: number) => {
         let { x, y } = getMainImagePosition(iterator);
         x += 0.85;
@@ -233,9 +272,9 @@ export const CardGenerator = () => {
             x: 0,
             y: 0
         };
-        const format = formats[selectedFormat].format;
+        const format = cardsConfig[cardProps.type].format;
 
-        switch (selectedFormat) {
+        switch (cardProps.type) {
             case CardType.BusinessCard: {
                 if (iterator > 2) {
                     position.x = (format[0] / 2) + (((iterator + 1) % 3) * format[0]);
@@ -265,15 +304,31 @@ export const CardGenerator = () => {
     const downloadCard = async () => {
         const cardFormat = getCardFormat();
         const card = new jsPDF({
-            orientation: selectedFormat === 'bookmark' && copies > 2 ? 'landscape' : formats[selectedFormat].orientation,
+            orientation: cardProps.type === 'bookmark'
+            && cardProps.copies > 2 ?
+                'landscape' :
+                cardsConfig[cardProps.type].orientation,
             unit: 'in',
             format: cardFormat
         });
         handleIsLoading(true);
 
-        for (let i = 0; i < copies; i++) {
+        if (cardProps.type === CardType.BusinessCard && cardProps.backgroundImage) {
+            for (let i = 0; i < cardProps.copies; i++) {
+                const backgroundImagePosition = getBackgroundImagePosition(i);
+                card.addImage({
+                    imageData: new Image().src = cardProps.backgroundImage as string,
+                    x: backgroundImagePosition.x,
+                    y: backgroundImagePosition.y,
+                    width: 3.5,
+                    height: 2
+                });
+            }
+        }
+
+        for (let i = 0; i < cardProps.copies; i++) {
             const imageData = new Image();
-            imageData.src = cardContent.image;
+            imageData.src = cardProps.mainImage as string;
             card.setFontSize(14);
             card.setFont('Merriweather');
 
@@ -304,30 +359,41 @@ export const CardGenerator = () => {
             const textPosition = getMainTextPosition(i);
             const secondaryTextPosition = getSecondaryTextPosition(i);
 
+            card.setTextColor(cardProps.sloganColor);
             card.text(
-                cardContent.text,
+                cardProps.slogan,
                 textPosition.x,
                 textPosition.y,
-                { align: 'center', maxWidth: formats[selectedFormat].format[0] - 0.5 }
+                { align: 'center', maxWidth: cardsConfig[cardProps.type].format[0] - 0.5 }
                 );
 
             card.setFontSize(10);
-            card.setTextColor('#1B3D2F');
+            card.setTextColor(cardProps.urlColor);
             card.text(
-                selectedFormat === CardType.BusinessCard ? 'https://uselessshit.co/#were-handed-a-card' : 'https://uselessshit.co',
+                cardProps.url,
                 secondaryTextPosition.x,
                 secondaryTextPosition.y,
                 { align: 'center' }
                 );
 
-            if (selectedFormat === CardType.Bookmark) {
-                card.addImage({
-                    imageData: new Image().src = process.env.PUBLIC_URL + '/images/bookmark-bottom.png',
-                    x: (i * formats[selectedFormat].format[0]),
-                    y: formats[selectedFormat].format[1] - 0.5,
-                    width: 2,
-                    height: 0.5
-                })
+            if (cardProps.type === CardType.Bookmark) {
+                if (!cardProps.backgroundImage) {
+                    card.addImage({
+                        imageData: new Image().src = process.env.PUBLIC_URL + '/images/bookmark-bottom.png',
+                        x: (i * cardsConfig[cardProps.type].format[0]),
+                        y: cardsConfig[cardProps.type].format[1] - 0.5,
+                        width: 2,
+                        height: 0.5
+                    });
+                } else {
+                    card.addImage({
+                        imageData: new Image().src = cardProps.backgroundImage as string,
+                        x: (i * cardsConfig[cardProps.type].format[0]),
+                        y: cardsConfig[cardProps.type].format[1] - 4,
+                        width: 2,
+                        height: 4
+                    });
+                }
             }
         }
 
@@ -350,13 +416,22 @@ export const CardGenerator = () => {
                 <Stack spacing={3}>
                     <Item>
                         <FormControl>
-                            <FormLabel id="card-format-label">Format</FormLabel>
+                            <FormLabel id="cardTypeLabel">Format</FormLabel>
                             <RadioGroup
                                 row
-                                aria-labelledby="card-format-label"
-                                value={selectedFormat}
-                                onChange={handleSelectedFormatChange}
-                                name="radio-buttons-group"
+                                aria-labelledby="card-type-label"
+                                value={cardProps.type}
+                                onChange={(event)  => {
+                                    formik.handleChange(event);
+                                    setCardProps({
+                                        ...cardProps,
+                                        type: event.target.value as CardType,
+                                        copies: 1,
+                                        url: cardProps.type === CardType.Bookmark ? 'https://uselessshit.co/#were-handed-a-card' : 'https://uselessshit.co'
+                                    })
+                                }}
+                                name="cardType"
+                                id="cardType"
                             >
                                 <FormControlLabel value="business-card" control={<Radio />} label="Business Card" />
                                 <FormControlLabel value="bookmark" control={<Radio />} label="Bookmark" />
@@ -374,39 +449,82 @@ export const CardGenerator = () => {
                                 label: "Number of copies"
                             }}
                             placeholder="Number of copies"
-                            value={formik.values.copies}
+                            value={cardProps.copies}
                             onChange={(event) => {
                                 formik.handleChange(event);
-                                handleSetCopies(event.target.value as unknown as number)
+                                handleSetCopies(event.target.value as unknown as number);
                             }}
                         />
                     </Item>
                     <Item>
                         <TextField
-                            id="cardText"
-                            name="cardText"
+                            id="slogan"
+                            name="slogan"
                             type="text"
                             label="Enter text"
                             sx={{ width: '80%' }}
-                            value={formik.values.cardText}
+                            value={cardProps.slogan}
                             inputProps={{ maxLength: 74 }}
                             onChange={(event) => {
                                 formik.handleChange(event);
-                                setCardContent({
-                                    ...cardContent,
-                                    text: event.target.value
+                                setCardProps({
+                                    ...cardProps,
+                                    slogan: event.target.value
                                 });
                             }} />
                     </Item>
                     <Item>
-                        <Input id="cardImage" name="cardImage" type="file" onChange={(event) => {
+                        <FormLabel id="cardPrimaryTextColor">Primary text color</FormLabel>
+                    </Item>
+                    <Item>
+                        <SketchPicker className="color-picker" color={cardProps.sloganColor} onChangeComplete={(color: any) => {
+                            setCardProps({
+                                ...cardProps,
+                                sloganColor: color.hex
+                            })
+                        }} />
+                    </Item>
+                    <Item>
+                        <FormLabel id="cardSecondaryTextColor">Secondary text color</FormLabel>
+                    </Item>
+                    <Item>
+                        <SketchPicker className="color-picker" color={cardProps.urlColor} onChangeComplete={(color: any) => {
+                            setCardProps({
+                                ...cardProps,
+                                urlColor: color.hex
+                            })
+                        }} />
+                    </Item>
+                    <Item>
+                        <FormLabel sx={{ paddingRight: '0.5em' }} id="imageLabel">Image</FormLabel>
+                    </Item>
+                    <Item>
+                        <Input id="mainImage" name="mainImage" type="file" onChange={(event) => {
                             const files = (event.currentTarget as HTMLInputElement).files;
                             if (FileReader && files && files.length > 0) {
                                 const fileReader = new FileReader();
                                 fileReader.onloadend = () => {
-                                    setCardContent({
-                                        ...cardContent,
-                                        image: fileReader.result
+                                    setCardProps({
+                                        ...cardProps,
+                                        mainImage: fileReader.result
+                                    })
+                                };
+                                fileReader.readAsDataURL(files[0])
+                            }
+                        }} />
+                    </Item>
+                    <Item>
+                        <FormLabel sx={{ paddingRight: '0.5em' }} id="backgroundImageLabel">Background image</FormLabel>
+                    </Item>
+                    <Item>
+                        <Input id="cardBackgroundImage" name="cardBackgroundImage" type="file" onChange={(event) => {
+                            const files = (event.currentTarget as HTMLInputElement).files;
+                            if (FileReader && files && files.length > 0) {
+                                const fileReader = new FileReader();
+                                fileReader.onloadend = () => {
+                                    setCardProps({
+                                        ...cardProps,
+                                        backgroundImage: fileReader.result
                                     })
                                 };
                                 fileReader.readAsDataURL(files[0])
@@ -420,7 +538,7 @@ export const CardGenerator = () => {
                                     className="checkbox"
                                     checked={includeLightningGift}
                                     onChange={toggleIncludeLightningGift}
-                                    disabled={copies > 1}
+                                    disabled={cardProps.copies > 1}
                                 />
                             }
                             label="Include Lightning Gift"
@@ -450,7 +568,7 @@ export const CardGenerator = () => {
                                 <LightningGift
                                     handleRedeemLnurl={handleRedeemLnurl}
                                     handleIsLoading={handleIsLoading}
-                                    satsAmount={formik.values.satsAmount} />
+                                    satsAmount={formik.values.satsAmount as unknown as number} />
                             </Item>
                         </React.Fragment>
                     }
