@@ -27,6 +27,9 @@ import FormLabel from "@mui/material/FormLabel";
 import RadioGroup from "@mui/material/RadioGroup";
 import Radio from "@mui/material/Radio";
 import { SketchPicker } from 'react-color';
+import Tooltip from "@mui/material/Tooltip";
+import IconButton from "@mui/material/IconButton";
+import {Info} from "@mui/icons-material";
 
 enum CardType {
     BusinessCard = 'business-card',
@@ -407,6 +410,16 @@ export const CardGenerator = () => {
                 <title>Useless Shit - Card Generator</title>
             </Helmet>
 
+            <img height="128" src={process.env.PUBLIC_URL + '/images/spread-the-bitcoin-vibes.png'} />
+            <Typography variant="h3" component="div" gutterBottom>
+                Card Generator
+            </Typography>
+            <Typography sx={{ marginBottom: '3em' }} align="justify" gutterBottom>
+                Spread bitcoin awareness with personalized business cards & bookmarks.
+                With this little tool you can easily create unique graphics (in a print friendly format)
+                without the need for an external software (like Gimp or Photoshop).
+            </Typography>
+
             {cardHTML()}
 
             <Typography gutterBottom component="div" variant="h6" sx={{ textAlign: 'left' }}>
@@ -416,7 +429,14 @@ export const CardGenerator = () => {
                 <Stack spacing={3}>
                     <Item>
                         <FormControl>
-                            <FormLabel id="cardTypeLabel">Format</FormLabel>
+                            <FormLabel id="cardTypeLabel">
+                                Format
+                                <Tooltip title="Pick a format for your graphic. It can either be a business card size (3.5in by 2.0in) or a bookmark size (2in by 6in).">
+                                    <IconButton>
+                                        <Info />
+                                    </IconButton>
+                                </Tooltip>
+                            </FormLabel>
                             <RadioGroup
                                 row
                                 aria-labelledby="card-type-label"
@@ -439,7 +459,16 @@ export const CardGenerator = () => {
                         </FormControl>
                     </Item>
                     <Item>
-                        <FormLabel sx={{ paddingRight: '0.5em' }} id="copies-label">No. of copies</FormLabel>
+                        <FormLabel sx={{ paddingRight: '0.5em' }} id="copies-label">
+                            No. of copies
+                            <Tooltip title="Up to 9 business card copies per page & up to 5 bookmarks.">
+                                <IconButton>
+                                    <Info />
+                                </IconButton>
+                            </Tooltip>
+                        </FormLabel>
+                    </Item>
+                    <Item>
                         <Input
                             id="copies"
                             name="copies"
@@ -455,6 +484,16 @@ export const CardGenerator = () => {
                                 handleSetCopies(event.target.value as unknown as number);
                             }}
                         />
+                    </Item>
+                    <Item>
+                        <FormLabel id="cardPrimaryText">
+                            Primary text
+                            <Tooltip title="Enter the primary text. Up to 74 characters.">
+                                <IconButton>
+                                    <Info />
+                                </IconButton>
+                            </Tooltip>
+                        </FormLabel>
                     </Item>
                     <Item>
                         <TextField
@@ -474,7 +513,14 @@ export const CardGenerator = () => {
                             }} />
                     </Item>
                     <Item>
-                        <FormLabel id="cardPrimaryTextColor">Primary text color</FormLabel>
+                        <FormLabel id="cardPrimaryTextColor">
+                            Primary text color
+                            <Tooltip title="Choose a color for the primary text.">
+                                <IconButton>
+                                    <Info />
+                                </IconButton>
+                            </Tooltip>
+                        </FormLabel>
                     </Item>
                     <Item>
                         <SketchPicker className="color-picker" color={cardProps.sloganColor} onChangeComplete={(color: any) => {
@@ -485,7 +531,14 @@ export const CardGenerator = () => {
                         }} />
                     </Item>
                     <Item>
-                        <FormLabel id="cardSecondaryTextColor">Secondary text color</FormLabel>
+                        <FormLabel id="cardSecondaryTextColor">
+                            Secondary text color
+                            <Tooltip title="Choose a color for the secondary text.">
+                                <IconButton>
+                                    <Info />
+                                </IconButton>
+                            </Tooltip>
+                        </FormLabel>
                     </Item>
                     <Item>
                         <SketchPicker className="color-picker" color={cardProps.urlColor} onChangeComplete={(color: any) => {
@@ -496,7 +549,14 @@ export const CardGenerator = () => {
                         }} />
                     </Item>
                     <Item>
-                        <FormLabel sx={{ paddingRight: '0.5em' }} id="imageLabel">Image</FormLabel>
+                        <FormLabel sx={{ paddingRight: '0.5em' }} id="imageLabel">
+                            Image
+                            <Tooltip title="Upload an image. Images with equal width & height please.">
+                                <IconButton>
+                                    <Info />
+                                </IconButton>
+                            </Tooltip>
+                        </FormLabel>
                     </Item>
                     <Item>
                         <Input id="mainImage" name="mainImage" type="file" onChange={(event) => {
@@ -514,7 +574,14 @@ export const CardGenerator = () => {
                         }} />
                     </Item>
                     <Item>
-                        <FormLabel sx={{ paddingRight: '0.5em' }} id="backgroundImageLabel">Background image</FormLabel>
+                        <FormLabel sx={{ paddingRight: '0.5em' }} id="backgroundImageLabel">
+                            Background image
+                            <Tooltip title="Upload a background image. 3.5 by 2in for business cards & 2 by 4in for bookmarks.">
+                                <IconButton>
+                                    <Info />
+                                </IconButton>
+                            </Tooltip>
+                        </FormLabel>
                     </Item>
                     <Item>
                         <Input id="cardBackgroundImage" name="cardBackgroundImage" type="file" onChange={(event) => {
@@ -543,6 +610,11 @@ export const CardGenerator = () => {
                             }
                             label="Include Lightning Gift"
                         />
+                        <Tooltip title="Add some sats to your creation and make it a gift card.">
+                            <IconButton>
+                                <Info />
+                            </IconButton>
+                        </Tooltip>
                     </Item>
                     {
                         includeLightningGift &&
