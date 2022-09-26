@@ -58,7 +58,7 @@ export const FiatToSatsCalculator = () => {
     return (
       <Card sx={{ maxWidth: '373px' }}>
           <CardContent>
-              <Typography variant="h6" component="div">Fiat to sats converter</Typography>
+              <Typography variant="h6" component="div">Fiat to <i className="fak fa-satoshisymbol-solidtilt" /> (sats) converter</Typography>
               <form onSubmit={formik.handleSubmit}>
                   <Stack spacing={2}>
                       <Item>
@@ -101,7 +101,11 @@ export const FiatToSatsCalculator = () => {
                           </TextField>
                       </Item>
                       <Item>
-                          { estimatedSats > 0 && <Typography variant="body2" component="div">Estimated sats: { estimatedSats } 丰</Typography>}
+                          { estimatedSats > 0 &&
+                          <Typography variant="body2" component="div">
+                              Estimated amount: { estimatedSats } &nbsp;
+                              <i className="fak fa-satoshisymbol-solidtilt" />
+                          </Typography>}
                       </Item>
                       <Item>
                           <Button sx={{ fontWeight: 'bold' }} variant="contained" type="submit">Convert!</Button>
