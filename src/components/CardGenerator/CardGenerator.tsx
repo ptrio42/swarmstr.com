@@ -644,7 +644,7 @@ export const CardGenerator = () => {
                             }
                             label="Include Lightning Gift"
                         />
-                        <Tooltip title="Add some sats to your creation and make it a gift card.">
+                        <Tooltip title="Add some sats to your creation and make it a gift card. Minimum 100 sats.">
                             <IconButton>
                                 <Info />
                             </IconButton>
@@ -677,7 +677,7 @@ export const CardGenerator = () => {
                                     }}
                                     handleIsLoading={handleIsLoading}
                                     satsAmount={formik.values.satsAmount as unknown as number}
-                                    numberOfGifts={5}
+                                    numberOfGifts={cardProps.copies}
                                 />
                             </Item>
                         </React.Fragment>
