@@ -200,7 +200,7 @@ export const CardGenerator = () => {
                                             }}
                                             ref={qrCodeRefs[i]}
                                         >
-                                            <QRCode size={72} value={lnurls[i]} />
+                                            <QRCode size={72} value={lnurls[i] || '' } />
                                         </Box>
                                     ))
                                 }
