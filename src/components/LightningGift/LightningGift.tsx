@@ -1,7 +1,7 @@
 import {Box} from "@mui/material";
 import Button from "@mui/material/Button";
 import {createLightningGift} from "../../services/lightningGift";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import * as React from "react";
 import QRCode from 'react-qr-code';
 import Dialog from "@mui/material/Dialog";
@@ -11,6 +11,7 @@ import {TabPanel} from "../TabPanel/TabPanel";
 import Tab from "@mui/material/Tab";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from '@mui/icons-material/Close';
+import Pagination from "@mui/material/Pagination";
 
 interface LnurlsProps {
     redeem: string;
@@ -18,19 +19,26 @@ interface LnurlsProps {
 }
 
 interface LightningGiftProps {
-    handleRedeemLnurl?: (value: string) => void,
+    handleRedeemLnurl?: (values: string[]) => void,
     satsAmount: number,
-    handleIsLoading: (value: boolean) => void
+    handleIsLoading: (value: boolean) => void,
+    numberOfGifts?: number
 }
 
 interface LightningGiftDialogProps {
     open: boolean;
-    lnurls: LnurlsProps;
-    onClose: (value?: string) => void
+    lnurls: LnurlsProps[];
+    onClose: (value?: string) => void;
 }
 
 export const LightningGiftDialog = ({ open, lnurls, onClose }: LightningGiftDialogProps) => {
     const [tab, setTab] = useState(0);
+    const [page, setPage] = useState(1);
+    const itemsPerPage = 1;
+
+    const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+        setPage(value);
+    };
 
     const handleTabChange = (event: React.SyntheticEvent, newTabValue: number) => {
         setTab(newTabValue);
@@ -70,24 +78,31 @@ export const LightningGiftDialog = ({ open, lnurls, onClose }: LightningGiftDial
                 <Tab label="Redeem" />
             </Tabs>
             <TabPanel index={0} value={tab}>
-                <QRCode value={lnurls.pay} />
+                {
+                    lnurls.slice((page - 1) * itemsPerPage, page * itemsPerPage).map((url: any) => (
+                        <QRCode value={url.pay} />
+                    ))
+                }
+                <Pagination className="pagination" count={Math.ceil(lnurls.length / itemsPerPage)} page={page} onChange={handlePageChange} />
             </TabPanel>
             <TabPanel index={1} value={tab}>
-                <QRCode value={lnurls.redeem} />
+                {
+                    lnurls.slice((page - 1) * itemsPerPage, page * itemsPerPage).map((url: any) => (
+                        <QRCode value={url.redeem} />
+                    ))
+                }
+                <Pagination className="pagination" count={Math.ceil(lnurls.length / itemsPerPage)} page={page} onChange={handlePageChange} />
             </TabPanel>
         </Dialog>
     );
 };
 
-export const LightningGift = ({ handleRedeemLnurl, satsAmount, handleIsLoading }: LightningGiftProps) => {
-    const [lnurls, setLnurls] = useState<LnurlsProps>({
-        pay: '',
-        redeem: ''
-    });
+export const LightningGift = ({ handleRedeemLnurl, satsAmount, handleIsLoading, numberOfGifts = 1 }: LightningGiftProps) => {
+    const [lnurls, setLnurls] = useState<LnurlsProps[]>([]);
     const [dialogOpen, setDialogOpen] = useState(false);
 
     const handleClose = () => {
-        setDialogOpen(false)
+        setDialogOpen(false);
     };
 
     const handleOpen = () => {
@@ -96,13 +111,17 @@ export const LightningGift = ({ handleRedeemLnurl, satsAmount, handleIsLoading }
 
     const createGift = async () => {
         handleIsLoading && handleIsLoading(true);
-        const data = await createLightningGift(satsAmount);
-        setLnurls({
-            pay: data.lightningInvoice.payreq,
-            redeem: data.lnurl
-        });
+        const urls = [];
+        for (let i = 0; i < numberOfGifts; i++) {
+            const data = await createLightningGift(satsAmount);
+            urls.push({
+                pay: data.lightningInvoice.payreq,
+                redeem: data.lnurl
+            });
+        }
+        setLnurls(urls);
+        handleRedeemLnurl && handleRedeemLnurl(urls.map(url => url.redeem));
         handleIsLoading && handleIsLoading(false);
-        handleRedeemLnurl && handleRedeemLnurl(data.lnurl);
         setDialogOpen(true);
     };
 
@@ -111,7 +130,7 @@ export const LightningGift = ({ handleRedeemLnurl, satsAmount, handleIsLoading }
             <Button color="secondary" onClick={createGift} disabled={satsAmount < 100}>Create Gift!</Button>
 
             {
-                lnurls.pay !== '' && lnurls.redeem !== '' &&
+                lnurls.length > 0 && lnurls[0].pay !== '' && lnurls[0].redeem !== '' &&
                 <Button color="secondary" onClick={handleOpen}>Show QR Codes</Button>
             }
 

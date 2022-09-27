@@ -112,6 +112,9 @@ export const BitcoinResources = () => {
         },
         {
             name: 'Samson Mow'
+        },
+        {
+            name: 'Jason Lowery'
         }
     ];
 
@@ -297,6 +300,7 @@ export const BitcoinResources = () => {
                             <ListItem>swanbitcoin.com</ListItem>
                             <ListItem>Relai</ListItem>
                             <ListItem>Carrot</ListItem>
+                            <ListItem>silent.link</ListItem>
                         </List>
                     </TabPanel>
                     <TabPanel index={4} value={tab}>

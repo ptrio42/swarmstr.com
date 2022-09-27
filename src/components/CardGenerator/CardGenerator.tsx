@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {createRef, RefObject, useEffect, useRef, useState} from 'react';
 import {Box, styled} from "@mui/material";
 import { jsPDF } from 'jspdf';
 import Button from "@mui/material/Button";
@@ -30,6 +30,7 @@ import { SketchPicker } from 'react-color';
 import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
 import {Info} from "@mui/icons-material";
+import {renderToStaticMarkup} from "react-dom/server";
 
 enum CardType {
     BusinessCard = 'business-card',
@@ -90,10 +91,20 @@ export const CardGenerator = () => {
     const [includeLightningGift, setIncludeLightningGift] = useState(false);
 
     const [redeemLnurl, setRedeemLnurl] = useState('');
+    const [lnurls, setLnurls] = useState<string[]>([]);
 
     const [isLoading, setIsLoading] = useState(false);
 
     const qrCodeRef = useRef();
+    const [qrCodeRefs, setQrCodeRefs] = useState<RefObject<unknown>[]>([]);
+
+    useEffect(() => {
+        setQrCodeRefs((qrCodeRefs) =>
+            Array(cardProps.copies)
+                .fill(undefined)
+                .map((_, i) => qrCodeRefs[i] || createRef())
+        );
+    }, [cardProps.copies]);
 
     const formik = useFormik({
         initialValues: {
@@ -129,9 +140,10 @@ export const CardGenerator = () => {
         if (cardProps.type === CardType.Bookmark && copies > 5) {
             copies = 5;
         }
-        if (copies > 1) {
-            setIncludeLightningGift(false);
-        }
+        copies = +copies;
+        // if (copies > 1) {
+        //     setIncludeLightningGift(false);
+        // }
 
         setCardProps({
             ...cardProps,
@@ -168,9 +180,32 @@ export const CardGenerator = () => {
                         />
                         {
                             includeLightningGift &&
-                            <Box sx={{ width: '0.75in', height: '0.75in', marginLeft: '0.1in', marginTop: cardProps.type === CardType.BusinessCard ? 0 : '0.15in' }} ref={qrCodeRef}>
-                                <QRCode size={72} value={redeemLnurl} />
+                            <Box
+                                sx={{
+                                    width: '0.75in',
+                                    height: '0.75in',
+                                    marginLeft: '0.1in',
+                                    marginTop: cardProps.type === CardType.BusinessCard ? 0 : '0.15in',
+                                    overflow: 'hidden'
+                                }}
+                            >
+                                {
+                                    Array(cardProps.copies).fill(undefined).map((_, i) => (
+                                        <Box
+                                            sx={{
+                                                width: '0.75in',
+                                                height: '0.75in',
+                                                margin: '0',
+                                                padding: '0'
+                                            }}
+                                            ref={qrCodeRefs[i]}
+                                        >
+                                            <QRCode size={72} value={lnurls[i]} />
+                                        </Box>
+                                    ))
+                                }
                             </Box>
+
                         }
                     </Box>
                     <CardContent>
@@ -345,7 +380,7 @@ export const CardGenerator = () => {
             });
 
             if (includeLightningGift) {
-                const qrCodeElement: HTMLElement = qrCodeRef.current as unknown as HTMLElement;
+                const qrCodeElement: HTMLElement = qrCodeRefs[i].current as unknown as HTMLElement;
                 const qrCodeCanvas = await html2canvas(qrCodeElement);
                 const qrCodeImage = qrCodeCanvas.toDataURL('image/png');
 
@@ -605,7 +640,6 @@ export const CardGenerator = () => {
                                     className="checkbox"
                                     checked={includeLightningGift}
                                     onChange={toggleIncludeLightningGift}
-                                    disabled={cardProps.copies > 1}
                                 />
                             }
                             label="Include Lightning Gift"
@@ -638,9 +672,13 @@ export const CardGenerator = () => {
                             </Item>
                             <Item>
                                 <LightningGift
-                                    handleRedeemLnurl={handleRedeemLnurl}
+                                    handleRedeemLnurl={(urls) => {
+                                        setLnurls(urls);
+                                    }}
                                     handleIsLoading={handleIsLoading}
-                                    satsAmount={formik.values.satsAmount as unknown as number} />
+                                    satsAmount={formik.values.satsAmount as unknown as number}
+                                    numberOfGifts={5}
+                                />
                             </Item>
                         </React.Fragment>
                     }
@@ -649,7 +687,7 @@ export const CardGenerator = () => {
                             sx={{ fontWeight: 'bold' }}
                             variant="contained"
                             onClick={downloadCard}
-                            disabled={includeLightningGift && redeemLnurl === ''}
+                            disabled={includeLightningGift && lnurls.length === 0}
                         >
                             Download Card!
                         </Button>
