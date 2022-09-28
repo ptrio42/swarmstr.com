@@ -14,3 +14,16 @@
 .color-picker {
     margin: 0 auto;
 }
+
+.pagination {
+    display: flex;
+    justify-content: center;
+}
+
+.MuiCard-root{
+    display: flex;
+    flex-direction: column;
+}
+.MuiCardActions-root{
+    margin-top: auto;
+}
