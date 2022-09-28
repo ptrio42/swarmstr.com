@@ -90,10 +90,10 @@ interface CardProps {
 }
 
 const initialCardProps: CardProps = {
-    slogan: 'UselessShit.co',
+    slogan: 'CY₿ERPOWER.',
     sloganColor: '#000000',
     sloganFontSize: 14,
-    mainImage: new Image().src = process.env.PUBLIC_URL + '/images/sign.png',
+    mainImage: new Image().src = process.env.PUBLIC_URL + '/images/bitcoin.png',
     satsAmount: 0,
     copies: 1,
     backgroundImage: null,

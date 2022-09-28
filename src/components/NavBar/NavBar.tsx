@@ -98,12 +98,13 @@ export const NavBar = () => {
                 position="static"
             >
                 <Toolbar>
-                    <img width="40px" alt="Useless Shit" src={process.env.PUBLIC_URL + '/images/uselessshit-logo.png'} />
+                    <img width="40px" alt="Useless Shit" src={process.env.PUBLIC_URL + '/images/new-uselessshit-logo.png'} />
+                    <img className="logo-text" height="40px" alt="Useless Shit" src={process.env.PUBLIC_URL + '/images/new-uselessshit-logo-text.png'} />
                     <Grid
                         container
                         justifyContent="flex-end"
                         className="navbar-actions">
-                        <Media query={{ maxWidth: '570px' }} render={() => (
+                        <Media query={{ maxWidth: '727px' }} render={() => (
                             <React.Fragment>
                                 <IconButton onClick={toggleDrawer(true)}><MenuIcon /></IconButton>
                                 <Drawer
@@ -115,7 +116,7 @@ export const NavBar = () => {
                                 </Drawer>
                             </React.Fragment>
                         )} />
-                        <Media query={{ minWidth: '571px' }} render={() => (
+                        <Media query={{ minWidth: '728px' }} render={() => (
                             <React.Fragment>
                                 <Button
                                     sx={{ fontWeight: 'bold' }}
