@@ -93,7 +93,8 @@ const initialCardProps: CardProps = {
     slogan: 'CY₿ERPOWER.',
     sloganColor: '#000000',
     sloganFontSize: 14,
-    mainImage: new Image().src = process.env.PUBLIC_URL + '/images/bitcoin.png',
+    // mainImage: new Image().src = process.env.PUBLIC_URL + '/images/bitcoin.png',
+    mainImage: null,
     satsAmount: 0,
     copies: 1,
     backgroundImage: null,
@@ -376,8 +377,8 @@ export const CardGenerator = () => {
 
     const getSecondaryTextPosition = (iterator: number) => {
         return {
-            x: cardProps.config.format[0] / 2,
-            y: cardProps.config.format[1] - 0.15
+            x: cardProps.config.format[0] / 2 + cardProps.config.format[0] * (iterator),
+            y: ((Math.floor(iterator / 3)) * cardProps.config.format[1]) + cardProps.config.format[1] - 0.15
         };
         let { x, y } = getMainTextPosition(iterator);
         y += 0.6;
@@ -421,19 +422,21 @@ export const CardGenerator = () => {
                 });
             }
 
-            const imageData = new Image();
-            imageData.src = cardProps.mainImage as string;
             card.setFontSize(cardProps.sloganFontSize);
             card.setFont('Merriweather-Regular', 'normal');
 
-            const imagePosition = getMainImagePosition(i);
-            card.addImage({
-                imageData,
-                x: imagePosition.x,
-                y: imagePosition.y,
-                width: cardProps.config.primaryImageFormat[0],
-                height: cardProps.config.primaryImageFormat[1]
-            });
+            if (cardProps.mainImage) {
+                const imageData = new Image();
+                imageData.src = cardProps.mainImage as string;
+                const imagePosition = getMainImagePosition(i);
+                card.addImage({
+                    imageData,
+                    x: imagePosition.x,
+                    y: imagePosition.y,
+                    width: cardProps.config.primaryImageFormat[0],
+                    height: cardProps.config.primaryImageFormat[1]
+                });
+            }
 
             if (includeLightningGift || (cardProps.receiveAddress && cardProps.receiveAddress !== '')) {
                 const qrCodeElement: HTMLElement = qrCodeRefs[i].current as unknown as HTMLElement;
