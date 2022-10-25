@@ -12,8 +12,11 @@ import './PageContent.css';
 import {Carousel, FiatToSatsCalculator, SpreadTheWord, Testimonials} from "../";
 import {Link} from "react-router-dom";
 import {Button} from "@mui/material";
-import {Calculate, CurrencyBitcoin} from "@mui/icons-material";
+import {Calculate, CurrencyBitcoin, DesignServices, School} from "@mui/icons-material";
 import Paper from "@mui/material/Paper";
+import CardContent from "@mui/material/CardContent";
+import Card from "@mui/material/Card";
+import Stack from "@mui/material/Stack";
 
 export const PageContent = () => {
     const carouselSlides = [
@@ -53,6 +56,56 @@ export const PageContent = () => {
                 <Box sx={{ marginBottom: '3em' }} component="div">
                     <Carousel slides={carouselSlides} />
                 </Box>
+
+                <Typography variant="h3" component="div" gutterBottom>
+                    Help Bitcoin adoption wherever you are!
+                </Typography>
+
+                <Typography sx={{ fontSize: '18px', marginBottom: '2em' }} variant="body1" component="div" gutterBottom>
+                    Join the peaceful revolution and spread bitcoin awareness with UselessShit tools.
+                </Typography>
+
+                <Stack
+                    direction="row"
+                    spacing={2}
+                    sx={{ marginBottom: '2em' }}
+                >
+                    <Card sx={{ width: '33%' }}>
+                        <CardContent>
+                            <DesignServices sx={{ fontSize: '80px' }} />
+                            <Typography variant="h4" component="div" gutterBottom>
+                                Bitcoin Artwork
+                            </Typography>
+                            <Typography variant="body1" component="div" gutterBottom>
+                                Create beautiful bitcoin gift cards (loaded with sats), bookmarks & stickers with <Link color='secondary' to='card-generator'>a dedicated panel</Link>.
+                            </Typography>
+                        </CardContent>
+                    </Card>
+
+                    <Card sx={{ width: '33%' }}>
+                        <CardContent>
+                            <Calculate sx={{ fontSize: '80px' }} />
+                            <Typography variant="h4" component="div" gutterBottom>
+                                Satoshi Calculator
+                            </Typography>
+                            <Typography variant="body1" component="div" gutterBottom>
+                                Quickly calculate how much bitcoin you'd get for your fiat currencies and generate price receipts.
+                            </Typography>
+                        </CardContent>
+                    </Card>
+
+                    <Card sx={{ width: '33%' }}>
+                        <CardContent>
+                            <School sx={{ fontSize: '80px' }} />
+                            <Typography variant="h4" component="div" gutterBottom>
+                                Bitcoin Resources
+                            </Typography>
+                            <Typography variant="body1" component="div" gutterBottom>
+                                Learn for yourself how deep the Bitcoin Rabbit Hole goes.
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                </Stack>
 
                 <CardGiftcard sx={{ fontSize: '80px' }} />
                 <Typography id="were-handed-a-card" variant="h3" component="div" gutterBottom>

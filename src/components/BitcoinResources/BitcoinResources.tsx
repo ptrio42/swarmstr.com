@@ -115,6 +115,9 @@ export const BitcoinResources = () => {
         },
         {
             name: 'Jason Lowery'
+        },
+        {
+            name: 'Marty Bent'
         }
     ];
 
@@ -266,6 +269,9 @@ export const BitcoinResources = () => {
                                 Kevin Rooke Show
                             </ListItem>
                             <ListItem>The Investor's Podcast</ListItem>
+                            <ListItem>The Bitcoin Breakout with Jack Spirko</ListItem>
+                            <ListItem>Bitcoin Rapid-Fire</ListItem>
+                            <ListItem>TFTC: A Bitcoin Podcast</ListItem>
                         </List>
                     </TabPanel>
                     <TabPanel index={2} value={tab}>
@@ -301,6 +307,7 @@ export const BitcoinResources = () => {
                             <ListItem>Relai</ListItem>
                             <ListItem>Carrot</ListItem>
                             <ListItem>silent.link</ListItem>
+                            <ListItem>Bitrefill</ListItem>
                         </List>
                     </TabPanel>
                     <TabPanel index={4} value={tab}>
