@@ -19,29 +19,6 @@ import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
 
 export const PageContent = () => {
-    const carouselSlides = [
-        {
-            title: 'Useless Shit card back',
-            image: `${process.env.PUBLIC_URL}/images/uselessshit-card-2.png`
-        },
-        {
-            title: 'Useless Shit card front',
-            image: `${process.env.PUBLIC_URL}/images/uselessshit-card-1.png`
-        },
-        {
-            title: 'Useless Shit Bookmarks',
-            image: `${process.env.PUBLIC_URL}/images/uselessshit-bookmarks.jpeg`
-        },
-        {
-            title: 'Card front in action',
-            image: `${process.env.PUBLIC_URL}/images/card-1.jpeg`
-        },
-        {
-            title: 'Cards in action',
-            image: `${process.env.PUBLIC_URL}/images/card-2.jpeg`
-        }
-    ];
-
     const converterEmbeddableCode = `
     <div id="uselessshit-calculator"></div>
     <script src="https://uselessshit.co/tools/calculator.js" type="text/javascript"></script>
@@ -53,10 +30,6 @@ export const PageContent = () => {
     return (
         <React.Fragment>
             <Box sx={{ width: '80%', margin: '0px auto', marginTop: '1em' }}>
-                <Box sx={{ marginBottom: '3em' }} component="div">
-                    <Carousel slides={carouselSlides} />
-                </Box>
-
                 <Typography variant="h3" component="div" gutterBottom>
                     Help Bitcoin adoption wherever you are!
                 </Typography>
@@ -106,6 +79,10 @@ export const PageContent = () => {
                         </CardContent>
                     </Card>
                 </Stack>
+
+                <Box sx={{ marginBottom: '3em' }} component="div">
+                    <img width="100%" src={process.env.PUBLIC_URL + '/images/uselessshit-splashscreen.jpeg'} />
+                </Box>
 
                 <CardGiftcard sx={{ fontSize: '80px' }} />
                 <Typography id="were-handed-a-card" variant="h3" component="div" gutterBottom>
