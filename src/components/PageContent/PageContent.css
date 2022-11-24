@@ -43,5 +43,6 @@
 
   .splash__card {
     width: 33%;
+    margin: 0 0.5em !important;
   }
 }
