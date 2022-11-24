@@ -29,7 +29,7 @@ export const PageContent = () => {
 
     return (
         <React.Fragment>
-            <Box sx={{ width: '80%', margin: '0px auto', marginTop: '1em' }}>
+            <Box className="splash">
                 <Typography variant="h3" component="div" gutterBottom>
                     Help Bitcoin adoption wherever you are!
                 </Typography>
@@ -39,11 +39,10 @@ export const PageContent = () => {
                 </Typography>
 
                 <Stack
-                    direction="row"
+                    className="splash__stack"
                     spacing={2}
-                    sx={{ marginBottom: '2em' }}
                 >
-                    <Card sx={{ width: '33%' }}>
+                    <Card className="splash__card">
                         <CardContent>
                             <DesignServices sx={{ fontSize: '80px' }} />
                             <Typography variant="h4" component="div" gutterBottom>
@@ -55,7 +54,7 @@ export const PageContent = () => {
                         </CardContent>
                     </Card>
 
-                    <Card sx={{ width: '33%' }}>
+                    <Card className="splash__card">
                         <CardContent>
                             <Calculate sx={{ fontSize: '80px' }} />
                             <Typography variant="h4" component="div" gutterBottom>
@@ -67,7 +66,7 @@ export const PageContent = () => {
                         </CardContent>
                     </Card>
 
-                    <Card sx={{ width: '33%' }}>
+                    <Card className="splash__card">
                         <CardContent>
                             <School sx={{ fontSize: '80px' }} />
                             <Typography variant="h4" component="div" gutterBottom>
