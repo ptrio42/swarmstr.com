@@ -1,4 +1,4 @@
-import React, {createRef, RefObject, useEffect, useRef, useState} from 'react';
+import React, {createRef, RefObject, useEffect, useState} from 'react';
 import {Box, styled} from "@mui/material";
 import { jsPDF } from 'jspdf';
 import Button from "@mui/material/Button";
@@ -32,11 +32,13 @@ import IconButton from "@mui/material/IconButton";
 import {Info} from "@mui/icons-material";
 import Slider from "@mui/material/Slider";
 import '../../fonts/Merriweather-Regular-normal';
+import Badge from "@mui/material/Badge";
 
-enum CardType {
+export enum CardType {
     BusinessCard = 'business-card',
     Bookmark = 'bookmark',
-    Sticker = 'sticker'
+    Sticker = 'sticker',
+    ChristmasCard = 'christmas-card'
 }
 
 interface CardsConfig {
@@ -45,7 +47,8 @@ interface CardsConfig {
         orientation: 'p' | 'l' | 'portrait' | 'landscape',
         primaryImageFormat?: number[],
         secondaryImageFormat?: number[],
-        qrCodeSize: number
+        qrCodeSize: number,
+        maxCopies: number
     }
 }
 
@@ -55,21 +58,32 @@ const cardsConfig: CardsConfig = {
         orientation: 'landscape',
         primaryImageFormat: [0.75, 0.75],
         secondaryImageFormat: [0.75, 0.75],
-        qrCodeSize: 72
+        qrCodeSize: 72,
+        maxCopies: 9
     },
     [CardType.Bookmark]: {
         format: [2, 6],
         orientation: 'portrait',
         primaryImageFormat: [0.75, 0.75],
         secondaryImageFormat: [0.75, 0.75],
-        qrCodeSize: 72
+        qrCodeSize: 72,
+        maxCopies: 5
     },
     [CardType.Sticker]: {
         format: [3.5, 3.5],
         orientation: 'landscape',
         primaryImageFormat: [1, 1],
         secondaryImageFormat: [1, 1],
-        qrCodeSize: 96
+        qrCodeSize: 96,
+        maxCopies: 6
+    },
+    [CardType.ChristmasCard]: {
+        format: [5, 7],
+        orientation: 'portrait',
+        primaryImageFormat: [1.5, 1.5],
+        secondaryImageFormat: [1.5, 1.5],
+        qrCodeSize: 144,
+        maxCopies: 2
     }
 };
 
@@ -90,20 +104,25 @@ interface CardProps {
 }
 
 const initialCardProps: CardProps = {
-    slogan: 'CY₿ERPOWER.',
+    slogan: 'CYBERPOWER.',
     sloganColor: '#000000',
     sloganFontSize: 14,
-    // mainImage: new Image().src = process.env.PUBLIC_URL + '/images/bitcoin.png',
-    mainImage: null,
+    mainImage: new Image().src = process.env.PUBLIC_URL + '/images/bitcoin.png',
+    // mainImage: null,
     satsAmount: 0,
     copies: 1,
     backgroundImage: null,
     type: CardType.BusinessCard,
-    url: 'https://uselessshit.co/#were-handed-a-card',
+    url: 'https://uselessshit.co',
     urlColor: '#1B3D2F',
     urlFontSize: 10,
     receiveAddress: '',
     config: { ...cardsConfig[CardType.BusinessCard] }
+};
+
+const PAGE_FORMAT = {
+    WIDTH: 11.7,
+    HEIGHT: 8.3
 };
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -122,6 +141,8 @@ export const CardGenerator = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     const [qrCodeRefs, setQrCodeRefs] = useState<RefObject<unknown>[]>([]);
+
+    const maxCopiesInARow = Math.floor(PAGE_FORMAT.WIDTH / cardProps.config.format[0]);
 
     useEffect(() => {
         setQrCodeRefs((qrCodeRefs) =>
@@ -165,14 +186,9 @@ export const CardGenerator = () => {
         if (copies === 0) {
             copies = 1;
         }
-        if (cardProps.type === CardType.BusinessCard && copies > 9) {
-            copies = 9;
-        }
-        if (cardProps.type === CardType.Bookmark && copies > 5) {
-            copies = 5;
-        }
-        if (cardProps.type === CardType.Sticker && copies > 6) {
-            copies = 6;
+
+        if (copies > cardProps.config.maxCopies) {
+            copies = cardProps.config.maxCopies;
         }
 
         copies = +copies;
@@ -261,58 +277,32 @@ export const CardGenerator = () => {
     );
 
     const getCardFormat = () => {
-        const format = cardsConfig[cardProps.type].format;
+        const format = cardProps.config.format;
+        const columns = cardProps.copies > maxCopiesInARow ? maxCopiesInARow : cardProps.copies;
+        const rows = Math.ceil(cardProps.copies / columns);
 
-        switch (cardProps.type) {
-            case CardType.BusinessCard:
-            case CardType.Sticker: {
-                if (cardProps.copies > 3) {
-                    return [
-                        format[0] * 3,
-                        format[1] * Math.ceil(cardProps.copies / 3)
-                    ];
-                } else {
-                    return [
-                        format[0] * cardProps.copies,
-                        format[1]
-                    ];
-                }
-            }
-            case CardType.Bookmark: {
-                return [
-                    format[0] * cardProps.copies,
-                    format[1]
-                ];
-            }
-        }
+        return [
+            format[0] * columns,
+            format[1] * rows
+        ];
+    };
+
+    const getRowAndColumnNo = (copyNo: number): { rowNo: number, columnNo: number } => {
+        const rowNo = Math.ceil(copyNo / maxCopiesInARow);
+        const columnNo = copyNo > maxCopiesInARow ? copyNo - (maxCopiesInARow * (rowNo - 1)) : copyNo;
+        return {
+            rowNo, columnNo
+        };
     };
 
     const getMainImagePosition = (iterator: number) => {
-        const position = {
-            x: 0,
-            y: 0
-        };
-        const format = cardsConfig[cardProps.type].format;
+        const position = createPosition();
+        const format = cardProps.config.format;
 
-        switch (cardProps.type) {
-            case CardType.BusinessCard:
-            case CardType.Sticker: {
-                if (iterator > 2) {
-                    position.x = (format[0] / 2) + (((iterator + 1) % 3) * format[0]);
-                    position.y = 0.375 + ((Math.floor(iterator / 3)) * format[1]);
-                } else {
-                    position.x = (format[0] / 2) + (iterator * format[0]);
-                    position.y = 0.375;
-                }
-                break;
-            }
+        const { rowNo, columnNo } = getRowAndColumnNo(iterator + 1);
 
-            case CardType.Bookmark: {
-                position.x = (format[0] / 2) + (iterator * format[0]);
-                position.y = 0.375;
-                break;
-            }
-        }
+        position.x = (columnNo * format[0] - (format[0] / 2));
+        position.y = format[1] * (rowNo - 1) + 0.375;
 
         if (includeLightningGift || (cardProps.type === CardType.Sticker && cardProps.receiveAddress)) {
             position.x -= (cardProps.config.primaryImageFormat[0] + 0.05);
@@ -322,18 +312,21 @@ export const CardGenerator = () => {
         return position;
     };
 
-    const getBackgroundImagePosition = (iterator: number) => {
-        const position = {
-            x: 0,
-            y: 0
+    const createPosition = (x: number = 0, y: number = 0) => {
+        return {
+            x, y
         };
-        if (iterator > 2) {
-            position.x = (((iterator + 1) % 3) * cardsConfig[cardProps.type].format[0]);
-            position.y = (cardsConfig[cardProps.type].format[1] * (Math.floor(iterator / 3)));
-        } else {
-            position.x = (iterator * cardsConfig[cardProps.type].format[0]);
-            position.y = 0;
-        }
+    };
+
+    const getBackgroundImagePosition = (iterator: number) => {
+        const position = createPosition();
+        const format = cardProps.config.format;
+
+        const { rowNo, columnNo } = getRowAndColumnNo(iterator + 1);
+
+        position.x = (columnNo - 1) * format[0];
+        position.y = format[1] * (rowNo - 1);
+
         return position;
     };
 
@@ -344,52 +337,35 @@ export const CardGenerator = () => {
     };
 
     const getMainTextPosition = (iterator: number) => {
-        const position = {
-            x: 0,
-            y: 0
-        };
+        const position = createPosition();
         const format = cardsConfig[cardProps.type].format;
         const mainImagePosition = getMainImagePosition(iterator);
         const mainImageFormat = cardProps.config.primaryImageFormat[1];
         const relativeTextPosition = mainImagePosition.y + mainImageFormat;
 
-        switch (cardProps.type) {
-            case CardType.BusinessCard:
-            case CardType.Sticker: {
-                if (iterator > 2) {
-                    position.x = (format[0] / 2) + (((iterator + 1) % 3) * format[0]);
-                    position.y = (relativeTextPosition + 0.5) + ((Math.floor(iterator / 3)) * format[1]);
-                } else {
-                    position.x = (format[0] / 2) + iterator * format[0];
-                    position.y = (relativeTextPosition + 0.5);
-                }
-                break;
-            }
+        const { rowNo, columnNo } = getRowAndColumnNo(iterator + 1);
 
-            case CardType.Bookmark: {
-                position.x = (format[0] / 2) + iterator * format[0];
-                position.y = relativeTextPosition + 0.5;
-            }
-                break;
-        }
+        position.x = columnNo * format[0] - (format[0] / 2);
+        position.y = (relativeTextPosition + 0.5);
         return position;
     };
 
     const getSecondaryTextPosition = (iterator: number) => {
-        return {
-            x: cardProps.config.format[0] / 2 + cardProps.config.format[0] * (iterator),
-            y: ((Math.floor(iterator / 3)) * cardProps.config.format[1]) + cardProps.config.format[1] - 0.15
-        };
-        let { x, y } = getMainTextPosition(iterator);
-        y += 0.6;
-        return { x, y };
+        const position = createPosition();
+        const format = cardProps.config.format;
+
+        const { rowNo, columnNo } = getRowAndColumnNo(iterator + 1);
+
+        position.x = columnNo * format[0] - (format[0] / 2);
+        position.y = rowNo * format[1] - 0.15;
+        return position;
     };
 
     const downloadCard = async () => {
         const cardFormat = getCardFormat();
         const card = new jsPDF({
-            orientation: cardProps.type === 'bookmark'
-            && cardProps.copies > 2 ?
+            orientation: (cardProps.type === 'bookmark'
+            && cardProps.copies > 2) || (cardProps.type === CardType.ChristmasCard && cardProps.copies > 1) ?
                 'landscape' :
                 cardsConfig[cardProps.type].orientation,
             unit: 'in',
@@ -397,7 +373,7 @@ export const CardGenerator = () => {
         });
         handleIsLoading(true);
 
-        if ((cardProps.type === CardType.BusinessCard || cardProps.type === CardType.Sticker) &&
+        if ((cardProps.type === CardType.BusinessCard || cardProps.type === CardType.Sticker || cardProps.type === CardType.ChristmasCard) &&
             cardProps.backgroundImage) {
             for (let i = 0; i < cardProps.copies; i++) {
                 const backgroundImagePosition = getBackgroundImagePosition(i);
@@ -489,9 +465,12 @@ export const CardGenerator = () => {
                 Card Generator
             </Typography>
             <Typography sx={{ marginBottom: '3em' }} align="justify" gutterBottom>
-                Spread bitcoin awareness with personalized business cards & bookmarks.
+                Spread bitcoin awareness with personalized business & greeting cards, bookmarks and stickers.
                 With this little tool you can easily create unique graphics (in a print friendly format)
                 without the need for an external software (like Gimp or Photoshop).
+                <br/><br/>
+                Additionally, business & greeting cards and bookmarks can be loaded with sats (fractions of bitcoin) through Lightning
+                - create an item, top it up and gift them to your beloved ones!
             </Typography>
 
             {cardHTML()}
@@ -527,38 +506,18 @@ export const CardGenerator = () => {
                                 name="cardType"
                                 id="cardType"
                             >
+                                <FormControlLabel value="christmas-card" control={<Radio />} label={
+                                    <FormLabel id="cardTypeLabel">
+                                        <Badge badgeContent="new" color="primary">
+                                            Christmas Card &nbsp;&nbsp;&nbsp;
+                                        </Badge>
+                                    </FormLabel>
+                                } />
                                 <FormControlLabel value="business-card" control={<Radio />} label="Business Card" />
                                 <FormControlLabel value="bookmark" control={<Radio />} label="Bookmark" />
                                 <FormControlLabel value="sticker" control={<Radio />} label="Sticker" />
                             </RadioGroup>
                         </FormControl>
-                    </Item>
-                    <Item>
-                        <FormLabel sx={{ paddingRight: '0.5em' }} id="copies-label">
-                            No. of copies
-                            <Tooltip title="Up to 9 business card copies per page & up to 5 bookmarks.">
-                                <IconButton>
-                                    <Info />
-                                </IconButton>
-                            </Tooltip>
-                        </FormLabel>
-                    </Item>
-                    <Item>
-                        <Input
-                            id="copies"
-                            name="copies"
-                            type="number"
-                            inputProps={{
-                                step: "1",
-                                label: "Number of copies"
-                            }}
-                            placeholder="Number of copies"
-                            value={cardProps.copies}
-                            onChange={(event) => {
-                                formik.handleChange(event);
-                                handleSetCopies(event.target.value as unknown as number);
-                            }}
-                        />
                     </Item>
                     <Item>
                         <FormLabel id="cardPrimaryText">
@@ -771,6 +730,33 @@ export const CardGenerator = () => {
                                     </Item>
                                 </React.Fragment>
                         }
+                    </Item>
+                    <Item>
+                        <FormLabel sx={{ paddingRight: '0.5em' }} id="copies-label">
+                            No. of copies
+                            <Tooltip title="Up to 9 business card copies per page & up to 5 bookmarks.">
+                                <IconButton>
+                                    <Info />
+                                </IconButton>
+                            </Tooltip>
+                        </FormLabel>
+                    </Item>
+                    <Item>
+                        <Input
+                            id="copies"
+                            name="copies"
+                            type="number"
+                            inputProps={{
+                                step: "1",
+                                label: "Number of copies"
+                            }}
+                            placeholder="Number of copies"
+                            value={cardProps.copies}
+                            onChange={(event) => {
+                                formik.handleChange(event);
+                                handleSetCopies(event.target.value as unknown as number);
+                            }}
+                        />
                     </Item>
                     <Item>
                         <Button
