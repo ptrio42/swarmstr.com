@@ -33,6 +33,9 @@ import {Info} from "@mui/icons-material";
 import Slider from "@mui/material/Slider";
 import '../../fonts/Merriweather-Regular-normal';
 import Badge from "@mui/material/Badge";
+import ReactCrop, {Crop} from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
+import {cropImage, resizeImage} from "../../services/cardGenerator";
 
 export enum CardType {
     BusinessCard = 'business-card',
@@ -93,6 +96,7 @@ interface CardProps {
     sloganFontSize: number;
     mainImage: any;
     backgroundImage?: any;
+    backgroundImageSize: number;
     satsAmount?: number;
     copies: number;
     type: CardType;
@@ -112,6 +116,7 @@ const initialCardProps: CardProps = {
     satsAmount: 0,
     copies: 1,
     backgroundImage: null,
+    backgroundImageSize: 100,
     type: CardType.BusinessCard,
     url: 'https://uselessshit.co',
     urlColor: '#1B3D2F',
@@ -124,6 +129,8 @@ const PAGE_FORMAT = {
     WIDTH: 11.7,
     HEIGHT: 8.3
 };
+
+const PPI = 96;
 
 const Item = styled(Paper)(({ theme }) => ({
     background: 'transparent',
@@ -141,6 +148,14 @@ export const CardGenerator = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     const [qrCodeRefs, setQrCodeRefs] = useState<RefObject<unknown>[]>([]);
+
+    const [crop, setCrop] = useState<Crop>({
+        unit: 'px',
+        x: 0,
+        y: 0,
+        width: cardProps.config.format[0] * PPI,
+        height: cardProps.config.format[1] * PPI
+    });
 
     const maxCopiesInARow = Math.floor(PAGE_FORMAT.WIDTH / cardProps.config.format[0]);
 
@@ -161,6 +176,16 @@ export const CardGenerator = () => {
         }));
         setIncludeLightningGift(false);
     }, [cardProps.type]);
+
+    useEffect(() => {
+        setCrop({
+            unit: 'px',
+            x: 0,
+            y: 0,
+            width: cardProps.config.format[0] * PPI,
+            height: cardProps.config.format[1] * PPI
+        });
+    }, [cardProps.config]);
 
     const formik = useFormik({
         initialValues: {
@@ -199,6 +224,14 @@ export const CardGenerator = () => {
         });
     };
 
+    const getCardPreviewBackgroundSize = () => {
+        if (cardProps.backgroundImage) {
+            return cardProps.backgroundImageSize / 100 * cardProps.backgroundImage.naturalWidth + 'px'
+                + ' ' + cardProps.backgroundImageSize / 100 * cardProps.backgroundImage.naturalHeight + 'px';
+        }
+        return '100% 100%';
+    };
+
     const cardHTML = () => (
         <React.Fragment>
             <Typography variant="h6" component="div" gutterBottom sx={{ textAlign: 'left' }}>
@@ -208,10 +241,11 @@ export const CardGenerator = () => {
                 width: `${cardsConfig[cardProps.type].format[0]}in`,
                 height: `${cardsConfig[cardProps.type].format[1]}in`,
                 margin: '0 auto 3em auto',
-                background: cardProps.backgroundImage ? `url(${cardProps.backgroundImage})` : 'none',
-                backgroundSize: 'contain',
+                background: cardProps.backgroundImage ? `url(${cardProps.backgroundImage.src})` : 'none',
+                backgroundSize: getCardPreviewBackgroundSize(),
                 backgroundRepeat: 'no-repeat',
-                backgroundPositionY: cardProps.type === CardType.Bookmark ? '2in' : '0'
+                backgroundPositionY: cardProps.type === CardType.Bookmark ? '2in' : '0',
+                backgroundPosition: `${-crop.x}px ${-crop.y}px`
             }}>
                 <CardActionArea sx={{
                     width: '100%',
@@ -227,7 +261,7 @@ export const CardGenerator = () => {
                                 width: `${cardProps.config.primaryImageFormat[0]}in`,
                                 height: `${cardProps.config.primaryImageFormat[1]}in`,
                                 objectFit: 'fill',
-                                marginTop: cardProps.type === CardType.BusinessCard ? 0 : '0.15in'
+                                marginTop: '0.15in'
                             }}
                             image={cardProps.mainImage}
                         />
@@ -238,7 +272,7 @@ export const CardGenerator = () => {
                                     width: `${cardProps.config.secondaryImageFormat[0]}in`,
                                     height: `${cardProps.config.secondaryImageFormat[1]}in`,
                                     marginLeft: '0.1in',
-                                    marginTop: cardProps.type === CardType.BusinessCard ? 0 : '0.15in',
+                                    marginTop: '0.15in',
                                     overflow: 'hidden'
                                 }}
                             >
@@ -361,6 +395,10 @@ export const CardGenerator = () => {
         return position;
     };
 
+    const initiateDownloadCard = async () => {
+        await downloadCard();
+    };
+
     const downloadCard = async () => {
         const cardFormat = getCardFormat();
         const card = new jsPDF({
@@ -373,28 +411,37 @@ export const CardGenerator = () => {
         });
         handleIsLoading(true);
 
-        if ((cardProps.type === CardType.BusinessCard || cardProps.type === CardType.Sticker || cardProps.type === CardType.ChristmasCard) &&
-            cardProps.backgroundImage) {
-            for (let i = 0; i < cardProps.copies; i++) {
+        let backgroundImage = new Image();
+        if (cardProps.backgroundImage) {
+            // resize bg image begin
+            const backgroundImageBase64 = cardProps.backgroundImage.src;
+            const resizedImageBase64 = await resizeImage(
+                backgroundImageBase64,
+                cardProps.backgroundImageSize / 100 * cardProps.backgroundImage.width,
+                cardProps.backgroundImageSize / 100 * cardProps.backgroundImage.height
+            );
+
+            // resize bg image end
+
+            if (resizedImageBase64) {
+                // crop bg image begin
+                const croppedImageBase64 = await cropImage(resizedImageBase64 as string, crop);
+                if (croppedImageBase64) {
+                    backgroundImage.src = croppedImageBase64 as string;
+                }
+            }
+            // crop bg image end
+        }
+
+        for (let i = 0; i < cardProps.copies; i++) {
+            if (cardProps.backgroundImage) {
                 const backgroundImagePosition = getBackgroundImagePosition(i);
                 card.addImage({
-                    imageData: new Image().src = cardProps.backgroundImage as string,
+                    imageData: backgroundImage.src,
                     x: backgroundImagePosition.x,
                     y: backgroundImagePosition.y,
                     width: cardsConfig[cardProps.type].format[0],
                     height: cardsConfig[cardProps.type].format[1]
-                });
-            }
-        }
-
-        for (let i = 0; i < cardProps.copies; i++) {
-            if (cardProps.type === CardType.Bookmark && cardProps.backgroundImage) {
-                card.addImage({
-                    imageData: new Image().src = cardProps.backgroundImage as string,
-                    x: (i * cardsConfig[cardProps.type].format[0]),
-                    y: cardsConfig[cardProps.type].format[1] - 4,
-                    width: 2,
-                    height: 4
                 });
             }
 
@@ -457,12 +504,12 @@ export const CardGenerator = () => {
     return (
         <Box sx={{ width: '80%', margin: '1em auto' }}>
             <Helmet>
-                <title>Useless Shit - Card Generator</title>
+                <title>Useless Shit - Bitcoin Artwork Creator</title>
             </Helmet>
 
             <img height="128" src={process.env.PUBLIC_URL + '/images/spread-the-bitcoin-vibes.png'} />
             <Typography variant="h3" component="div" gutterBottom>
-                Card Generator
+                Create Bitcoin Artwork
             </Typography>
             <Typography sx={{ marginBottom: '3em' }} align="justify" gutterBottom>
                 Spread bitcoin awareness with personalized business & greeting cards, bookmarks and stickers.
@@ -638,14 +685,43 @@ export const CardGenerator = () => {
                             if (FileReader && files && files.length > 0) {
                                 const fileReader = new FileReader();
                                 fileReader.onloadend = () => {
+                                    const backgroundImage = new Image();
+                                    backgroundImage.src = fileReader.result as string;
                                     setCardProps({
                                         ...cardProps,
-                                        backgroundImage: fileReader.result
-                                    })
+                                        backgroundImage: backgroundImage
+                                    });
                                 };
                                 fileReader.readAsDataURL(files[0])
                             }
                         }} />
+                    </Item>
+                    <Item>
+                        <FormLabel id="cardPrimaryTextSize">Background Image Size</FormLabel>
+                    </Item>
+                    <Item>
+                        <Slider
+                            aria-label="Background Image Size"
+                            value={cardProps.backgroundImageSize}
+                            valueLabelDisplay="auto"
+                            defaultValue={100}
+                            onChange={(event, newBackgroundImageSize) => {
+                                const backgroundImageSize = newBackgroundImageSize as number;
+                                setCardProps({
+                                    ...cardProps,
+                                    backgroundImageSize
+                                });
+                            }} />
+                    </Item>
+                    <Item>
+                        <ReactCrop crop={crop} onChange={c => {
+                            setCrop(c);
+                        }} locked={true}>
+                            <img
+                                src={cardProps.backgroundImage && cardProps.backgroundImage.src}
+                                width={cardProps.backgroundImage && cardProps.backgroundImage.naturalWidth * ((cardProps.backgroundImageSize && cardProps.backgroundImageSize / 100) || 100) || '100%'}
+                                height={cardProps.backgroundImage && cardProps.backgroundImage.naturalHeight * ((cardProps.backgroundImageSize && cardProps.backgroundImageSize / 100) || 100) || '100%'} />
+                        </ReactCrop>
                     </Item>
                     <Item>
                         <FormControlLabel
@@ -763,7 +839,7 @@ export const CardGenerator = () => {
                             sx={{ fontWeight: 'bold' }}
                             variant="contained"
                             onClick={() => {
-                                downloadCard()
+                                initiateDownloadCard()
                                     .then()
                                     .catch(error => console.error({error}))
                                 ;

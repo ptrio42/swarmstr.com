@@ -27,3 +27,11 @@
 .MuiCardActions-root{
     margin-top: auto;
 }
+
+.ReactCrop.ReactCrop--locked {
+    overflow: scroll;
+}
+
+.ReactCrop__child-wrapper {
+    width: max-content;
+}
