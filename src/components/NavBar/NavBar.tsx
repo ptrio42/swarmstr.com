@@ -7,7 +7,7 @@ import {Link} from "react-router-dom";
 import Button from '@mui/material/Button';
 import Receipt from '@mui/icons-material/Receipt';
 import Media from 'react-media';
-import {Build, Menu as MenuIcon, Payments} from '@mui/icons-material';
+import {Build, CurrencyBitcoin, Menu as MenuIcon, Payments, School} from '@mui/icons-material';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -53,14 +53,12 @@ export const NavBar = () => {
             onKeyDown={toggleDrawer(false)}
         >
             <List>
-                <ListItem disablePadding component={Link} to="/#were-handed-a-card" sx={{ color: '#000' }}>
+                <ListItem disablePadding component={Link} to="/card-generator"  sx={{ color: '#000' }}>
                     <ListItemButton>
-                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Got a card?" />
-                    </ListItemButton>
-                </ListItem>
-                <ListItem disablePadding component={Link} to="/#spread-the-word"  sx={{ color: '#000' }}>
-                    <ListItemButton>
-                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Spread the word!" />
+                        <ListItemIcon>
+                            <CurrencyBitcoin />
+                        </ListItemIcon>
+                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Bitcoin Artwork" />
                     </ListItemButton>
                 </ListItem>
                 <ListItem disablePadding component={Link} to="/#converter" sx={{ color: '#000' }}>
@@ -68,15 +66,7 @@ export const NavBar = () => {
                         <ListItemIcon>
                             <SwapVerticalCircleIcon />
                         </ListItemIcon>
-                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Converter" />
-                    </ListItemButton>
-                </ListItem>
-                <ListItem disablePadding component={Link} to="/card-generator" sx={{ color: '#000' }}>
-                    <ListItemButton>
-                        <ListItemIcon>
-                            <Payments />
-                        </ListItemIcon>
-                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Card generator" />
+                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Satoshi Calculator" />
                     </ListItemButton>
                 </ListItem>
                 <ListItem disablePadding component={Link} to="/bitcoin-resources" sx={{ color: '#000' }}>
@@ -98,8 +88,10 @@ export const NavBar = () => {
                 position="static"
             >
                 <Toolbar>
-                    <img width="40px" alt="Useless Shit" src={process.env.PUBLIC_URL + '/images/new-uselessshit-logo.png'} />
-                    <img className="logo-text" height="40px" alt="Useless Shit" src={process.env.PUBLIC_URL + '/images/new-uselessshit-logo-text.png'} />
+                    <Link className="logo" to="/">
+                        <img  width="40px" alt="Useless Shit" src={process.env.PUBLIC_URL + '/images/new-uselessshit-logo.png'} />
+                        <img className="logo-text" height="40px" alt="Useless Shit" src={process.env.PUBLIC_URL + '/images/new-uselessshit-logo-text.png'} />
+                    </Link>
                     <Grid
                         container
                         justifyContent="flex-end"
@@ -123,31 +115,20 @@ export const NavBar = () => {
                                     variant="text"
                                     color="inherit"
                                     component={Link}
-                                    to="/#were-handed-a-card"
+                                    to="/card-generator"
+                                    startIcon={<CurrencyBitcoin color="warning" />}
                                 >
-                                    Got a card?
+                                    BITCOIN ARTWORK
                                 </Button>
                                 <Button
                                     sx={{ fontWeight: 'bold' }}
                                     variant="text"
                                     color="inherit"
                                     component={Link}
-                                    to="/#spread-the-word"
+                                    to="/#converter"
+                                    startIcon={<SwapVerticalCircleIcon color="success" />}
                                 >
-                                    Spread the word!
-                                </Button>
-                                <Button
-                                    id="tools-menu-button"
-                                    sx={{ fontWeight: 'bold' }}
-                                    variant="text"
-                                    color="inherit"
-                                    aria-controls={toolsMenuOpen ? 'tools-menu' : undefined}
-                                    aria-haspopup="true"
-                                    aria-expanded={toolsMenuOpen ? 'true' : undefined}
-                                    startIcon={<Build color="warning" />}
-                                    onClick={handleToolsMenuClick}
-                                >
-                                    Tools
+                                    SATOSHI CALCULATOR
                                 </Button>
                                 <Button
                                     sx={{ fontWeight: 'bold' }}
@@ -155,7 +136,7 @@ export const NavBar = () => {
                                     color="inherit"
                                     component={Link}
                                     to="/bitcoin-resources"
-                                    startIcon={<Receipt sx={{ color: pink[500] }} />}
+                                    startIcon={<School />}
                                 >
                                     Resources
                                 </Button>

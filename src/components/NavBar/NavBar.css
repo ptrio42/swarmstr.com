@@ -6,6 +6,10 @@
   color: #1B3D2F;
 }
 
+.logo {
+  display: inline-flex;
+}
+
 .logo-text {
   margin-left: 5px;
 }

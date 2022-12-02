@@ -118,12 +118,33 @@ export const BitcoinResources = () => {
         },
         {
             name: 'Marty Bent'
+        },
+        {
+            name: 'Tomer Strolight'
         }
     ];
 
     const apps = [
         {
 
+        }
+    ];
+
+    const p2pExchanges = [
+        {
+            name: 'Bisq',
+            url: 'https://bisq.network/',
+            description: 'Buy and sell bitcoin for fiat (or other cryptocurrencies) privately and securely using Bisq\'s peer-to-peer network and open-source desktop software. No registration required.'
+        },
+        {
+            name: 'RoboSats',
+            url: 'https://learn.robosats.com/',
+            description: 'A simple and private way to exchange bitcoin for national currencies.'
+        },
+        {
+            name: 'PeachBitcoin',
+            url: 'https://peachbitcoin.com/',
+            description: 'Buy or sell bitcoin peer-to-peer, anywhere, at anytime, with the payment method of your choice, at the price that you want.'
         }
     ];
 
@@ -180,6 +201,11 @@ export const BitcoinResources = () => {
             name: 'Passport',
             url: 'https://foundationdevices.com/passport/',
             description: 'The next generation hardware wallet. Airgapped security, fully open source, assembled in the USA.'
+        },
+        {
+            name: 'Trezor',
+            url: 'https://trezor.io',
+            description: 'Trezor hardware wallets are the ultimate in Bitcoin and cryptocurrency security. Connect your wallet with the Trezor Suite app and easily manage your assets in a secure crypto ecosystem.'
         }
     ];
 
@@ -227,6 +253,7 @@ export const BitcoinResources = () => {
                 <Tab label="Apps & sites" />
                 <Tab label="Wallets" />
                 <Tab label="Hardware Wallets" />
+                <Tab label="Buy Bitcoin" />
             </Tabs>
             <Grid container>
                 <Grid item xs={12}>
@@ -308,6 +335,8 @@ export const BitcoinResources = () => {
                             <ListItem>Carrot</ListItem>
                             <ListItem>silent.link</ListItem>
                             <ListItem>Bitrefill</ListItem>
+                            <ListItem>SatoshiVibes.com</ListItem>
+                            <ListItem>heyapollo.com</ListItem>
                         </List>
                     </TabPanel>
                     <TabPanel index={4} value={tab}>
@@ -327,6 +356,17 @@ export const BitcoinResources = () => {
                                 signingDevices.map(device => (
                                     <ListItem className="link" component="a" href={device.url} target="_blank">
                                         <ListItemText secondaryTypographyProps={{ style: text }} primary={device.name} secondary={device.url} />
+                                    </ListItem>
+                                ))
+                            }
+                        </List>
+                    </TabPanel>
+                    <TabPanel index={6} value={tab}>
+                        <List>
+                            {
+                                p2pExchanges.map(exchange => (
+                                    <ListItem className="link" component="a" href={exchange.url} target="_blank">
+                                        <ListItemText secondaryTypographyProps={{ style: text }} primary={exchange.name} secondary={exchange.url} />
                                     </ListItem>
                                 ))
                             }

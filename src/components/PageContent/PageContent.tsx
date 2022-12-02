@@ -49,7 +49,8 @@ export const PageContent = () => {
                                 Bitcoin Artwork
                             </Typography>
                             <Typography variant="body1" component="div" gutterBottom>
-                                Create beautiful bitcoin gift cards (loaded with sats), bookmarks & stickers with <Link color='secondary' to='card-generator'>a dedicated panel</Link>.
+                                Create beautiful bitcoin cards, bookmarks & stickers with <Link color='secondary' to='card-generator'>a dedicated panel</Link>.
+                                Turn your cards into gifts with Lightning.
                             </Typography>
                         </CardContent>
                     </Card>
@@ -61,7 +62,7 @@ export const PageContent = () => {
                                 Satoshi Calculator
                             </Typography>
                             <Typography variant="body1" component="div" gutterBottom>
-                                Quickly calculate how much bitcoin you'd get for your fiat currencies and generate price receipts.
+                                Quickly calculate how much bitcoin you'd get for your fiat currencies and generate price receipts for your bitcoin purchases.
                             </Typography>
                         </CardContent>
                     </Card>
@@ -73,7 +74,7 @@ export const PageContent = () => {
                                 Bitcoin Resources
                             </Typography>
                             <Typography variant="body1" component="div" gutterBottom>
-                                Learn for yourself how deep the Bitcoin Rabbit Hole goes.
+                                Learn for yourself how deep the Bitcoin Rabbit Hole goes with a comprehensive list of Bitcoiners to follow, useful apps, sites and more.
                             </Typography>
                         </CardContent>
                     </Card>

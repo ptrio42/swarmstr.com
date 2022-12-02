@@ -6,6 +6,8 @@ import Favorite from '@mui/icons-material/Favorite';
 import Twitter from '@mui/icons-material/Twitter';
 import GitHub from '@mui/icons-material/GitHub';
 import './Footer.css';
+import Bolt from "@mui/icons-material/Bolt";
+import React from "react";
 
 const Item = styled(Paper)(({ theme }) => ({
     ...theme.typography.body1,
@@ -33,6 +35,11 @@ export const Footer = () => {
             <Grid item>
                 <Item sx={{ display: 'inline-flex', margin: '1em 0' }}>
                     Check out our <GitHub sx={{ margin: 'auto 0.25em' }} /> <a className="link1" href="https://github.com/ptrio42/uselessshit.co" target="_blank">repository</a>.
+                </Item>
+            </Grid>
+            <Grid item>
+                <Item sx={{ display: 'inline-flex' }}>
+                    Tips: <Bolt sx={{ color: '#FADA5E' }} /> furiouschina21@walletofsatoshi.com
                 </Item>
             </Grid>
         </Grid>
