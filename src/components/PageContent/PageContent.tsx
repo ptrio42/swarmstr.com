@@ -62,7 +62,7 @@ export const PageContent = () => {
                                 Satoshi Calculator
                             </Typography>
                             <Typography variant="body1" component="div" gutterBottom>
-                                Quickly calculate how much bitcoin you'd get for your fiat currencies and generate price receipts for your bitcoin purchases.
+                                Quickly calculate how much bitcoin you'd get for your fiat currencies and generate price receipts for each bitcoin purchase.
                             </Typography>
                         </CardContent>
                     </Card>

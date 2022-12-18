@@ -1,4 +1,4 @@
-import React, {createRef, RefObject, useEffect, useState} from 'react';
+import React, {createRef, RefObject, useEffect, useRef, useState} from 'react';
 import {Box, styled} from "@mui/material";
 import { jsPDF } from 'jspdf';
 import Button from "@mui/material/Button";
@@ -100,9 +100,9 @@ interface CardProps {
     satsAmount?: number;
     copies: number;
     type: CardType;
-    url: string;
-    urlColor: string;
-    urlFontSize: number;
+    footer: string;
+    footerColor: string;
+    footerFontSize: number;
     receiveAddress?: string;
     config: any;
 }
@@ -111,18 +111,18 @@ const initialCardProps: CardProps = {
     slogan: 'CYBERPOWER.',
     sloganColor: '#000000',
     sloganFontSize: 14,
-    mainImage: new Image().src = process.env.PUBLIC_URL + '/images/bitcoin.png',
-    // mainImage: null,
+    // mainImage: new Image().src = process.env.PUBLIC_URL + '/images/bitcoin.png',
+    mainImage: null,
     satsAmount: 0,
     copies: 1,
     backgroundImage: null,
     backgroundImageSize: 100,
-    type: CardType.BusinessCard,
-    url: 'https://uselessshit.co',
-    urlColor: '#1B3D2F',
-    urlFontSize: 10,
+    type: CardType.ChristmasCard,
+    footer: 'https://uselessshit.co',
+    footerColor: '#1B3D2F',
+    footerFontSize: 10,
     receiveAddress: '',
-    config: { ...cardsConfig[CardType.BusinessCard] }
+    config: { ...cardsConfig[CardType.ChristmasCard] }
 };
 
 const PAGE_FORMAT = {
@@ -158,6 +158,8 @@ export const CardGenerator = () => {
     });
 
     const maxCopiesInARow = Math.floor(PAGE_FORMAT.WIDTH / cardProps.config.format[0]);
+
+    const cardRef = useRef();
 
     useEffect(() => {
         setQrCodeRefs((qrCodeRefs) =>
@@ -237,7 +239,7 @@ export const CardGenerator = () => {
             <Typography variant="h6" component="div" gutterBottom sx={{ textAlign: 'left' }}>
                 Card Preview
             </Typography>
-            <Card sx={{
+            <Card ref={cardRef as any} sx={{
                 width: `${cardsConfig[cardProps.type].format[0]}in`,
                 height: `${cardsConfig[cardProps.type].format[1]}in`,
                 margin: '0 auto 3em auto',
@@ -245,7 +247,8 @@ export const CardGenerator = () => {
                 backgroundSize: getCardPreviewBackgroundSize(),
                 backgroundRepeat: 'no-repeat',
                 backgroundPositionY: cardProps.type === CardType.Bookmark ? '2in' : '0',
-                backgroundPosition: `${-crop.x}px ${-crop.y}px`
+                backgroundPosition: `${-crop.x}px ${-crop.y}px`,
+                borderRadius: '0px'
             }}>
                 <CardActionArea sx={{
                     width: '100%',
@@ -301,8 +304,8 @@ export const CardGenerator = () => {
                         </Typography>
                     </CardContent>
                         <CardActions>
-                        <Typography sx={{ fontSize: `${cardProps.urlFontSize}pt`, color: cardProps.urlColor }}>
-                            { cardProps.url }
+                        <Typography sx={{ fontSize: `${cardProps.footerFontSize}pt`, color: cardProps.footerColor }}>
+                            { cardProps.footer }
                         </Typography>
                     </CardActions>
                 </CardActionArea>
@@ -395,11 +398,19 @@ export const CardGenerator = () => {
         return position;
     };
 
-    const initiateDownloadCard = async () => {
-        await downloadCard();
+    const downloadCardAsImage = async () => {
+        const cardElement: HTMLElement = cardRef.current as unknown as HTMLElement;
+        const cardCanvas = await html2canvas(cardElement);
+        const image = cardCanvas.toDataURL('image/png')
+            .replace('image/png', 'image/octet-stream');
+
+        const anchor = document.createElement('a');
+        anchor.href = image;
+        anchor.download = 'custom-card.png';
+        anchor.click();
     };
 
-    const downloadCard = async () => {
+    const downloadCardAsPDF = async () => {
         const cardFormat = getCardFormat();
         const card = new jsPDF({
             orientation: (cardProps.type === 'bookmark'
@@ -487,10 +498,10 @@ export const CardGenerator = () => {
                 { align: 'center', maxWidth: cardsConfig[cardProps.type].format[0] - 0.5 }
                 );
 
-            card.setFontSize(cardProps.urlFontSize);
-            card.setTextColor(cardProps.urlColor);
+            card.setFontSize(cardProps.footerFontSize);
+            card.setTextColor(cardProps.footerColor);
             card.text(
-                cardProps.url,
+                cardProps.footer,
                 secondaryTextPosition.x,
                 secondaryTextPosition.y,
                 { align: 'center' }
@@ -504,13 +515,15 @@ export const CardGenerator = () => {
     return (
         <Box sx={{ width: '80%', margin: '1em auto' }}>
             <Helmet>
-                <title>Useless Shit - Bitcoin Artwork Creator</title>
+                <title>Bitcoin Artwork Creator: Cards, Bookmarks, Stickers - UselessShit.co</title>
             </Helmet>
 
             <img height="128" src={process.env.PUBLIC_URL + '/images/spread-the-bitcoin-vibes.png'} />
-            <Typography variant="h3" component="div" gutterBottom>
-                Create Bitcoin Artwork
-            </Typography>
+            <Badge badgeContent="beta" color="primary">
+                <Typography variant="h3" component="div" gutterBottom>
+                    Create Bitcoin Artwork
+                </Typography>
+            </Badge>
             <Typography sx={{ marginBottom: '3em' }} align="justify" gutterBottom>
                 Spread bitcoin awareness with personalized business & greeting cards, bookmarks and stickers.
                 With this little tool you can easily create unique graphics (in a print friendly format)
@@ -531,7 +544,7 @@ export const CardGenerator = () => {
                         <FormControl>
                             <FormLabel id="cardTypeLabel">
                                 Format
-                                <Tooltip title="Pick a format for your graphic. It can either be a business card size (3.5in by 2.0in) or a bookmark size (2in by 6in).">
+                                <Tooltip title="Pick a format for your graphic.">
                                     <IconButton>
                                         <Info />
                                     </IconButton>
@@ -546,8 +559,7 @@ export const CardGenerator = () => {
                                     setCardProps({
                                         ...cardProps,
                                         type: event.target.value as CardType,
-                                        copies: 1,
-                                        url: cardProps.type === CardType.Bookmark ? 'https://uselessshit.co/#were-handed-a-card' : 'https://uselessshit.co'
+                                        copies: 1
                                     })
                                 }}
                                 name="cardType"
@@ -584,7 +596,7 @@ export const CardGenerator = () => {
                             label="Enter text"
                             sx={{ width: '80%' }}
                             value={cardProps.slogan}
-                            inputProps={{ maxLength: 74 }}
+                            inputProps={{ maxLength: 500 }}
                             onChange={(event) => {
                                 formik.handleChange(event);
                                 setCardProps({
@@ -627,6 +639,33 @@ export const CardGenerator = () => {
                         }} />
                     </Item>
                     <Item>
+                        <FormLabel id="cardSecondaryText">
+                            Secondary text
+                            <Tooltip title="Enter the secondary text.">
+                                <IconButton>
+                                    <Info />
+                                </IconButton>
+                            </Tooltip>
+                        </FormLabel>
+                    </Item>
+                    <Item>
+                        <TextField
+                            id="footer"
+                            name="footer"
+                            type="text"
+                            label="Enter text"
+                            sx={{ width: '80%' }}
+                            value={cardProps.footer}
+                            inputProps={{ maxLength: 100 }}
+                            onChange={(event) => {
+                                formik.handleChange(event);
+                                setCardProps({
+                                    ...cardProps,
+                                    footer: event.target.value
+                                });
+                            }} />
+                    </Item>
+                    <Item>
                         <FormLabel id="cardSecondaryTextColor">
                             Secondary text color
                             <Tooltip title="Choose a color for the secondary text.">
@@ -637,10 +676,10 @@ export const CardGenerator = () => {
                         </FormLabel>
                     </Item>
                     <Item>
-                        <SketchPicker className="color-picker" color={cardProps.urlColor} onChangeComplete={(color: any) => {
+                        <SketchPicker className="color-picker" color={cardProps.footerColor} onChangeComplete={(color: any) => {
                             setCardProps({
                                 ...cardProps,
-                                urlColor: color.hex
+                                footerColor: color.hex
                             })
                         }} />
                     </Item>
@@ -672,7 +711,7 @@ export const CardGenerator = () => {
                     <Item>
                         <FormLabel sx={{ paddingRight: '0.5em' }} id="backgroundImageLabel">
                             Background image
-                            <Tooltip title="Upload a background image. 3.5 by 2in for business cards & 2 by 4in for bookmarks.">
+                            <Tooltip title="Upload a background image.">
                                 <IconButton>
                                     <Info />
                                 </IconButton>
@@ -839,14 +878,28 @@ export const CardGenerator = () => {
                             sx={{ fontWeight: 'bold' }}
                             variant="contained"
                             onClick={() => {
-                                initiateDownloadCard()
+                                downloadCardAsPDF()
                                     .then()
                                     .catch(error => console.error({error}))
                                 ;
                             }}
                             disabled={includeLightningGift && lnurls.length === 0}
                         >
-                            Download Card!
+                            Download Print (PDF)
+                        </Button>
+                        <Button
+                            sx={{ fontWeight: 'bold', marginLeft: '1em' }}
+                            variant="contained"
+                            color="secondary"
+                            onClick={() => {
+                                downloadCardAsImage()
+                                    .then()
+                                    .catch(error => console.error({error}))
+                                ;
+                            }}
+                            disabled={includeLightningGift && lnurls.length === 0}
+                        >
+                            Download as image
                         </Button>
                     </Item>
                 </Stack>
