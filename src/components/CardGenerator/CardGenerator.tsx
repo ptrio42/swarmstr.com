@@ -105,6 +105,8 @@ interface CardProps {
     footerFontSize: number;
     receiveAddress?: string;
     config: any;
+    overlay?: boolean;
+    overlayColor?: string;
 }
 
 const initialCardProps: CardProps = {
@@ -122,7 +124,9 @@ const initialCardProps: CardProps = {
     footerColor: '#1B3D2F',
     footerFontSize: 10,
     receiveAddress: '',
-    config: { ...cardsConfig[CardType.ChristmasCard] }
+    config: { ...cardsConfig[CardType.ChristmasCard] },
+    overlay: false,
+    overlayColor: 'rgba(255,255,255,.8)'
 };
 
 const PAGE_FORMAT = {
@@ -251,8 +255,10 @@ export const CardGenerator = () => {
                 borderRadius: '0px'
             }}>
                 <CardActionArea sx={{
-                    width: '100%',
-                    height: '100%',
+                    width: cardProps.overlay ? '90%' : '100%',
+                    height: cardProps.overlay ? '90%' : '100%',
+                    background: cardProps.overlay ? cardProps.overlayColor : 'transparent',
+                    margin: 'auto',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: cardProps.type === CardType.BusinessCard ? 'center' : 'flex-start' }}
@@ -383,7 +389,7 @@ export const CardGenerator = () => {
         const { rowNo, columnNo } = getRowAndColumnNo(iterator + 1);
 
         position.x = columnNo * format[0] - (format[0] / 2);
-        position.y = (relativeTextPosition + 0.5);
+        position.y = (relativeTextPosition + 0.25);
         return position;
     };
 
@@ -394,7 +400,19 @@ export const CardGenerator = () => {
         const { rowNo, columnNo } = getRowAndColumnNo(iterator + 1);
 
         position.x = columnNo * format[0] - (format[0] / 2);
-        position.y = rowNo * format[1] - 0.15;
+        position.y = rowNo * format[1] - 0.3;
+        return position;
+    };
+
+    const getOverlayPosition = (iterator: number) => {
+        const position = createPosition();
+        const format = cardProps.config.format;
+
+        const { rowNo, columnNo } = getRowAndColumnNo(iterator + 1);
+
+        position.x = (columnNo - 1) * format[0] + 0.15;
+        position.y = format[1] * (rowNo - 1) + 0.15;
+
         return position;
     };
 
@@ -454,6 +472,22 @@ export const CardGenerator = () => {
                     width: cardsConfig[cardProps.type].format[0],
                     height: cardsConfig[cardProps.type].format[1]
                 });
+            }
+
+            if (cardProps.overlay) {
+                const overlayPosition = getOverlayPosition(i);
+                card.saveGraphicsState();
+                // @ts-ignore
+                card.setGState(new card.GState({opacity: 0.8}));
+                card.setFillColor(255, 255, 255);
+                card.rect(
+                    overlayPosition.x,
+                    overlayPosition.y,
+                    cardsConfig[cardProps.type].format[0] - 0.3,
+                    cardsConfig[cardProps.type].format[1] - 0.3,
+                    'F'
+                );
+                card.restoreGraphicsState();
             }
 
             card.setFontSize(cardProps.sloganFontSize);
@@ -568,7 +602,7 @@ export const CardGenerator = () => {
                                 <FormControlLabel value="christmas-card" control={<Radio />} label={
                                     <FormLabel id="cardTypeLabel">
                                         <Badge badgeContent="new" color="primary">
-                                            Christmas Card &nbsp;&nbsp;&nbsp;
+                                            Greeting Card &nbsp;&nbsp;&nbsp;
                                         </Badge>
                                     </FormLabel>
                                 } />
@@ -581,7 +615,7 @@ export const CardGenerator = () => {
                     <Item>
                         <FormLabel id="cardPrimaryText">
                             Primary text
-                            <Tooltip title="Enter the primary text. Up to 74 characters.">
+                            <Tooltip title="Enter the primary text. Up to 500 characters.">
                                 <IconButton>
                                     <Info />
                                 </IconButton>
@@ -761,6 +795,28 @@ export const CardGenerator = () => {
                                 width={cardProps.backgroundImage && cardProps.backgroundImage.naturalWidth * ((cardProps.backgroundImageSize && cardProps.backgroundImageSize / 100) || 100) || '100%'}
                                 height={cardProps.backgroundImage && cardProps.backgroundImage.naturalHeight * ((cardProps.backgroundImageSize && cardProps.backgroundImageSize / 100) || 100) || '100%'} />
                         </ReactCrop>
+                    </Item>
+                    <Item>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    className="checkbox"
+                                    checked={cardProps.overlay}
+                                    onChange={(_event) => {
+                                        setCardProps({
+                                            ...cardProps,
+                                            overlay: !cardProps.overlay
+                                        })
+                                    }}
+                                />
+                            }
+                            label="Add background overlay"
+                        />
+                        <Tooltip title="Add a background overlay.">
+                            <IconButton>
+                                <Info />
+                            </IconButton>
+                        </Tooltip>
                     </Item>
                     <Item>
                         <FormControlLabel
