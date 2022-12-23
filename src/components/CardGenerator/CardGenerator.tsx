@@ -165,6 +165,13 @@ export const CardGenerator = () => {
 
     const cardRef = useRef();
 
+    const [mainImageInputKey, setMainImageInputKey] = useState<string>();
+    const [backgroundImageInputKey, setBackgroundImageInputKey] = useState<string>();
+
+    const getRandomInputKey = () => {
+        return Math.random().toString(36);
+    };
+
     useEffect(() => {
         setQrCodeRefs((qrCodeRefs) =>
             Array(cardProps.copies)
@@ -728,7 +735,12 @@ export const CardGenerator = () => {
                         </FormLabel>
                     </Item>
                     <Item>
-                        <Input id="mainImage" name="mainImage" type="file" onChange={(event) => {
+                        <Input
+                            id="mainImage"
+                            name="mainImage"
+                            key={mainImageInputKey || ''}
+                            type="file"
+                            onChange={(event) => {
                             const files = (event.currentTarget as HTMLInputElement).files;
                             if (FileReader && files && files.length > 0) {
                                 const fileReader = new FileReader();
@@ -741,6 +753,21 @@ export const CardGenerator = () => {
                                 fileReader.readAsDataURL(files[0])
                             }
                         }} />
+                        <Button
+                            variant="contained"
+                            color="warning"
+                            sx={{ marginLeft: '1em' }}
+                            disabled={cardProps.mainImage === null}
+                            onClick={() => {
+                                setCardProps({
+                                    ...cardProps,
+                                    mainImage: null
+                                });
+                                setMainImageInputKey(getRandomInputKey());
+                            }}
+                        >
+                            Reset Foreground Image
+                        </Button>
                     </Item>
                     <Item>
                         <FormLabel sx={{ paddingRight: '0.5em' }} id="backgroundImageLabel">
@@ -753,7 +780,12 @@ export const CardGenerator = () => {
                         </FormLabel>
                     </Item>
                     <Item>
-                        <Input id="cardBackgroundImage" name="cardBackgroundImage" type="file" onChange={(event) => {
+                        <Input
+                            id="cardBackgroundImage"
+                            name="cardBackgroundImage"
+                            key={backgroundImageInputKey || ''}
+                            type="file"
+                            onChange={(event) => {
                             const files = (event.currentTarget as HTMLInputElement).files;
                             if (FileReader && files && files.length > 0) {
                                 const fileReader = new FileReader();
@@ -768,6 +800,21 @@ export const CardGenerator = () => {
                                 fileReader.readAsDataURL(files[0])
                             }
                         }} />
+                        <Button
+                            sx={{ marginLeft: '1em' }}
+                            variant="contained"
+                            color="warning"
+                            disabled={cardProps.backgroundImage === null}
+                            onClick={() => {
+                                setCardProps({
+                                    ...cardProps,
+                                    backgroundImage: null
+                                });
+                                setBackgroundImageInputKey(getRandomInputKey());
+                            }}
+                        >
+                            Reset Background Image
+                        </Button>
                     </Item>
                     <Item>
                         <FormLabel id="cardPrimaryTextSize">Background Image Size</FormLabel>
@@ -850,7 +897,9 @@ export const CardGenerator = () => {
                                         min: 100
                                     }}
                                     startAdornment={
-                                        <InputAdornment className="icon" position="start">₿</InputAdornment>
+                                        <InputAdornment className="icon" position="start">
+                                            <i className="fak fa-satoshisymbol-solidtilt" />
+                                        </InputAdornment>
                                     }
                                     placeholder={'Enter amount in sats'}
                                     value={formik.values.satsAmount}
