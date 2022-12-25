@@ -36,6 +36,7 @@ import Badge from "@mui/material/Badge";
 import ReactCrop, {Crop} from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import {cropImage, resizeImage} from "../../services/cardGenerator";
+import {LatestBitcoinBlock} from "../LatestBitcoinBlock/LatestBitcoinBlock";
 
 export enum CardType {
     BusinessCard = 'business-card',
@@ -94,6 +95,8 @@ interface CardProps {
     slogan: string;
     sloganColor: string;
     sloganFontSize: number;
+    sloganTextShadow: boolean;
+    sloganTextShadowColor: string;
     mainImage: any;
     backgroundImage?: any;
     backgroundImageSize: number;
@@ -107,12 +110,15 @@ interface CardProps {
     config: any;
     overlay?: boolean;
     overlayColor?: string;
+    latestBlock?: boolean;
 }
 
 const initialCardProps: CardProps = {
     slogan: 'CYBERPOWER.',
     sloganColor: '#000000',
     sloganFontSize: 14,
+    sloganTextShadow: false,
+    sloganTextShadowColor: '#000000',
     // mainImage: new Image().src = process.env.PUBLIC_URL + '/images/bitcoin.png',
     mainImage: null,
     satsAmount: 0,
@@ -310,9 +316,30 @@ export const CardGenerator = () => {
                             </Box>
 
                         }
+                        { cardProps.latestBlock &&
+                            <Box sx={{
+                                position: 'absolute',
+                                top: '0.05in',
+                                left: '0.05in',
+                                fontWeight: 'bold'
+                            }}>
+                                <LatestBitcoinBlock />
+                            </Box>
+                        }
                     </Box>
                     <CardContent>
-                        <Typography sx={{ fontSize: `${cardProps.sloganFontSize}pt`, color: cardProps.sloganColor, maxWidth: `${cardProps.config.format[0] - 0.5}in`, overflow: 'hidden', overflowWrap: 'break-word' }} gutterBottom variant="h5" component="div">
+                        <Typography
+                            sx={{
+                                fontSize: `${cardProps.sloganFontSize}pt`,
+                                color: cardProps.sloganColor,
+                                maxWidth: `${cardProps.config.format[0] - 0.5}in`,
+                                overflow: 'hidden', overflowWrap: 'break-word',
+                                textShadow: cardProps.sloganTextShadow ? `1px 1px ${cardProps.sloganTextShadowColor}` : 'none'
+                            }}
+                            gutterBottom
+                            variant="h5"
+                            component="div"
+                        >
                             {cardProps.slogan}
                         </Typography>
                     </CardContent>
@@ -680,6 +707,51 @@ export const CardGenerator = () => {
                         }} />
                     </Item>
                     <Item>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    className="checkbox"
+                                    checked={cardProps.sloganTextShadow}
+                                    onChange={(_event) => {
+                                        setCardProps({
+                                            ...cardProps,
+                                            sloganTextShadow: !cardProps.sloganTextShadow
+                                        })
+                                    }}
+                                />
+                            }
+                            label="Primary Text Shadow (image only)"
+                        />
+                        <Tooltip title="Whether to display display text shadow for the primary text.">
+                            <IconButton>
+                                <Info />
+                            </IconButton>
+                        </Tooltip>
+                    </Item>
+                    { cardProps.sloganTextShadow &&
+                        <React.Fragment>
+                            <Item>
+                                <FormLabel id="cardPrimaryTextColor">
+                                    Primary text shadow color
+                                    <Tooltip title="Choose a color for the primary text shadow.">
+                                        <IconButton>
+                                            <Info />
+                                        </IconButton>
+                                    </Tooltip>
+                                </FormLabel>
+                            </Item>
+                            <Item>
+                                <SketchPicker className="color-picker" color={cardProps.sloganTextShadowColor} onChangeComplete={(color: any) => {
+                                    setCardProps({
+                                        ...cardProps,
+                                        sloganTextShadowColor: color.hex
+                                    })
+                                }} />
+                            </Item>
+                        </React.Fragment>
+
+                    }
+                    <Item>
                         <FormLabel id="cardSecondaryText">
                             Secondary text
                             <Tooltip title="Enter the secondary text.">
@@ -848,6 +920,28 @@ export const CardGenerator = () => {
                             control={
                                 <Checkbox
                                     className="checkbox"
+                                    checked={cardProps.latestBlock}
+                                    onChange={(_event) => {
+                                        setCardProps({
+                                            ...cardProps,
+                                            latestBlock: !cardProps.latestBlock
+                                        })
+                                    }}
+                                />
+                            }
+                            label="Include timestamp (image only)"
+                        />
+                        <Tooltip title="Whether to display bitcoin latest block on the card.">
+                            <IconButton>
+                                <Info />
+                            </IconButton>
+                        </Tooltip>
+                    </Item>
+                    <Item>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    className="checkbox"
                                     checked={cardProps.overlay}
                                     onChange={(_event) => {
                                         setCardProps({
@@ -919,12 +1013,12 @@ export const CardGenerator = () => {
                         </React.Fragment>
                     }
                     <Item>
-                        {
+                        { (cardProps.type === CardType.Sticker && !includeLightningGift) &&
                                 <React.Fragment>
                                     <Item>
                                         <FormLabel id="cardPrimaryTextColor">
-                                            Receive address
-                                            <Tooltip title="Your wallet address to receive payments.">
+                                            Lightning address or LNURL
+                                            <Tooltip title="Your lightning address/LNURL to receive payments.">
                                                 <IconButton>
                                                     <Info />
                                                 </IconButton>
@@ -939,7 +1033,6 @@ export const CardGenerator = () => {
                                             label="Enter address"
                                             sx={{ width: '80%' }}
                                             value={cardProps.receiveAddress}
-                                            disabled={cardProps.type !== CardType.Sticker || includeLightningGift}
                                             onChange={(event) => {
                                                 formik.handleChange(event);
                                                 setCardProps({
