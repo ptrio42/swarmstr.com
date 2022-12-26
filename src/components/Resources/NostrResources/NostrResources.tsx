@@ -66,7 +66,7 @@ const GUIDES = [
     },
     {
         id: 'adding-lightning-button-to-profile',
-        issue: 'How to add Lightning button to profile and start receiving tips?',
+        issue: 'How to add Lightning button to profile and start receiving tips? (Damus)',
         fix: 'Open a Lightning wallet, tap Receive, select Lightning Address and copy it. ' +
             'It should start with LNURL... Go to your profile, tap Edit add paste the address into BITCOIN LIGHTNING TIPS input. '
     },
@@ -91,6 +91,13 @@ const GUIDES = [
         id: 'dark-mode',
         issue: 'How to switch to dark mode? (Damus)',
         fix: 'Set you iOS theme to dark.'
+    },
+    {
+        id: 'who-to-follow',
+        issue: 'Who to follow?',
+        fix: 'Start with following yourself ⚡. Next best step is to find a Bitcoiner and follow some plebs they\'re following. ' +
+            'Also you can check under the hashtag #Plebchain or look at the profiles with the most followers at nostr.io',
+        urls: ['https://nostr.io/stats']
     }
 ];
 
