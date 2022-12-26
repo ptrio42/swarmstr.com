@@ -10,7 +10,6 @@ import Switch from "@mui/material/Switch";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import {ThemeContext, themes} from "./contexts/ThemeContext";
-import {Calendar} from "./components/Calendar/Calendar";
 import {NostrResources} from "./components/Resources/NostrResources/NostrResources";
 import {Resources} from "./components/Resources/Resources";
 
@@ -111,7 +110,6 @@ function App() {
                     <Route path="nostr" element={<NostrResources/>} />
                 </Route>
                 <Route path="/card-generator" element={<CardGenerator />} />
-                <Route path="/calendar" element={<Calendar />} />
             </Routes>
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                 <ThemeContext.Consumer>
