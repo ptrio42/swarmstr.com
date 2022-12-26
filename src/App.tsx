@@ -10,6 +10,9 @@ import Switch from "@mui/material/Switch";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import {ThemeContext, themes} from "./contexts/ThemeContext";
+import {Calendar} from "./components/Calendar/Calendar";
+import {NostrResources} from "./components/Resources/NostrResources/NostrResources";
+import {Resources} from "./components/Resources/Resources";
 
 const theme = createTheme({
     typography: {
@@ -103,8 +106,12 @@ function App() {
             <Routes>
                 <Route path="/" element={<PageContent />} />
                 <Route path="/spread-the-word" element={<SpreadTheWord />} />
-                <Route path="/bitcoin-resources" element={<BitcoinResources />} />
+                <Route path="/resources" element={<Resources />}>
+                    <Route path="bitcoin" element={<BitcoinResources />} />
+                    <Route path="nostr" element={<NostrResources/>} />
+                </Route>
                 <Route path="/card-generator" element={<CardGenerator />} />
+                <Route path="/calendar" element={<Calendar />} />
             </Routes>
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                 <ThemeContext.Consumer>

@@ -81,7 +81,7 @@ export const PageContent = () => {
                 </Stack>
 
                 <Box sx={{ marginBottom: '3em' }} component="div">
-                    <img width="100%" src={process.env.PUBLIC_URL + '/images/uselessshit-splashscreen.jpeg'} />
+                    <img width="100%" src={process.env.PUBLIC_URL + '/images/uselessshit-splashscreen-updated.jpeg'} />
                 </Box>
 
                 <CardGiftcard sx={{ fontSize: '80px' }} />

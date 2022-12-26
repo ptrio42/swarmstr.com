@@ -732,7 +732,7 @@ export const CardGenerator = () => {
                         <React.Fragment>
                             <Item>
                                 <FormLabel id="cardPrimaryTextColor">
-                                    Primary text shadow color
+                                    Primary Text Shadow Color
                                     <Tooltip title="Choose a color for the primary text shadow.">
                                         <IconButton>
                                             <Info />

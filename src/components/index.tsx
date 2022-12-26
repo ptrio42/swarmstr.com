@@ -6,6 +6,6 @@ export { BitcoinPrice } from './BitcoinPrice/BitcoinPrice';
 export { FiatToSatsCalculator } from './FiatToSatsCalculator/FiatToSatsCalculator';
 export { Carousel } from './Carousel/Carousel';
 export { SpreadTheWord } from './SpreadTheWord/SpreadTheWord';
-export { BitcoinResources } from './BitcoinResources/BitcoinResources';
+export { BitcoinResources } from './Resources/BitcoinResources/BitcoinResources';
 export { CardGenerator } from './CardGenerator/CardGenerator';
 export { LightningGift } from './LightningGift/LightningGift';

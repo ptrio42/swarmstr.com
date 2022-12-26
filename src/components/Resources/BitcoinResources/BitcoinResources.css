@@ -1,0 +1,16 @@
+.link {
+    color: #989500;
+    text-decoration: none;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+.theme--dark .pagination li button {
+    color: #FFFFFF;
+}
+
+.theme--dark .tabs button {
+    color: #FFFFFF;
+}
