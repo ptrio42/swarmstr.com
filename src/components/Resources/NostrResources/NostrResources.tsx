@@ -15,6 +15,7 @@ interface Guide {
     id: string;
     issue: string;
     fix: string;
+    urls?: string[];
 }
 
 const GUIDES = [
@@ -30,7 +31,20 @@ const GUIDES = [
         issue: 'How to add an image to a post?',
         fix: 'Image urls are processed and displayed as images. ' +
             'For now, it\'s not possible to upload images directly from your client. ' +
-            'Free image hosting services like https://imgbb.com could be helpful.'
+            'You have to use an image upload online hosting services. ' +
+            'Few free ones are listed below.'
+    },
+    {
+        id: 'image-hosting',
+        issue: 'Image hosting services.',
+        fix: 'A list of free image hosting services.',
+        urls: ['https://nostr.build', 'https://imgbb.com', 'https://postimages.org']
+    },
+    {
+        id: 'gifs',
+        issue: 'User avatars and post images can be GIFs.',
+        fix: 'Animated user avatars and post images work just like any other images.',
+        urls: ['https://tenor.com']
     },
     {
         id: 'dropping-an-invoice',
@@ -54,6 +68,12 @@ const GUIDES = [
         id: 'the-like-emoji',
         issue: 'I see a lot of 🤙 emojis floating around everywhere. What does it mean?',
         fix: '🤙 is for Likes. Also ⚡ is for sats.'
+    },
+    {
+        id: 'adding-more-relays',
+        issue: 'The content won\'t load or loads extremely slow.',
+        fix: 'You can find a list of public relays at nostr.watch and add some more items to RELAYS section of your Settings.',
+        urls: ['https://nostr.watch']
     }
 ];
 
@@ -91,6 +111,14 @@ export const NostrResources = () => {
                                     <Typography variant="body2">
                                         { guide.fix }
                                     </Typography>
+                                    { guide.urls && guide.urls.length > 0 &&
+                                        guide.urls.map(url =>
+                                            <React.Fragment>
+                                                <a href={url} target="_blank">{ url }</a><br />
+                                            </React.Fragment>
+                                        )
+
+                                    }
                                 </CardContent>
                             </Card>
                         </React.Fragment>
