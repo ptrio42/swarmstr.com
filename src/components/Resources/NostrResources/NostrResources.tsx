@@ -53,6 +53,12 @@ const GUIDES = [
         urls: ['https://tenor.com']
     },
     {
+        id: 'multiple-images',
+        issue: 'Adding multiple images to a post.',
+        fix: 'For multiple images to be displayed in a single post, simply add a direct image url for every image you\'d like to see. ' +
+            'They\'ll appear in a carousel (swipe left/right to browse).'
+    },
+    {
         id: 'dropping-an-invoice',
         issue: 'How do I drop an invoice?',
         fix: 'Open a Lightning Wallet, click Receive, edit the amount and copy the Lightning Invoice. ' +
@@ -98,6 +104,17 @@ const GUIDES = [
         fix: 'Start with following yourself ⚡. Next best step is to find a Bitcoiner and follow some plebs they\'re following. ' +
             'Also you can check under the hashtag #Plebchain or look at the profiles with the most followers at nostr.io',
         urls: ['https://nostr.io/stats']
+    },
+    {
+        id: 'markdown',
+        issue: 'Using markdown in posts.',
+        fix: 'Some of the markdown tags are supported by clients. Try formatting your posts with a guide at markdownguide.org',
+        urls: ['https://markdownguide.org']
+    },
+    {
+        id: 'uploading-to-nostr-build',
+        issue: 'Uploading to nostr.build',
+        fix: 'Be cautious when uploading images to nostr.build as anyone can see and override them. Hopefully this will get fixed soon.'
     }
 ];
 
