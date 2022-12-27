@@ -69,7 +69,7 @@ export const NavBar = () => {
                         <ListItemText sx={{ textTransform: 'uppercase' }} primary="Satoshi Calculator" />
                     </ListItemButton>
                 </ListItem>
-                <ListItem disablePadding component={Link} to="/bitcoin-resources" sx={{ color: '#000' }}>
+                <ListItem disablePadding component={Link} to="/resources/bitcoin" sx={{ color: '#000' }}>
                     <ListItemButton>
                         <ListItemIcon>
                             <Receipt />
@@ -135,7 +135,7 @@ export const NavBar = () => {
                                     variant="text"
                                     color="inherit"
                                     component={Link}
-                                    to="/bitcoin-resources"
+                                    to="/resources/bitcoin"
                                     startIcon={<School />}
                                 >
                                     Resources
