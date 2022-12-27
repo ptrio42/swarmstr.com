@@ -114,7 +114,8 @@ const GUIDES = [
     {
         id: 'uploading-to-nostr-build',
         issue: 'Uploading to nostr.build',
-        fix: 'Be cautious when uploading images to nostr.build as anyone can see and override them. Hopefully this will get fixed soon.'
+        fix: 'Be cautious when uploading images to nostr.build as anyone can see them without a direct link.',
+        urls: ['https://nostr.build/i/']
     }
 ];
 
