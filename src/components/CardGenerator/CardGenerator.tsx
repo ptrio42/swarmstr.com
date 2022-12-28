@@ -37,6 +37,8 @@ import ReactCrop, {Crop} from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import {cropImage, resizeImage} from "../../services/cardGenerator";
 import {LatestBitcoinBlock} from "../LatestBitcoinBlock/LatestBitcoinBlock";
+import {uploadImage} from "../../services/uploadImage";
+import Snackbar from "@mui/material/Snackbar";
 
 export enum CardType {
     BusinessCard = 'business-card',
@@ -177,6 +179,9 @@ export const CardGenerator = () => {
     const getRandomInputKey = () => {
         return Math.random().toString(36);
     };
+
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
 
     useEffect(() => {
         setQrCodeRefs((qrCodeRefs) =>
@@ -460,6 +465,33 @@ export const CardGenerator = () => {
         anchor.href = image;
         anchor.download = 'custom-card.png';
         anchor.click();
+    };
+
+    const uploadToNostrBuild = async () => {
+        const cardElement: HTMLElement = cardRef.current as unknown as HTMLElement;
+        const cardCanvas = await html2canvas(cardElement);
+        const imageDataURL = cardCanvas.toDataURL('image/png');
+
+        const blobBin = atob(imageDataURL.split(',')[1]);
+        const array = [];
+        for(let i = 0; i < blobBin.length; i++) {
+            array.push(blobBin.charCodeAt(i));
+        }
+
+        cardCanvas.toBlob(async (blob: any) => {
+            const imageFile = new File([blob], "fileName.png", { type: "image/png" });
+            const formData = new FormData();
+            formData.append('fileToUpload', imageFile);
+            formData.append('submit', 'Upload Image');
+            const response = await uploadImage(formData);
+
+            const regExp = /(https?:\/\/[^ ]*)/;
+            let imageUrl: string = response.match(regExp)[0];
+            imageUrl = imageUrl.slice(0, imageUrl.indexOf('<BR>'));
+            setSnackbarMessage('Upload successfull! Image URL: ' + imageUrl);
+            setSnackbarOpen(true);
+        }, 'image/png');
+
     };
 
     const downloadCardAsPDF = async () => {
@@ -1099,10 +1131,30 @@ export const CardGenerator = () => {
                         >
                             Download as image
                         </Button>
+                        <Button
+                            sx={{ fontWeight: 'bold', marginLeft: '1em' }}
+                            variant="contained"
+                            color="warning"
+                            onClick={() => {
+                                uploadToNostrBuild()
+                                    .then()
+                                    .catch(error => console.error({error}))
+                                ;
+                            }}
+                            disabled={includeLightningGift && lnurls.length === 0}
+                        >
+                            Upload to nostr.build
+                        </Button>
                     </Item>
+
                 </Stack>
             </form>
             <LoadingAnimation isLoading={isLoading} />
+            <Snackbar
+                open={snackbarOpen}
+                onClose={() => setSnackbarOpen(false)}
+                message={snackbarMessage}
+            />
         </Box>
     );
 };
