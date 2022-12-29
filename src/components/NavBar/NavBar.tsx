@@ -7,7 +7,7 @@ import {Link} from "react-router-dom";
 import Button from '@mui/material/Button';
 import Receipt from '@mui/icons-material/Receipt';
 import Media from 'react-media';
-import {Build, CurrencyBitcoin, Menu as MenuIcon, Payments, School} from '@mui/icons-material';
+import {Build, CurrencyBitcoin, ElectricBolt, Menu as MenuIcon, Payments, School} from '@mui/icons-material';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -77,6 +77,14 @@ export const NavBar = () => {
                         <ListItemText sx={{ textTransform: 'uppercase' }} primary="Resources" />
                     </ListItemButton>
                 </ListItem>
+                <ListItem disablePadding component={Link} to="/resources/nostr" sx={{ color: '#000' }}>
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <ElectricBolt />
+                        </ListItemIcon>
+                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Nostr" />
+                    </ListItemButton>
+                </ListItem>
             </List>
         </Box>
     );
@@ -96,7 +104,7 @@ export const NavBar = () => {
                         container
                         justifyContent="flex-end"
                         className="navbar-actions">
-                        <Media query={{ maxWidth: '727px' }} render={() => (
+                        <Media query={{ maxWidth: '815px' }} render={() => (
                             <React.Fragment>
                                 <IconButton onClick={toggleDrawer(true)}><MenuIcon /></IconButton>
                                 <Drawer
@@ -108,7 +116,7 @@ export const NavBar = () => {
                                 </Drawer>
                             </React.Fragment>
                         )} />
-                        <Media query={{ minWidth: '728px' }} render={() => (
+                        <Media query={{ minWidth: '816px' }} render={() => (
                             <React.Fragment>
                                 <Button
                                     sx={{ fontWeight: 'bold' }}
@@ -139,6 +147,16 @@ export const NavBar = () => {
                                     startIcon={<School />}
                                 >
                                     Resources
+                                </Button>
+                                <Button
+                                    sx={{ fontWeight: 'bold' }}
+                                    variant="text"
+                                    color="inherit"
+                                    component={Link}
+                                    to="/resources/nostr"
+                                    startIcon={<ElectricBolt />}
+                                >
+                                    NOSTR
                                 </Button>
                                 <Menu
                                     id="tools-menu"
