@@ -124,6 +124,12 @@ const GUIDES = [
         urls: ['https://nostr.build/i/']
     },
     {
+        id: 'removing-relays',
+        issue: 'How to remove a relay? (Damus)',
+        fix: 'In your SETTINGS view (cog icon in the right top), swipe left on a relay you\'d ' +
+            'like to remove and click on the trash icon to confirm removal.'
+    },
+    {
         id: 'more-resources',
         issue: 'Didn\'t find what you\'ve been looking for?',
         fix: 'Go ahead and ask me on nostr @npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4 🤙 ' +
