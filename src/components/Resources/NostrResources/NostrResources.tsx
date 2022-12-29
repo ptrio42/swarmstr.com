@@ -6,6 +6,7 @@ import Card from "@mui/material/Card";
 import ListItem from "@mui/material/ListItem";
 import Box from "@mui/material/Box";
 import {Link} from "react-router-dom";
+import {Helmet} from "react-helmet";
 
 interface NostrProps {
     guides?: any[]
@@ -150,6 +151,14 @@ export const NostrResources = () => {
 
     return (
         <React.Fragment>
+            <Helmet>
+                <title>Newcomers most common questions and answers - UselessShit.co</title>
+                <meta itemProp="image" content={process.env.PUBLIC_URL + '/images/guide-cover.png'} />
+                <meta property="og:url" content="https://uselessshit.co/resources/nostr" />
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content="Newcomers most common questions and answers - UselessShit.co" />
+                <meta property="og:image" content={process.env.PUBLIC_URL + '/images/guide-cover.png'} />
+            </Helmet>
             <List>
                 <ListItem>
                     Useful tips for NOSTR newcomers
