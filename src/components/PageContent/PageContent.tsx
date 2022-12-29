@@ -84,6 +84,12 @@ export const PageContent = () => {
                     <img width="100%" src={process.env.PUBLIC_URL + '/images/uselessshit-splashscreen-updated.jpeg'} />
                 </Box>
 
+                <Box sx={{ marginBottom: '3em' }} component="div">
+                    <Typography variant="body1" component="div" align="justify" gutterBottom sx={{ lineHeight: '2', fontSize: '18px' }}>
+                        For Nostr tips & tricks, <Link to="/resources/nostr">head down here</Link>.
+                    </Typography>
+                </Box>
+
                 <CardGiftcard sx={{ fontSize: '80px' }} />
                 <Typography id="were-handed-a-card" variant="h3" component="div" gutterBottom>
                     Were you handed a card?
