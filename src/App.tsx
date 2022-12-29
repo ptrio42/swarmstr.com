@@ -105,7 +105,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<PageContent />} />
                 <Route path="/spread-the-word" element={<SpreadTheWord />} />
-                <Route path="/resources" element={<Resources />}>
+                <Route path="resources" element={<Resources />}>
                     <Route path="bitcoin" element={<BitcoinResources />} />
                     <Route path="nostr" element={<NostrResources/>} />
                 </Route>

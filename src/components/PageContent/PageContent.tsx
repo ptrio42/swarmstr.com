@@ -149,7 +149,7 @@ export const PageContent = () => {
                     For more resources,
                     <Button
                         component={Link}
-                        to="/bitcoin-resources"
+                        to="/resources/bitcoin"
                         color="secondary"
                         startIcon={<CurrencyBitcoin />}
                     >
