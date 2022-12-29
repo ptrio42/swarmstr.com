@@ -158,15 +158,15 @@ export const NostrResources = () => {
                 <meta property="og:url" content="https://uselessshit.co/resources/nostr" />
                 <meta property="og:type" content="website" />
                 <meta property="og:title" content="Newcomers most common questions and answers - UselessShit.co" />
-                <meta property="og:image" content="%PUBLIC_URL%/images/guide-cover.png" />
+                <meta property="og:image" content="https://uselessshit.co/images/guide-cover.png" />
                 <meta property="og:description" content="Basic guide for NOSTR newcomers." />
 
                 <meta itemProp="name" content="Newcomers most common questions and answers - UselessShit.co" />
-                <meta itemProp="image" content="%PUBLIC_URL%/images/guide-cover.png" />
+                <meta itemProp="image" content="https://uselessshit.co/images/guide-cover.png" />
 
                 <meta name="twitter:title" content="Newcomers most common questions and answers - UselessShit.co" />
                 <meta name="twitter:description" content="Basic guide for NOSTR newcomers." />
-                <meta name="twitter:image" content="%PUBLIC_URL%/images/guide-cover.png" />
+                <meta name="twitter:image" content="https://uselessshit.co/images/guide-cover.png" />
 
             </Helmet>
             <List>
