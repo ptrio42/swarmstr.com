@@ -9,19 +9,30 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter as Router } from 'react-router-dom';
 import {ThemeContextWrapper} from "./theme/ThemeContextWrapper";
+import {hydrate, render} from "react-dom";
 
 const rootElement = document.getElementById('root') as HTMLElement;
-const root = ReactDOM.createRoot(rootElement);
+// const root = ReactDOM.createRoot(rootElement);
 
-root.render(
-  <ThemeContextWrapper>
-      <React.StrictMode>
-          <Router>
-              <App />
-          </Router>
-      </React.StrictMode>
-  </ThemeContextWrapper>
-);
+if (rootElement.hasChildNodes()) {
+    hydrate(
+        <ThemeContextWrapper>
+            <React.StrictMode>
+                <Router>
+                    <App />
+                </Router>
+            </React.StrictMode>
+        </ThemeContextWrapper>, rootElement);
+} else {
+    render(
+        <ThemeContextWrapper>
+            <React.StrictMode>
+                <Router>
+                    <App />
+                </Router>
+            </React.StrictMode>
+        </ThemeContextWrapper>, rootElement);
+}
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
