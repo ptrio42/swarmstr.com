@@ -472,12 +472,6 @@ export const CardGenerator = () => {
         const cardCanvas = await html2canvas(cardElement);
         const imageDataURL = cardCanvas.toDataURL('image/png');
 
-        const blobBin = atob(imageDataURL.split(',')[1]);
-        const array = [];
-        for(let i = 0; i < blobBin.length; i++) {
-            array.push(blobBin.charCodeAt(i));
-        }
-
         cardCanvas.toBlob(async (blob: any) => {
             const imageFile = new File([blob], "fileName.png", { type: "image/png" });
             const formData = new FormData();

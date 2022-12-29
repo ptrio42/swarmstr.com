@@ -42,7 +42,7 @@ const GUIDES = [
     },
     {
         id: 'adding-avatar',
-        issue: 'Adding avatar in Damus',
+        issue: 'Adding avatar in Damus.',
         fix: 'Upload desired image to a public server as described in the steps above. ' +
             'Copy the image url and paste it into PROFILE PICTURE input under Profile EDIT view.'
     },
@@ -57,6 +57,12 @@ const GUIDES = [
         issue: 'Adding multiple images to a post.',
         fix: 'For multiple images to be displayed in a single post, simply add a direct image url for every image you\'d like to see. ' +
             'They\'ll appear in a carousel (swipe left/right to browse).'
+    },
+    {
+        id: 'adding-videos',
+        issue: 'How to make a post with a video? (Damus)',
+        fix: 'Video urls are processed and displayed as videos. Simply copy the direct video link (it has to be hosted somewhere public) and paste it into a post 🔥 ' +
+            'That\'s it!'
     },
     {
         id: 'dropping-an-invoice',
@@ -116,6 +122,15 @@ const GUIDES = [
         issue: 'Uploading to nostr.build',
         fix: 'Be cautious when uploading images to nostr.build as anyone can see them without a direct link.',
         urls: ['https://nostr.build/i/']
+    },
+    {
+        id: 'more-resources',
+        issue: 'Didn\'t find what you\'ve been looking for?',
+        fix: 'Go ahead and ask me on nostr @npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4 🤙 ' +
+            'Also, since you\'re here, ' +
+            'you may also want to check our bitcoin resources page for a list of Bitcoiners, bitcoin books, pods, apps ' +
+            '& wallets.',
+        urls: ['https://uselessshit.co/resources/bitcoin']
     }
 ];
 
