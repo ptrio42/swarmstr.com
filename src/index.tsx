@@ -10,29 +10,50 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter as Router } from 'react-router-dom';
 import {ThemeContextWrapper} from "./theme/ThemeContextWrapper";
 import {hydrate, render} from "react-dom";
+import {getState, loadComponents} from "loadable-components";
 
 const rootElement = document.getElementById('root') as HTMLElement;
 // const root = ReactDOM.createRoot(rootElement);
 
-if (rootElement.hasChildNodes()) {
-    hydrate(
+(window as unknown as any).snapSaveState = () => getState();
+
+loadComponents()
+    .then(() => hydrate(
         <ThemeContextWrapper>
             <React.StrictMode>
                 <Router>
                     <App />
                 </Router>
             </React.StrictMode>
-        </ThemeContextWrapper>, rootElement);
-} else {
-    render(
+        </ThemeContextWrapper>, rootElement))
+    .catch(() => render(
         <ThemeContextWrapper>
             <React.StrictMode>
                 <Router>
                     <App />
                 </Router>
             </React.StrictMode>
-        </ThemeContextWrapper>, rootElement);
-}
+        </ThemeContextWrapper>, rootElement));
+
+// if (rootElement.hasChildNodes()) {
+//     hydrate(
+//         <ThemeContextWrapper>
+//             <React.StrictMode>
+//                 <Router>
+//                     <App />
+//                 </Router>
+//             </React.StrictMode>
+//         </ThemeContextWrapper>, rootElement);
+// } else {
+//     render(
+//         <ThemeContextWrapper>
+//             <React.StrictMode>
+//                 <Router>
+//                     <App />
+//                 </Router>
+//             </React.StrictMode>
+//         </ThemeContextWrapper>, rootElement);
+// }
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
