@@ -10,9 +10,9 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter as Router } from 'react-router-dom';
 import {ThemeContextWrapper} from "./theme/ThemeContextWrapper";
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
+const rootElement = document.getElementById('root') as HTMLElement;
+const root = ReactDOM.createRoot(rootElement);
+
 root.render(
   <ThemeContextWrapper>
       <React.StrictMode>
