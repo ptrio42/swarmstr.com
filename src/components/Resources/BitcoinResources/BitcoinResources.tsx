@@ -228,11 +228,14 @@ export const BitcoinResources = () => {
                 <meta property="og:type" content="website" />
                 <meta property="og:title" content="List of Bitcoiners, bitcoin books, pods, apps & wallets - UselessShit.co" />
                 <meta property="og:description" content="See for yourself how deep the bitcoin rabbit hole goes." />
+                <meta property="og:image" content="https://uselessshit.co/images/bitcoin-resources-cover.png" />
 
                 <meta itemProp="name" content="List of Bitcoiners, bitcoin books, pods, apps & wallets - UselessShit.co" />
+                <meta itemProp="image" content="https://uselessshit.co/images/bitcoin-resources-cover.png" />
 
                 <meta name="twitter:title" content="List of Bitcoiners, bitcoin books, pods, apps & wallets - UselessShit.co" />
                 <meta name="twitter:description" content="See for yourself how deep the bitcoin rabbit hole goes." />
+                <meta name="twitter:image" content="https://uselessshit.co/images/bitcoin-resources-cover.png" />
             </Helmet>
             <img height="128" src={process.env.PUBLIC_URL + '/images/white-rabbit.png'} />
             <Typography id="were-handed-a-card" variant="h3" component="div" gutterBottom>
