@@ -128,10 +128,35 @@ const GUIDES = [
         id: 'removing-relays',
         issue: 'How to remove a relay? (Damus)',
         fix: 'In your SETTINGS view (cog icon in the right top), swipe left on a relay you\'d ' +
-            'like to remove and click on the trash icon to confirm removal.'
+            'like to remove and click on the trash icon to confirm removal. ' +
+            'You might want to restart the client for the changes to take place.'
+    },
+    {
+        id: 'nip-05',
+        issue: 'How to setup NIP-05 identifier?',
+        fix: 'Head down to this basic guide on setting up NIP-05 identifier.',
+        urls: ['https://gist.github.com/metasikander/609a538e6a03b2f67e5c8de625baed3e']
+    },
+    {
+        id: 'running-nostr',
+        issue: 'How do I setup my own NOSTR relay?',
+        fix: 'Check out nostream, a production-ready nostr relay written in TypeScript.',
+        urls: ['https://github.com/Cameri/nostream']
+    },
+    {
+        id: 'converting-npub-to-hex',
+        issue: 'How to convert my npub key (Damus) to hex format?',
+        fix: 'Try this online tool to convert your npub key to hex format.',
+        urls: ['https://damus.io/key']
     },
     {
         id: 'more-resources',
+        issue: 'Additional NOSTR resources.',
+        fix: 'Check out the urls listed below for additional resources.',
+        urls: ['https://gist.github.com/dergigi/1ee8dc7e3da4b6572ed785ab24bc9907', 'https://medium.com/@ValentinNagacevschi/nosrt-an-introduction-ab946879a727']
+    },
+    {
+        id: 'contact',
         issue: 'Didn\'t find what you\'ve been looking for?',
         fix: 'Go ahead and ask me on nostr @npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4 🤙 ' +
             'Also, since you\'re here, ' +
