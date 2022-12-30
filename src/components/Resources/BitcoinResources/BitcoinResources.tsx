@@ -15,6 +15,7 @@ import ListItemText from "@mui/material/ListItemText";
 import { Helmet } from 'react-helmet';
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
+import Chip from "@mui/material/Chip";
 
 export const BitcoinResources = () => {
     const [tab, setTab] = useState(0);
@@ -126,12 +127,6 @@ export const BitcoinResources = () => {
         }
     ];
 
-    const apps = [
-        {
-
-        }
-    ];
-
     const p2pExchanges = [
         {
             name: 'Bisq',
@@ -147,6 +142,16 @@ export const BitcoinResources = () => {
             name: 'PeachBitcoin',
             url: 'https://peachbitcoin.com/',
             description: 'Buy or sell bitcoin peer-to-peer, anywhere, at anytime, with the payment method of your choice, at the price that you want.'
+        },
+        {
+            name: 'Relai',
+            url: 'https://relai.app',
+            description: 'Relai is a Bitcoin investment app that allows anyone to buy bitcoin within one minutes or set up an automated savings plan.'
+        },
+        {
+            name: 'HodlHodl',
+            url: 'https://hodlhodl.com',
+            description: 'P2P BITCOIN TRADING platform. Non-custodial Bitcoin trading solution, we don\'t hold your funds. Sign up. What is Hodl Hodl?'
         }
     ];
 
@@ -184,6 +189,11 @@ export const BitcoinResources = () => {
             name: 'LN Bits',
             url: 'https://lnbits.com/',
             description: 'Use instantly and directly in browser on desktop or phone, no need to download any apps.'
+        },
+        {
+            name: 'Alby',
+            url: 'https://getalby.com',
+            description: 'The Bitcoin Lightning App for your Browser. Alby brings Bitcoin payments to the web with in-browser payments and identity, all with your own wallet.'
         }
     ];
 
@@ -298,7 +308,7 @@ export const BitcoinResources = () => {
                                 <a className="link" href="https://whatismoneypodcast.com/" target="_blank">What is Money? Show</a>
                             </ListItem>
                             <ListItem>
-                                What Bitcoin Did
+                                Citadel Dispatch
                             </ListItem>
                             <ListItem>
                                 A Path to Bitcoin
@@ -322,6 +332,7 @@ export const BitcoinResources = () => {
                             <ListItem>The Bitcoin Breakout with Jack Spirko</ListItem>
                             <ListItem>Bitcoin Rapid-Fire</ListItem>
                             <ListItem>TFTC: A Bitcoin Podcast</ListItem>
+                            <ListItem>Thriller Bitcoin</ListItem>
                         </List>
                     </TabPanel>
                     <TabPanel index={2} value={tab}>
@@ -354,20 +365,29 @@ export const BitcoinResources = () => {
                             <ListItem>ln.cash</ListItem>
                             <ListItem>Strike</ListItem>
                             <ListItem>swanbitcoin.com</ListItem>
-                            <ListItem>Relai</ListItem>
                             <ListItem>Carrot</ListItem>
                             <ListItem>silent.link</ListItem>
                             <ListItem>Bitrefill</ListItem>
                             <ListItem>SatoshiVibes.com</ListItem>
                             <ListItem>heyapollo.com</ListItem>
+                            <ListItem>https://thesimplestbitcoinbook.net</ListItem>
                         </List>
                     </TabPanel>
                     <TabPanel index={4} value={tab}>
                         <List>
                             {
                                 lightningWallets.map(wallet => (
-                                    <ListItem className="link" component="a" href={wallet.url} target="_blank">
+                                    <ListItem sx={{ flexDirection: 'column', alignItems: 'flex-start' }} className="link" component="a" href={wallet.url} target="_blank">
                                         <ListItemText secondaryTypographyProps={{ style: text }} primary={wallet.name} secondary={wallet.url} />
+                                        { wallet.tags && wallet.tags.length > 0 &&
+                                        <Stack direction="row" spacing={1}>
+                                            {
+                                                wallet.tags.map(tag => (
+                                                    <Chip label={tag} color="primary" />
+                                                ))
+                                            }
+                                        </Stack>
+                                        }
                                     </ListItem>
                                 ))
                             }

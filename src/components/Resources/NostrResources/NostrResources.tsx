@@ -21,6 +21,13 @@ interface Guide {
 
 const GUIDES = [
     {
+        id: 'what-is-nostr',
+        issue: 'What\'s NOSTR?',
+        fix: 'Notes and Other Stuff Transmitted by Relays, ' +
+            'or NOSTR, is an open protocol, designed to create a censorship-resistant social network.',
+        urls: ['https://github.com/nostr-protocol/nostr', 'https://usenostr.org']
+    },
+    {
         id: 'how-do-i-tag-a-person',
         issue: 'How do I tag a person?',
         fix: 'Use this person\'s public key instead of their handle. ' +
@@ -91,7 +98,8 @@ const GUIDES = [
     {
         id: 'adding-more-relays',
         issue: 'The content won\'t load or loads extremely slow.',
-        fix: 'You can find a list of public relays at nostr.watch and add some more items to RELAYS section of your Settings.',
+        fix: 'You can find a list of public relays at nostr.watch and add some more items to RELAYS section of your Settings. ' +
+            'You might also want to check the RECOMMENDED RELAYS section and pick up some from there.',
         urls: ['https://nostr.watch']
     },
     {
@@ -148,6 +156,17 @@ const GUIDES = [
         issue: 'How to convert my npub key (Damus) to hex format?',
         fix: 'Try this online tool to convert your npub key to hex format.',
         urls: ['https://damus.io/key']
+    },
+    {
+        id: 'security-and-privacy-tips',
+        issue: 'Security and Privacy tips.',
+        fix: '',
+        urls: ['https://ron.stoner.com/nostr_Security_and_Privacy/']
+    },
+    {
+        id: 'blurred-images',
+        issue: 'Some images are blurred. Need to click on the image to see it. What\'s up?',
+        fix: 'You can only see images from the people you\'re following, the remaining ones come up blurred.'
     },
     {
         id: 'more-resources',
