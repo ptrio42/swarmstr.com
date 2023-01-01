@@ -28,10 +28,19 @@ const GUIDES = [
         urls: ['https://github.com/nostr-protocol/nostr', 'https://usenostr.org']
     },
     {
+        id: 'keys',
+        issue: 'Getting the keys',
+        fix: 'The keys are your identity. They consist of a public key (npub) and a private key (nsec). ' +
+            'The public can be treated as a username, whereas the private key is more like a password. ' +
+            'Be cautious when entering your private on different sites - if it gets leaked and falls into wrong hands,' +
+            'you can think of your \'account\' as compromised.'
+    },
+    {
         id: 'how-do-i-tag-a-person',
         issue: 'How do I tag a person?',
         fix: 'Use this person\'s public key instead of their handle. ' +
-            'The public key can be obtained in a person\'s profile, under the key icon.',
+            'The public key can be obtained in a person\'s profile, under the key icon. ' +
+            'Then, to tag this person, you got to put the @ symbol in front of their pubkey.',
         tags: ['Damus']
     },
     {

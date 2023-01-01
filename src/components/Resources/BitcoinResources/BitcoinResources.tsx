@@ -349,6 +349,7 @@ export const BitcoinResources = () => {
                             <ListItem>Check your financial privilege by Alex Gladstein</ListItem>
                             <ListItem>The price of tomorrow by Jeff Booth</ListItem>
                             <ListItem>Inventing Bitcoin by Yan Pritzker</ListItem>
+                            <ListItem>The Simplest Bitcoin Book by Keysa Luna</ListItem>
                         </List>
                     </TabPanel>
                     <TabPanel index={3} value={tab}>
