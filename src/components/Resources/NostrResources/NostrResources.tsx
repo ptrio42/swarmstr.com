@@ -33,7 +33,14 @@ const GUIDES = [
         fix: 'The keys are your identity. They consist of a public key (npub) and a private key (nsec). ' +
             'The public can be treated as a username, whereas the private key is more like a password. ' +
             'Be cautious when entering your private on different sites - if it gets leaked and falls into wrong hands,' +
-            'you can think of your \'account\' as compromised.'
+            'you can think of your \'account\' as compromised. You can get your keys through any of the NOSTR clients.',
+        urls: ['https://damus.io', 'https://astral.ninja']
+    },
+    {
+        id: 'mining-the-public-key',
+        issue: 'How to mine a public key?',
+        fix: 'You can mine your public key with a desired prefix. Check out nostr.rest to find out how.',
+        urls: ['https://nostr.rest']
     },
     {
         id: 'how-do-i-tag-a-person',
@@ -127,7 +134,13 @@ const GUIDES = [
         issue: 'Who to follow?',
         fix: 'Start with following yourself ⚡. Next best step is to find a Bitcoiner and follow some plebs they\'re following. ' +
             'Also you can check under the hashtag #Plebchain or look at the profiles with the most followers at nostr.io',
-        urls: ['https://nostr.io/stats']
+        urls: ['https://nostr.io/stats', 'https://bitcoinnostr.com/lfg']
+    },
+    {
+        id: 'finding-others',
+        issue: 'Finding others.',
+        fix: 'To find out if any of the people you follow on the bird app are on NOSTR as well, check out nostr.directory',
+        urls: ['https://nostr.directory', 'https://twitter.com/search?q=%22verifying%20my%20account%20on%20nostr%22&f=live&pf=1']
     },
     {
         id: 'markdown',
@@ -140,6 +153,14 @@ const GUIDES = [
         issue: 'Uploading to nostr.build',
         fix: 'Be cautious when uploading images to nostr.build as anyone can see them without a direct link.',
         urls: ['https://nostr.build/i/']
+    },
+    {
+        id: 'too-many-relays',
+        issue: 'The NOSTR client I\'m using seems to use up a lot of bandwidth.',
+        fix: 'While having more relays added in your SETTINGS will make your client fetch the data faster, ' +
+            'resulting in better experience, ' +
+            'having too many relays could be an issue as well. Be cautious when using a mobile internet with limited bandwidth ' +
+            'and try limiting the amount of relays to well under 10.'
     },
     {
         id: 'removing-relays',
@@ -181,7 +202,14 @@ const GUIDES = [
         id: 'more-resources',
         issue: 'Additional NOSTR resources.',
         fix: 'Check out the urls listed below for additional resources.',
-        urls: ['https://gist.github.com/dergigi/1ee8dc7e3da4b6572ed785ab24bc9907', 'https://medium.com/@ValentinNagacevschi/nosrt-an-introduction-ab946879a727']
+        urls: [
+            'https://gist.github.com/dergigi/1ee8dc7e3da4b6572ed785ab24bc9907',
+            'https://medium.com/@ValentinNagacevschi/nosrt-an-introduction-ab946879a727',
+            'https://www.btctimes.com/news/what-is-nostr-and-how-do-i-use-it',
+            'https://github.com/vishalxl/nostr_console/discussions/31',
+            'https://wiki.wellorder.net/post/nostr-intro/',
+            'https://t.me/NostrTalk/73'
+        ]
     },
     {
         id: 'contact',
