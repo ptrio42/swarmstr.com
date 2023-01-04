@@ -3,8 +3,8 @@
   "tag":"payRequest",
   "commentAllowed":255,
   "callback":"https://getalby.com/lnurlp/pitiunited/callback",
-  "metadata":"[[\"text/identifier\", \"albyK@getalby.com\"], [\"text/plain\", \"Sats for pitiunited\"]]",
-  "minSendable":1000,"maxSendable":11000000000,
+  "metadata":"[[\"text/identifier\", \"pitiunited@getalby.com\"], [\"text/plain\", \"Sats for pitiunited\"]]",
+  "minSendable":100,"maxSendable":11000000000,
   "payerData":
     {
       "name":{"mandatory":false},
