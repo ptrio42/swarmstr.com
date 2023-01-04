@@ -5,16 +5,17 @@ import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
 import ListItem from "@mui/material/ListItem";
 import Box from "@mui/material/Box";
-import {Link} from "react-router-dom";
+import {Link, useLocation} from "react-router-dom";
 import {Helmet} from "react-helmet";
 import CardActions from "@mui/material/CardActions";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
-import {ArrowDownward, ArrowUpward, ExpandLess, ExpandMore, ToggleOff} from "@mui/icons-material";
+import {ArrowDownward, ArrowUpward, ExpandLess, ExpandMore, Reply, ToggleOff} from "@mui/icons-material";
 import Collapse from "@mui/material/Collapse";
 import ListItemText from "@mui/material/ListItemText";
 import './NostrResources.css';
 import ListItemButton from "@mui/material/ListItemButton";
+import Snackbar from "@mui/material/Snackbar";
 
 interface NostrResourcesProps {
     guides?: Guide[]
@@ -283,7 +284,10 @@ export const NostrResources = () => {
 
     const [guides, setGuides] = useState<Guide[]>([]);
     const [sort, setSort] = useState<string>('');
-    const [expanded, setExpanded] = useState<string[]>(['what-is-nostr']);
+    const [expanded, setExpanded] = useState<string[]>([]);
+    const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
+
+    const { hash } = useLocation();
 
     useEffect(() => {
         setGuides(GUIDES);
@@ -303,6 +307,26 @@ export const NostrResources = () => {
             setGuides(guidesSorted);
         }
     }, [sort]);
+
+    useEffect(() => {
+        setExpanded((state) => [
+            ...state,
+            hash.slice(1)
+        ]);
+
+        if (hash === '') {
+            window.scrollTo(0, 0);
+        }
+        else {
+            setTimeout(() => {
+                const id = hash.replace('#', '');
+                const element = document.getElementById(id);
+                if (element) {
+                    element.scrollIntoView();
+                }
+            }, 3000);
+        }
+    }, [hash]);
 
     const handleExpanded = (guideId: string) => {
         let newExpanded;
@@ -357,7 +381,7 @@ export const NostrResources = () => {
                 />
             </Stack>
             <List>
-                <ListItem>
+                <ListItem key="nostr-resources">
                     <ListItemText
                         sx={{ textTransform: 'uppercase' }}
                         primary="Useful tips for NOSTR newcomers"
@@ -366,13 +390,18 @@ export const NostrResources = () => {
                 </ListItem>
                 {
                     guides.map((guide, index) => (
-                        <ListItemButton sx={{ flexWrap: 'wrap' }} onClick={() => {
+                        <ListItemButton key={guide.id} id={guide.id} sx={{ flexWrap: 'wrap' }} onClick={() => {
                             handleExpanded(guide.id)
                         }}>
                             <ListItemText primary={guide.issue} />
                             {expanded.includes(guide.id) ? <ExpandLess /> : <ExpandMore />}
+                            <Reply sx={{ marginLeft: '0.3em' }} onClick={(event) => {
+                                event.stopPropagation();
+                                navigator.clipboard.writeText(`https://uselessshit.co/resources/nostr/#${guide.id}`);
+                                setSnackbarOpen(true);
+                            }} />
                             <Collapse sx={{ width: '100%'}} in={expanded.includes(guide.id)} timeout="auto" unmountOnExit>
-                                <List id={guide.id} component="div" disablePadding>
+                                <List component="div" disablePadding>
                                     <ListItem>
                                         <Card sx={{ minWidth: 275, marginBottom: '0.5em' }}>
                                             <CardContent>
@@ -402,6 +431,12 @@ export const NostrResources = () => {
                     ))
                 }
             </List>
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={() => setSnackbarOpen(false)}
+                message="Direct link to answer was copied to clipboard!"
+            />
         </React.Fragment>
     );
 };
