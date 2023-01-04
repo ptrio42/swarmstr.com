@@ -221,6 +221,12 @@ const GUIDES: Guide[] = [
         updatedAt: '2023-01-04'
     },
     {
+        id: 'blue-and-yellow-checkmarks',
+        issue: 'What\'s the difference between blue and yellow checkmark?',
+        fix: 'People you aren\'t following have yellow checkmarks, whereas the ones you follow have blue checkmarks.',
+        updatedAt: '2023-01-04 15:32:00'
+    },
+    {
         id: 'running-nostr',
         issue: 'How do I setup my own NOSTR relay?',
         fix: 'Check out nostream, a production-ready nostr relay written in TypeScript.',
