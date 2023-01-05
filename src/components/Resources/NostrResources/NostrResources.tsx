@@ -16,6 +16,7 @@ import ListItemText from "@mui/material/ListItemText";
 import './NostrResources.css';
 import ListItemButton from "@mui/material/ListItemButton";
 import Snackbar from "@mui/material/Snackbar";
+import CardMedia from "@mui/material/CardMedia";
 
 interface NostrResourcesProps {
     guides?: Guide[]
@@ -27,6 +28,7 @@ interface Guide {
     fix: string;
     urls?: string[];
     updatedAt: string;
+    imageUrls?: string[]
 }
 
 const GUIDES: Guide[] = [
@@ -40,7 +42,8 @@ const GUIDES: Guide[] = [
             'https://usenostr.org',
             'https://nostr-resources.com'
         ],
-        updatedAt: '2022-12-30'
+        updatedAt: '2022-12-30',
+        imageUrls: ['http://localhost:3000/images/explain-it-to-me-like-i-m-5.png']
     },
     {
         id: 'keys',
@@ -215,9 +218,10 @@ const GUIDES: Guide[] = [
     },
     {
         id: 'nip-05',
-        issue: 'How to setup NIP-05 identifier?',
-        fix: 'Head down to this basic guide on setting up NIP-05 identifier. ' +
-            'DM me your public hex key and desired name for a NIP-05 identifier at uselessshit.co',
+        issue: 'How to setup NIP-05 identifier (checkmark)?',
+        fix: 'Head down to this basic guide (the gist below) on setting up a NIP-05 identifier. ' +
+            'If you don\'t own a domain you can ask someone to create an id for you at their domain. ' +
+            'DM me for yourname@uselessshit.co NIP-05 id 🤙 (see Contact)',
         urls: ['https://gist.github.com/metasikander/609a538e6a03b2f67e5c8de625baed3e'],
         updatedAt: '2023-01-04'
     },
@@ -404,6 +408,16 @@ export const NostrResources = () => {
                                 <List component="div" disablePadding>
                                     <ListItem>
                                         <Card sx={{ minWidth: 275, marginBottom: '0.5em' }}>
+                                            { guide.imageUrls && guide.imageUrls.length > 0 &&
+                                            <a href={guide.imageUrls[0]} target="_blank">
+                                                <CardMedia
+                                                    component="img"
+                                                    height="194"
+                                                    image={guide.imageUrls[0]}
+                                                    alt="Show full-sized image in a new tab"
+                                                />
+                                            </a>
+                                            }
                                             <CardContent>
                                                 <Typography sx={{ fontSize: 14, fontWeight: 'bold', color: '#000' }} color="text.secondary" gutterBottom>
                                                     { guide.issue }

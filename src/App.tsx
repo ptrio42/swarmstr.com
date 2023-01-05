@@ -12,6 +12,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import {ThemeContext, themes} from "./contexts/ThemeContext";
 import {NostrResources} from "./components/Resources/NostrResources/NostrResources";
 import {Resources} from "./components/Resources/Resources";
+import {TipJar} from "./components/TipJar/TipJar";
 
 const theme = createTheme({
     typography: {
@@ -110,6 +111,7 @@ function App() {
                     <Route path="nostr" element={<NostrResources/>} />
                 </Route>
                 <Route path="/card-generator" element={<CardGenerator />} />
+                <Route path="/tip-jar/pitiunited" element={<TipJar />} />
             </Routes>
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                 <ThemeContext.Consumer>
