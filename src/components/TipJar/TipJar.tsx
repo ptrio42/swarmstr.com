@@ -7,12 +7,12 @@ import {useParams} from "react-router-dom";
 const TIP_JARS: CardProps[] = [
     {
         name: 'pitiunited',
-        slogan: '⚡️ TIP JAR ️⚡️',
+        slogan: 'USE LESS SHIT️',
         sloganColor: '#ffffff',
-        sloganFontSize: 33,
+        sloganFontSize: 50,
         sloganTextShadow: true,
         sloganTextShadowColor: '#000000',
-        mainImage: 'http://localhost:3000/images/avatar-2.gif',
+        mainImage: 'https://uselessshit.co/images/avatar-2.gif',
         backgroundImage: 'https://uselessshit.co/images/purple-wave.gif',
         backgroundImageSize: 100,
         type: CardType.Sticker,
