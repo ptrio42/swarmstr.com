@@ -13,7 +13,7 @@ const TIP_JARS: CardProps[] = [
         sloganTextShadow: true,
         sloganTextShadowColor: '#000000',
         mainImage: 'https://uselessshit.co/images/avatar.gif',
-        backgroundImage: 'http://localhost:3000/images/purple-wave.gif',
+        backgroundImage: 'https://uselessshit.co/images/purple-wave.gif',
         backgroundImageSize: 100,
         type: CardType.Sticker,
         footer: 'furiouschina21@walletofsatoshi.com',
