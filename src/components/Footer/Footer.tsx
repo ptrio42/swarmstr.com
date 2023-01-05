@@ -39,7 +39,7 @@ export const Footer = () => {
             </Grid>
             <Grid item>
                 <Item sx={{ display: 'inline-flex' }}>
-                    Tips: <Bolt sx={{ color: '#FADA5E' }} /> furiouschina21@walletofsatoshi.com | <Link href="https://uselessshit.co/tip-jar/pitiunited">Tip Jar</Link>
+                    Tips: <Bolt sx={{ color: '#FADA5E' }} /> pitiunited@uselessshit.co | <Link href="https://uselessshit.co/tip-jar/pitiunited">Tip Jar</Link>
                 </Item>
             </Grid>
         </Grid>
