@@ -1,4 +1,4 @@
-import React, {useRef} from "react";
+import React, {useRef, useState} from "react";
 import {CardActionArea} from "@mui/material";
 import Box from "@mui/material/Box";
 import CardMedia from "@mui/material/CardMedia";
@@ -9,6 +9,7 @@ import Typography from "@mui/material/Typography";
 import CardActions from "@mui/material/CardActions";
 import Card from "@mui/material/Card";
 import Backdrop from "@mui/material/Backdrop";
+import Snackbar from "@mui/material/Snackbar";
 
 export enum CardType {
     BusinessCard = 'business-card',
@@ -57,6 +58,8 @@ export const SocialCard = ({ slogan, sloganColor, sloganFontSize, sloganTextShad
                          secondaryImageFormatWidth, secondaryImageFormatHeight, qrCodeSize = 72, lnurl = '', lineHeight = 1 }: CardProps) => {
 
     const qrCodeRef = useRef();
+
+    const [open, setOpen] = useState(false);
 
     const getCardPreviewBackgroundSize = () => {
         if (backgroundImage) {
@@ -119,6 +122,10 @@ export const SocialCard = ({ slogan, sloganColor, sloganFontSize, sloganTextShad
                                         overflow: 'hidden',
                                         border: '4px solid #000'
                                     }}
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(lnurl);
+                                        setOpen(true);
+                                    }}
                                 >
                                     <Box
                                         sx={{
@@ -171,6 +178,12 @@ export const SocialCard = ({ slogan, sloganColor, sloganFontSize, sloganTextShad
                         </CardActions>
                     </CardActionArea>
                 </Card>
+                <Snackbar
+                    open={open}
+                    autoHideDuration={3000}
+                    onClose={() => setOpen(false)}
+                    message="Lightning URL copied to clipboard!"
+                />
             </Backdrop>
         </React.Fragment>
     );
