@@ -204,7 +204,6 @@ export const PageContent = () => {
                     Since it feels like shaming merchants just wasn't enough, I decided to make it easier for plebs to shame on anyone who spends fiat on useless stuff :)
                 </Typography>
             </Box>
-            <Link to="/tip-jar/pitiunited">Tip Jar</Link>
             <Testimonials />
         </React.Fragment>
     );
