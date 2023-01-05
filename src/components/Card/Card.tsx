@@ -16,7 +16,8 @@ export enum CardType {
     ChristmasCard = 'christmas-card'
 }
 
-interface CardProps {
+export interface CardProps {
+    name?: string;
     slogan: string;
     sloganColor: string;
     sloganFontSize: number;

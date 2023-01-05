@@ -111,7 +111,7 @@ function App() {
                     <Route path="nostr" element={<NostrResources/>} />
                 </Route>
                 <Route path="/card-generator" element={<CardGenerator />} />
-                <Route path="/tip-jar/pitiunited" element={<TipJar />} />
+                <Route path="/tip-jar/:username" element={<TipJar />} />
             </Routes>
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                 <ThemeContext.Consumer>
