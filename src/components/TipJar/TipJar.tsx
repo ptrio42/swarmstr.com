@@ -9,7 +9,7 @@ const TIP_JARS: CardProps[] = [
         name: 'pitiunited',
         slogan: 'USE LESS SHIT️',
         sloganColor: '#ffffff',
-        sloganFontSize: 50,
+        sloganFontSize: 54,
         sloganTextShadow: true,
         sloganTextShadowColor: '#000000',
         mainImage: 'https://uselessshit.co/images/avatar-2.gif',
