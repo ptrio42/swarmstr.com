@@ -43,7 +43,7 @@ const GUIDES: Guide[] = [
             'https://nostr-resources.com'
         ],
         updatedAt: '2022-12-30',
-        imageUrls: ['http://localhost:3000/images/explain-it-to-me-like-i-m-5.png']
+        imageUrls: ['https://uselessshit.co/images/explain-it-to-me-like-i-m-5.png']
     },
     {
         id: 'keys',
