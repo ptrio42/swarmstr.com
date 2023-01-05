@@ -16,7 +16,7 @@ const TIP_JARS: CardProps[] = [
         backgroundImage: 'https://uselessshit.co/images/purple-wave.gif',
         backgroundImageSize: 100,
         type: CardType.Sticker,
-        footer: 'https://uselessshit.co/tip-jar/pitiunited',
+        footer: 'pitiunited@UseLessShit.co',
         footerFontSize: 10,
         footerColor: '#ffffff',
         cardWidth: 4,
