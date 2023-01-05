@@ -40,9 +40,11 @@ const GUIDES: Guide[] = [
         urls: [
             'https://github.com/nostr-protocol/nostr',
             'https://usenostr.org',
-            'https://nostr-resources.com'
+            'https://nostr-resources.com',
+            'https://github.com/vishalxl/nostr_console/discussions/31',
+            'https://wiki.wellorder.net/post/nostr-intro/'
         ],
-        updatedAt: '2022-12-30',
+        updatedAt: '2023-01-05 18:18',
         imageUrls: ['https://uselessshit.co/images/explain-it-to-me-like-i-m-5.png']
     },
     {
@@ -52,8 +54,12 @@ const GUIDES: Guide[] = [
             'The public can be treated as a username, whereas the private key is more like a password. ' +
             'Be cautious when entering your private on different sites - if it gets leaked and falls into wrong hands,' +
             'you can think of your \'account\' as compromised. You can get your keys through any of the NOSTR clients.',
-        urls: ['https://damus.io', 'https://astral.ninja'],
-        updatedAt: '2023-01-02'
+        urls: [
+            'https://damus.io',
+            'https://astral.ninja',
+            'https://yousup.app'
+        ],
+        updatedAt: '2023-01-05'
     },
     {
         id: 'mining-the-public-key',
@@ -99,6 +105,21 @@ const GUIDES: Guide[] = [
         fix: 'Animated user avatars and post images work just like any other images.',
         urls: ['https://tenor.com'],
         updatedAt: '2022-12-26'
+    },
+    {
+        id: 'gifs-will-not-display',
+        issue: 'Changed my profile pic to GIF but it won\'t display',
+        fix: 'Some clients prevent GIFs larger than 1MB from loading. ' +
+            'Try an image-compressing tool to downsize.',
+        updatedAt: '2023-01-05'
+    },
+    {
+        id: 'turning-images-into-gifs',
+        issue: 'I want to make my images come alive.',
+        fix: 'Download MotionLeap (available on Android and iOS) to add animations to your image. ' +
+            'With a free version you\'d also need ezgif.com to convert MotionLeap output to GIF.',
+        urls: ['https://ezgif.com'],
+        updatedAt: '2023-01-05'
     },
     {
         id: 'multiple-images',
@@ -195,9 +216,11 @@ const GUIDES: Guide[] = [
     {
         id: 'uploading-to-nostr-build',
         issue: 'Uploading to nostr.build',
-        fix: 'Be cautious when uploading images to nostr.build as anyone can see them without a direct link.',
-        urls: ['https://nostr.build/i/'],
-        updatedAt: '2022-12-27'
+        fix: 'nostr.build is a nice place to upload your images. ' +
+            'Check nostr.build/profilepic.html for profile picture uploads.' +
+            'Be cautious when uploading images there as anyone can see them even without a direct link.',
+        urls: ['https://nostr.build/', 'https://nostr.build/profilepic.html'],
+        updatedAt: '2023-01-05'
     },
     {
         id: 'too-many-relays',
