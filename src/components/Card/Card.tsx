@@ -59,8 +59,10 @@ export const SocialCard = ({ slogan, sloganColor, sloganFontSize, sloganTextShad
 
     const getCardPreviewBackgroundSize = () => {
         if (backgroundImage) {
-            return backgroundImageSize / 100 * backgroundImage.naturalWidth + 'px'
-                + ' ' + backgroundImageSize / 100 * backgroundImage.naturalHeight + 'px';
+            const image = new Image();
+            image.src = backgroundImage;
+            return backgroundImageSize / 100 * image.naturalWidth + 'px'
+                + ' ' + backgroundImageSize / 100 * image.naturalHeight + 'px';
         }
         return '100% 100%';
     };
@@ -95,7 +97,8 @@ export const SocialCard = ({ slogan, sloganColor, sloganFontSize, sloganTextShad
                                 width: `${primaryImageFormatWidth}in`,
                                 height: `${primaryImageFormatHeight}in`,
                                 objectFit: 'fill',
-                                marginTop: '0.15in'
+                                marginTop: '0.15in',
+                                borderRadius: '50%'
                             }}
                             image={mainImage}
                         />
@@ -136,7 +139,7 @@ export const SocialCard = ({ slogan, sloganColor, sloganFontSize, sloganTextShad
                         </Box>
                         }
                     </Box>
-                    <CardContent sx={{ padding: '0px' }}>
+                    <CardContent sx={{ padding: '0px', paddingTop: '8px' }}>
                         <Typography
                             sx={{
                                 fontSize: `${sloganFontSize}pt`,
