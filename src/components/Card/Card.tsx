@@ -10,6 +10,9 @@ import CardActions from "@mui/material/CardActions";
 import Card from "@mui/material/Card";
 import Backdrop from "@mui/material/Backdrop";
 import Snackbar from "@mui/material/Snackbar";
+import Chip from "@mui/material/Chip";
+import {ElectricBolt} from "@mui/icons-material";
+import yellow from "@mui/material/colors/yellow";
 
 export enum CardType {
     BusinessCard = 'business-card',
@@ -60,6 +63,7 @@ export const SocialCard = ({ slogan, sloganColor, sloganFontSize, sloganTextShad
     const qrCodeRef = useRef();
 
     const [open, setOpen] = useState(false);
+    const [message, setMessage] = useState('');
 
     const getCardPreviewBackgroundSize = () => {
         if (backgroundImage) {
@@ -107,7 +111,7 @@ export const SocialCard = ({ slogan, sloganColor, sloganFontSize, sloganTextShad
                                     objectFit: 'fill',
                                     marginTop: '0.15in',
                                     borderRadius: '50%',
-                                    border: '4px solid #000'
+                                    border: '4px solid rgba(0,0,0,.7)'
                                 }}
                                 image={mainImage}
                             />
@@ -120,10 +124,12 @@ export const SocialCard = ({ slogan, sloganColor, sloganFontSize, sloganTextShad
                                         marginLeft: '0.1in',
                                         marginTop: '0.15in',
                                         overflow: 'hidden',
-                                        border: '4px solid #000'
+                                        border: '4px solid rgba(0,0,0,.7)',
+                                        borderRadius: '10px'
                                     }}
                                     onClick={() => {
                                         navigator.clipboard.writeText(lnurl);
+                                        setMessage('Lightning URL copied to clipboard!');
                                         setOpen(true);
                                     }}
                                 >
@@ -172,8 +178,24 @@ export const SocialCard = ({ slogan, sloganColor, sloganFontSize, sloganTextShad
                             </Typography>
                         </CardContent>
                         <CardActions>
-                            <Typography sx={{ fontSize: `${footerFontSize}pt`, color: footerColor, marginTop: '-1em' }}>
-                                { footer }
+                            <Typography
+                                sx={{
+                                    fontSize: `${footerFontSize}pt`,
+                                    color: footerColor,
+                                    marginTop: '-0.33in'
+                                }}
+                            >
+                                <Chip
+                                    variant="outlined"
+                                    sx={{color: footerColor}}
+                                    icon={<ElectricBolt sx={{ color: yellow[500]+'!important' }} />}
+                                    label={footer}
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(footer);
+                                        setMessage('Lightning Address copied to clipboard!');
+                                        setOpen(true);
+                                    }}
+                                />
                             </Typography>
                         </CardActions>
                     </CardActionArea>
@@ -182,7 +204,7 @@ export const SocialCard = ({ slogan, sloganColor, sloganFontSize, sloganTextShad
                     open={open}
                     autoHideDuration={3000}
                     onClose={() => setOpen(false)}
-                    message="Lightning URL copied to clipboard!"
+                    message={message}
                 />
             </Backdrop>
         </React.Fragment>
