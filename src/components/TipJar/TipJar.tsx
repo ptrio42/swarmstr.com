@@ -41,7 +41,7 @@ const TIP_JARS: CardProps[] = [
         sloganTextShadow: true,
         sloganTextShadowColor: '#000000',
         // mainImage: null,
-        mainImage: 'http://localhost:3000/images/lukeonchain-avatar.gif',
+        mainImage: 'https://uselessshit.co/images/lukeonchain-avatar.gif',
         backgroundImage: 'https://i.imgur.com/t9haKiU_d.webp?maxwidth=640&shape=thumb&fidelity=medium',
         backgroundImageSize: 20,
         type: CardType.Sticker,
