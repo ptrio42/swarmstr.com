@@ -17,6 +17,7 @@ import Paper from "@mui/material/Paper";
 import CardContent from "@mui/material/CardContent";
 import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
+import Helmet from 'react-helmet';
 
 export const PageContent = () => {
     const converterEmbeddableCode = `
@@ -203,6 +204,7 @@ export const PageContent = () => {
                     Since it feels like shaming merchants just wasn't enough, I decided to make it easier for plebs to shame on anyone who spends fiat on useless stuff :)
                 </Typography>
             </Box>
+            <Link href="https://uselessshit.co/tip-jar/pitiunited">Tip Jar</Link>
             <Testimonials />
         </React.Fragment>
     );
