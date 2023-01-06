@@ -187,7 +187,7 @@ const GUIDES: Guide[] = [
     },
     {
         id: 'selecting-default-lightning-wallet',
-        issue: 'How do I select a default? (Damus)',
+        issue: 'How do I select a default wallet? (Damus)',
         fix: 'In Damus Settings (cog icon in top right) scroll down to WALLET SELECTOR section. ' +
             'The default wallet can be chosen from the list under "Select default wallet".',
         updatedAt: '2023-01-06'
