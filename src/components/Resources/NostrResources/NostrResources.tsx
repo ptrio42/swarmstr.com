@@ -64,17 +64,18 @@ const GUIDES: Guide[] = [
     {
         id: 'mining-the-public-key',
         issue: 'How to mine a public key?',
-        fix: 'You can mine your public key with a desired prefix. Check out nostr.rest to find out how.',
+        fix: 'You can mine your public HEX key with a desired prefix. Check out nostr.rest to find out how.',
         urls: ['https://nostr.rest'],
-        updatedAt: '2023-01-02'
+        updatedAt: '2023-01-06'
     },
     {
         id: 'how-do-i-tag-a-person',
         issue: 'How do I tag a person?',
         fix: 'Use this person\'s public key instead of their handle. ' +
             'The public key can be obtained in a person\'s profile, under the key icon. ' +
-            'Then, to tag this person, you got to put the @ symbol in front of their pubkey.',
-        updatedAt: '2023-01-01'
+            'Then, to tag this person, you got to put the @ symbol in front of their pubkey ' +
+            '(@<pubkey>) eg. @npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4',
+        updatedAt: '2023-01-06'
     },
     {
         id: 'adding-images',
@@ -157,6 +158,13 @@ const GUIDES: Guide[] = [
         updatedAt: '2023-01-03'
     },
     {
+        id: 'deleting-notes',
+        issue: 'Deleting posts on Nostr.',
+        fix: '',
+        imageUrls: ['http://localhost:3000/images/deleting-notes.jpeg'],
+        updatedAt: '2023-01-06'
+    },
+    {
         id: 'adding-lightning-button-to-profile',
         issue: 'How to add Lightning button to profile and start receiving tips? (Damus)',
         fix: 'Open a Lightning wallet, tap Receive, select Lightning Address and copy it. ' +
@@ -179,10 +187,10 @@ const GUIDES: Guide[] = [
     },
     {
         id: 'selecting-default-lightning-wallet',
-        issue: 'Whenever I click the lightning icon it automatically opens X wallet. How do I switch to Y wallet? (Damus)',
-        fix: 'For now, to able to use a specific wallet, ' +
-            'you need to either reinstall the wallet or remove other wallets installed before the one you\'d like to use.',
-        updatedAt: '2022-12-26'
+        issue: 'How do I select a default? (Damus)',
+        fix: 'In Damus Settings (cog icon in top right) scroll down to WALLET SELECTOR section. ' +
+            'The default wallet can be chosen from the list under "Select default wallet".',
+        updatedAt: '2023-01-06'
     },
     {
         id: 'dark-mode',
@@ -193,10 +201,21 @@ const GUIDES: Guide[] = [
     {
         id: 'who-to-follow',
         issue: 'Who to follow?',
-        fix: 'Start with following yourself ⚡. Next best step is to find a Bitcoiner and follow some plebs they\'re following. ' +
+        fix: 'Start with following yourself ⚡ (apparently you can\'t do than now in Astral). ' +
+            'Next best step is to find a Bitcoiner and follow some plebs they\'re following. ' +
             'Also you can check under the hashtag #Plebchain or look at the profiles with the most followers at nostr.io',
         urls: ['https://nostr.io/stats', 'https://bitcoinnostr.com/lfg'],
-        updatedAt: '2023-01-02'
+        updatedAt: '2023-01-06'
+    },
+    {
+        id: 'bitcoin-nostr',
+        issue: 'Finding people on BitcoinNostr.com',
+        fix: 'A list of prominent Bitcoiners that most plebs would want to follow when they get started on Nostr. ' +
+            'This makes it very easy to do so, as you can just go down @BitcoinerInfo\'s "Following" list and add ' +
+            'those Bitcoiners to your own list. ' +
+            'The (identical) list on bitcoinnostr.com serves as a way to verify the authenticity of all the accounts (and as a backup)',
+        updatedAt: '2023-01-06',
+        urls: ['https://bitcoinnostr.com']
     },
     {
         id: 'finding-others',
