@@ -161,7 +161,7 @@ const GUIDES: Guide[] = [
         id: 'deleting-notes',
         issue: 'Deleting posts on Nostr.',
         fix: '',
-        imageUrls: ['http://localhost:3000/images/deleting-notes.jpeg'],
+        imageUrls: ['https://uselessshit.co/images/deleting-notes.jpeg'],
         updatedAt: '2023-01-06'
     },
     {
