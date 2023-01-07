@@ -160,9 +160,19 @@ const GUIDES: Guide[] = [
     {
         id: 'deleting-notes',
         issue: 'Deleting posts on Nostr.',
-        fix: '',
+        fix: 'There\'s a good chance, that the things you post on Nostr will stay there for eternity. ' +
+            'Soon the clients will implement so called soft-delete, ' +
+            'which means that posts with a delete flag will be ignored and not displayed to users. ' +
+            'This doesn\'t mean though that your "deleted" post is gone.',
         imageUrls: ['https://uselessshit.co/images/deleting-notes.jpeg'],
         updatedAt: '2023-01-06'
+    },
+    {
+        id: 'sharing-notes',
+        issue: 'Sharing notes.',
+        fix: 'In some clients it\'s now possible to share notes between. ' +
+            'Simply tap on the Share icon under the post and choose a desired option.',
+        updatedAt: '2023-01-07'
     },
     {
         id: 'adding-lightning-button-to-profile',
@@ -197,6 +207,18 @@ const GUIDES: Guide[] = [
         issue: 'How to switch to dark mode? (Damus)',
         fix: 'Set you iOS theme to dark.',
         updatedAt: '2022-12-26'
+    },
+    {
+        id: 'clearing-cache',
+        issue: 'How does one clear cache in Damus?',
+        fix: 'Clear cache option is located in Settings (cog icon in top right corner) under CLEAR CACHE section.',
+        updatedAt: '2023-01-07'
+    },
+    {
+        id: 'saving-images-to-library',
+        issue: 'How to save an image posted by someone to my Library? (Damus)',
+        fix: 'Tap on the picture you want to save. In the newly opened window tap & hold on the image and select Save Image.',
+        updatedAt: '2023-01-07'
     },
     {
         id: 'who-to-follow',
