@@ -17,6 +17,8 @@ import './NostrResources.css';
 import ListItemButton from "@mui/material/ListItemButton";
 import Snackbar from "@mui/material/Snackbar";
 import CardMedia from "@mui/material/CardMedia";
+import Input from "@mui/material/Input";
+import {matchString} from "../../../utils/utils";
 
 interface NostrResourcesProps {
     guides?: Guide[]
@@ -354,6 +356,7 @@ export const NostrResources = () => {
     const [sort, setSort] = useState<string>('');
     const [expanded, setExpanded] = useState<string[]>([]);
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
+    const [searchQuery, setSearchQuery] = useState<string>('');
 
     const { hash } = useLocation();
 
@@ -448,6 +451,19 @@ export const NostrResources = () => {
                     }}
                 />
             </Stack>
+
+            <Stack direction="row" spacing={1}>
+                <Input
+                    id="searchQuery"
+                    name="searchQuery"
+                    placeholder={'Search by keywords'}
+                    value={searchQuery}
+                    onChange={(event) => {
+                        setSearchQuery(event.target.value);
+                    }}
+                />
+            </Stack>
+
             <List>
                 <ListItem key="nostr-resources">
                     <ListItemText
@@ -457,7 +473,9 @@ export const NostrResources = () => {
                     />
                 </ListItem>
                 {
-                    guides.map((guide, index) => (
+                    guides
+                        .filter(guide => searchQuery === '' || matchString(searchQuery, guide.issue))
+                        .map((guide, index) => (
                         <ListItemButton key={guide.id} id={guide.id} sx={{ flexWrap: 'wrap' }} onClick={() => {
                             handleExpanded(guide.id)
                         }}>
