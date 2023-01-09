@@ -430,7 +430,7 @@ export const NostrResources = () => {
                 <meta name="twitter:image" content="https://uselessshit.co/images/guide-cover.png" />
 
             </Helmet>
-            <Stack sx={{ marginTop: '1em' }} direction="row" spacing={1}>
+            <Stack sx={{ marginTop: '1em', marginLeft: '1em' }} direction="row" spacing={1}>
                 <Chip
                     label="No sort"
                     variant={sort === '' ? 'filled' : 'outlined'}
@@ -452,7 +452,7 @@ export const NostrResources = () => {
                 />
             </Stack>
 
-            <Stack direction="row" spacing={1}>
+            <Stack sx={{ marginLeft: '1em' }} direction="row" spacing={1}>
                 <Input
                     id="searchQuery"
                     name="searchQuery"
