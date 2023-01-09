@@ -29,6 +29,7 @@ interface Guide {
     issue: string;
     fix: string;
     urls?: string[];
+    createdAt?: string;
     updatedAt: string;
     imageUrls?: string[]
 }
@@ -44,9 +45,10 @@ const GUIDES: Guide[] = [
             'https://usenostr.org',
             'https://nostr-resources.com',
             'https://github.com/vishalxl/nostr_console/discussions/31',
-            'https://wiki.wellorder.net/post/nostr-intro/'
+            'https://wiki.wellorder.net/post/nostr-intro/',
+            'https://audaciousdenizen.substack.com/p/my-quick-guide-to-nostr'
         ],
-        updatedAt: '2023-01-05 18:18',
+        updatedAt: '2023-01-09',
         imageUrls: ['https://uselessshit.co/images/explain-it-to-me-like-i-m-5.png']
     },
     {
@@ -64,11 +66,18 @@ const GUIDES: Guide[] = [
         updatedAt: '2023-01-05'
     },
     {
-        id: 'mining-the-public-key',
+        id: 'mining-the-public-hex-key',
         issue: 'How to mine a public key?',
         fix: 'You can mine your public HEX key with a desired prefix. Check out nostr.rest to find out how.',
         urls: ['https://nostr.rest'],
         updatedAt: '2023-01-06'
+    },
+    {
+        id: 'logging-in-with-someone-else-s-key',
+        issue: 'Loggin in with someone else\'s key.',
+        fix: 'One of the cool features of Nostr is that you can log in with someone else\'s public key ' +
+            'and see the world through their lens.',
+        updatedAt: '2023-01-09'
     },
     {
         id: 'how-do-i-tag-a-person',
@@ -186,8 +195,9 @@ const GUIDES: Guide[] = [
     {
         id: 'the-like-emoji',
         issue: 'I see a lot of 🤙 emojis floating around everywhere. What does it mean?',
-        fix: '🤙 is for Likes. Also ⚡ is for sats.',
-        updatedAt: '2022-12-26'
+        fix: '🤙 (also called shaka) is for Likes. Also ⚡ is for sats.',
+        createdAt: '2022-12-26',
+        updatedAt: '2023-01-09'
     },
     {
         id: 'adding-more-relays',
@@ -300,9 +310,10 @@ const GUIDES: Guide[] = [
     {
         id: 'running-nostr',
         issue: 'How do I setup my own NOSTR relay?',
-        fix: 'Check out nostream, a production-ready nostr relay written in TypeScript.',
-        urls: ['https://github.com/Cameri/nostream'],
-        updatedAt: '2022-12-30'
+        fix: 'Check out the resources below to set up a Nostr relay in under 5 minutes.',
+        urls: ['https://github.com/Cameri/nostream', 'https://andreneves.xyz/p/set-up-a-nostr-relay-server-in-under'],
+        createdAt: '2022-12-30',
+        updatedAt: '2023-01-09'
     },
     {
         id: 'converting-npub-to-hex',
@@ -323,6 +334,20 @@ const GUIDES: Guide[] = [
         issue: 'Some images are blurred. Need to click on the image to see it. What\'s up?',
         fix: 'You can only see images from the people you\'re following, the remaining ones come up blurred.',
         updatedAt: '2022-12-30'
+    },
+    {
+        id: 'boosting-issues',
+        issue: 'I can\'t boost. (Damus)',
+        fix: 'Sometimes it\'s not possible to boost a post from a feed. ' +
+            'The workaround is to open a given thread and boost the post from there.',
+        updatedAt: '2023-01-09'
+    },
+    {
+        id: 'damus-is-crashing',
+        issue: 'Damus keeps crashing.',
+        fix: 'Damus is still in beta, so bugs are not uncommon. ' +
+            'If your app keeps crashing, make sure you\'ve updated Damus and iOS to the latest versions.',
+        updatedAt: '2023-01-09'
     },
     {
         id: 'more-resources',
