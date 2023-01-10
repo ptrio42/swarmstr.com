@@ -35,6 +35,14 @@ export const GUIDES: Guide[] = [
         updatedAt: '2023-01-10'
     },
     {
+        id: 'what-is-damus',
+        issue: 'What is Damus?',
+        fix: 'Watch this simple explainer video to find out about Damus.',
+        urls: ['https://youtu.be/I_A7NLIyX1o'],
+        createdAt: '2023-01-10',
+        updatedAt: '2023-01-10'
+    },
+    {
         id: 'mining-the-public-hex-key',
         issue: 'How to mine a public key?',
         fix: 'You can mine your public HEX key with a desired prefix. Check out nostr.rest to find out how.',
