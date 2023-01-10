@@ -27,9 +27,12 @@ export const GUIDES: Guide[] = [
         urls: [
             'https://damus.io',
             'https://astral.ninja',
-            'https://yousup.app'
+            'https://yousup.app',
+            'https://iris.to',
+            'https://snort.social'
         ],
-        updatedAt: '2023-01-05'
+        createdAt: '2023-01-05',
+        updatedAt: '2023-01-10'
     },
     {
         id: 'mining-the-public-hex-key',
@@ -138,11 +141,12 @@ export const GUIDES: Guide[] = [
         id: 'deleting-notes',
         issue: 'Deleting posts on Nostr.',
         fix: 'There\'s a good chance, that the things you post on Nostr will stay there for eternity. ' +
-            'Soon the clients will implement so called soft-delete, ' +
+            'Soon the clients will implement a so called soft-delete, ' +
             'which means that posts with a delete flag will be ignored and not displayed to users. ' +
             'This doesn\'t mean though that your "deleted" post is gone.',
         imageUrls: ['https://uselessshit.co/images/deleting-notes.jpeg'],
-        updatedAt: '2023-01-06'
+        createdAt: '2023-01-06',
+        updatedAt: '2023-01-10'
     },
     {
         id: 'sharing-notes',
@@ -264,8 +268,17 @@ export const GUIDES: Guide[] = [
         fix: 'Head down to this basic guide (the gist below) on setting up a NIP-05 identifier. ' +
             'If you don\'t own a domain you can ask someone to create an id for you at their domain. ' +
             'DM me for yourname@uselessshit.co NIP-05 id 🤙 (see Contact)',
-        urls: ['https://gist.github.com/metasikander/609a538e6a03b2f67e5c8de625baed3e'],
-        updatedAt: '2023-01-04'
+        urls: ['https://gist.github.com/metasikander/609a538e6a03b2f67e5c8de625baed3e', 'https://nvk.org/n00b-nip5'],
+        createdAt: '2023-01-04',
+        updatedAt: '2023-01-10'
+    },
+    {
+        id: 'lnurlp',
+        issue: 'How to turn my NIP-05 handle into lightning address?',
+        fix: 'Navigate to the url below to make your NIP-05 handle a lightning address (Alby).',
+        urls: ['https://nvk.org/alby-lnurlp'],
+        createdAt: '2023-01-10',
+        updatedAt: '2023-01-10'
     },
     {
         id: 'blue-and-yellow-checkmarks',
