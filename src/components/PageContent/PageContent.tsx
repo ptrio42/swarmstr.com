@@ -9,15 +9,14 @@ import Bolt from '@mui/icons-material/Bolt';
 import CardGiftcard from '@mui/icons-material/CardGiftcard';
 import Receipt from '@mui/icons-material/Receipt';
 import './PageContent.css';
-import {Carousel, FiatToSatsCalculator, SpreadTheWord, Testimonials} from "../";
+import {FiatToSatsCalculator, SpreadTheWord, Testimonials} from "../";
 import {Link} from "react-router-dom";
 import {Button} from "@mui/material";
-import {Calculate, CurrencyBitcoin, DesignServices, School} from "@mui/icons-material";
+import {Calculate, CurrencyBitcoin, DesignServices, LocalFireDepartment, School} from "@mui/icons-material";
 import Paper from "@mui/material/Paper";
 import CardContent from "@mui/material/CardContent";
 import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
-import Helmet from 'react-helmet';
 
 export const PageContent = () => {
     const converterEmbeddableCode = `
@@ -43,6 +42,17 @@ export const PageContent = () => {
                     className="splash__stack"
                     spacing={2}
                 >
+                    <Card className="splash__card">
+                        <CardContent>
+                            <LocalFireDepartment sx={{ fontSize: '80px' }} />
+                            <Typography variant="h4" component="div" gutterBottom>
+                                Nostr Guide
+                            </Typography>
+                            <Typography variant="body1" component="div" gutterBottom>
+                                New to Nostr? Check out <Link color='secondary' to='resources/nostr'>newcomers most common questions with answers</Link>.
+                            </Typography>
+                        </CardContent>
+                    </Card>
                     <Card className="splash__card">
                         <CardContent>
                             <DesignServices sx={{ fontSize: '80px' }} />
@@ -83,12 +93,6 @@ export const PageContent = () => {
 
                 <Box sx={{ marginBottom: '3em' }} component="div">
                     <img width="100%" src={process.env.PUBLIC_URL + '/images/uselessshit-splashscreen-updated.jpeg'} />
-                </Box>
-
-                <Box sx={{ marginBottom: '3em' }} component="div">
-                    <Typography variant="body1" component="div" align="justify" gutterBottom sx={{ lineHeight: '2', fontSize: '18px' }}>
-                        For Nostr tips & tricks, <Link to="/resources/nostr">head down here</Link>.
-                    </Typography>
                 </Box>
 
                 <CardGiftcard sx={{ fontSize: '80px' }} />
