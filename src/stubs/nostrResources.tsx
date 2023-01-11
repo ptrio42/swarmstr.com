@@ -5,7 +5,7 @@ export const GUIDES: Guide[] = [
         id: 'what-is-nostr',
         issue: 'What\'s NOSTR?',
         fix: 'Notes and Other Stuff Transmitted by Relays, ' +
-            'or NOSTR, is an open protocol, designed to create a censorship-resistant social network.',
+            'or NOSTR, is an open protocol, designed to create a censorship-resistant social network. Image credits: @coderjourney1',
         urls: [
             'https://github.com/nostr-protocol/nostr',
             'https://usenostr.org',
@@ -14,7 +14,8 @@ export const GUIDES: Guide[] = [
             'https://wiki.wellorder.net/post/nostr-intro/',
             'https://audaciousdenizen.substack.com/p/my-quick-guide-to-nostr'
         ],
-        updatedAt: '2023-01-09',
+        createdAt: '2023-01-09',
+        updatedAt: '2023-01-11',
         imageUrls: ['https://uselessshit.co/images/explain-it-to-me-like-i-m-5.png']
     },
     {
@@ -29,7 +30,8 @@ export const GUIDES: Guide[] = [
             'https://astral.ninja',
             'https://yousup.app',
             'https://iris.to',
-            'https://snort.social'
+            'https://snort.social',
+            'https://github.com/KoalaSat/nostros'
         ],
         createdAt: '2023-01-05',
         updatedAt: '2023-01-10'
@@ -40,7 +42,8 @@ export const GUIDES: Guide[] = [
         fix: 'Watch this simple explainer video to find out about Damus.',
         urls: ['https://youtu.be/I_A7NLIyX1o'],
         createdAt: '2023-01-10',
-        updatedAt: '2023-01-10'
+        updatedAt: '2023-01-10',
+        tags: ['Damus']
     },
     {
         id: 'mining-the-public-hex-key',
@@ -83,10 +86,12 @@ export const GUIDES: Guide[] = [
     },
     {
         id: 'adding-avatar',
-        issue: 'Adding avatar in Damus.',
+        issue: 'Adding an avatar.',
         fix: 'Upload desired image to a public server as described in the steps above. ' +
             'Copy the image url and paste it into PROFILE PICTURE input under Profile EDIT view.',
-        updatedAt: '2022-12-26'
+        createdAt: '2022-12-26',
+        updatedAt: '2023-01-11',
+        tags: ['Damus']
     },
     {
         id: 'gifs',
@@ -119,10 +124,13 @@ export const GUIDES: Guide[] = [
     },
     {
         id: 'adding-videos',
-        issue: 'How to make a post with a video? (Damus)',
-        fix: 'Video urls are processed and displayed as videos. Simply copy the direct video link (it has to be hosted somewhere public) and paste it into a post 🔥 ' +
+        issue: 'How to make a post with a video?',
+        fix: 'Video urls are processed and displayed as videos. ' +
+            'Simply copy the direct video link (it has to be hosted somewhere public) and paste it into a post 🔥 ' +
             'That\'s it!',
-        updatedAt: '2022-12-29'
+        createdAt: '2022-12-29',
+        updatedAt: '2022-01-11',
+        tags: ['Damus']
     },
     {
         id: 'dropping-an-invoice',
@@ -159,16 +167,19 @@ export const GUIDES: Guide[] = [
     {
         id: 'sharing-notes',
         issue: 'Sharing notes.',
-        fix: 'In some clients it\'s now possible to share notes between. ' +
+        fix: 'In some clients it\'s now possible to share notes between different apps. ' +
             'Simply tap on the Share icon under the post and choose a desired option.',
-        updatedAt: '2023-01-07'
+        createdAt: '2023-01-07',
+        updatedAt: '2023-01-11'
     },
     {
         id: 'adding-lightning-button-to-profile',
-        issue: 'How to add Lightning button to profile and start receiving tips? (Damus)',
+        issue: 'How to add Lightning button to profile and start receiving tips?',
         fix: 'Open a Lightning wallet, tap Receive, select Lightning Address and copy it. ' +
             'It should start with LNURL... Go to your profile, tap Edit add paste the address into BITCOIN LIGHTNING TIPS input. ',
-        updatedAt: '2022-12-26'
+        createdAt: '2022-12-26',
+        updatedAt: '2022-01-11',
+        tags: ['Damus']
     },
     {
         id: 'the-like-emoji',
@@ -183,32 +194,42 @@ export const GUIDES: Guide[] = [
         fix: 'You can find a list of public relays at nostr.watch and add some more items to RELAYS section of your Settings. ' +
             'You might also want to check the RECOMMENDED RELAYS section and pick up some from there.',
         urls: ['https://nostr.watch'],
-        updatedAt: '2022-12-30'
+        createdAt: '2022-12-30',
+        updatedAt: '2022-01-11',
+        tags: ['Damus']
     },
     {
         id: 'selecting-default-lightning-wallet',
-        issue: 'How do I select a default wallet? (Damus)',
+        issue: 'How do I select a default wallet?',
         fix: 'In Damus Settings (cog icon in top right) scroll down to WALLET SELECTOR section. ' +
             'The default wallet can be chosen from the list under "Select default wallet".',
-        updatedAt: '2023-01-06'
+        createdAt: '2023-01-06',
+        updatedAt: '2023-01-11',
+        tags: ['Damus']
     },
     {
         id: 'dark-mode',
-        issue: 'How to switch to dark mode? (Damus)',
+        issue: 'How to switch to dark mode?',
         fix: 'Set you iOS theme to dark.',
-        updatedAt: '2022-12-26'
+        createdAt: '2022-12-26',
+        updatedAt: '2023-01-11',
+        tags: ['Damus']
     },
     {
         id: 'clearing-cache',
-        issue: 'How does one clear cache in Damus?',
+        issue: 'How does one clear cache?',
         fix: 'Clear cache option is located in Settings (cog icon in top right corner) under CLEAR CACHE section.',
-        updatedAt: '2023-01-07'
+        createdAt: '2023-01-07',
+        updatedAt: '2023-01-11',
+        tags: ['Damus']
     },
     {
         id: 'saving-images-to-library',
-        issue: 'How to save an image posted by someone to my Library? (Damus)',
+        issue: 'How to save an image posted by someone to my Library?',
         fix: 'Tap on the picture you want to save. In the newly opened window tap & hold on the image and select Save Image.',
-        updatedAt: '2023-01-07'
+        createdAt: '2023-01-07',
+        updatedAt: '2023-01-11',
+        tags: ['Damus']
     },
     {
         id: 'who-to-follow',
@@ -264,29 +285,36 @@ export const GUIDES: Guide[] = [
     },
     {
         id: 'removing-relays',
-        issue: 'How to remove a relay? (Damus)',
+        issue: 'How to remove a relay?',
         fix: 'In your SETTINGS view (cog icon in the right top), swipe left on a relay you\'d ' +
             'like to remove and click on the trash icon to confirm removal. ' +
             'You might want to restart the client for the changes to take place.',
-        updatedAt: '2022-12-30'
+        createdAt: '2022-12-30',
+        updatedAt: '2023-01-11',
     },
     {
         id: 'nip-05',
         issue: 'How to setup NIP-05 identifier (checkmark)?',
         fix: 'Head down to this basic guide (the gist below) on setting up a NIP-05 identifier. ' +
-            'If you don\'t own a domain you can ask someone to create an id for you at their domain. ' +
-            'DM me for yourname@uselessshit.co NIP-05 id 🤙 (see Contact)',
+            'If you don\'t own a domain you can ask someone to create an id for you at their domain.',
         urls: ['https://gist.github.com/metasikander/609a538e6a03b2f67e5c8de625baed3e', 'https://nvk.org/n00b-nip5'],
         createdAt: '2023-01-04',
-        updatedAt: '2023-01-10'
+        updatedAt: '2023-01-11'
+    },
+    {
+        id: 'uselessshit-co-handle',
+        issue: 'Getting free UseLessShit.co NIP-05 handle.',
+        fix: 'DM me for yourname@uselessshit.co NIP-05 id 🤙 (see Contact)',
+        updatedAt: '2023-01-11'
     },
     {
         id: 'lnurlp',
         issue: 'How to turn my NIP-05 handle into lightning address?',
-        fix: 'Navigate to the url below to make your NIP-05 handle a lightning address (Alby).',
+        fix: 'Navigate to the url below to make your NIP-05 handle a lightning address (Alby). ' +
+            'If you\'d like a lightning address @uselessshit.co let me know (see Contact)',
         urls: ['https://nvk.org/alby-lnurlp'],
         createdAt: '2023-01-10',
-        updatedAt: '2023-01-10'
+        updatedAt: '2023-01-11'
     },
     {
         id: 'blue-and-yellow-checkmarks',
@@ -324,17 +352,26 @@ export const GUIDES: Guide[] = [
     },
     {
         id: 'boosting-issues',
-        issue: 'I can\'t boost. (Damus)',
+        issue: 'I can\'t boost.',
         fix: 'Sometimes it\'s not possible to boost a post from a feed. ' +
             'The workaround is to open a given thread and boost the post from there.',
-        updatedAt: '2023-01-09'
+        updatedAt: '2023-01-09',
+        tags: ['Damus']
     },
     {
         id: 'damus-is-crashing',
         issue: 'Damus keeps crashing.',
         fix: 'Damus is still in beta, so bugs are not uncommon. ' +
             'If your app keeps crashing, make sure you\'ve updated Damus and iOS to the latest versions.',
-        updatedAt: '2023-01-09'
+        updatedAt: '2023-01-09',
+        tags: ['Damus']
+    },
+    {
+        id: 'free-100-sats',
+        issue: 'Want to test lightning and get free 100 sats?',
+        fix: 'Post a lightning invoice for 100 sats and tag @bitcoinbull (public key: npub1gl23nnfmlewvvuz7xgrrauuexx2xj70whdf5yhd47tj0r8p68t6sww70gt) ' +
+            'and watch the magic happen before your own eyes 🪄',
+        updatedAt: '2023-01-11'
     },
     {
         id: 'more-resources',

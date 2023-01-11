@@ -27,7 +27,8 @@ export interface Guide {
     urls?: string[];
     createdAt?: string;
     updatedAt: string;
-    imageUrls?: string[]
+    imageUrls?: string[];
+    tags?: string[];
 }
 
 export const NostrResources = () => {
@@ -182,8 +183,17 @@ export const NostrResources = () => {
                                             </a>
                                             }
                                             <CardContent>
-                                                <Typography sx={{ fontSize: 14, fontWeight: 'bold', color: '#000' }} color="text.secondary" gutterBottom>
+                                                <Typography
+                                                    sx={{ fontSize: 14, fontWeight: 'bold', color: '#000', display: 'flex', alignItems: 'center' }}
+                                                    color="text.secondary"
+                                                    gutterBottom
+                                                >
                                                     { guide.issue }
+                                                    { guide.tags &&
+                                                        guide.tags.map(tag => (
+                                                            <Chip sx={{ marginLeft: '0.33em' }} label={tag} color="success" />
+                                                        ))
+                                                    }
                                                 </Typography>
                                                 <Typography gutterBottom variant="body2">
                                                     { guide.fix }
@@ -198,7 +208,7 @@ export const NostrResources = () => {
                                                 }
                                             </CardContent>
                                             <CardActions>
-                                                Last update: { guide.updatedAt }
+                                                Added: { guide.createdAt || guide.updatedAt }, Last update: { guide.updatedAt }
                                             </CardActions>
                                         </Card>
                                     </ListItem>
