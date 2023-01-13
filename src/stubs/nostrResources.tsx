@@ -308,13 +308,27 @@ export const GUIDES: Guide[] = [
         updatedAt: '2023-01-11'
     },
     {
-        id: 'lnurlp',
-        issue: 'How to turn my NIP-05 handle into lightning address?',
+        id: 'lnurlp-with-alby',
+        issue: 'How to turn my NIP-05 handle into lightning address? (Alby)',
         fix: 'Navigate to the url below to make your NIP-05 handle a lightning address (Alby). ' +
             'If you\'d like a lightning address @uselessshit.co let me know (see Contact)',
         urls: ['https://nvk.org/alby-lnurlp'],
         createdAt: '2023-01-10',
         updatedAt: '2023-01-11'
+    },
+    {
+        id: 'lnurlp-with-wos',
+        issue: 'How to turn NIP-05 handle into lightning address? (WoS)',
+        fix: '',
+        updatedAt: '2023-01-13',
+        bulletPoints: [
+            'Create an empty file accessible at https://\<yourdomain\>/.well-known/lnurlp/\<yourname\>',
+            'If you\'re running Apache, in your .htaccess file add the following: ',
+            'Redirect /.well-known/lnurlp/\<yourname\> https://walletofsatoshi.com/.well-known/lnurlp/\<your-WoS-name> ',
+            'eg. Redirect ./well-known/lnurlp/pitiunited https://walletofsatoshi.com/.well-known/lnurlp/furiouschina21',
+            'For nginx, .htaccess won\'t work. Head down to the explainer below on how to set up redirects with nginx.'
+        ],
+        urls: ['https://www.liquidweb.com/kb/redirecting-urls-using-nginx/']
     },
     {
         id: 'blue-and-yellow-checkmarks',

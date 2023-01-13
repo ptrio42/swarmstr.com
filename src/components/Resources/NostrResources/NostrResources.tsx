@@ -4,7 +4,7 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
 import ListItem from "@mui/material/ListItem";
-import {Link, useLocation} from "react-router-dom";
+import {useLocation} from "react-router-dom";
 import {Helmet} from "react-helmet";
 import CardActions from "@mui/material/CardActions";
 import Stack from "@mui/material/Stack";
@@ -29,6 +29,7 @@ export interface Guide {
     updatedAt: string;
     imageUrls?: string[];
     tags?: string[];
+    bulletPoints?: string[];
 }
 
 export const NostrResources = () => {
@@ -197,6 +198,13 @@ export const NostrResources = () => {
                                                 </Typography>
                                                 <Typography gutterBottom variant="body2">
                                                     { guide.fix }
+                                                    { guide.bulletPoints &&
+                                                        <List>
+                                                            { guide.bulletPoints.map(point =>
+                                                                <ListItem>{ point }</ListItem>
+                                                            ) }
+                                                        </List>
+                                                    }
                                                 </Typography>
                                                 { guide.urls && guide.urls.length > 0 &&
                                                 guide.urls.map(url =>
