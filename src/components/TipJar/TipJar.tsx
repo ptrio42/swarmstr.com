@@ -44,7 +44,7 @@ const TIP_JARS: CardProps[] = [
         backgroundImage: 'https://uselessshit.co/images/lukeonchain-splash.gif',
         backgroundImageSize: 100,
         type: CardType.Sticker,
-        footer: 'lukeonchain@getalby.com',
+        footer: 'lukeonchain@satoshivibes.com',
         footerFontSize: 10,
         footerColor: '#ffffff',
         cardWidth: 3.5,
