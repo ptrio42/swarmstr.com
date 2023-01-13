@@ -57,9 +57,36 @@ const TIP_JARS: CardProps[] = [
         secondaryImageFormatHeight: 1,
         qrCodeSize: 96,
         lineHeight: 0.75,
-        lnurl: 'lukeonchain@getalby.com',
+        lnurl: 'lukeonchain@satoshivibes.com',
         latestBlockColor: '#000000'
-    }
+    },
+    {
+        name: 'bitcoinbull',
+        slogan: 'USE LESS SHIT️',
+        sloganColor: '#ffffff',
+        sloganFontSize: 54,
+        sloganTextShadow: true,
+        sloganTextShadowColor: '#000000',
+        mainImage: null,
+        backgroundImage: 'https://nostr.build/i/2086.gif',
+        backgroundImageSize: 100,
+        type: CardType.Sticker,
+        footer: 'ln-address@yourdomain.com',
+        footerFontSize: 10,
+        footerColor: '#ffffff',
+        cardWidth: 4,
+        cardHeight: 4,
+        backgroundPositionX: 50,
+        backgroundPositionY: 0,
+        primaryImageFormatWidth: 1,
+        primaryImageFormatHeight: 1,
+        secondaryImageFormatWidth: 1,
+        secondaryImageFormatHeight: 1,
+        qrCodeSize: 96,
+        lineHeight: 0.75,
+        lnurl: 'LNURL1DP68GURN8GHJ7AMPD3KX2AR0VEEKZAR0WD5XJTNRDAKJ7TNHV4KXCTTTDEHHWM30D3H82UNVWQHKVATJD9HH2UMRDP5KUCFJXYKXPQQQ',
+        latestBlockColor: '#000000'
+    },
 ];
 
 export const TipJar = () => {
