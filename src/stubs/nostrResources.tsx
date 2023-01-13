@@ -46,6 +46,29 @@ export const GUIDES: Guide[] = [
         tags: ['Damus']
     },
     {
+        id: 'running-damus',
+        issue: 'Damus TestFlight is full. Can I still try it?',
+        fix: 'To be able to test Damus without participating in the TestFlight beta you\'ll need a Mac and optionally an ' +
+            'iOS device (iPhone or iPad).',
+        bulletPoints: [
+            '1. Download Xcode from the AppStore on your Mac OS.',
+            '2. Clone the official Damus repository from GitHub. (link attached below)',
+            '3. Open the project (the repo you\'ve just cloned) with Xcode.',
+            '4. Don\'t have/want to use your mobile device? Skip the next 4 steps (go to #9).',
+            '5. Enable Developer mode on your iPhone (Settings -> Privacy & Security) and restart your device.',
+            '6. Connect your iPhone to your Mac.',
+            '7. In Xcode, click on iPhone 14 Pro text (top panel, in the middle, next to damus).',
+            '8. From the list that will open, select your iPhone.',
+            '9. You can use a simulator instead of a mobile Apple device.',
+            '10. Click on the play icon (left panel, on top).',
+            '11. Wait for the application to build.',
+            '12. That\'s it! You can now use Damus without participating in TestFlight beta.'
+        ],
+        urls: ['https://github.com/damus-io/damus'],
+        tags: ['Damus'],
+        updatedAt: '2023-01-13'
+    },
+    {
         id: 'mining-the-public-hex-key',
         issue: 'How to mine a public key?',
         fix: 'You can mine your public HEX key with a desired prefix. Check out nostr.rest to find out how.',

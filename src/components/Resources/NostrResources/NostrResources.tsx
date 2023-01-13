@@ -19,6 +19,7 @@ import CardMedia from "@mui/material/CardMedia";
 import Input from "@mui/material/Input";
 import {matchString} from "../../../utils/utils";
 import {GUIDES} from "../../../stubs/nostrResources";
+import Button from "@mui/material/Button";
 
 export interface Guide {
     id: string;
@@ -90,6 +91,12 @@ export const NostrResources = () => {
             newExpanded.push(guideId);
         }
         setExpanded(newExpanded)
+    };
+
+    const handleShareAnswer = (event: any, guide: Guide) => {
+        event.stopPropagation();
+        navigator.clipboard.writeText(`https://uselessshit.co/resources/nostr/#${guide.id}`);
+        setSnackbarOpen(true);
     };
 
     return (
@@ -165,9 +172,7 @@ export const NostrResources = () => {
                             <ListItemText primary={guide.issue} />
                             {expanded.includes(guide.id) ? <ExpandLess /> : <ExpandMore />}
                             <Reply sx={{ marginLeft: '0.3em' }} onClick={(event) => {
-                                event.stopPropagation();
-                                navigator.clipboard.writeText(`https://uselessshit.co/resources/nostr/#${guide.id}`);
-                                setSnackbarOpen(true);
+                                handleShareAnswer(event, guide);
                             }} />
                             <Collapse sx={{ width: '100%'}} in={expanded.includes(guide.id)} timeout="auto" unmountOnExit>
                                 <List component="div" disablePadding>
@@ -216,7 +221,19 @@ export const NostrResources = () => {
                                                 }
                                             </CardContent>
                                             <CardActions>
-                                                Added: { guide.createdAt || guide.updatedAt }, Last update: { guide.updatedAt }
+                                                <Stack direction="column" spacing={1}>
+                                                    <Chip label={`Added: ${ guide.createdAt || guide.updatedAt }`} />
+                                                    <Chip label={`Last update: ${ guide.updatedAt }`} />
+                                                    <Button
+                                                        variant="text"
+                                                        color="secondary"
+                                                        onClick={(event) => {
+                                                            handleShareAnswer(event, guide);
+                                                        }}
+                                                    >
+                                                        Click to share the link to the answer
+                                                    </Button>
+                                                </Stack>
                                             </CardActions>
                                         </Card>
                                     </ListItem>
