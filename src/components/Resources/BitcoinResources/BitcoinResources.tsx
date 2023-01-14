@@ -372,6 +372,13 @@ export const BitcoinResources = () => {
                             <ListItem>SatoshiVibes.com</ListItem>
                             <ListItem>heyapollo.com</ListItem>
                             <ListItem>https://thesimplestbitcoinbook.net</ListItem>
+                            <ListItem>https://bitcoiner.guide/</ListItem>
+                            <ListItem>https://satscrap.com/</ListItem>
+                            <ListItem>https://linktr.ee/bitcoinguide</ListItem>
+                            <ListItem>https://lightsats.com/</ListItem>
+                            <ListItem>https://h17n.com/</ListItem>
+                            <ListItem>https://bitcoinforlocalbusiness.com/</ListItem>
+                            <ListItem>https://thebitcoinmanual.com/</ListItem>
                         </List>
                     </TabPanel>
                     <TabPanel index={4} value={tab}>
