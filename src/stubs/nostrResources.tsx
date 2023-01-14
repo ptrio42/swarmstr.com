@@ -5,7 +5,8 @@ export const GUIDES: Guide[] = [
         id: 'what-is-nostr',
         issue: 'What\'s NOSTR?',
         fix: 'Notes and Other Stuff Transmitted by Relays, ' +
-            'or NOSTR, is an open protocol, designed to create a censorship-resistant social network. Image credits: @coderjourney1',
+            'or NOSTR, is an open protocol, designed to create a censorship-resistant social network. ' +
+            'Image credits: @coderjourney1',
         urls: [
             'https://github.com/nostr-protocol/nostr',
             'https://usenostr.org',
@@ -77,10 +78,11 @@ export const GUIDES: Guide[] = [
     },
     {
         id: 'logging-in-with-someone-else-s-key',
-        issue: 'Loggin in with someone else\'s key.',
+        issue: 'Logging in with someone else\'s key.',
         fix: 'One of the cool features of Nostr is that you can log in with someone else\'s public key ' +
             'and see the world through their lens.',
-        updatedAt: '2023-01-09'
+        createdAt: '2023-01-09',
+        updatedAt: '2023-01-14'
     },
     {
         id: 'how-do-i-tag-a-person',
@@ -196,6 +198,31 @@ export const GUIDES: Guide[] = [
         updatedAt: '2023-01-11'
     },
     {
+        id: 'reactions',
+        issue: 'Reactions.',
+        fix: 'Since Damus build 1.0.0-6 you can now see who liked your posts with the new reactions view.' +
+            'Reactions can be viewed from the Thread screen.',
+        updatedAt: '2023-01-14',
+        tags: ['Damus']
+    },
+    {
+        id: 'left-handers',
+        issue: 'Left hand option for the post button.',
+        fix: 'In the latest Damus build (1.0.0-6) it\'s now possible to move the post button to the left. ' +
+            'To do that, go to Settings (tap on your pfp in top left corner to open side panel), ' +
+            'scroll down to LEFT HANDED section and then tap on the toggle. Restart the app for the changes to take effect.',
+        updatedAt: '2023-01-14',
+        tags: ['Damus']
+    },
+    {
+        id: 'banner-image',
+        issue: 'Banner images.',
+        fix: 'You can now set your own banner image. To achieve that, go to your profile, tap Edit and set the BANNER IMAGE ' +
+            '(it has to be a direct image url).',
+        updatedAt: '2023-01-14',
+        tags: ['Damus']
+    },
+    {
         id: 'adding-lightning-button-to-profile',
         issue: 'How to add Lightning button to profile and start receiving tips?',
         fix: 'Open a Lightning wallet, tap Receive, select Lightning Address and copy it. ' +
@@ -224,10 +251,12 @@ export const GUIDES: Guide[] = [
     {
         id: 'selecting-default-lightning-wallet',
         issue: 'How do I select a default wallet?',
-        fix: 'In Damus Settings (cog icon in top right) scroll down to WALLET SELECTOR section. ' +
+        fix: 'Open Damus Settings, accessible through side panel, ' +
+            'which can be opened through tapping on your profile picture in the left top corner.' +
+            'Scroll down to WALLET SELECTOR section. ' +
             'The default wallet can be chosen from the list under "Select default wallet".',
         createdAt: '2023-01-06',
-        updatedAt: '2023-01-11',
+        updatedAt: '2023-01-14',
         tags: ['Damus']
     },
     {
@@ -241,9 +270,9 @@ export const GUIDES: Guide[] = [
     {
         id: 'clearing-cache',
         issue: 'How does one clear cache?',
-        fix: 'Clear cache option is located in Settings (cog icon in top right corner) under CLEAR CACHE section.',
+        fix: 'Clear cache option is located in Settings (side panel, accessible through tapping on your pfp) under CLEAR CACHE section.',
         createdAt: '2023-01-07',
-        updatedAt: '2023-01-11',
+        updatedAt: '2023-01-14',
         tags: ['Damus']
     },
     {
@@ -309,11 +338,11 @@ export const GUIDES: Guide[] = [
     {
         id: 'removing-relays',
         issue: 'How to remove a relay?',
-        fix: 'In your SETTINGS view (cog icon in the right top), swipe left on a relay you\'d ' +
+        fix: 'In your SETTINGS view (side panel - to open it tap on your pfp in the left top corner), swipe left on a relay you\'d ' +
             'like to remove and click on the trash icon to confirm removal. ' +
             'You might want to restart the client for the changes to take place.',
         createdAt: '2022-12-30',
-        updatedAt: '2023-01-11',
+        updatedAt: '2023-01-14',
     },
     {
         id: 'nip-05',
@@ -388,11 +417,12 @@ export const GUIDES: Guide[] = [
         updatedAt: '2022-12-30'
     },
     {
-        id: 'boosting-issues',
-        issue: 'I can\'t boost.',
-        fix: 'Sometimes it\'s not possible to boost a post from a feed. ' +
-            'The workaround is to open a given thread and boost the post from there.',
-        updatedAt: '2023-01-09',
+        id: 'reposting-issues',
+        issue: 'I can\'t repost (previously boost).',
+        fix: 'Sometimes it\'s not possible to repost a note from a feed. ' +
+            'The workaround is to open a given thread and repost the note from there.',
+        createdAt: '2023-01-09',
+        updatedAt: '2023-01-14',
         tags: ['Damus']
     },
     {
