@@ -44,7 +44,8 @@ export enum CardType {
     BusinessCard = 'business-card',
     Bookmark = 'bookmark',
     Sticker = 'sticker',
-    ChristmasCard = 'christmas-card'
+    ChristmasCard = 'christmas-card',
+    BannerImage = 'banner-image'
 }
 
 interface CardsConfig {
@@ -90,6 +91,14 @@ const cardsConfig: CardsConfig = {
         secondaryImageFormat: [1.5, 1.5],
         qrCodeSize: 144,
         maxCopies: 2
+    },
+    [CardType.BannerImage]: {
+        format: [15.625, 5.2083333333],
+        orientation: 'landscape',
+        primaryImageFormat: [1.5, 1.5],
+        secondaryImageFormat: [1.5, 1.5],
+        qrCodeSize: 144,
+        maxCopies: 1
     }
 };
 
@@ -127,12 +136,12 @@ const initialCardProps: CardProps = {
     copies: 1,
     backgroundImage: null,
     backgroundImageSize: 100,
-    type: CardType.ChristmasCard,
-    footer: 'https://uselessshit.co',
+    type: CardType.BannerImage,
+    footer: '',
     footerColor: '#1B3D2F',
     footerFontSize: 10,
     receiveAddress: '',
-    config: { ...cardsConfig[CardType.ChristmasCard] },
+    config: { ...cardsConfig[CardType.BannerImage] },
     overlay: false,
     overlayColor: 'rgba(255,255,255,.8)'
 };
@@ -468,9 +477,9 @@ export const CardGenerator = () => {
     };
 
     const uploadToNostrBuild = async () => {
+        handleIsLoading(true);
         const cardElement: HTMLElement = cardRef.current as unknown as HTMLElement;
         const cardCanvas = await html2canvas(cardElement);
-        const imageDataURL = cardCanvas.toDataURL('image/png');
 
         cardCanvas.toBlob(async (blob: any) => {
             const imageFile = new File([blob], "fileName.png", { type: "image/png" });
@@ -479,9 +488,10 @@ export const CardGenerator = () => {
             formData.append('submit', 'Upload Image');
             const response = await uploadImage(formData);
 
-            const regExp = /(https?:\/\/[^ ]*)/;
-            let imageUrl: string = response.match(regExp)[0];
-            imageUrl = imageUrl.slice(0, imageUrl.indexOf('<BR>'));
+            const regExp = new RegExp(/(https?:\/\/[^ ]*)/, 'g');
+            let imageUrl: string = response.match(regExp)[9];
+            imageUrl = imageUrl.slice(0, imageUrl.indexOf('\"'));
+            handleIsLoading(false);
             setSnackbarMessage('Upload successfull! Image URL: ' + imageUrl);
             setSnackbarOpen(true);
         }, 'image/png');
@@ -550,9 +560,6 @@ export const CardGenerator = () => {
                 card.restoreGraphicsState();
             }
 
-            card.setFontSize(cardProps.sloganFontSize);
-            card.setFont('Merriweather-Regular', 'normal');
-
             if (cardProps.mainImage) {
                 const imageData = new Image();
                 imageData.src = cardProps.mainImage as string;
@@ -584,6 +591,12 @@ export const CardGenerator = () => {
             const textPosition = getMainTextPosition(i);
             const secondaryTextPosition = getSecondaryTextPosition(i);
 
+            card.saveGraphicsState();
+            // @ts-ignore
+            card.setGState(new card.GState({lineHeight: 0.75}));
+            card.restoreGraphicsState();
+            card.setFontSize(cardProps.sloganFontSize);
+            card.setFont('Merriweather-Regular', 'normal');
             card.setTextColor(cardProps.sloganColor);
             card.text(
                 cardProps.slogan,
@@ -591,6 +604,7 @@ export const CardGenerator = () => {
                 textPosition.y,
                 { align: 'center', maxWidth: cardsConfig[cardProps.type].format[0] - 0.5 }
                 );
+
 
             card.setFontSize(cardProps.footerFontSize);
             card.setTextColor(cardProps.footerColor);
@@ -659,13 +673,14 @@ export const CardGenerator = () => {
                                 name="cardType"
                                 id="cardType"
                             >
-                                <FormControlLabel value="christmas-card" control={<Radio />} label={
+                                <FormControlLabel value="banner-image" control={<Radio />} label={
                                     <FormLabel id="cardTypeLabel">
                                         <Badge badgeContent="new" color="primary">
-                                            Greeting Card &nbsp;&nbsp;&nbsp;
+                                            Banner Image &nbsp;&nbsp;&nbsp;
                                         </Badge>
                                     </FormLabel>
                                 } />
+                                <FormControlLabel value="christmas-card" control={<Radio />} label="Greeting Card" />
                                 <FormControlLabel value="business-card" control={<Radio />} label="Business Card" />
                                 <FormControlLabel value="bookmark" control={<Radio />} label="Bookmark" />
                                 <FormControlLabel value="sticker" control={<Radio />} label="Sticker" />
@@ -923,6 +938,7 @@ export const CardGenerator = () => {
                             value={cardProps.backgroundImageSize}
                             valueLabelDisplay="auto"
                             defaultValue={100}
+                            max={150}
                             onChange={(event, newBackgroundImageSize) => {
                                 const backgroundImageSize = newBackgroundImageSize as number;
                                 setCardProps({
