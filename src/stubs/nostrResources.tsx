@@ -218,7 +218,7 @@ export const GUIDES: Guide[] = [
         id: 'banner-image',
         issue: 'Banner images.',
         fix: 'You can now set your own banner image. To achieve that, go to your profile, tap Edit and set the BANNER IMAGE ' +
-            '(it has to be a direct image url).',
+            '(it has to be a direct image url). The banner image ratio should be ~ 3:1 (width:height).',
         updatedAt: '2023-01-14',
         tags: ['Damus']
     },
