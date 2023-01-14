@@ -109,15 +109,15 @@ export const NostrResources = () => {
                 <meta property="og:url" content="https://uselessshit.co/resources/nostr" />
                 <meta property="og:type" content="website" />
                 <meta property="og:title" content="Nostr Newcomers Most Common Questions and Answers - UseLessShit.co" />
-                <meta property="og:image" content="https://uselessshit.co/images/guide-cover.png" />
+                <meta property="og:image" content="https://uselessshit.co/images/guide-cover-v2.png" />
                 <meta property="og:description" content="Basic guide for Nostr newcomers. Find answers to the most common questions." />
 
                 <meta itemProp="name" content="Nostr newcomers most common questions and answers - UseLessShit.co" />
-                <meta itemProp="image" content="https://uselessshit.co/images/guide-cover.png" />
+                <meta itemProp="image" content="https://uselessshit.co/images/guide-cover-v2.png" />
 
                 <meta name="twitter:title" content="Nostr newcomers most common questions and answers - UseLessShit.co" />
                 <meta name="twitter:description" content="Basic guide for Nostr newcomers. Find answers to the most common questions." />
-                <meta name="twitter:image" content="https://uselessshit.co/images/guide-cover.png" />
+                <meta name="twitter:image" content="https://uselessshit.co/images/guide-cover-v2.png" />
 
             </Helmet>
             <Stack sx={{ marginTop: '1em', marginLeft: '1em' }} direction="row" spacing={1}>
