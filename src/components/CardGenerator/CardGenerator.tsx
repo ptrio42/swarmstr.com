@@ -39,6 +39,7 @@ import {cropImage, resizeImage} from "../../services/cardGenerator";
 import {LatestBitcoinBlock} from "../LatestBitcoinBlock/LatestBitcoinBlock";
 import {uploadImage} from "../../services/uploadImage";
 import Snackbar from "@mui/material/Snackbar";
+import {useWindowDimensions} from "../../utils/utils";
 
 export enum CardType {
     BusinessCard = 'business-card',
@@ -122,10 +123,11 @@ interface CardProps {
     overlay?: boolean;
     overlayColor?: string;
     latestBlock?: boolean;
+    hideNonEssentials?: boolean;
 }
 
 const initialCardProps: CardProps = {
-    slogan: 'CYBERPOWER.',
+    slogan: '',
     sloganColor: '#000000',
     sloganFontSize: 14,
     sloganTextShadow: false,
@@ -143,7 +145,8 @@ const initialCardProps: CardProps = {
     receiveAddress: '',
     config: { ...cardsConfig[CardType.BannerImage] },
     overlay: false,
-    overlayColor: 'rgba(255,255,255,.8)'
+    overlayColor: 'rgba(255,255,255,.8)',
+    hideNonEssentials: true
 };
 
 const PAGE_FORMAT = {
@@ -170,12 +173,18 @@ export const CardGenerator = () => {
 
     const [qrCodeRefs, setQrCodeRefs] = useState<RefObject<unknown>[]>([]);
 
+    const { width, height } = useWindowDimensions();
+
+    const getScale = () => {
+        return ((width - 173) / PPI / cardsConfig[cardProps.type].format[0]);
+    };
+
     const [crop, setCrop] = useState<Crop>({
         unit: 'px',
         x: 0,
         y: 0,
-        width: cardProps.config.format[0] * PPI,
-        height: cardProps.config.format[1] * PPI
+        width: cardProps.config.format[0] * PPI * getScale(),
+        height: cardProps.config.format[1] * PPI * getScale()
     });
 
     const maxCopiesInARow = Math.floor(PAGE_FORMAT.WIDTH / cardProps.config.format[0]);
@@ -215,8 +224,8 @@ export const CardGenerator = () => {
             unit: 'px',
             x: 0,
             y: 0,
-            width: cardProps.config.format[0] * PPI,
-            height: cardProps.config.format[1] * PPI
+            width: cardProps.config.format[0] * PPI * getScale(),
+            height: cardProps.config.format[1] * PPI * getScale()
         });
     }, [cardProps.config]);
 
@@ -259,8 +268,8 @@ export const CardGenerator = () => {
 
     const getCardPreviewBackgroundSize = () => {
         if (cardProps.backgroundImage) {
-            return cardProps.backgroundImageSize / 100 * cardProps.backgroundImage.naturalWidth + 'px'
-                + ' ' + cardProps.backgroundImageSize / 100 * cardProps.backgroundImage.naturalHeight + 'px';
+            return cardProps.backgroundImageSize / 100 * cardProps.backgroundImage.naturalWidth  * getScale() + 'px'
+                + ' ' + cardProps.backgroundImageSize / 100 * cardProps.backgroundImage.naturalHeight  * getScale() + 'px';
         }
         return '100% 100%';
     };
@@ -268,11 +277,11 @@ export const CardGenerator = () => {
     const cardHTML = () => (
         <React.Fragment>
             <Typography variant="h6" component="div" gutterBottom sx={{ textAlign: 'left' }}>
-                Card Preview
+                Card Preview { width } / { height }
             </Typography>
             <Card ref={cardRef as any} sx={{
-                width: `${cardsConfig[cardProps.type].format[0]}in`,
-                height: `${cardsConfig[cardProps.type].format[1]}in`,
+                width: `${cardsConfig[cardProps.type].format[0] * getScale()}in`,
+                height: `${cardsConfig[cardProps.type].format[1]  * getScale()}in`,
                 margin: '0 auto 3em auto',
                 background: cardProps.backgroundImage ? `url(${cardProps.backgroundImage.src})` : 'none',
                 backgroundSize: getCardPreviewBackgroundSize(),
@@ -294,8 +303,8 @@ export const CardGenerator = () => {
                         <CardMedia
                             component="img"
                             sx={{
-                                width: `${cardProps.config.primaryImageFormat[0]}in`,
-                                height: `${cardProps.config.primaryImageFormat[1]}in`,
+                                width: `${cardProps.config.primaryImageFormat[0] * getScale()}in`,
+                                height: `${cardProps.config.primaryImageFormat[1] * getScale()}in`,
                                 objectFit: 'fill',
                                 marginTop: '0.15in'
                             }}
@@ -305,8 +314,8 @@ export const CardGenerator = () => {
                             (includeLightningGift || (cardProps.type === CardType.Sticker && cardProps.receiveAddress && cardProps.receiveAddress !== '')) &&
                             <Box
                                 sx={{
-                                    width: `${cardProps.config.secondaryImageFormat[0]}in`,
-                                    height: `${cardProps.config.secondaryImageFormat[1]}in`,
+                                    width: `${cardProps.config.secondaryImageFormat[0] * getScale()}in`,
+                                    height: `${cardProps.config.secondaryImageFormat[1] * getScale()}in`,
                                     marginLeft: '0.1in',
                                     marginTop: '0.15in',
                                     overflow: 'hidden'
@@ -316,8 +325,8 @@ export const CardGenerator = () => {
                                     Array(cardProps.copies).fill(undefined).map((_, i) => (
                                         <Box
                                             sx={{
-                                                width: `${cardProps.config.secondaryImageFormat[0]}in`,
-                                                height: `${cardProps.config.secondaryImageFormat[1]}in`,
+                                                width: `${cardProps.config.secondaryImageFormat[0] * getScale()}in`,
+                                                height: `${cardProps.config.secondaryImageFormat[1] * getScale()}in`,
                                                 margin: '0',
                                                 padding: '0'
                                             }}
@@ -344,7 +353,7 @@ export const CardGenerator = () => {
                     <CardContent>
                         <Typography
                             sx={{
-                                fontSize: `${cardProps.sloganFontSize}pt`,
+                                fontSize: `${cardProps.sloganFontSize * getScale()}pt`,
                                 color: cardProps.sloganColor,
                                 maxWidth: `${cardProps.config.format[0] - 0.5}in`,
                                 overflow: 'hidden', overflowWrap: 'break-word',
@@ -358,7 +367,7 @@ export const CardGenerator = () => {
                         </Typography>
                     </CardContent>
                         <CardActions>
-                        <Typography sx={{ fontSize: `${cardProps.footerFontSize}pt`, color: cardProps.footerColor }}>
+                        <Typography sx={{ fontSize: `${cardProps.footerFontSize * getScale()}pt`, color: cardProps.footerColor }}>
                             { cardProps.footer }
                         </Typography>
                     </CardActions>
@@ -627,7 +636,7 @@ export const CardGenerator = () => {
             </Helmet>
 
             <img height="128" src={process.env.PUBLIC_URL + '/images/spread-the-bitcoin-vibes.png'} />
-            <Badge badgeContent="beta" color="primary">
+            <Badge badgeContent="alpha" color="primary">
                 <Typography variant="h3" component="div" gutterBottom>
                     Create Bitcoin Artwork
                 </Typography>
@@ -688,93 +697,33 @@ export const CardGenerator = () => {
                         </FormControl>
                     </Item>
                     <Item>
-                        <FormLabel id="cardPrimaryText">
-                            Primary text
-                            <Tooltip title="Enter the primary text. Up to 500 characters.">
-                                <IconButton>
-                                    <Info />
-                                </IconButton>
-                            </Tooltip>
-                        </FormLabel>
-                    </Item>
-                    <Item>
-                        <TextField
-                            id="slogan"
-                            name="slogan"
-                            type="text"
-                            label="Enter text"
-                            sx={{ width: '80%' }}
-                            value={cardProps.slogan}
-                            inputProps={{ maxLength: 500 }}
-                            onChange={(event) => {
-                                formik.handleChange(event);
-                                setCardProps({
-                                    ...cardProps,
-                                    slogan: event.target.value
-                                });
-                            }} />
-                    </Item>
-                    <Item>
-                        <FormLabel id="cardPrimaryTextSize">Primary text font size</FormLabel>
-                    </Item>
-                    <Item>
-                        <Slider
-                            aria-label="Primary Text Font Size"
-                            value={cardProps.sloganFontSize}
-                            valueLabelDisplay="auto"
-                            onChange={(event, newSloganFontSize) => {
-                            setCardProps({
-                                ...cardProps,
-                                sloganFontSize: newSloganFontSize as number
-                            });
-                        }} />
-                    </Item>
-                    <Item>
-                        <FormLabel id="cardPrimaryTextColor">
-                            Primary text color
-                            <Tooltip title="Choose a color for the primary text.">
-                                <IconButton>
-                                    <Info />
-                                </IconButton>
-                            </Tooltip>
-                        </FormLabel>
-                    </Item>
-                    <Item>
-                        <SketchPicker className="color-picker" color={cardProps.sloganColor} onChangeComplete={(color: any) => {
-                            setCardProps({
-                                ...cardProps,
-                                sloganColor: color.hex
-                            })
-                        }} />
-                    </Item>
-                    <Item>
                         <FormControlLabel
                             control={
                                 <Checkbox
                                     className="checkbox"
-                                    checked={cardProps.sloganTextShadow}
+                                    checked={cardProps.hideNonEssentials}
                                     onChange={(_event) => {
                                         setCardProps({
                                             ...cardProps,
-                                            sloganTextShadow: !cardProps.sloganTextShadow
+                                            hideNonEssentials: !cardProps.hideNonEssentials
                                         })
                                     }}
                                 />
                             }
-                            label="Primary Text Shadow (image only)"
+                            label="Hide non-essential options"
                         />
-                        <Tooltip title="Whether to display display text shadow for the primary text.">
+                        <Tooltip title="Indicates whether to display non-essential image processing options.">
                             <IconButton>
                                 <Info />
                             </IconButton>
                         </Tooltip>
                     </Item>
-                    { cardProps.sloganTextShadow &&
+                    { !!cardProps.hideNonEssentials === false &&
                         <React.Fragment>
                             <Item>
-                                <FormLabel id="cardPrimaryTextColor">
-                                    Primary Text Shadow Color
-                                    <Tooltip title="Choose a color for the primary text shadow.">
+                                <FormLabel id="cardPrimaryText">
+                                    Primary text
+                                    <Tooltip title="Enter the primary text. Up to 500 characters.">
                                         <IconButton>
                                             <Info />
                                         </IconButton>
@@ -782,106 +731,192 @@ export const CardGenerator = () => {
                                 </FormLabel>
                             </Item>
                             <Item>
-                                <SketchPicker className="color-picker" color={cardProps.sloganTextShadowColor} onChangeComplete={(color: any) => {
+                                <TextField
+                                    id="slogan"
+                                    name="slogan"
+                                    type="text"
+                                    label="Enter text"
+                                    sx={{ width: '80%' }}
+                                    value={cardProps.slogan}
+                                    inputProps={{ maxLength: 500 }}
+                                    onChange={(event) => {
+                                        formik.handleChange(event);
+                                        setCardProps({
+                                            ...cardProps,
+                                            slogan: event.target.value
+                                        });
+                                    }} />
+                            </Item>
+                            <Item>
+                                <FormLabel id="cardPrimaryTextSize">Primary text font size</FormLabel>
+                            </Item>
+                            <Item>
+                                <Slider
+                                    aria-label="Primary Text Font Size"
+                                    value={cardProps.sloganFontSize}
+                                    valueLabelDisplay="auto"
+                                    onChange={(event, newSloganFontSize) => {
+                                        setCardProps({
+                                            ...cardProps,
+                                            sloganFontSize: newSloganFontSize as number
+                                        });
+                                    }} />
+                            </Item>
+                            <Item>
+                                <FormLabel id="cardPrimaryTextColor">
+                                    Primary text color
+                                    <Tooltip title="Choose a color for the primary text.">
+                                        <IconButton>
+                                            <Info />
+                                        </IconButton>
+                                    </Tooltip>
+                                </FormLabel>
+                            </Item>
+                            <Item>
+                                <SketchPicker className="color-picker" color={cardProps.sloganColor} onChangeComplete={(color: any) => {
                                     setCardProps({
                                         ...cardProps,
-                                        sloganTextShadowColor: color.hex
+                                        sloganColor: color.hex
                                     })
                                 }} />
                             </Item>
-                        </React.Fragment>
+                            <Item>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            className="checkbox"
+                                            checked={cardProps.sloganTextShadow}
+                                            onChange={(_event) => {
+                                                setCardProps({
+                                                    ...cardProps,
+                                                    sloganTextShadow: !cardProps.sloganTextShadow
+                                                })
+                                            }}
+                                        />
+                                    }
+                                    label="Primary Text Shadow (image only)"
+                                />
+                                <Tooltip title="Whether to display display text shadow for the primary text.">
+                                    <IconButton>
+                                        <Info />
+                                    </IconButton>
+                                </Tooltip>
+                            </Item>
+                            { cardProps.sloganTextShadow &&
+                            <React.Fragment>
+                                <Item>
+                                    <FormLabel id="cardPrimaryTextColor">
+                                        Primary Text Shadow Color
+                                        <Tooltip title="Choose a color for the primary text shadow.">
+                                            <IconButton>
+                                                <Info />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </FormLabel>
+                                </Item>
+                                <Item>
+                                    <SketchPicker className="color-picker" color={cardProps.sloganTextShadowColor} onChangeComplete={(color: any) => {
+                                        setCardProps({
+                                            ...cardProps,
+                                            sloganTextShadowColor: color.hex
+                                        })
+                                    }} />
+                                </Item>
+                            </React.Fragment>
 
-                    }
-                    <Item>
-                        <FormLabel id="cardSecondaryText">
-                            Secondary text
-                            <Tooltip title="Enter the secondary text.">
-                                <IconButton>
-                                    <Info />
-                                </IconButton>
-                            </Tooltip>
-                        </FormLabel>
-                    </Item>
-                    <Item>
-                        <TextField
-                            id="footer"
-                            name="footer"
-                            type="text"
-                            label="Enter text"
-                            sx={{ width: '80%' }}
-                            value={cardProps.footer}
-                            inputProps={{ maxLength: 100 }}
-                            onChange={(event) => {
-                                formik.handleChange(event);
-                                setCardProps({
-                                    ...cardProps,
-                                    footer: event.target.value
-                                });
-                            }} />
-                    </Item>
-                    <Item>
-                        <FormLabel id="cardSecondaryTextColor">
-                            Secondary text color
-                            <Tooltip title="Choose a color for the secondary text.">
-                                <IconButton>
-                                    <Info />
-                                </IconButton>
-                            </Tooltip>
-                        </FormLabel>
-                    </Item>
-                    <Item>
-                        <SketchPicker className="color-picker" color={cardProps.footerColor} onChangeComplete={(color: any) => {
-                            setCardProps({
-                                ...cardProps,
-                                footerColor: color.hex
-                            })
-                        }} />
-                    </Item>
-                    <Item>
-                        <FormLabel sx={{ paddingRight: '0.5em' }} id="imageLabel">
-                            Image
-                            <Tooltip title="Upload an image. Images with equal width & height please.">
-                                <IconButton>
-                                    <Info />
-                                </IconButton>
-                            </Tooltip>
-                        </FormLabel>
-                    </Item>
-                    <Item>
-                        <Input
-                            id="mainImage"
-                            name="mainImage"
-                            key={mainImageInputKey || ''}
-                            type="file"
-                            onChange={(event) => {
-                            const files = (event.currentTarget as HTMLInputElement).files;
-                            if (FileReader && files && files.length > 0) {
-                                const fileReader = new FileReader();
-                                fileReader.onloadend = () => {
+                            }
+                            <Item>
+                                <FormLabel id="cardSecondaryText">
+                                    Secondary text
+                                    <Tooltip title="Enter the secondary text.">
+                                        <IconButton>
+                                            <Info />
+                                        </IconButton>
+                                    </Tooltip>
+                                </FormLabel>
+                            </Item>
+                            <Item>
+                                <TextField
+                                    id="footer"
+                                    name="footer"
+                                    type="text"
+                                    label="Enter text"
+                                    sx={{ width: '80%' }}
+                                    value={cardProps.footer}
+                                    inputProps={{ maxLength: 100 }}
+                                    onChange={(event) => {
+                                        formik.handleChange(event);
+                                        setCardProps({
+                                            ...cardProps,
+                                            footer: event.target.value
+                                        });
+                                    }} />
+                            </Item>
+                            <Item>
+                                <FormLabel id="cardSecondaryTextColor">
+                                    Secondary text color
+                                    <Tooltip title="Choose a color for the secondary text.">
+                                        <IconButton>
+                                            <Info />
+                                        </IconButton>
+                                    </Tooltip>
+                                </FormLabel>
+                            </Item>
+                            <Item>
+                                <SketchPicker className="color-picker" color={cardProps.footerColor} onChangeComplete={(color: any) => {
                                     setCardProps({
                                         ...cardProps,
-                                        mainImage: fileReader.result
+                                        footerColor: color.hex
                                     })
-                                };
-                                fileReader.readAsDataURL(files[0])
-                            }
-                        }} />
-                        <Button
-                            variant="contained"
-                            color="warning"
-                            sx={{ marginLeft: '1em' }}
-                            disabled={cardProps.mainImage === null}
-                            onClick={() => {
-                                setCardProps({
-                                    ...cardProps,
-                                    mainImage: null
-                                });
-                                setMainImageInputKey(getRandomInputKey());
-                            }}
-                        >
-                            Reset Foreground Image
-                        </Button>
-                    </Item>
+                                }} />
+                            </Item>
+                            <Item>
+                                <FormLabel sx={{ paddingRight: '0.5em' }} id="imageLabel">
+                                    Image
+                                    <Tooltip title="Upload an image. Images with equal width & height please.">
+                                        <IconButton>
+                                            <Info />
+                                        </IconButton>
+                                    </Tooltip>
+                                </FormLabel>
+                            </Item>
+                            <Item>
+                                <Input
+                                    id="mainImage"
+                                    name="mainImage"
+                                    key={mainImageInputKey || ''}
+                                    type="file"
+                                    onChange={(event) => {
+                                        const files = (event.currentTarget as HTMLInputElement).files;
+                                        if (FileReader && files && files.length > 0) {
+                                            const fileReader = new FileReader();
+                                            fileReader.onloadend = () => {
+                                                setCardProps({
+                                                    ...cardProps,
+                                                    mainImage: fileReader.result
+                                                })
+                                            };
+                                            fileReader.readAsDataURL(files[0])
+                                        }
+                                    }} />
+                                <Button
+                                    variant="contained"
+                                    color="warning"
+                                    sx={{ marginLeft: '1em' }}
+                                    disabled={cardProps.mainImage === null}
+                                    onClick={() => {
+                                        setCardProps({
+                                            ...cardProps,
+                                            mainImage: null
+                                        });
+                                        setMainImageInputKey(getRandomInputKey());
+                                    }}
+                                >
+                                    Reset Foreground Image
+                                </Button>
+                            </Item>
+                        </React.Fragment>
+                    }
                     <Item>
                         <FormLabel sx={{ paddingRight: '0.5em' }} id="backgroundImageLabel">
                             Background image
@@ -953,8 +988,8 @@ export const CardGenerator = () => {
                         }} locked={true}>
                             <img
                                 src={cardProps.backgroundImage && cardProps.backgroundImage.src}
-                                width={cardProps.backgroundImage && cardProps.backgroundImage.naturalWidth * ((cardProps.backgroundImageSize && cardProps.backgroundImageSize / 100) || 100) || '100%'}
-                                height={cardProps.backgroundImage && cardProps.backgroundImage.naturalHeight * ((cardProps.backgroundImageSize && cardProps.backgroundImageSize / 100) || 100) || '100%'} />
+                                width={cardProps.backgroundImage && cardProps.backgroundImage.naturalWidth * ((cardProps.backgroundImageSize && cardProps.backgroundImageSize / 100) * getScale() || 100) || '100%'}
+                                height={cardProps.backgroundImage && cardProps.backgroundImage.naturalHeight * ((cardProps.backgroundImageSize && cardProps.backgroundImageSize / 100) * getScale() || 100) || '100%'} />
                         </ReactCrop>
                     </Item>
                     <Item>
@@ -979,79 +1014,83 @@ export const CardGenerator = () => {
                             </IconButton>
                         </Tooltip>
                     </Item>
-                    <Item>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    className="checkbox"
-                                    checked={cardProps.overlay}
-                                    onChange={(_event) => {
-                                        setCardProps({
-                                            ...cardProps,
-                                            overlay: !cardProps.overlay
-                                        })
-                                    }}
-                                />
-                            }
-                            label="Add background overlay"
-                        />
-                        <Tooltip title="Add a background overlay.">
-                            <IconButton>
-                                <Info />
-                            </IconButton>
-                        </Tooltip>
-                    </Item>
-                    <Item>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    className="checkbox"
-                                    checked={includeLightningGift}
-                                    onChange={toggleIncludeLightningGift}
-                                />
-                            }
-                            label="Include Lightning Gift"
-                            disabled={!!(cardProps.type === CardType.Sticker &&
-                                (cardProps.receiveAddress || cardProps.receiveAddress !== ''))}
-                        />
-                        <Tooltip title="Add some sats to your creation and make it a gift card. Minimum 100 sats.">
-                            <IconButton>
-                                <Info />
-                            </IconButton>
-                        </Tooltip>
-                    </Item>
-                    {
-                        includeLightningGift &&
+                    { !!cardProps.hideNonEssentials === false &&
                         <React.Fragment>
                             <Item>
-                                <Input
-                                    id="satsAmount"
-                                    name="satsAmount"
-                                    type="number"
-                                    inputProps={{
-                                        step: "1",
-                                        min: 100
-                                    }}
-                                    startAdornment={
-                                        <InputAdornment className="icon" position="start">
-                                            <i className="fak fa-satoshisymbol-solidtilt" />
-                                        </InputAdornment>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            className="checkbox"
+                                            checked={cardProps.overlay}
+                                            onChange={(_event) => {
+                                                setCardProps({
+                                                    ...cardProps,
+                                                    overlay: !cardProps.overlay
+                                                })
+                                            }}
+                                        />
                                     }
-                                    placeholder={'Enter amount in sats'}
-                                    value={formik.values.satsAmount}
-                                    onChange={formik.handleChange}
+                                    label="Add background overlay"
                                 />
+                                <Tooltip title="Add a background overlay.">
+                                    <IconButton>
+                                        <Info />
+                                    </IconButton>
+                                </Tooltip>
                             </Item>
                             <Item>
-                                <LightningGift
-                                    handleRedeemLnurl={(urls) => {
-                                        setLnurls(urls);
-                                    }}
-                                    handleIsLoading={handleIsLoading}
-                                    satsAmount={formik.values.satsAmount as unknown as number}
-                                    numberOfGifts={cardProps.copies}
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            className="checkbox"
+                                            checked={includeLightningGift}
+                                            onChange={toggleIncludeLightningGift}
+                                        />
+                                    }
+                                    label="Include Lightning Gift"
+                                    disabled={!!(cardProps.type === CardType.Sticker &&
+                                        (cardProps.receiveAddress || cardProps.receiveAddress !== ''))}
                                 />
+                                <Tooltip title="Add some sats to your creation and make it a gift card. Minimum 100 sats.">
+                                    <IconButton>
+                                        <Info />
+                                    </IconButton>
+                                </Tooltip>
                             </Item>
+                            {
+                                includeLightningGift &&
+                                <React.Fragment>
+                                    <Item>
+                                        <Input
+                                            id="satsAmount"
+                                            name="satsAmount"
+                                            type="number"
+                                            inputProps={{
+                                                step: "1",
+                                                min: 100
+                                            }}
+                                            startAdornment={
+                                                <InputAdornment className="icon" position="start">
+                                                    <i className="fak fa-satoshisymbol-solidtilt" />
+                                                </InputAdornment>
+                                            }
+                                            placeholder={'Enter amount in sats'}
+                                            value={formik.values.satsAmount}
+                                            onChange={formik.handleChange}
+                                        />
+                                    </Item>
+                                    <Item>
+                                        <LightningGift
+                                            handleRedeemLnurl={(urls) => {
+                                                setLnurls(urls);
+                                            }}
+                                            handleIsLoading={handleIsLoading}
+                                            satsAmount={formik.values.satsAmount as unknown as number}
+                                            numberOfGifts={cardProps.copies}
+                                        />
+                                    </Item>
+                                </React.Fragment>
+                            }
                         </React.Fragment>
                     }
                     <Item>
@@ -1086,34 +1125,39 @@ export const CardGenerator = () => {
                                 </React.Fragment>
                         }
                     </Item>
+                    { !!cardProps.hideNonEssentials === false &&
+                        <React.Fragment>
+                            <Item>
+                                <FormLabel sx={{ paddingRight: '0.5em' }} id="copies-label">
+                                    No. of copies
+                                    <Tooltip title="Up to 9 business card copies per page & up to 5 bookmarks.">
+                                        <IconButton>
+                                            <Info />
+                                        </IconButton>
+                                    </Tooltip>
+                                </FormLabel>
+                            </Item>
+                            <Item>
+                                <Input
+                                    id="copies"
+                                    name="copies"
+                                    type="number"
+                                    inputProps={{
+                                        step: "1",
+                                        label: "Number of copies"
+                                    }}
+                                    placeholder="Number of copies"
+                                    value={cardProps.copies}
+                                    onChange={(event) => {
+                                        formik.handleChange(event);
+                                        handleSetCopies(event.target.value as unknown as number);
+                                    }}
+                                />
+                            </Item>
+                        </React.Fragment>
+                    }
                     <Item>
-                        <FormLabel sx={{ paddingRight: '0.5em' }} id="copies-label">
-                            No. of copies
-                            <Tooltip title="Up to 9 business card copies per page & up to 5 bookmarks.">
-                                <IconButton>
-                                    <Info />
-                                </IconButton>
-                            </Tooltip>
-                        </FormLabel>
-                    </Item>
-                    <Item>
-                        <Input
-                            id="copies"
-                            name="copies"
-                            type="number"
-                            inputProps={{
-                                step: "1",
-                                label: "Number of copies"
-                            }}
-                            placeholder="Number of copies"
-                            value={cardProps.copies}
-                            onChange={(event) => {
-                                formik.handleChange(event);
-                                handleSetCopies(event.target.value as unknown as number);
-                            }}
-                        />
-                    </Item>
-                    <Item>
+                        { !!cardProps.hideNonEssentials === false &&
                         <Button
                             sx={{ fontWeight: 'bold' }}
                             variant="contained"
@@ -1127,6 +1171,7 @@ export const CardGenerator = () => {
                         >
                             Download Print (PDF)
                         </Button>
+                        }
                         <Button
                             sx={{ fontWeight: 'bold', marginLeft: '1em' }}
                             variant="contained"
