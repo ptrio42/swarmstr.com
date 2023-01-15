@@ -4,7 +4,7 @@
   "commentAllowed":255,
   "callback":"https://getalby.com/lnurlp/pitiunited/callback",
   "metadata":"[[\"text/identifier\", \"pitiunited@getalby.com\"], [\"text/plain\", \"Sats for pitiunited\"]]",
-  "minSendable":1,"maxSendable":11000000000,
+  "minSendable":1000,"maxSendable":11000000000,
   "payerData":
     {
       "name":{"mandatory":false},
