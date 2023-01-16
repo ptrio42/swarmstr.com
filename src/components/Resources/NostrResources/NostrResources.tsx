@@ -20,6 +20,7 @@ import Input from "@mui/material/Input";
 import {matchString} from "../../../utils/utils";
 import {GUIDES} from "../../../stubs/nostrResources";
 import Button from "@mui/material/Button";
+import ReactHtmlParser from 'react-html-parser';
 
 export interface Guide {
     id: string;
@@ -39,6 +40,7 @@ export const NostrResources = () => {
     const [sort, setSort] = useState<string>('');
     const [expanded, setExpanded] = useState<string[]>([]);
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
+    const [snackbarMessage, setSnackBarMessage] = useState<string>('');
     const [searchQuery, setSearchQuery] = useState<string>('');
 
     const { hash } = useLocation();
@@ -96,6 +98,7 @@ export const NostrResources = () => {
     const handleShareAnswer = (event: any, guide: Guide) => {
         event.stopPropagation();
         navigator.clipboard.writeText(`https://uselessshit.co/resources/nostr/#${guide.id}`);
+        setSnackBarMessage('Direct link to answer was copied to clipboard!');
         setSnackbarOpen(true);
     };
 
@@ -174,7 +177,15 @@ export const NostrResources = () => {
                             <Reply sx={{ marginLeft: '0.3em' }} onClick={(event) => {
                                 handleShareAnswer(event, guide);
                             }} />
-                            <Collapse sx={{ width: '100%'}} in={expanded.includes(guide.id)} timeout="auto" unmountOnExit>
+                            <Collapse
+                                sx={{ width: '100%'}}
+                                in={expanded.includes(guide.id)}
+                                timeout="auto"
+                                unmountOnExit
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                }}
+                            >
                                 <List component="div" disablePadding>
                                     <ListItem>
                                         <Card sx={{ minWidth: 275, marginBottom: '0.5em' }}>
@@ -206,7 +217,29 @@ export const NostrResources = () => {
                                                     { guide.bulletPoints &&
                                                         <List>
                                                             { guide.bulletPoints.map(point =>
-                                                                <ListItem>{ point }</ListItem>
+                                                                <ListItem>{
+                                                                    ReactHtmlParser(
+                                                                        point.replace(/(npub[^ ]*)/, '<button>$1</button>'),
+                                                                        {
+                                                                            transform: (node) => {
+                                                                                if (node.type === 'tag' && node.name === 'button') {
+                                                                                    return <Button
+                                                                                        sx={{ textTransform: 'none' }}
+                                                                                        variant="text"
+                                                                                        color="secondary"
+                                                                                        onClick={() => {
+                                                                                            navigator.clipboard.writeText(node.children[0].data);
+                                                                                            setSnackBarMessage('npub copied to clipboard!');
+                                                                                            setSnackbarOpen(true);
+                                                                                        }}
+                                                                                    >
+                                                                                        { node.children[0].data.slice(0, 21) }...
+                                                                                    </Button>
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    )
+                                                                }</ListItem>
                                                             ) }
                                                         </List>
                                                     }
@@ -247,7 +280,7 @@ export const NostrResources = () => {
                 open={snackbarOpen}
                 autoHideDuration={3000}
                 onClose={() => setSnackbarOpen(false)}
-                message="Direct link to answer was copied to clipboard!"
+                message={snackbarMessage}
             />
         </React.Fragment>
     );

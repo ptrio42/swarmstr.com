@@ -218,9 +218,27 @@ export const GUIDES: Guide[] = [
         id: 'banner-image',
         issue: 'Banner images.',
         fix: 'You can now set your own banner image. To achieve that, go to your profile, tap Edit and set the BANNER IMAGE ' +
-            '(it has to be a direct image url). The banner image ratio should be ~ 3:1 (width:height).',
-        updatedAt: '2023-01-14',
+            '(it has to be a direct image url). The banner image ratio should be ~ 3:1 (width:height). Also note that ' +
+            'Damus does some auto-cropping so even though your image dimensions do not fit the ratio requirements, ' +
+            'it can still be displayed properly. If you\'d like more control over what\'s ' +
+            'being cropped off you can try the image processor linked below (alpha).',
+        createdAt: '2023-01-14',
+        updatedAt: '2023-01-15',
+        urls: ['https://uselessshit.co/card-generator'],
         tags: ['Damus']
+    },
+    {
+        id: 'dms',
+        issue: 'Are DMs (direct messages) on Nostr private?',
+        fix: 'Consider your DMs as public, not private! Never ever share any sensible data via DMs! ' +
+            'All DMs are publicly visible. However, since they are all encrypted, they can only be read with your or your ' +
+            'chat partners private key. If one of the two keys gets leaked, the full chat history is visible to the public. ' +
+            'Since you do not have any control over the key management of your chat partner, you should be very cautious what information ' +
+            'you share via DMs!',
+        bulletPoints: [
+            'Courtesy of @StackSats npub1hycynfhz23ardfmf9kgwfw4gpyqj2fsh24r2zuehg4x7lx4kn5cqsqv4y3'
+        ],
+        updatedAt: '2023-01-15'
     },
     {
         id: 'adding-lightning-button-to-profile',
@@ -354,10 +372,18 @@ export const GUIDES: Guide[] = [
         updatedAt: '2023-01-11'
     },
     {
-        id: 'uselessshit-co-handle',
-        issue: 'Getting free UseLessShit.co NIP-05 handle.',
-        fix: 'DM me for yourname@uselessshit.co NIP-05 id 🤙 (see Contact)',
-        updatedAt: '2023-01-11'
+        id: 'free-nip-05-handles',
+        issue: 'List of free NIP-05 handle providers.',
+        fix: '',
+        bulletPoints: [
+            'orangepill.dev - message EzoFox npub16jzr7npgp2a684pasnkhjf9j2e7hc9n0teefskulqmf42cqmt4uqwszk52',
+            'bitcoinnostr.com - message BitcoinerInfo npub128q9nu7vrqpfjllpcnnq6cc4cgs8ngp9sge9v9s2c7lur098ctts99gupa',
+            'satoshivibes.com - message lukeonchain npub138guayty78ch9k42n3uyz5ch3jcaa3u390647hwq0c83m2lypekq6wk36k',
+            'nostr.industries - head down to https://nostr.industries',
+            'stacker.news',
+            'uselessshit.co - message pitiunited npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4'
+        ],
+        updatedAt: '2023-01-16'
     },
     {
         id: 'lnurlp-with-alby',
@@ -372,15 +398,18 @@ export const GUIDES: Guide[] = [
         id: 'lnurlp-with-wos',
         issue: 'How to turn NIP-05 handle into lightning address? (WoS)',
         fix: '',
-        updatedAt: '2023-01-13',
+        createdAt: '2023-01-13',
+        updatedAt: '2023-01-15',
         bulletPoints: [
             'Create an empty file accessible at https://\<yourdomain\>/.well-known/lnurlp/\<yourname\>',
             'If you\'re running Apache, in your .htaccess file add the following: ',
             'Redirect /.well-known/lnurlp/\<yourname\> https://walletofsatoshi.com/.well-known/lnurlp/\<your-WoS-name> ',
-            'eg. Redirect ./well-known/lnurlp/pitiunited https://walletofsatoshi.com/.well-known/lnurlp/furiouschina21',
-            'For nginx, .htaccess won\'t work. Head down to the explainer below on how to set up redirects with nginx.'
+            'eg. Redirect /.well-known/lnurlp/pitiunited https://walletofsatoshi.com/.well-known/lnurlp/furiouschina21',
+            'There\'re other means of achieving the same result on Apache (like editing the conf file).',
+            'If you\'d like to learn more or you\'re using Nginx,',
+            'EzoFox npub16jzr7npgp2a684pasnkhjf9j2e7hc9n0teefskulqmf42cqmt4uqwszk52 got you covered (link below).'
         ],
-        urls: ['https://www.liquidweb.com/kb/redirecting-urls-using-nginx/']
+        urls: ['https://orangepill.dev/lightning-guides/guide-to-create-lnaddress-redirection-on-your-domain/']
     },
     {
         id: 'blue-and-yellow-checkmarks',
@@ -436,9 +465,14 @@ export const GUIDES: Guide[] = [
     {
         id: 'free-100-sats',
         issue: 'Want to test lightning and get free 100 sats?',
-        fix: 'Post a lightning invoice for 100 sats and tag @bitcoinbull (public key: npub1gl23nnfmlewvvuz7xgrrauuexx2xj70whdf5yhd47tj0r8p68t6sww70gt) ' +
-            'and watch the magic happen before your own eyes 🪄',
-        updatedAt: '2023-01-11'
+        fix: '',
+        bulletPoints: [
+            'Post a lightning invoice for 100 sats.',
+            'Tag @bitcoinbull npub1gl23nnfmlewvvuz7xgrrauuexx2xj70whdf5yhd47tj0r8p68t6sww70gt',
+            'Watch the magic happen before your own eyes 🪄'
+        ],
+        createdAt: '2023-01-11',
+        updatedAt: '2023-01-16'
     },
     {
         id: 'more-resources',
@@ -457,11 +491,15 @@ export const GUIDES: Guide[] = [
     {
         id: 'contact',
         issue: 'Didn\'t find what you\'ve been looking for?',
-        fix: 'Go ahead and ask me on nostr @npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4 🤙 ' +
+        fix: 'I\'m trying to keep this guide up to date. If you happen to find something missing or outdated, let me know. ' +
             'Also, since you\'re here, ' +
             'you may also want to check our bitcoin resources page for a list of Bitcoiners, bitcoin books, pods, apps ' +
             '& wallets.',
+        bulletPoints: [
+            'Go ahead and DM/tag me on nostr npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4 🤙 '
+        ],
         urls: ['https://uselessshit.co/resources/bitcoin'],
-        updatedAt: '2022-12-29'
+        createdAt: '2022-12-29',
+        updatedAt: '2023-01-16'
     }
 ];
