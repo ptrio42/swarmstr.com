@@ -381,6 +381,7 @@ export const GUIDES: Guide[] = [
             'satoshivibes.com - message lukeonchain npub138guayty78ch9k42n3uyz5ch3jcaa3u390647hwq0c83m2lypekq6wk36k',
             'nostr.industries - head down to https://nostr.industries',
             'stacker.news',
+            'bitpaint.club - message bitpaint npub1t8makd5nzwt36nym6j4mrn9dkv4cn43m24tqy8rxv34v3gflxwjqkqlw4s',
             'uselessshit.co - message pitiunited npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4'
         ],
         updatedAt: '2023-01-16'
