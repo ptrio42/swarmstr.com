@@ -26,16 +26,26 @@ export const GUIDES: Guide[] = [
             'The public can be treated as a username, whereas the private key is more like a password. ' +
             'Be cautious when entering your private on different sites - if it gets leaked and falls into wrong hands,' +
             'you can think of your \'account\' as compromised. You can get your keys through any of the NOSTR clients.',
-        urls: [
+        createdAt: '2023-01-05',
+        updatedAt: '2023-01-10'
+    },
+    {
+        id: 'nostr-clients',
+        issue: 'List of Nostr clients.',
+        fix: '',
+        bulletPoints: [
+            '#### iOS/MacOS',
             'https://damus.io',
+            '#### Web',
             'https://astral.ninja',
             'https://yousup.app',
             'https://iris.to',
             'https://snort.social',
-            'https://github.com/KoalaSat/nostros'
+            '#### Android',
+            'https://github.com/KoalaSat/nostros',
+            'https://www.neb.lo/nostr'
         ],
-        createdAt: '2023-01-05',
-        updatedAt: '2023-01-10'
+        updatedAt: '2023-01-17'
     },
     {
         id: 'what-is-damus',
@@ -55,19 +65,32 @@ export const GUIDES: Guide[] = [
             '1. Download Xcode from the AppStore on your Mac OS.',
             '2. Clone the official Damus repository from GitHub. (link attached below)',
             '3. Open the project (the repo you\'ve just cloned) with Xcode.',
-            '4. Don\'t have/want to use your mobile device? Skip the next 4 steps (go to #9).',
+            '4. Don\'t have/want to use your mobile device? Jump directly to #15.',
+            '#### Follow the steps below if you\'re building on iPhone.',
             '5. Enable Developer mode on your iPhone (Settings -> Privacy & Security) and restart your device.',
             '6. Connect your iPhone to your Mac.',
             '7. In Xcode, click on iPhone 14 Pro text (top panel, in the middle, next to damus).',
             '8. From the list that will open, select your iPhone.',
-            '9. You can use a simulator instead of a mobile Apple device.',
-            '10. Click on the play icon (left panel, on top).',
-            '11. Wait for the application to build.',
-            '12. That\'s it! You can now use Damus without participating in TestFlight beta.'
+            '9. Click on the play icon (left panel, on top).',
+            '10. If you build it to iPhone for the first time, it will fail.',
+            '11. Click on the failures you have, to change the &nbsp;<i>Team</i>&nbsp; to your account (Apple ID).',
+            '12. Change the bundle identifier to whatever you like.',
+            '13. Delete &nbsp;<i>Associated Domains</i>, &nbsp;<i>Keychain Sharing</i>&nbsp; and &nbsp;<i>Push Notifications</i>.',
+            '14. On your iPhone, go to Settings -> General -> VPN & Device Management and trust &nbsp;<i>yourself</i>.',
+            '14. Build the app again.',
+            '#### Building on simulator.',
+            '15. You can use a simulator instead of a mobile Apple device.',
+            '16. Click on the play icon (left panel, on top).',
+            '#### Running Damus.',
+            '17. Wait for the application to build.',
+            '18. That\'s it! You can now use Damus without participating in TestFlight beta.',
+            '',
+            'Thanks to @realmuster npub1fmd02wwyjrs3yagacdrhzar75vgu9wu0utzf6trvumdrz3l3mzrsm7vmml for contributing to this particular guide.'
+
         ],
         urls: ['https://github.com/damus-io/damus'],
         tags: ['Damus'],
-        updatedAt: '2023-01-13'
+        updatedAt: '2023-01-17'
     },
     {
         id: 'mining-the-public-hex-key',
@@ -181,13 +204,16 @@ export const GUIDES: Guide[] = [
     {
         id: 'deleting-notes',
         issue: 'Deleting posts on Nostr.',
-        fix: 'There\'s a good chance, that the things you post on Nostr will stay there for eternity. ' +
-            'Soon the clients will implement a so called soft-delete, ' +
-            'which means that posts with a delete flag will be ignored and not displayed to users. ' +
-            'This doesn\'t mean though that your "deleted" post is gone.',
-        imageUrls: ['https://uselessshit.co/images/deleting-notes.jpeg'],
+        fix: 'You cannot delete on protocol level, you can just tag a note as deleted. ' +
+            'How relays and clients deal with this information is their choice. ' +
+            'Eg. clients can choose to not show deleted-tagged notes; relays can actually delete it. ' +
+            'However you can never be sure all relays to which your note got propagated do this. ' +
+            'Pretty impossible to actually delete your note through the whole network.',
+        bulletPoints: [
+            'Courtesy of @StackSats npub1hycynfhz23ardfmf9kgwfw4gpyqj2fsh24r2zuehg4x7lx4kn5cqsqv4y3'
+        ],
         createdAt: '2023-01-06',
-        updatedAt: '2023-01-10'
+        updatedAt: '2023-01-17'
     },
     {
         id: 'sharing-notes',
@@ -255,6 +281,17 @@ export const GUIDES: Guide[] = [
         fix: '🤙 (also called shaka) is for Likes. Also ⚡ is for sats.',
         createdAt: '2022-12-26',
         updatedAt: '2023-01-09'
+    },
+    {
+        id: 'using-nostr-with-alby-or-nos2x',
+        issue: 'How to use Nostr with the Alby or nos2x extension.',
+        fix: 'As a rule of thumb, you should never paste your private key into websites. ' +
+            'To generate your keys and handle your keys, use Alby or nos2x extension.',
+        bulletPoints: [
+            'https://blog.getalby.com/how-to-use-nostr-with-the-alby-extension/ - How to use Nostr with the Alby extension',
+            'https://youtu.be/IoLw-3ok3_M - The nos2x browser extension'
+        ],
+        updatedAt: '2023-01-17'
     },
     {
         id: 'adding-more-relays',
@@ -402,9 +439,9 @@ export const GUIDES: Guide[] = [
         createdAt: '2023-01-13',
         updatedAt: '2023-01-15',
         bulletPoints: [
-            'Create an empty file accessible at https://\<yourdomain\>/.well-known/lnurlp/\<yourname\>',
+            'Create an empty file accessible at https://yourdomain.tld/.well-known/lnurlp/your-username',
             'If you\'re running Apache, in your .htaccess file add the following: ',
-            'Redirect /.well-known/lnurlp/\<yourname\> https://walletofsatoshi.com/.well-known/lnurlp/\<your-WoS-name> ',
+            'Redirect /.well-known/lnurlp/your-username https://walletofsatoshi.com/.well-known/lnurlp/your-WoS-usernname ',
             'eg. Redirect /.well-known/lnurlp/pitiunited https://walletofsatoshi.com/.well-known/lnurlp/furiouschina21',
             'There\'re other means of achieving the same result on Apache (like editing the conf file).',
             'If you\'d like to learn more or you\'re using Nginx,',
@@ -413,10 +450,12 @@ export const GUIDES: Guide[] = [
         urls: ['https://orangepill.dev/lightning-guides/guide-to-create-lnaddress-redirection-on-your-domain/']
     },
     {
-        id: 'blue-and-yellow-checkmarks',
-        issue: 'What\'s the difference between blue and yellow checkmark?',
-        fix: 'People you aren\'t following have yellow checkmarks, whereas the ones you follow have blue checkmarks.',
-        updatedAt: '2023-01-04 15:32:00'
+        id: 'grey-and-purple-checkmarks',
+        issue: 'What\'s the difference between grey and purple checkmark?',
+        fix: 'People you aren\'t following have grey checkmarks, whereas the ones you follow have purple checkmarks.',
+        createdAt: '2023-01-04',
+        updatedAt: '2023-01-17',
+        tags: ['Damus']
     },
     {
         id: 'running-nostr',
@@ -428,9 +467,9 @@ export const GUIDES: Guide[] = [
     },
     {
         id: 'converting-npub-to-hex',
-        issue: 'How to convert my npub key (Damus) to hex format?',
+        issue: 'How to convert my npub key to hex format?',
         fix: 'Try this online tool to convert your npub key to hex format.',
-        urls: ['https://damus.io/key'],
+        urls: ['https://damus.io/key/'],
         updatedAt: '2022-12-30'
     },
     {

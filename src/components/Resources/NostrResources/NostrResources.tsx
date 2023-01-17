@@ -9,7 +9,7 @@ import {Helmet} from "react-helmet";
 import CardActions from "@mui/material/CardActions";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
-import {ArrowDownward, ArrowUpward, ExpandLess, ExpandMore, Reply, ToggleOff} from "@mui/icons-material";
+import {ArrowDownward, ArrowUpward, ExpandLess, ExpandMore, IosShare, ToggleOff} from "@mui/icons-material";
 import Collapse from "@mui/material/Collapse";
 import ListItemText from "@mui/material/ListItemText";
 import './NostrResources.css';
@@ -174,7 +174,7 @@ export const NostrResources = () => {
                         }}>
                             <ListItemText primary={guide.issue} />
                             {expanded.includes(guide.id) ? <ExpandLess /> : <ExpandMore />}
-                            <Reply sx={{ marginLeft: '0.3em' }} onClick={(event) => {
+                            <IosShare sx={{ marginLeft: '0.3em' }} onClick={(event) => {
                                 handleShareAnswer(event, guide);
                             }} />
                             <Collapse
@@ -219,7 +219,11 @@ export const NostrResources = () => {
                                                             { guide.bulletPoints.map(point =>
                                                                 <ListItem>{
                                                                     ReactHtmlParser(
-                                                                        point.replace(/(npub[^ ]*)/, '<button>$1</button>'),
+                                                                        point
+                                                                            .replace(/(npub[^ ]*)/, '<button>$1</button>')
+                                                                            .replace(/(https?:\/\/[^ ]*)/, '<a href="$1" target="_blank">$1</a>')
+                                                                            .replace(/(#### [a-zA-Z0-9\/ ]*)/, '<h4>$1</h4>')
+                                                                            .replace(/(#+)/, ''),
                                                                         {
                                                                             transform: (node) => {
                                                                                 if (node.type === 'tag' && node.name === 'button') {
