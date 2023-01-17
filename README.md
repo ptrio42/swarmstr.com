@@ -21,7 +21,7 @@ https://uselessshit.co/card-generator
 
 ## Contributing
 
-Feel free to fork/contribute to this repository.
+Feel free to fork/contribute to this repository :)
 
 ### Nostr Resources
 

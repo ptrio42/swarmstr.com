@@ -1,0 +1,24 @@
+name: GitlabSync
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    name: Git Repo Sync
+    steps:
+    - uses: actions/checkout@v3
+    - name: Mirror & trigger CI
+      uses: ptrio42/uselessshit.co@main
+      with:
+        args: "https://gitlab.com/fun37/uselessshit.co.git"
+      env:
+        FORCE_PUSH: "false"
+        GITLAB_HOSTNAME: "gitlab.com"
+        GITLAB_USERNAME: "ptrio"
+        GITLAB_PASSWORD: ${{ secrets.TARGET_TOKEN }}
+        GITLAB_PROJECT_ID: "38023101"
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
