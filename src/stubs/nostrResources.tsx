@@ -466,11 +466,16 @@ export const GUIDES: Guide[] = [
         updatedAt: '2023-01-09'
     },
     {
-        id: 'converting-npub-to-hex',
-        issue: 'How to convert my npub key to hex format?',
-        fix: 'Try this online tool to convert your npub key to hex format.',
-        urls: ['https://damus.io/key/'],
-        updatedAt: '2022-12-30'
+        id: 'converting-nostr-keys',
+        issue: 'How to convert my npub key to hex format (or hex back to npub)?',
+        fix: '',
+        bulletPoints: [
+                '#### (Beginner) Try this online tool to convert your npub key to hex format.',
+                'https://damus.io/key/',
+                '#### (Advanced) Command line users can try \"key-convertr\" tool instead (it also converts \"hex back to npub\" for other use cases).',
+                'https://github.com/rot13maxi/key-convertr',
+            ],
+        updatedAt: '2023-01-17'
     },
     {
         id: 'security-and-privacy-tips',
