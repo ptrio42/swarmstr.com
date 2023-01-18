@@ -41,6 +41,7 @@ export const GUIDES: Guide[] = [
             'https://yousup.app',
             'https://iris.to',
             'https://snort.social',
+            'https://hamstr.to',
             '#### Android',
             'https://github.com/KoalaSat/nostros',
             'https://www.neb.lo/nostr'
