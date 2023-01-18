@@ -63,11 +63,10 @@ export const NostrResources = () => {
     };
 
     useEffect(() => {
-        setGuides(getInitialGuides());
+        setTimeout(() => {
+            setGuides(getInitialGuides());
+        });
     }, []);
-
-    useEffect(() => {
-    }, [guides]);
 
     useEffect(() => {
         if (sort === '') {
@@ -105,7 +104,11 @@ export const NostrResources = () => {
     }, [hash]);
 
     useEffect(() => {
-        const readGuides = guides.map(guide => guide.id);
+        saveReadGuides([
+            ...guides
+                .filter(g2 => g2.isRead)
+                .map(g3 => g3.id)
+        ]);
     }, [guides]);
 
     const handleExpanded = (guide: Guide) => {
@@ -143,11 +146,6 @@ export const NostrResources = () => {
             ...guides
                 .map(guide => guideId === guide.id ? ({ ...guide, isRead: true }) : ({ ...guide }))
         ];
-        saveReadGuides([
-            ...guides
-                .filter(g2 => g2.isRead)
-                .map(g3 => g3.id)
-        ]);
         setGuides(readGuides);
     };
 
@@ -254,8 +252,9 @@ export const NostrResources = () => {
                                                     { guide.issue }
                                                 </React.Fragment> :
                                                 <Badge sx={{
+                                                    maxWidth: '100%',
                                                     '& .MuiBadge-badge': {
-                                                        backgroundColor: pink[300]
+                                                        backgroundColor: pink[300],
                                                     }}} badgeContent="" variant="dot">
                                                     {guide.issue}
                                                 </Badge>

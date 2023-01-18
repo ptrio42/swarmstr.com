@@ -153,6 +153,7 @@ export const GUIDES: Guide[] = [
             '#### nostrplebs.com',
             'npub18ams6ewn5aj2n3wt2qawzglx9mr4nzksxhvrdc4gzrecw7n5tvjqctp424:derekross',
             'https://github.com/derekross',
+            'npub12262qa4uhw7u8gdwlgmntqtv7aye8vdcmvszkqwgs0zchel6mz7s6cgrkj:semisol',
             '#### nostr.io',
             'npub1mkq63wkt4v94cvq869njlwpszwpmf62c84p3sdvc2ptjy04jnzjs20r4tx:plantimals',
             'https://github.com/plantimals',
@@ -164,8 +165,13 @@ export const GUIDES: Guide[] = [
             'https://github.com/Sakhalinfox',
             '#### nostr.build',
             'npub1nxy4qpqnld6kmpphjykvx2lqwvxmuxluddwjamm4nc29ds3elyzsm5avr7:nostr.build',
-            'https://github.com/nostrbuild'
-        ]
+            'https://github.com/nostrbuild',
+            '#### camelus.app',
+            'npub1w9llyw8c3qnn7h27u3msjlet8xyjz5phdycr5rz335r2j5hj5a0qvs3tur',
+            'https://camelus.app/',
+            'https://github.com/leo-lox/'
+        ],
+        tags: ['Essentials', 'People', 'Projects']
     },
     {
         id: 'nostr-clients',
