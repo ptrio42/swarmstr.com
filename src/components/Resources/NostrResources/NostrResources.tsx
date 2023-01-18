@@ -333,7 +333,7 @@ export const NostrResources = () => {
                                                                         point
                                                                             .replace(/(npub[^ ]*)/, '<button>$1</button>')
                                                                             .replace(/(https?:\/\/[^ ]*)/, '<a href="$1" target="_blank">$1</a>')
-                                                                            .replace(/(#### [a-zA-Z0-9\/., ]*)/, '<h4>$1</h4>')
+                                                                            .replace(/(#### [a-zA-Z0-9\/.,& ]*)/, '<h4>$1</h4>')
                                                                             .replace(/(#+)/, ''),
                                                                         {
                                                                             transform: (node) => {
