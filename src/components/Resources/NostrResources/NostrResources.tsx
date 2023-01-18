@@ -11,12 +11,9 @@ import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
 import {
     ArrowDownward,
-    ArrowUpward, Clear, Expand,
-    ExpandLess,
-    ExpandLessOutlined,
-    ExpandMore,
+    ArrowUpward, Circle, Clear, Expand,
     IosShare,
-    ToggleOff, UnfoldLess
+    ToggleOff, UnfoldLess, GitHub
 } from "@mui/icons-material";
 import Collapse from "@mui/material/Collapse";
 import ListItemText from "@mui/material/ListItemText";
@@ -30,6 +27,8 @@ import {GUIDES} from "../../../stubs/nostrResources";
 import Button from "@mui/material/Button";
 import ReactHtmlParser from 'react-html-parser';
 import Divider from "@mui/material/Divider";
+import Badge from "@mui/material/Badge";
+import pink from "@mui/material/colors/pink";
 
 export interface Guide {
     id: string;
@@ -41,6 +40,7 @@ export interface Guide {
     imageUrls?: string[];
     tags?: string[];
     bulletPoints?: string[];
+    isRead?: boolean;
 }
 
 export const NostrResources = () => {
@@ -54,13 +54,24 @@ export const NostrResources = () => {
 
     const { hash } = useLocation();
 
+    const getInitialGuides = () => {
+        const readGuides = getReadGuides();
+        return [ ...GUIDES.map(guide => ({
+            ...guide,
+            isRead: readGuides.includes(guide.id)
+        }))]
+    };
+
     useEffect(() => {
-        setGuides(GUIDES);
+        setGuides(getInitialGuides());
     }, []);
 
     useEffect(() => {
+    }, [guides]);
+
+    useEffect(() => {
         if (sort === '') {
-            setGuides(GUIDES);
+            setGuides(getInitialGuides());
         } else {
             const guidesSorted = [ ... guides ];
 
@@ -93,15 +104,22 @@ export const NostrResources = () => {
         }
     }, [hash]);
 
-    const handleExpanded = (guideId: string) => {
+    useEffect(() => {
+        const readGuides = guides.map(guide => guide.id);
+    }, [guides]);
+
+    const handleExpanded = (guide: Guide) => {
+        if (!guide.isRead) {
+            markGuideAsRead(guide.id);
+        }
         let newExpanded;
-        if (expanded.includes(guideId)) {
-            newExpanded = expanded.filter(expanded => expanded !== guideId);
+        if (expanded.includes(guide.id)) {
+            newExpanded = expanded.filter(expanded => expanded !== guide.id);
         } else {
             newExpanded = [ ...expanded ];
-            newExpanded.push(guideId);
+            newExpanded.push(guide.id);
         }
-        setExpanded(newExpanded)
+        setExpanded(newExpanded);
     };
 
     const handleShareAnswer = (event: any, guide: Guide) => {
@@ -109,6 +127,34 @@ export const NostrResources = () => {
         navigator.clipboard.writeText(`https://uselessshit.co/resources/nostr/#${guide.id}`);
         setSnackBarMessage('Direct link to answer was copied to clipboard!');
         setSnackbarOpen(true);
+    };
+
+    const getReadGuides = () => {
+        return (localStorage.getItem('readGuides') || '')
+            .split(',');
+    };
+
+    const saveReadGuides = (readGuides: string[]) => {
+        localStorage.setItem('readGuides', readGuides.join(','));
+    };
+
+    const markGuideAsRead = (guideId: string) => {
+        const readGuides = [
+            ...guides
+                .map(guide => guideId === guide.id ? ({ ...guide, isRead: true }) : ({ ...guide }))
+        ];
+        saveReadGuides([
+            ...guides
+                .filter(g2 => g2.isRead)
+                .map(g3 => g3.id)
+        ]);
+        setGuides(readGuides);
+    };
+
+    const getFilteredGuidesCount = () => {
+        return guides
+            .filter(guide => searchQuery === '' || matchString(searchQuery, guide.issue))
+            .length;
     };
 
     return (
@@ -135,17 +181,24 @@ export const NostrResources = () => {
             <List>
                 <ListItem key="nostr-resources">
                     <ListItemText
-                        sx={{ textTransform: 'uppercase' }}
+                        sx={{ textTransform: 'uppercase', lineHeight: '1' }}
                         primary="Nostr Guide"
                         primaryTypographyProps={{ style: { fontWeight: 'bold', fontSize: '48px', textAlign: 'center' } }}
                     />
                 </ListItem>
                 <ListItem sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Stack sx={{ marginLeft: '1em' }} direction="row" spacing={1}>
+                    <Stack direction="row" spacing={1} sx={{ alignItems: 'center', fontSize: '12px' }}>
+                        <Circle sx={{ fontSize: 12, marginRight: '0.33em!important'  }} />
+                        { getFilteredGuidesCount() === GUIDES.length ? 'Total' : getFilteredGuidesCount() } of { GUIDES.length } entries
+                        <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important', marginRight: '0.33em!important'  }} />
+                        Last update: 2023-01-18
+                        <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important'  }} />
+                    </Stack>
+                    <Stack sx={{ marginLeft: '1em', marginTop: '1em' }} direction="row" spacing={1}>
                         <Input
                             id="searchQuery"
                             name="searchQuery"
-                            placeholder={'Search by keywords'}
+                            placeholder={'Search for answers'}
                             value={searchQuery}
                             onChange={(event) => {
                                 setSearchQuery(event.target.value);
@@ -185,7 +238,7 @@ export const NostrResources = () => {
                                 key={guide.id}
                                 id={guide.id}
                                 onClick={() => {
-                                    handleExpanded(guide.id)
+                                    handleExpanded(guide)
                                 }}>
                                 <ListItemText
                                     primary={
@@ -196,8 +249,17 @@ export const NostrResources = () => {
                                             variant="body1"
                                             color="text.primary"
                                         >
-                                            {guide.issue}
-
+                                            { guide.isRead ?
+                                                <React.Fragment>
+                                                    { guide.issue }
+                                                </React.Fragment> :
+                                                <Badge sx={{
+                                                    '& .MuiBadge-badge': {
+                                                        backgroundColor: pink[300]
+                                                    }}} badgeContent="" variant="dot">
+                                                    {guide.issue}
+                                                </Badge>
+                                            }
                                         </Typography>
                                     </React.Fragment>
                                 }
@@ -271,22 +333,24 @@ export const NostrResources = () => {
                                                                         point
                                                                             .replace(/(npub[^ ]*)/, '<button>$1</button>')
                                                                             .replace(/(https?:\/\/[^ ]*)/, '<a href="$1" target="_blank">$1</a>')
-                                                                            .replace(/(#### [a-zA-Z0-9\/ ]*)/, '<h4>$1</h4>')
+                                                                            .replace(/(#### [a-zA-Z0-9\/., ]*)/, '<h4>$1</h4>')
                                                                             .replace(/(#+)/, ''),
                                                                         {
                                                                             transform: (node) => {
                                                                                 if (node.type === 'tag' && node.name === 'button') {
+                                                                                    const data = node.children[0].data;
+                                                                                    const splitData = data.split(':');
                                                                                     return <Button
                                                                                         sx={{ textTransform: 'none' }}
                                                                                         variant="text"
                                                                                         color="secondary"
                                                                                         onClick={() => {
-                                                                                            navigator.clipboard.writeText(node.children[0].data);
+                                                                                            navigator.clipboard.writeText(splitData.length > 1 ? splitData[0] : data);
                                                                                             setSnackBarMessage('npub copied to clipboard!');
                                                                                             setSnackbarOpen(true);
                                                                                         }}
                                                                                     >
-                                                                                        { node.children[0].data.slice(0, 21) }...
+                                                                                        { splitData.length > 1 ? splitData[1] : data.slice(0, 8) + ':' + data.slice(8, 16) }
                                                                                     </Button>
                                                                                 }
                                                                             }
