@@ -17,7 +17,8 @@ export const GUIDES: Guide[] = [
         ],
         createdAt: '2023-01-09',
         updatedAt: '2023-01-11',
-        imageUrls: ['https://uselessshit.co/images/explain-it-to-me-like-i-m-5.png']
+        imageUrls: ['https://uselessshit.co/images/explain-it-to-me-like-i-m-5.png'],
+        tags: ['Basics']
     },
     {
         id: 'keys',
@@ -27,7 +28,8 @@ export const GUIDES: Guide[] = [
             'Be cautious when entering your private on different sites - if it gets leaked and falls into wrong hands,' +
             'you can think of your \'account\' as compromised. You can get your keys through any of the NOSTR clients.',
         createdAt: '2023-01-05',
-        updatedAt: '2023-01-10'
+        updatedAt: '2023-01-10',
+        tags: ['Basics', 'Keys']
     },
     {
         id: 'nostr-clients',
@@ -46,7 +48,8 @@ export const GUIDES: Guide[] = [
             'https://github.com/KoalaSat/nostros',
             'https://www.neb.lo/nostr'
         ],
-        updatedAt: '2023-01-17'
+        updatedAt: '2023-01-17',
+        tags: ['Basics', 'Clients']
     },
     {
         id: 'what-is-damus',
@@ -55,7 +58,7 @@ export const GUIDES: Guide[] = [
         urls: ['https://youtu.be/I_A7NLIyX1o'],
         createdAt: '2023-01-10',
         updatedAt: '2023-01-10',
-        tags: ['Damus']
+        tags: ['Damus', 'Clients']
     },
     {
         id: 'running-damus',
@@ -98,7 +101,8 @@ export const GUIDES: Guide[] = [
         issue: 'How to mine a public key?',
         fix: 'You can mine your public HEX key with a desired prefix. Check out nostr.rest to find out how.',
         urls: ['https://nostr.rest'],
-        updatedAt: '2023-01-06'
+        updatedAt: '2023-01-06',
+        tags: ['Keys']
     },
     {
         id: 'logging-in-with-someone-else-s-key',
@@ -106,7 +110,8 @@ export const GUIDES: Guide[] = [
         fix: 'One of the cool features of Nostr is that you can log in with someone else\'s public key ' +
             'and see the world through their lens.',
         createdAt: '2023-01-09',
-        updatedAt: '2023-01-14'
+        updatedAt: '2023-01-14',
+        tags: ['Keys']
     },
     {
         id: 'how-do-i-tag-a-person',
@@ -115,7 +120,8 @@ export const GUIDES: Guide[] = [
             'The public key can be obtained in a person\'s profile, under the key icon. ' +
             'Then, to tag this person, you got to put the @ symbol in front of their pubkey ' +
             '(@<pubkey>) eg. @npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4',
-        updatedAt: '2023-01-06'
+        updatedAt: '2023-01-06',
+        tags: ['Basics', 'Keys']
     },
     {
         id: 'adding-images',
@@ -124,14 +130,16 @@ export const GUIDES: Guide[] = [
             'For now, it\'s not possible to upload images directly from your device. ' +
             'The image has to be hosted somewhere before it can be used. ' +
             'Several free public image hosting services are listed below.',
-        updatedAt: '2022-12-26'
+        updatedAt: '2022-12-26',
+        tags: ['Basics', 'Media']
     },
     {
         id: 'image-hosting',
         issue: 'Image hosting services.',
         fix: 'A list of free image hosting services.',
         urls: ['https://nostr.build', 'https://imgbb.com', 'https://postimages.org'],
-        updatedAt: '2022-12-26'
+        updatedAt: '2022-12-26',
+        tags: ['Basics', 'Media']
     },
     {
         id: 'adding-avatar',
@@ -140,21 +148,23 @@ export const GUIDES: Guide[] = [
             'Copy the image url and paste it into PROFILE PICTURE input under Profile EDIT view.',
         createdAt: '2022-12-26',
         updatedAt: '2023-01-11',
-        tags: ['Damus']
+        tags: ['Basics', 'Media', 'Damus'],
     },
     {
         id: 'gifs',
         issue: 'User avatars and post images can be GIFs.',
         fix: 'Animated user avatars and post images work just like any other images.',
         urls: ['https://tenor.com'],
-        updatedAt: '2022-12-26'
+        updatedAt: '2022-12-26',
+        tags: ['Media']
     },
     {
         id: 'gifs-will-not-display',
         issue: 'Changed my profile pic to GIF but it won\'t display',
         fix: 'Some clients prevent GIFs larger than 1MB from loading. ' +
             'Try an image-compressing tool to downsize.',
-        updatedAt: '2023-01-05'
+        updatedAt: '2023-01-05',
+        tags: ['Media', 'Troubleshooting']
     },
     {
         id: 'turning-images-into-gifs',
@@ -162,14 +172,16 @@ export const GUIDES: Guide[] = [
         fix: 'Download MotionLeap (available on Android and iOS) to add animations to your image. ' +
             'With a free version you\'d also need ezgif.com to convert MotionLeap output to GIF.',
         urls: ['https://ezgif.com'],
-        updatedAt: '2023-01-05'
+        updatedAt: '2023-01-05',
+        tags: ['Media']
     },
     {
         id: 'multiple-images',
         issue: 'Adding multiple images to a post.',
         fix: 'For multiple images to be displayed in a single post, simply add a direct image url for every image you\'d like to see. ' +
             'They\'ll appear in a carousel (swipe left/right to browse).',
-        updatedAt: '2022-12-27'
+        updatedAt: '2022-12-27',
+        tags: ['Media']
     },
     {
         id: 'adding-videos',
@@ -179,28 +191,31 @@ export const GUIDES: Guide[] = [
             'That\'s it!',
         createdAt: '2022-12-29',
         updatedAt: '2022-01-11',
-        tags: ['Damus']
+        tags: ['Media', 'Damus']
     },
     {
         id: 'dropping-an-invoice',
         issue: 'How do I drop an invoice?',
         fix: 'Open a Lightning Wallet, click Receive, edit the amount and copy the Lightning Invoice. ' +
             'Then simply paste it into the post.',
-        updatedAt: '2022-12-26'
+        updatedAt: '2022-12-26',
+        tags: ['Basics', '⚡️ Lightning']
     },
     {
         id: 'multiple-invoices',
         issue: 'Can I drop more than one invoice in a note?',
         fix: 'Yes, some clients support dropping multiple invoices in a single note. Simply copy & paste lnurls, ' +
             'separated by spaces, into a new note.',
-        updatedAt: '2023-01-03'
+        updatedAt: '2023-01-03',
+        tags: ['⚡️ Lightning']
     },
     {
         id: 'how-to-quote-a-note',
         issue: 'How to refer to an existing post (note)?',
         fix: 'Click (press) and hold on the note you would like to quote. A menu should pop up. Select Copy Note ID. ' +
             'Then use that id prefixed by @ in your new post.',
-        updatedAt: '2023-01-03'
+        updatedAt: '2023-01-03',
+        tags: ['Basics']
     },
     {
         id: 'deleting-notes',
@@ -214,7 +229,8 @@ export const GUIDES: Guide[] = [
             'Courtesy of @StackSats npub1hycynfhz23ardfmf9kgwfw4gpyqj2fsh24r2zuehg4x7lx4kn5cqsqv4y3'
         ],
         createdAt: '2023-01-06',
-        updatedAt: '2023-01-17'
+        updatedAt: '2023-01-17',
+        tags: ['Basics']
     },
     {
         id: 'sharing-notes',
@@ -222,7 +238,8 @@ export const GUIDES: Guide[] = [
         fix: 'In some clients it\'s now possible to share notes between different apps. ' +
             'Simply tap on the Share icon under the post and choose a desired option.',
         createdAt: '2023-01-07',
-        updatedAt: '2023-01-11'
+        updatedAt: '2023-01-11',
+        tags: ['Basics']
     },
     {
         id: 'reactions',
@@ -230,7 +247,7 @@ export const GUIDES: Guide[] = [
         fix: 'Since Damus build 1.0.0-6 you can now see who liked your posts with the new reactions view.' +
             'Reactions can be viewed from the Thread screen.',
         updatedAt: '2023-01-14',
-        tags: ['Damus']
+        tags: ['Basics', 'Damus']
     },
     {
         id: 'left-handers',
@@ -252,7 +269,7 @@ export const GUIDES: Guide[] = [
         createdAt: '2023-01-14',
         updatedAt: '2023-01-15',
         urls: ['https://uselessshit.co/card-generator'],
-        tags: ['Damus']
+        tags: ['Media', 'Damus']
     },
     {
         id: 'dms',
@@ -265,7 +282,8 @@ export const GUIDES: Guide[] = [
         bulletPoints: [
             'Courtesy of @StackSats npub1hycynfhz23ardfmf9kgwfw4gpyqj2fsh24r2zuehg4x7lx4kn5cqsqv4y3'
         ],
-        updatedAt: '2023-01-15'
+        updatedAt: '2023-01-15',
+        tags: ['Basics']
     },
     {
         id: 'adding-lightning-button-to-profile',
@@ -274,7 +292,7 @@ export const GUIDES: Guide[] = [
             'It should start with LNURL... Go to your profile, tap Edit add paste the address into BITCOIN LIGHTNING TIPS input. ',
         createdAt: '2022-12-26',
         updatedAt: '2022-01-11',
-        tags: ['Damus']
+        tags: ['⚡️ Lightning', 'Damus']
     },
     {
         id: 'the-like-emoji',
@@ -292,7 +310,8 @@ export const GUIDES: Guide[] = [
             'https://blog.getalby.com/how-to-use-nostr-with-the-alby-extension/ - How to use Nostr with the Alby extension',
             'https://youtu.be/IoLw-3ok3_M - The nos2x browser extension'
         ],
-        updatedAt: '2023-01-17'
+        updatedAt: '2023-01-17',
+        tags: ['Basics']
     },
     {
         id: 'adding-more-relays',
@@ -302,7 +321,7 @@ export const GUIDES: Guide[] = [
         urls: ['https://nostr.watch'],
         createdAt: '2022-12-30',
         updatedAt: '2022-01-11',
-        tags: ['Damus']
+        tags: ['Basics', 'Damus']
     },
     {
         id: 'selecting-default-lightning-wallet',
@@ -313,7 +332,7 @@ export const GUIDES: Guide[] = [
             'The default wallet can be chosen from the list under "Select default wallet".',
         createdAt: '2023-01-06',
         updatedAt: '2023-01-14',
-        tags: ['Damus']
+        tags: ['⚡️ Lightning', 'Damus']
     },
     {
         id: 'dark-mode',
@@ -329,7 +348,7 @@ export const GUIDES: Guide[] = [
         fix: 'Clear cache option is located in Settings (side panel, accessible through tapping on your pfp) under CLEAR CACHE section.',
         createdAt: '2023-01-07',
         updatedAt: '2023-01-14',
-        tags: ['Damus']
+        tags: ['Basics', 'Damus']
     },
     {
         id: 'saving-images-to-library',
@@ -337,7 +356,7 @@ export const GUIDES: Guide[] = [
         fix: 'Tap on the picture you want to save. In the newly opened window tap & hold on the image and select Save Image.',
         createdAt: '2023-01-07',
         updatedAt: '2023-01-11',
-        tags: ['Damus']
+        tags: ['Media', 'Damus']
     },
     {
         id: 'who-to-follow',
@@ -380,7 +399,8 @@ export const GUIDES: Guide[] = [
             'Check nostr.build/profilepic.html for profile picture uploads.' +
             'Be cautious when uploading images there as anyone can see them even without a direct link.',
         urls: ['https://nostr.build/', 'https://nostr.build/profilepic.html'],
-        updatedAt: '2023-01-05'
+        updatedAt: '2023-01-05',
+        tags: ['Media']
     },
     {
         id: 'too-many-relays',
@@ -399,6 +419,7 @@ export const GUIDES: Guide[] = [
             'You might want to restart the client for the changes to take place.',
         createdAt: '2022-12-30',
         updatedAt: '2023-01-14',
+        tags: ['Basics']
     },
     {
         id: 'nip-05',
@@ -456,7 +477,7 @@ export const GUIDES: Guide[] = [
         fix: 'People you aren\'t following have grey checkmarks, whereas the ones you follow have purple checkmarks.',
         createdAt: '2023-01-04',
         updatedAt: '2023-01-17',
-        tags: ['Damus']
+        tags: ['Basics', 'Damus']
     },
     {
         id: 'running-nostr',
@@ -498,7 +519,7 @@ export const GUIDES: Guide[] = [
             'The workaround is to open a given thread and repost the note from there.',
         createdAt: '2023-01-09',
         updatedAt: '2023-01-14',
-        tags: ['Damus']
+        tags: ['Troubleshooting', 'Damus']
     },
     {
         id: 'damus-is-crashing',
@@ -506,7 +527,7 @@ export const GUIDES: Guide[] = [
         fix: 'Damus is still in beta, so bugs are not uncommon. ' +
             'If your app keeps crashing, make sure you\'ve updated Damus and iOS to the latest versions.',
         updatedAt: '2023-01-09',
-        tags: ['Damus']
+        tags: ['Troubleshooting', 'Damus']
     },
     {
         id: 'free-100-sats',
@@ -518,7 +539,8 @@ export const GUIDES: Guide[] = [
             'Watch the magic happen before your own eyes 🪄'
         ],
         createdAt: '2023-01-11',
-        updatedAt: '2023-01-16'
+        updatedAt: '2023-01-16',
+        tags: ['⚡️ Lightning']
     },
     {
         id: 'more-resources',

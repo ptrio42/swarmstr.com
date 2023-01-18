@@ -9,7 +9,15 @@ import {Helmet} from "react-helmet";
 import CardActions from "@mui/material/CardActions";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
-import {ArrowDownward, ArrowUpward, ExpandLess, ExpandMore, IosShare, ToggleOff} from "@mui/icons-material";
+import {
+    ArrowDownward,
+    ArrowUpward, Clear, Expand,
+    ExpandLess,
+    ExpandLessOutlined,
+    ExpandMore,
+    IosShare,
+    ToggleOff, UnfoldLess
+} from "@mui/icons-material";
 import Collapse from "@mui/material/Collapse";
 import ListItemText from "@mui/material/ListItemText";
 import './NostrResources.css';
@@ -21,6 +29,7 @@ import {matchString} from "../../../utils/utils";
 import {GUIDES} from "../../../stubs/nostrResources";
 import Button from "@mui/material/Button";
 import ReactHtmlParser from 'react-html-parser';
+import Divider from "@mui/material/Divider";
 
 export interface Guide {
     id: string;
@@ -123,98 +132,138 @@ export const NostrResources = () => {
                 <meta name="twitter:image" content="https://uselessshit.co/images/guide-cover-v2.png" />
 
             </Helmet>
-            <Stack sx={{ marginTop: '1em', marginLeft: '1em' }} direction="row" spacing={1}>
-                <Chip
-                    label="No sort"
-                    variant={sort === '' ? 'filled' : 'outlined'}
-                    onClick={() => {
-                        setSort('')
-                    }}
-                />
-                <Chip
-                    icon={sort === 'asc' ?
-                        <ArrowUpward /> : sort === 'desc' ? <ArrowDownward /> : <ToggleOff />
-                    }
-                    variant={sort !== '' ? 'filled' : 'outlined'}
-                    label="Last updated"
-                    onClick={() => {
-                        setSort(
-                            sort === 'asc' ? 'desc' : 'asc'
-                        )
-                    }}
-                />
-            </Stack>
-
-            <Stack sx={{ marginLeft: '1em' }} direction="row" spacing={1}>
-                <Input
-                    id="searchQuery"
-                    name="searchQuery"
-                    placeholder={'Search by keywords'}
-                    value={searchQuery}
-                    onChange={(event) => {
-                        setSearchQuery(event.target.value);
-                    }}
-                />
-            </Stack>
-
             <List>
                 <ListItem key="nostr-resources">
                     <ListItemText
                         sx={{ textTransform: 'uppercase' }}
-                        primary="Useful tips for NOSTR newcomers"
-                        primaryTypographyProps={{ style: { fontWeight: 'bold', fontSize: '16px' } }}
+                        primary="Nostr Guide"
+                        primaryTypographyProps={{ style: { fontWeight: 'bold', fontSize: '48px', textAlign: 'center' } }}
                     />
+                </ListItem>
+                <ListItem sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <Stack sx={{ marginLeft: '1em' }} direction="row" spacing={1}>
+                        <Input
+                            id="searchQuery"
+                            name="searchQuery"
+                            placeholder={'Search by keywords'}
+                            value={searchQuery}
+                            onChange={(event) => {
+                                setSearchQuery(event.target.value);
+                            }}
+                        />
+                    </Stack>
+                    <Stack sx={{ marginTop: '1em', marginLeft: '1em' }} direction="row" spacing={1}>
+                        <Chip
+                            icon={<Clear />}
+                            label="No sort"
+                            variant={sort === '' ? 'filled' : 'outlined'}
+                            onClick={() => {
+                                setSort('')
+                            }}
+                        />
+                        <Chip
+                            icon={sort === 'asc' ?
+                                <ArrowUpward /> : sort === 'desc' ? <ArrowDownward /> : <ToggleOff />
+                            }
+                            variant={sort !== '' ? 'filled' : 'outlined'}
+                            label="Last updated"
+                            onClick={() => {
+                                setSort(
+                                    sort === 'asc' ? 'desc' : 'asc'
+                                )
+                            }}
+                        />
+                    </Stack>
                 </ListItem>
                 {
                     guides
                         .filter(guide => searchQuery === '' || matchString(searchQuery, guide.issue))
                         .map((guide, index) => (
-                        <ListItemButton key={guide.id} id={guide.id} sx={{ flexWrap: 'wrap' }} onClick={() => {
-                            handleExpanded(guide.id)
-                        }}>
-                            <ListItemText primary={guide.issue} />
-                            {expanded.includes(guide.id) ? <ExpandLess /> : <ExpandMore />}
-                            <IosShare sx={{ marginLeft: '0.3em' }} onClick={(event) => {
-                                handleShareAnswer(event, guide);
-                            }} />
-                            <Collapse
-                                sx={{ width: '100%'}}
-                                in={expanded.includes(guide.id)}
-                                timeout="auto"
-                                unmountOnExit
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                }}
-                            >
-                                <List component="div" disablePadding>
-                                    <ListItem>
-                                        <Card sx={{ minWidth: 275, marginBottom: '0.5em' }}>
-                                            { guide.imageUrls && guide.imageUrls.length > 0 &&
-                                            <a href={guide.imageUrls[0]} target="_blank">
-                                                <CardMedia
-                                                    component="img"
-                                                    height="194"
-                                                    image={guide.imageUrls[0]}
-                                                    alt="Show full-sized image in a new tab"
-                                                />
-                                            </a>
+                        <React.Fragment>
+                            <ListItemButton
+                                sx={{ flexWrap: 'wrap' }}
+                                key={guide.id}
+                                id={guide.id}
+                                onClick={() => {
+                                    handleExpanded(guide.id)
+                                }}>
+                                <ListItemText
+                                    primary={
+                                    <React.Fragment>
+                                        <Typography
+                                            sx={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }}
+                                            component="span"
+                                            variant="body1"
+                                            color="text.primary"
+                                        >
+                                            {guide.issue}
+
+                                        </Typography>
+                                    </React.Fragment>
+                                }
+                                    secondary={
+                                    <React.Fragment>
+                                        <Stack direction="row" spacing={1}>
+                                            { guide.tags &&
+                                            guide.tags.map(tag => (
+                                                <Chip sx={{ marginLeft: '0.33em' }} label={tag} variant="outlined" />
+                                            ))
                                             }
-                                            <CardContent>
-                                                <Typography
-                                                    sx={{ fontSize: 14, fontWeight: 'bold', color: '#000', display: 'flex', alignItems: 'center' }}
-                                                    color="text.secondary"
-                                                    gutterBottom
-                                                >
-                                                    { guide.issue }
-                                                    { guide.tags &&
+                                        </Stack>
+                                        <Typography
+                                            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                                            component="span"
+                                            variant="body2"
+                                            color="text.primary"
+                                        >
+                                            {guide.updatedAt}
+                                            <Typography sx={{ width: '72px', display: 'flex', justifyContent: 'space-between' }} component="span" variant="body2">
+                                                {expanded.includes(guide.id) ? <UnfoldLess /> : <Expand />}
+                                                <IosShare sx={{ marginLeft: '0.3em' }} onClick={(event) => {
+                                                    handleShareAnswer(event, guide);
+                                                }} />
+                                            </Typography>
+                                        </Typography>
+                                    </React.Fragment>
+                                } />
+                                <Collapse
+                                    sx={{ width: '100%'}}
+                                    in={expanded.includes(guide.id)}
+                                    timeout="auto"
+                                    unmountOnExit
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                    }}
+                                >
+                                    <List component="div" disablePadding>
+                                        <ListItem sx={{ width: '100%' }}>
+                                            <Card sx={{ minWidth: 275, marginBottom: '0.5em' }}>
+                                                { guide.imageUrls && guide.imageUrls.length > 0 &&
+                                                <a href={guide.imageUrls[0]} target="_blank">
+                                                    <CardMedia
+                                                        component="img"
+                                                        height="194"
+                                                        image={guide.imageUrls[0]}
+                                                        alt="Show full-sized image in a new tab"
+                                                    />
+                                                </a>
+                                                }
+                                                <CardContent>
+                                                    <Typography
+                                                        sx={{ fontSize: 14, fontWeight: 'bold', color: '#000', display: 'flex', alignItems: 'center' }}
+                                                        color="text.secondary"
+                                                        gutterBottom
+                                                    >
+                                                        { guide.issue }
+                                                        { guide.tags &&
                                                         guide.tags.map(tag => (
                                                             <Chip sx={{ marginLeft: '0.33em' }} label={tag} color="success" />
                                                         ))
-                                                    }
-                                                </Typography>
-                                                <Typography gutterBottom variant="body2">
-                                                    { guide.fix }
-                                                    { guide.bulletPoints &&
+                                                        }
+                                                    </Typography>
+                                                    <Typography sx={{ textAlign: 'justify' }} gutterBottom variant="body2">
+                                                        { guide.fix }
+                                                        { guide.bulletPoints &&
                                                         <List>
                                                             { guide.bulletPoints.map(point =>
                                                                 <ListItem>{
@@ -246,37 +295,39 @@ export const NostrResources = () => {
                                                                 }</ListItem>
                                                             ) }
                                                         </List>
-                                                    }
-                                                </Typography>
-                                                { guide.urls && guide.urls.length > 0 &&
-                                                guide.urls.map(url =>
-                                                    <React.Fragment>
-                                                        <a href={url} target="_blank">{ url }</a><br />
-                                                    </React.Fragment>
-                                                )
+                                                        }
+                                                    </Typography>
+                                                    { guide.urls && guide.urls.length > 0 &&
+                                                    guide.urls.map(url =>
+                                                        <React.Fragment>
+                                                            <a href={url} target="_blank">{ url }</a><br />
+                                                        </React.Fragment>
+                                                    )
 
-                                                }
-                                            </CardContent>
-                                            <CardActions>
-                                                <Stack direction="column" spacing={1}>
-                                                    <Chip label={`Added: ${ guide.createdAt || guide.updatedAt }`} />
-                                                    <Chip label={`Last update: ${ guide.updatedAt }`} />
-                                                    <Button
-                                                        variant="text"
-                                                        color="secondary"
-                                                        onClick={(event) => {
-                                                            handleShareAnswer(event, guide);
-                                                        }}
-                                                    >
-                                                        Click to share the link to the answer
-                                                    </Button>
-                                                </Stack>
-                                            </CardActions>
-                                        </Card>
-                                    </ListItem>
-                                </List>
-                            </Collapse>
-                        </ListItemButton>
+                                                    }
+                                                </CardContent>
+                                                <CardActions>
+                                                    <Stack direction="column" spacing={1}>
+                                                        <Chip label={`Added: ${ guide.createdAt || guide.updatedAt }`} />
+                                                        <Chip label={`Last update: ${ guide.updatedAt }`} />
+                                                        <Button
+                                                            variant="text"
+                                                            color="secondary"
+                                                            onClick={(event) => {
+                                                                handleShareAnswer(event, guide);
+                                                            }}
+                                                        >
+                                                            Click to share the link to the answer
+                                                        </Button>
+                                                    </Stack>
+                                                </CardActions>
+                                            </Card>
+                                        </ListItem>
+                                    </List>
+                                </Collapse>
+                            </ListItemButton>
+                            <Divider sx={{ margin: '0 1.1em' }} variant="inset" component="li" />
+                        </React.Fragment>
                     ))
                 }
             </List>
