@@ -39,6 +39,8 @@ import {nip05, nip19, relayInit} from 'nostr-tools';
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
 import IconButton from "@mui/material/IconButton";
+import {Note} from "../Note/Note";
+import {Metadata} from "../Metadata/Metadata";
 
 export interface Profile {
     nip05: string;
@@ -48,6 +50,11 @@ export interface Profile {
     picture: string;
     pubkey: string;
     name: string;
+}
+
+export interface Reaction {
+    id: string;
+    content: string;
 }
 
 export interface Guide {
@@ -63,6 +70,12 @@ export interface Guide {
     isRead?: boolean;
 }
 
+const RELAYS = [
+    'wss://brb.io',
+    'wss://nostr.v0l.io',
+    'wss://relay.damus.io',
+];
+
 export const NostrResources = () => {
 
     const [guides, setGuides] = useState<Guide[]>([]);
@@ -71,9 +84,13 @@ export const NostrResources = () => {
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
     const [snackbarMessage, setSnackBarMessage] = useState<string>('');
     const [searchQuery, setSearchQuery] = useState<string>('');
-    const [profiles, setProfiles] = useState<{ [key: string]: Profile }>({});
+    const [profiles, setProfiles] = useState<{ [key: string]: Metadata }>({});
 
+    const [socketUrl, setSocketUrl] = useState<string>(RELAYS[0]);
     const [relay, setRelay] = useState<any>();
+
+    const [stickyNote, setStickyNote] = useState();
+    const [stickyNoteReactions, setStickyNoteReactions] = useState<{ [key: string]: Reaction }>({});
 
     const { hash } = useLocation();
 
@@ -135,7 +152,11 @@ export const NostrResources = () => {
     }, [guides]);
 
     useEffect(() => {
-        relay && relay.connect().then(() => {
+        relay &&
+        relay.connect().then(() => {
+            getStickyNote();
+            getReactions();
+
             setGuides(getInitialGuides());
             const pubkeys = getInitialGuides()
                 .map(guide => guide.bulletPoints && guide.bulletPoints
@@ -151,12 +172,65 @@ export const NostrResources = () => {
                 queryProfile(pks[i])
 
             }
+        }).catch((error: any) => {
+            const nextRelay = RELAYS.filter(relay => relay !== socketUrl)[0];
+            setSocketUrl(nextRelay);
         });
     }, [relay]);
 
+    useEffect(() => {
+        initRelay();
+    }, [socketUrl]);
+
     const initRelay = () => {
-        const relay = relayInit('wss://brb.io');
+        const relay = relayInit(socketUrl);
         setRelay(relay);
+    };
+
+    const rejectDelay = async (reason: any) => {
+        return new Promise((resolve, reject) => {
+            setTimeout(reject.bind(null, reason), 1000);
+        });
+    };
+
+    const getStickyNote = async () => {
+        const sub = relay && relay.sub([
+            {
+                kinds: [1],
+                ids: ['62fa89e3ed6e50ebaeae7f688a5229760262e6ccf015ab7accb46d1e944ef030']
+            }
+        ]);
+        sub.on('event', (event: any) => {
+            if (event.content) {
+                setStickyNote(event.content);
+            }
+        });
+        sub.on('eose', () => {
+            sub.unsub();
+        });
+    };
+
+    const getReactions = async () => {
+        const sub = relay && relay.sub([
+            {
+                kinds: [7],
+                '#e': ['62fa89e3ed6e50ebaeae7f688a5229760262e6ccf015ab7accb46d1e944ef030']
+            }
+        ]);
+        sub.on('event', (event: any) => {
+            const { id, content }: Reaction = event;
+            setStickyNoteReactions((prev: { [key: string]: Reaction }) => ({
+                    ...prev,
+                    [id]: {
+                        id,
+                        content
+                    }
+                }
+            ));
+        });
+        sub.on('eose', () => {
+            sub.unsub();
+        });
     };
 
     const queryProfile = async (pubkey: string) => {
@@ -172,7 +246,10 @@ export const NostrResources = () => {
                 if (event.pubkey) {
                     setProfiles((prev) => ({
                         ...prev,
-                        [event.pubkey]: profile
+                        [event.pubkey]: {
+                            ...profile,
+                            pubkey: event.pubkey
+                        }
                     }));
                 }
             });
@@ -226,23 +303,6 @@ export const NostrResources = () => {
             .length;
     };
 
-    const getProfileDisplayedName = (data: string) => {
-        const splitData = data.split(':');
-        const profile = profiles[splitData[1]];
-
-        return (profile && (profile.nip05 || profile.name)) ||
-        (splitData[1].length !== 64 && splitData[1]) ||
-        (splitData[2] && splitData[2].length !== 64 && splitData[2]) ||
-        splitData[0].slice(4, 12) + ':' + splitData[0].slice(splitData[0].length - 8)
-    };
-
-    const getProfileLud06OrLud16 = (data: string) => {
-        const splitData = data.split(':');
-        return splitData[1] &&
-            profiles[splitData[1]] &&
-            (profiles[splitData[1]].lud06 || profiles[splitData[1]].lud16);
-    };
-
     return (
         <React.Fragment>
             <Helmet>
@@ -277,7 +337,7 @@ export const NostrResources = () => {
                         <Circle sx={{ fontSize: 12, marginRight: '0.33em!important'  }} />
                         { getFilteredGuidesCount() === GUIDES.length ? 'Total' : getFilteredGuidesCount() } of { GUIDES.length } entries
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important', marginRight: '0.33em!important'  }} />
-                        Last update: 2023-01-18
+                        Last update: 2023-01-19
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important'  }} />
                     </Stack>
                     <Stack sx={{ marginLeft: '1em', marginTop: '1em' }} direction="row" spacing={1}>
@@ -313,6 +373,17 @@ export const NostrResources = () => {
                             }}
                         />
                     </Stack>
+                </ListItem>
+                <ListItem>
+                    { stickyNote && <Note
+                        id={'pinned'}
+                        title={'Pinned note'}
+                        content={stickyNote}
+                        updatedAt={'2023-01-19'}
+                        reactions={stickyNoteReactions && Object.values(stickyNoteReactions)}
+                    />
+                    }
+                    {/*{ stickyNoteReactions && Object.values(stickyNoteReactions).length } reactions*/}
                 </ListItem>
                 {
                     guides
@@ -386,146 +457,16 @@ export const NostrResources = () => {
                                 >
                                     <List component="div" disablePadding>
                                         <ListItem sx={{ width: '100%' }}>
-                                            <Card sx={{ minWidth: 275, marginBottom: '0.5em' }}>
-                                                <CardContent>
-                                                    <Typography
-                                                        sx={{ fontSize: '16px', fontWeight: 'bold', color: '#000', display: 'flex', alignItems: 'center' }}
-                                                        color="text.secondary"
-                                                        gutterBottom
-                                                    >
-                                                        { guide.issue }
-                                                    </Typography>
-                                                    <Typography sx={{ textAlign: 'justify' }} gutterBottom variant="body2">
-                                                        { guide.fix }
-                                                        { guide.bulletPoints &&
-                                                        <List>
-                                                            { guide.bulletPoints.map(point =>
-                                                                <ListItem>{
-                                                                    ReactHtmlParser(
-                                                                        point
-                                                                            .replace(/(npub[^ ]{59,}$)/, '<button>$1</button>')
-                                                                            .replace(/(https?:\/\/[^ ]*)/, '<a href="$1" target="_blank">$1</a>')
-                                                                            .replace(/(#### [a-zA-Z0-9\/.,&\'\- ]*)/, '<h4>$1</h4>')
-                                                                            .replace(/(#+)/, ''),
-                                                                        {
-                                                                            transform: (node) => {
-                                                                                if (node.type === 'tag' && node.name === 'button') {
-                                                                                    const data = node.children[0].data;
-                                                                                    const splitData = data.split(':');
-                                                                                    const hasHex = splitData.length > 1 && splitData[1].length === 64;
-                                                                                    if (hasHex) {
-                                                                                        return <React.Fragment>
-                                                                                            <ListItemAvatar>
-                                                                                                <Avatar alt="" src={profiles[splitData[1]] && profiles[splitData[1]].picture} />
-                                                                                            </ListItemAvatar>
-                                                                                            <ListItemText
-                                                                                                primary={
-                                                                                                    <React.Fragment>
-                                                                                                        <Typography sx={{ fontSize: '14px', fontWeight: 'bold' }}>
-                                                                                                            {getProfileDisplayedName(data)}
-                                                                                                            {
-                                                                                                                !!getProfileLud06OrLud16(data) &&
-                                                                                                                <React.Fragment>
-                                                                                                                    <a href={'lightning:' + getProfileLud06OrLud16(data)}>
-                                                                                                                        <IconButton>
-                                                                                                                            <Bolt sx={{ fontSize: 18 }} color="secondary"/>
-                                                                                                                        </IconButton>
-                                                                                                                    </a>
-                                                                                                                </React.Fragment>
-                                                                                                            }
-                                                                                                            <IconButton onClick={() => {
-                                                                                                                navigator.clipboard.writeText(splitData.length > 1 ? splitData[0] : data);
-                                                                                                                setSnackBarMessage(splitData[0] || data + ' copied to clipboard!');
-                                                                                                                setSnackbarOpen(true);
-                                                                                                            }}>
-                                                                                                                <CopyAll sx={{ fontSize: 18 }} />
-                                                                                                            </IconButton>
-                                                                                                        </Typography>
-                                                                                                    </React.Fragment>
-                                                                                                }
-                                                                                                secondary={
-                                                                                                    <React.Fragment>
-                                                                                                        <Typography
-                                                                                                            sx={{ display: 'inline' }}
-                                                                                                            component="span"
-                                                                                                            variant="body2"
-                                                                                                            color="text.primary"
-                                                                                                        >
-                                                                                                            { profiles[splitData[1]] && profiles[splitData[1]].about }
-                                                                                                        </Typography>
-                                                                                                    </React.Fragment>
-                                                                                                }
-                                                                                            />
-                                                                                        </React.Fragment>
-                                                                                    } else return <Button
-                                                                                            sx={{textTransform: 'none'}}
-                                                                                            variant="text"
-                                                                                            color="secondary"
-                                                                                            onClick={() => {
-                                                                                                navigator.clipboard.writeText(splitData.length > 1 ? splitData[0] : data);
-                                                                                                setSnackBarMessage('npub copied to clipboard!');
-                                                                                                setSnackbarOpen(true);
-                                                                                            }}
-                                                                                        >
-                                                                                            {splitData.length > 1 ? splitData[1] : data.slice(0, 8) + ':' + data.slice(data.length - 8)}
-                                                                                        </Button>
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    )
-                                                                }</ListItem>
-                                                            ) }
-                                                        </List>
-                                                        }
-                                                    </Typography>
-                                                    { guide.urls && guide.urls.length > 0 &&
-                                                    guide.urls.map(url =>
-                                                        <React.Fragment>
-                                                            <a href={url} target="_blank">{ url }</a><br />
-                                                        </React.Fragment>
-                                                    )
-
-                                                    }
-                                                    { guide.tags &&
-                                                    <Typography sx={{ fontSize: '12px' }}>
-                                                        <Divider sx={{ margin: '0.4em', marginBottom: '2em' }} component="div" />
-                                                        {
-                                                            guide.tags.map(tag => (
-                                                                <Chip sx={{ marginLeft: '0.33em' }} label={tag} color="success" />
-                                                            ))
-                                                        }
-                                                    </Typography>
-                                                    }
-                                                    { guide.imageUrls && guide.imageUrls.length > 0 &&
-                                                    <a href={guide.imageUrls[0]} target="_blank">
-                                                        <CardMedia
-                                                            component="img"
-                                                            height="194"
-                                                            image={guide.imageUrls[0]}
-                                                            alt="Show full-sized image in a new tab"
-                                                        />
-                                                    </a>
-                                                    }
-                                                </CardContent>
-                                                <Typography variant="body2">
-                                                    <Divider sx={{ margin: '0.4em' }} component="div" />
-                                                    <Stack sx={{ justifyContent: 'space-around', alignItems: 'center' }} direction="row" spacing={1}>
-                                                        <Typography sx={{ fontSize: '14px' }}>
-                                                            Last update: {guide.updatedAt}
-                                                        </Typography>
-                                                        <Chip
-                                                            onClick={(event) => {
-                                                                handleShareAnswer(event, guide);
-                                                            }}
-                                                            icon={<IosShare />}
-                                                            label="Share"
-                                                        />
-                                                    </Stack>
-                                                    <Divider sx={{ margin: '0.4em' }} component="div" />
-                                                </Typography>
-                                                <CardActions>
-                                                </CardActions>
-                                            </Card>
+                                            <Note
+                                                id={guide.id}
+                                                title={guide.issue}
+                                                content={guide.fix}
+                                                bulletPoints={guide.bulletPoints}
+                                                metadata={Object.values(profiles)}
+                                                imageUrls={guide.imageUrls}
+                                                tags={guide.tags}
+                                                urls={guide.urls}
+                                                updatedAt={guide.updatedAt}/>
                                         </ListItem>
                                     </List>
                                 </Collapse>
