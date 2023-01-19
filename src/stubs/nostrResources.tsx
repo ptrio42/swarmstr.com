@@ -170,7 +170,10 @@ export const GUIDES: Guide[] = [
             '#### camelus.app',
             'npub1w9llyw8c3qnn7h27u3msjlet8xyjz5phdycr5rz335r2j5hj5a0qvs3tur:717ff238f888273f5d5ee477097f2b398921503769303a0c518d06a952f2a75e',
             'https://camelus.app/',
-            'https://github.com/leo-lox/'
+            'https://github.com/leo-lox/',
+            'npub1cldxy9f5shk0kxm90yk8nn3lum7wdmta3m6ndjcjr4aqcuewjt0sx3rps5:c7da62153485ecfb1b65792c79ce3fe6fce6ed7d8ef536cb121d7a0c732e92df:dave',
+            'https://github.com/davestgermain/nostr_relay',
+            'https://github.com/davestgermain/aionostr'
         ],
         tags: ['Essentials', 'People', 'Projects']
     },
