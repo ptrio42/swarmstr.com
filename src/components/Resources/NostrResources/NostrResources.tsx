@@ -13,7 +13,7 @@ import {
     ArrowDownward,
     ArrowUpward, Circle, Clear, Expand,
     IosShare,
-    ToggleOff, UnfoldLess, GitHub
+    ToggleOff, UnfoldLess, GitHub, Update
 } from "@mui/icons-material";
 import Collapse from "@mui/material/Collapse";
 import ListItemText from "@mui/material/ListItemText";
@@ -330,7 +330,7 @@ export const NostrResources = () => {
                                                                 <ListItem>{
                                                                     ReactHtmlParser(
                                                                         point
-                                                                            .replace(/(npub[^ ]*)/, '<button>$1</button>')
+                                                                            .replace(/(npub[^ ]{59,}$)/, '<button>$1</button>')
                                                                             .replace(/(https?:\/\/[^ ]*)/, '<a href="$1" target="_blank">$1</a>')
                                                                             .replace(/(#### [a-zA-Z0-9\/.,& ]*)/, '<h4>$1</h4>')
                                                                             .replace(/(#+)/, ''),
@@ -349,7 +349,7 @@ export const NostrResources = () => {
                                                                                             setSnackbarOpen(true);
                                                                                         }}
                                                                                     >
-                                                                                        { splitData.length > 1 ? splitData[1] : data.slice(0, 8) + ':' + data.slice(8, 16) }
+                                                                                        { splitData.length > 1 ? splitData[1] : data.slice(0, 8) + ':' + data.slice(data.length - 8) }
                                                                                     </Button>
                                                                                 }
                                                                             }
@@ -369,20 +369,23 @@ export const NostrResources = () => {
 
                                                     }
                                                 </CardContent>
-                                                <CardActions>
-                                                    <Stack direction="column" spacing={1}>
-                                                        <Chip label={`Added: ${ guide.createdAt || guide.updatedAt }`} />
-                                                        <Chip label={`Last update: ${ guide.updatedAt }`} />
-                                                        <Button
-                                                            variant="text"
-                                                            color="secondary"
+                                                <Typography variant="body2">
+                                                    <Divider sx={{ margin: '0.4em' }} component="div" />
+                                                    <Stack sx={{ justifyContent: 'space-around', alignItems: 'center' }} direction="row" spacing={1}>
+                                                        <Typography sx={{ fontSize: '14px' }}>
+                                                            Last update: {guide.updatedAt}
+                                                        </Typography>
+                                                        <Chip
                                                             onClick={(event) => {
                                                                 handleShareAnswer(event, guide);
                                                             }}
-                                                        >
-                                                            Click to share the link to the answer
-                                                        </Button>
+                                                            icon={<IosShare />}
+                                                            label="Share"
+                                                        />
                                                     </Stack>
+                                                    <Divider sx={{ margin: '0.4em' }} component="div" />
+                                                </Typography>
+                                                <CardActions>
                                                 </CardActions>
                                             </Card>
                                         </ListItem>

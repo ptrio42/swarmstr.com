@@ -439,10 +439,16 @@ export const GUIDES: Guide[] = [
         tags: ['Basics']
     },
     {
-        id: 'adding-lightning-button-to-profile',
-        issue: 'How to add Lightning button to profile and start receiving tips?',
-        fix: 'Open a Lightning wallet, tap Receive, select Lightning Address and copy it. ' +
+        id: 'receiving-sats',
+        issue: 'Receive sats with lightning.',
+        fix: 'With bitcoin and lightning it\'s easy to exchange value. ' +
+            'Nostr protocol is where this can be seen in action.' +
+            'Make sure your profile is set up and people can send you sats.' +
+            'Open a Lightning wallet, tap Receive, select Lightning Address and copy it. ' +
             'It should start with LNURL... Go to your profile, tap Edit add paste the address into BITCOIN LIGHTNING TIPS input. ',
+        bulletPoints: [
+            'You\'ll need a lightning wallet which supports LNURL pay.'
+        ],
         createdAt: '2022-12-26',
         updatedAt: '2022-01-11',
         tags: ['⚡️ Lightning', 'Damus']
