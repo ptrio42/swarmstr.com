@@ -387,16 +387,6 @@ export const NostrResources = () => {
                                     <List component="div" disablePadding>
                                         <ListItem sx={{ width: '100%' }}>
                                             <Card sx={{ minWidth: 275, marginBottom: '0.5em' }}>
-                                                { guide.imageUrls && guide.imageUrls.length > 0 &&
-                                                <a href={guide.imageUrls[0]} target="_blank">
-                                                    <CardMedia
-                                                        component="img"
-                                                        height="194"
-                                                        image={guide.imageUrls[0]}
-                                                        alt="Show full-sized image in a new tab"
-                                                    />
-                                                </a>
-                                                }
                                                 <CardContent>
                                                     <Typography
                                                         sx={{ fontSize: '16px', fontWeight: 'bold', color: '#000', display: 'flex', alignItems: 'center' }}
@@ -415,7 +405,7 @@ export const NostrResources = () => {
                                                                         point
                                                                             .replace(/(npub[^ ]{59,}$)/, '<button>$1</button>')
                                                                             .replace(/(https?:\/\/[^ ]*)/, '<a href="$1" target="_blank">$1</a>')
-                                                                            .replace(/(#### [a-zA-Z0-9\/.,& ]*)/, '<h4>$1</h4>')
+                                                                            .replace(/(#### [a-zA-Z0-9\/.,&\'\- ]*)/, '<h4>$1</h4>')
                                                                             .replace(/(#+)/, ''),
                                                                         {
                                                                             transform: (node) => {
@@ -505,6 +495,16 @@ export const NostrResources = () => {
                                                             ))
                                                         }
                                                     </Typography>
+                                                    }
+                                                    { guide.imageUrls && guide.imageUrls.length > 0 &&
+                                                    <a href={guide.imageUrls[0]} target="_blank">
+                                                        <CardMedia
+                                                            component="img"
+                                                            height="194"
+                                                            image={guide.imageUrls[0]}
+                                                            alt="Show full-sized image in a new tab"
+                                                        />
+                                                    </a>
                                                     }
                                                 </CardContent>
                                                 <Typography variant="body2">

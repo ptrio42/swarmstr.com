@@ -443,15 +443,33 @@ export const GUIDES: Guide[] = [
         id: 'receiving-sats',
         issue: 'Receive sats with lightning.',
         fix: 'With bitcoin and lightning it\'s easy to exchange value. ' +
-            'Nostr protocol is where this can be seen in action.' +
-            'Make sure your profile is set up and people can send you sats.' +
-            'Open a Lightning wallet, tap Receive, select Lightning Address and copy it. ' +
-            'It should start with LNURL... Go to your profile, tap Edit add paste the address into BITCOIN LIGHTNING TIPS input. ',
+            'Nostr protocol is where this can be seen in action. ' +
+            'Make sure your profile is set up correctly and people can send you sats, you can experience the magic first hand.',
         bulletPoints: [
-            'You\'ll need a lightning wallet which supports LNURL pay.'
+            'You\'ll need a lightning wallet which supports LNURL pay.',
+            '#### Some people put lightning invoices in their profile, which are one time only, thus aren\'t able to receive sats.',
+            'Wallet of Satoshi for mobile (custodial) might be a good choice to get you started.',
+            'For desktop/browser try Alby.',
+            'Below instructions are for Wallet of Satoshi.',
+            'To get your LNURL or lightning address, open WoS.',
+            'Tap Receive.',
+            'Make sure you select &nbsp;<i>Lightning Address</i>&nbsp; tab in the top right corner.',
+            'Either click on &nbsp;<i>Copy</i>&nbsp; to use your lightning address (e-mail like)',
+            'or on &nbsp;<i>QR Code</i>&nbsp; to use LNURL (start with LNURL...)',
+            'Now navigate to your profile in the client where you\'re logged in.',
+            'Tap &nbsp;<i>Edit</i>.',
+            'Find BITCOIN LIGHTNING TIPS input (depends on the client; could be named differently)',
+            'Paste the LNURL or lightning address into the input.',
+            'Tap save.',
+            'That\'s it!',
+            'Now remember to test if it\'s working!'
+
+        ],
+        imageUrls: [
+            'https://uselessshit.co/images/receive-sats-with-lightning.jpeg'
         ],
         createdAt: '2022-12-26',
-        updatedAt: '2022-01-11',
+        updatedAt: '2022-01-19',
         tags: ['⚡️ Lightning', 'Damus']
     },
     {
