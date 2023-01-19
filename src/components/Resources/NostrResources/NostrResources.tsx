@@ -11,9 +11,15 @@ import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
 import {
     ArrowDownward,
-    ArrowUpward, Circle, Clear, Expand,
+    ArrowUpward,
+    Bolt,
+    Circle,
+    Clear,
+    CopyAll,
+    Expand,
     IosShare,
-    ToggleOff, UnfoldLess, GitHub, Update
+    ToggleOff,
+    UnfoldLess
 } from "@mui/icons-material";
 import Collapse from "@mui/material/Collapse";
 import ListItemText from "@mui/material/ListItemText";
@@ -29,6 +35,20 @@ import ReactHtmlParser from 'react-html-parser';
 import Divider from "@mui/material/Divider";
 import Badge from "@mui/material/Badge";
 import pink from "@mui/material/colors/pink";
+import {nip05, nip19, relayInit} from 'nostr-tools';
+import ListItemAvatar from "@mui/material/ListItemAvatar";
+import Avatar from "@mui/material/Avatar";
+import IconButton from "@mui/material/IconButton";
+
+export interface Profile {
+    nip05: string;
+    lud06: string;
+    lud16: string;
+    about: string;
+    picture: string;
+    pubkey: string;
+    name: string;
+}
 
 export interface Guide {
     id: string;
@@ -51,6 +71,9 @@ export const NostrResources = () => {
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
     const [snackbarMessage, setSnackBarMessage] = useState<string>('');
     const [searchQuery, setSearchQuery] = useState<string>('');
+    const [profiles, setProfiles] = useState<{ [key: string]: Profile }>({});
+
+    const [relay, setRelay] = useState<any>();
 
     const { hash } = useLocation();
 
@@ -59,12 +82,12 @@ export const NostrResources = () => {
         return [ ...GUIDES.map(guide => ({
             ...guide,
             isRead: readGuides.includes(guide.id)
-        }))]
+        }))];
     };
 
     useEffect(() => {
         setTimeout(() => {
-            setGuides(getInitialGuides());
+            initRelay();
         });
     }, []);
 
@@ -111,6 +134,54 @@ export const NostrResources = () => {
         ]);
     }, [guides]);
 
+    useEffect(() => {
+        relay && relay.connect().then(() => {
+            setGuides(getInitialGuides());
+            const pubkeys = getInitialGuides()
+                .map(guide => guide.bulletPoints && guide.bulletPoints
+                    .filter((point) => new RegExp(/(npub[^ ]{59,}$)/).test(point))
+                    .map(key => key && key.split(':')[1])
+                    .filter(key => key && key.length === 64)
+                )
+                .filter(entries => !!entries && entries.length > 0);
+
+            // @ts-ignore
+            const pks = [].concat.apply([], pubkeys);
+            for (let i = 0; i < pks.length; i++) {
+                queryProfile(pks[i])
+
+            }
+        });
+    }, [relay]);
+
+    const initRelay = () => {
+        const relay = relayInit('wss://brb.io');
+        setRelay(relay);
+    };
+
+    const queryProfile = async (pubkey: string) => {
+        if (!profiles[pubkey]) {
+            const sub = relay && relay.sub([
+                {
+                    kinds: [0],
+                    authors: [pubkey]
+                }
+            ]);
+            sub.on('event', (event: any) => {
+                const profile = JSON.parse(event.content);
+                if (event.pubkey) {
+                    setProfiles((prev) => ({
+                        ...prev,
+                        [event.pubkey]: profile
+                    }));
+                }
+            });
+            sub.on('eose', () => {
+                sub.unsub();
+            });
+        }
+    };
+
     const handleExpanded = (guide: Guide) => {
         if (!guide.isRead) {
             markGuideAsRead(guide.id);
@@ -153,6 +224,23 @@ export const NostrResources = () => {
         return guides
             .filter(guide => searchQuery === '' || matchString(searchQuery, guide.issue))
             .length;
+    };
+
+    const getProfileDisplayedName = (data: string) => {
+        const splitData = data.split(':');
+        const profile = profiles[splitData[1]];
+
+        return (profile && (profile.nip05 || profile.name)) ||
+        (splitData[1].length !== 64 && splitData[1]) ||
+        (splitData[2] && splitData[2].length !== 64 && splitData[2]) ||
+        splitData[0].slice(4, 12) + ':' + splitData[0].slice(splitData[0].length - 8)
+    };
+
+    const getProfileLud06OrLud16 = (data: string) => {
+        const splitData = data.split(':');
+        return splitData[1] &&
+            profiles[splitData[1]] &&
+            (profiles[splitData[1]].lud06 || profiles[splitData[1]].lud16);
     };
 
     return (
@@ -311,16 +399,11 @@ export const NostrResources = () => {
                                                 }
                                                 <CardContent>
                                                     <Typography
-                                                        sx={{ fontSize: 14, fontWeight: 'bold', color: '#000', display: 'flex', alignItems: 'center' }}
+                                                        sx={{ fontSize: '16px', fontWeight: 'bold', color: '#000', display: 'flex', alignItems: 'center' }}
                                                         color="text.secondary"
                                                         gutterBottom
                                                     >
                                                         { guide.issue }
-                                                        { guide.tags &&
-                                                        guide.tags.map(tag => (
-                                                            <Chip sx={{ marginLeft: '0.33em' }} label={tag} color="success" />
-                                                        ))
-                                                        }
                                                     </Typography>
                                                     <Typography sx={{ textAlign: 'justify' }} gutterBottom variant="body2">
                                                         { guide.fix }
@@ -339,18 +422,63 @@ export const NostrResources = () => {
                                                                                 if (node.type === 'tag' && node.name === 'button') {
                                                                                     const data = node.children[0].data;
                                                                                     const splitData = data.split(':');
-                                                                                    return <Button
-                                                                                        sx={{ textTransform: 'none' }}
-                                                                                        variant="text"
-                                                                                        color="secondary"
-                                                                                        onClick={() => {
-                                                                                            navigator.clipboard.writeText(splitData.length > 1 ? splitData[0] : data);
-                                                                                            setSnackBarMessage('npub copied to clipboard!');
-                                                                                            setSnackbarOpen(true);
-                                                                                        }}
-                                                                                    >
-                                                                                        { splitData.length > 1 ? splitData[1] : data.slice(0, 8) + ':' + data.slice(data.length - 8) }
-                                                                                    </Button>
+                                                                                    const hasHex = splitData.length > 1 && splitData[1].length === 64;
+                                                                                    if (hasHex) {
+                                                                                        return <React.Fragment>
+                                                                                            <ListItemAvatar>
+                                                                                                <Avatar alt="" src={profiles[splitData[1]] && profiles[splitData[1]].picture} />
+                                                                                            </ListItemAvatar>
+                                                                                            <ListItemText
+                                                                                                primary={
+                                                                                                    <React.Fragment>
+                                                                                                        <Typography sx={{ fontSize: '14px', fontWeight: 'bold' }}>
+                                                                                                            {getProfileDisplayedName(data)}
+                                                                                                            {
+                                                                                                                !!getProfileLud06OrLud16(data) &&
+                                                                                                                <React.Fragment>
+                                                                                                                    <a href={'lightning:' + getProfileLud06OrLud16(data)}>
+                                                                                                                        <IconButton>
+                                                                                                                            <Bolt sx={{ fontSize: 18 }} color="secondary"/>
+                                                                                                                        </IconButton>
+                                                                                                                    </a>
+                                                                                                                </React.Fragment>
+                                                                                                            }
+                                                                                                            <IconButton onClick={() => {
+                                                                                                                navigator.clipboard.writeText(splitData.length > 1 ? splitData[0] : data);
+                                                                                                                setSnackBarMessage(splitData[0] || data + ' copied to clipboard!');
+                                                                                                                setSnackbarOpen(true);
+                                                                                                            }}>
+                                                                                                                <CopyAll sx={{ fontSize: 18 }} />
+                                                                                                            </IconButton>
+                                                                                                        </Typography>
+                                                                                                    </React.Fragment>
+                                                                                                }
+                                                                                                secondary={
+                                                                                                    <React.Fragment>
+                                                                                                        <Typography
+                                                                                                            sx={{ display: 'inline' }}
+                                                                                                            component="span"
+                                                                                                            variant="body2"
+                                                                                                            color="text.primary"
+                                                                                                        >
+                                                                                                            { profiles[splitData[1]] && profiles[splitData[1]].about }
+                                                                                                        </Typography>
+                                                                                                    </React.Fragment>
+                                                                                                }
+                                                                                            />
+                                                                                        </React.Fragment>
+                                                                                    } else return <Button
+                                                                                            sx={{textTransform: 'none'}}
+                                                                                            variant="text"
+                                                                                            color="secondary"
+                                                                                            onClick={() => {
+                                                                                                navigator.clipboard.writeText(splitData.length > 1 ? splitData[0] : data);
+                                                                                                setSnackBarMessage('npub copied to clipboard!');
+                                                                                                setSnackbarOpen(true);
+                                                                                            }}
+                                                                                        >
+                                                                                            {splitData.length > 1 ? splitData[1] : data.slice(0, 8) + ':' + data.slice(data.length - 8)}
+                                                                                        </Button>
                                                                                 }
                                                                             }
                                                                         }
@@ -367,6 +495,16 @@ export const NostrResources = () => {
                                                         </React.Fragment>
                                                     )
 
+                                                    }
+                                                    { guide.tags &&
+                                                    <Typography sx={{ fontSize: '12px' }}>
+                                                        <Divider sx={{ margin: '0.4em', marginBottom: '2em' }} component="div" />
+                                                        {
+                                                            guide.tags.map(tag => (
+                                                                <Chip sx={{ marginLeft: '0.33em' }} label={tag} color="success" />
+                                                            ))
+                                                        }
+                                                    </Typography>
                                                     }
                                                 </CardContent>
                                                 <Typography variant="body2">
