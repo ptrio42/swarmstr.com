@@ -444,7 +444,7 @@ export const GUIDES: Guide[] = [
         issue: 'Receive sats with lightning.',
         fix: 'With bitcoin and lightning it\'s easy to exchange value. ' +
             'Nostr protocol is where this can be seen in action. ' +
-            'Make sure your profile is set up correctly and people can send you sats, you can experience the magic first hand.',
+            'Make sure your profile is set up correctly and people can send you sats, so you can experience the V4V magic first hand.',
         bulletPoints: [
             'You\'ll need a lightning wallet which supports LNURL pay.',
             '#### Some people put lightning invoices in their profile, which are one time only, thus aren\'t able to receive sats.',
@@ -611,7 +611,7 @@ export const GUIDES: Guide[] = [
     {
         id: 'free-nip-05',
         issue: 'Free NIP-05 handles.',
-        fix: '',
+        fix: 'Looking for a free NIP-05 handle? Check out your options below 😎',
         bulletPoints: [
             '#### orangepill.dev',
             'npub16jzr7npgp2a684pasnkhjf9j2e7hc9n0teefskulqmf42cqmt4uqwszk52:d4843f4c280abba3d43d84ed7924b2567d7c166f5e72985b9f06d355601b5d78:ezofox',
@@ -626,7 +626,7 @@ export const GUIDES: Guide[] = [
             '#### uselessshit.co',
             'npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4:f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8:pitiunited'
         ],
-        updatedAt: '2023-01-16'
+        updatedAt: '2023-01-19'
     },
     {
         id: 'lnurlp-with-alby',
