@@ -173,7 +173,9 @@ export const GUIDES: Guide[] = [
             'https://github.com/leo-lox/',
             'npub1cldxy9f5shk0kxm90yk8nn3lum7wdmta3m6ndjcjr4aqcuewjt0sx3rps5:c7da62153485ecfb1b65792c79ce3fe6fce6ed7d8ef536cb121d7a0c732e92df:dave',
             'https://github.com/davestgermain/nostr_relay',
-            'https://github.com/davestgermain/aionostr'
+            'https://github.com/davestgermain/aionostr',
+            'npub148jmlutaa49y5wl5mcll003ftj59v79vf7wuv3apcwpf75hx22vs7kk9ay:a9e5bff17ded4a4a3bf4de3ff7be295ca85678ac4f9dc647a1c3829f52e65299:LiranCohen',
+            'https://github.com/LiranCohen'
         ],
         tags: ['Essentials', 'People', 'Projects']
     },
@@ -653,7 +655,8 @@ export const GUIDES: Guide[] = [
             'eg. Redirect /.well-known/lnurlp/pitiunited https://walletofsatoshi.com/.well-known/lnurlp/furiouschina21',
             'There\'re other means of achieving the same result on Apache (like editing the conf file).',
             'If you\'d like to learn more or you\'re using Nginx,',
-            'EzoFox npub16jzr7npgp2a684pasnkhjf9j2e7hc9n0teefskulqmf42cqmt4uqwszk52 got you covered (link below).'
+            'npub16jzr7npgp2a684pasnkhjf9j2e7hc9n0teefskulqmf42cqmt4uqwszk52',
+            'got you covered (link below).'
         ],
         urls: ['https://orangepill.dev/lightning-guides/guide-to-create-lnaddress-redirection-on-your-domain/']
     },
@@ -751,7 +754,7 @@ export const GUIDES: Guide[] = [
             'you may also want to check our bitcoin resources page for a list of Bitcoiners, bitcoin books, pods, apps ' +
             '& wallets.',
         bulletPoints: [
-            'Go ahead and DM/tag me on nostr npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4 🤙 ',
+            'Go ahead and DM/tag me on nostr 🤙 ',
             'npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4:f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8:pitiunited'
         ],
         urls: ['https://uselessshit.co/resources/bitcoin'],
