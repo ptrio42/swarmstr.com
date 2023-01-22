@@ -170,12 +170,19 @@ export const GUIDES: Guide[] = [
             '#### camelus.app',
             'npub1w9llyw8c3qnn7h27u3msjlet8xyjz5phdycr5rz335r2j5hj5a0qvs3tur:717ff238f888273f5d5ee477097f2b398921503769303a0c518d06a952f2a75e',
             'https://camelus.app/',
+            '',
             'https://github.com/leo-lox/',
             'npub1cldxy9f5shk0kxm90yk8nn3lum7wdmta3m6ndjcjr4aqcuewjt0sx3rps5:c7da62153485ecfb1b65792c79ce3fe6fce6ed7d8ef536cb121d7a0c732e92df:dave',
             'https://github.com/davestgermain/nostr_relay',
             'https://github.com/davestgermain/aionostr',
+            '',
             'npub148jmlutaa49y5wl5mcll003ftj59v79vf7wuv3apcwpf75hx22vs7kk9ay:a9e5bff17ded4a4a3bf4de3ff7be295ca85678ac4f9dc647a1c3829f52e65299:LiranCohen',
-            'https://github.com/LiranCohen'
+            'https://github.com/LiranCohen',
+            '#### List maintainer',
+            'https://github.com/ptrio42/uselessshit.co',
+            'npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4:f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8:pitiunited',
+            'tmp',
+            'npub1x8dzy9xegwmdk2vy30l8u08caspcqq2yzncxehdsa6kvnte9pr3qnt8pg4:31da2214d943b6db29848bfe7e3cf8ec0380014414f06cddb0eeacc9af2508e2:solobalbo'
         ],
         tags: ['Essentials', 'People', 'Projects']
     },
@@ -205,9 +212,27 @@ export const GUIDES: Guide[] = [
         fix: 'The keys are your identity. They consist of a public key (npub) and a private key (nsec). ' +
             'The public can be treated as a username, whereas the private key is more like a password. ' +
             'Be cautious when entering your private on different sites - if it gets leaked and falls into wrong hands,' +
-            'you can think of your \'account\' as compromised. You can get your keys through any of the NOSTR clients.',
+            'you can think of your \'account\' as compromised.',
+        bulletPoints: [
+            'There are different ways to get nostr pair of keys.',
+            'If you\'re going to use a mobile client like Damus, you\'re probably fine obtaining your keys through the app.',
+            'For web clients you\'ll be better of using Alby or nos2x browser extension.',
+            'https://uselessshit.co/resources/nostr/#using-nostr-with-alby-or-nos2x'
+        ],
         createdAt: '2023-01-05',
-        updatedAt: '2023-01-10',
+        updatedAt: '2023-01-21',
+        tags: ['Basics', 'Keys']
+    },
+    {
+        id: 'using-nostr-with-alby-or-nos2x',
+        issue: 'How to use Nostr with the Alby or nos2x extension.',
+        fix: 'As a rule of thumb, you should never paste your private key into websites. ' +
+            'To generate your keys and handle your keys, use Alby or nos2x extension.',
+        bulletPoints: [
+            'https://blog.getalby.com/how-to-use-nostr-with-the-alby-extension/ - How to use Nostr with the Alby extension',
+            'https://youtu.be/IoLw-3ok3_M - The nos2x browser extension'
+        ],
+        updatedAt: '2023-01-17',
         tags: ['Basics', 'Keys']
     },
     {
@@ -385,7 +410,8 @@ export const GUIDES: Guide[] = [
             'However you can never be sure all relays to which your note got propagated do this. ' +
             'Pretty impossible to actually delete your note through the whole network.',
         bulletPoints: [
-            'Courtesy of npub1hycynfhz23ardfmf9kgwfw4gpyqj2fsh24r2zuehg4x7lx4kn5cqsqv4y3:StackSats'
+            'Courtesy of ',
+            'npub1hycynfhz23ardfmf9kgwfw4gpyqj2fsh24r2zuehg4x7lx4kn5cqsqv4y3:b93049a6e2547a36a7692d90e4baa809012526175546a17337454def9ab69d30:StackSats'
         ],
         createdAt: '2023-01-06',
         updatedAt: '2023-01-17',
@@ -439,7 +465,8 @@ export const GUIDES: Guide[] = [
             'Since you do not have any control over the key management of your chat partner, you should be very cautious what information ' +
             'you share via DMs!',
         bulletPoints: [
-            'Courtesy of npub1hycynfhz23ardfmf9kgwfw4gpyqj2fsh24r2zuehg4x7lx4kn5cqsqv4y3:StackSats'
+            'Courtesy of ',
+            'npub1hycynfhz23ardfmf9kgwfw4gpyqj2fsh24r2zuehg4x7lx4kn5cqsqv4y3:b93049a6e2547a36a7692d90e4baa809012526175546a17337454def9ab69d30:StackSats'
         ],
         updatedAt: '2023-01-15',
         tags: ['Basics']
@@ -483,18 +510,6 @@ export const GUIDES: Guide[] = [
         fix: '🤙 (also called shaka) is for Likes. Also ⚡ is for sats.',
         createdAt: '2022-12-26',
         updatedAt: '2023-01-09'
-    },
-    {
-        id: 'using-nostr-with-alby-or-nos2x',
-        issue: 'How to use Nostr with the Alby or nos2x extension.',
-        fix: 'As a rule of thumb, you should never paste your private key into websites. ' +
-            'To generate your keys and handle your keys, use Alby or nos2x extension.',
-        bulletPoints: [
-            'https://blog.getalby.com/how-to-use-nostr-with-the-alby-extension/ - How to use Nostr with the Alby extension',
-            'https://youtu.be/IoLw-3ok3_M - The nos2x browser extension'
-        ],
-        updatedAt: '2023-01-17',
-        tags: ['Basics']
     },
     {
         id: 'adding-more-relays',
@@ -655,7 +670,7 @@ export const GUIDES: Guide[] = [
             'eg. Redirect /.well-known/lnurlp/pitiunited https://walletofsatoshi.com/.well-known/lnurlp/furiouschina21',
             'There\'re other means of achieving the same result on Apache (like editing the conf file).',
             'If you\'d like to learn more or you\'re using Nginx,',
-            'npub16jzr7npgp2a684pasnkhjf9j2e7hc9n0teefskulqmf42cqmt4uqwszk52',
+            'npub16jzr7npgp2a684pasnkhjf9j2e7hc9n0teefskulqmf42cqmt4uqwszk52:d4843f4c280abba3d43d84ed7924b2567d7c166f5e72985b9f06d355601b5d78:EzoFox',
             'got you covered (link below).'
         ],
         urls: ['https://orangepill.dev/lightning-guides/guide-to-create-lnaddress-redirection-on-your-domain/']
