@@ -141,6 +141,7 @@ export const GUIDES: Guide[] = [
             'npub1taycl7qfuqk9dp0rhkse8lxhz3az9eanjug8j4ympwehvslnetxqkujg5y:5f498ff809e02c5685e3bda193fcd7147a22e7b3971079549b0bb37643f3cacc:lee',
             'https://github.com/leesalminen',
             '#### emon.chat',
+            'npub1xfpn52slhcz8rcwc6vg5px6cmrj5zu3twcm0z9nleq6fqgj825ts78h0sd:32433a2a1fbe0471e1d8d311409b58d8e541722b7636f1167fc8349022475517:Sebastiaan',
             'https://github.com/SebastiaanWouters',
             '#### nostr-relay',
             'npub14lu6nuqh7v4jazmqw49yzqkmnkw0nletjeuqfdgwqurcp2j9ex5qz37m8m:aff9a9f017f32b2e8b60754a4102db9d9cf9ff2b967804b50e070780aa45c9a8:aaron',
@@ -178,11 +179,15 @@ export const GUIDES: Guide[] = [
             '',
             'npub148jmlutaa49y5wl5mcll003ftj59v79vf7wuv3apcwpf75hx22vs7kk9ay:a9e5bff17ded4a4a3bf4de3ff7be295ca85678ac4f9dc647a1c3829f52e65299:LiranCohen',
             'https://github.com/LiranCohen',
+            '',
+            'npub1x8dzy9xegwmdk2vy30l8u08caspcqq2yzncxehdsa6kvnte9pr3qnt8pg4:31da2214d943b6db29848bfe7e3cf8ec0380014414f06cddb0eeacc9af2508e2:solobalbo',
+            '#### nostore',
+            'npub19pw5egjuhcsfsv42zkjtjs6nhpm69lnv8w2dacdyez7rvacrqnds6xjtwk:285d4ca25cbe209832aa15a4b94353b877a2fe6c3b94dee1a4c8bc36770304db:Ryan',
+            'https://github.com/ursuscamp/nostore',
             '#### List maintainer',
             'https://github.com/ptrio42/uselessshit.co',
             'npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4:f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8:pitiunited',
-            'tmp',
-            'npub1x8dzy9xegwmdk2vy30l8u08caspcqq2yzncxehdsa6kvnte9pr3qnt8pg4:31da2214d943b6db29848bfe7e3cf8ec0380014414f06cddb0eeacc9af2508e2:solobalbo'
+
         ],
         tags: ['Essentials', 'People', 'Projects']
     },
@@ -234,6 +239,18 @@ export const GUIDES: Guide[] = [
         ],
         updatedAt: '2023-01-17',
         tags: ['Basics', 'Keys']
+    },
+    {
+        id: 'generate-and-manage-keys-and-sign-events',
+        issue: 'How to generate and manage Nostr keys and sign events.',
+        fix: 'Feel free to share, provide suggestions and changes if any.',
+        bulletPoints: [
+            'Courtesy of',
+            'npub16jzr7npgp2a684pasnkhjf9j2e7hc9n0teefskulqmf42cqmt4uqwszk52:d4843f4c280abba3d43d84ed7924b2567d7c166f5e72985b9f06d355601b5d78:ezofox',
+            'https://orangepill.dev/nostr-guides/guide-nostr-key-generation-and-management/'
+        ],
+        updatedAt: '2023-01-22',
+        tags: ['Keys']
     },
     {
         id: 'what-is-damus',
