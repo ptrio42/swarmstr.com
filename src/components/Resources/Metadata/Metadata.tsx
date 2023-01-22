@@ -20,18 +20,19 @@ interface MetadataProps {
     picture?: string;
     lud06?: string;
     lud16?: string;
-    npub: string;
+    npub?: string;
     nip05?: string;
     name?: string;
     supposedName?: string;
     about?: string;
     handleCopyNpub?: (value: string) => any;
+    variant?: 'full' | 'simplified'
 }
 
-export const Metadata = ({ picture, lud06, lud16, nip05, name, npub, about, handleCopyNpub, supposedName }: MetadataProps) => {
+export const Metadata = ({ picture, lud06, lud16, nip05, name, npub, about, handleCopyNpub, supposedName, variant = 'full' }: MetadataProps) => {
 
     const getProfileDisplayedName = () => {
-        return nip05 || name || supposedName || npub.slice(4, 12) + ':' + npub.slice(npub.length - 8)
+        return nip05 || name || supposedName || (npub && npub.slice(4, 12) + ':' + npub.slice(npub.length - 8));
     };
 
     return (
@@ -55,15 +56,15 @@ export const Metadata = ({ picture, lud06, lud16, nip05, name, npub, about, hand
                                 </React.Fragment>
                             }
                             <IconButton onClick={() => {
-                                navigator.clipboard.writeText(npub);
-                                handleCopyNpub && handleCopyNpub(npub);
+                                navigator.clipboard.writeText(npub || '');
+                                handleCopyNpub && handleCopyNpub(npub || '');
                             }}>
                                 <CopyAll sx={{ fontSize: 18 }} />
                             </IconButton>
                         </Typography>
                     </React.Fragment>
                 }
-                secondary={
+                { ...(variant === 'full' && {'secondary':
                     <React.Fragment>
                         <Typography
                             sx={{ display: 'inline' }}
@@ -74,7 +75,7 @@ export const Metadata = ({ picture, lud06, lud16, nip05, name, npub, about, hand
                             { about }
                         </Typography>
                     </React.Fragment>
-                }
+                }) }
             />
         </React.Fragment>
     );

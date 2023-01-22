@@ -1,46 +1,42 @@
 import React, {useEffect, useState} from "react";
 import {List} from "@mui/material";
-import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
-import Card from "@mui/material/Card";
 import ListItem from "@mui/material/ListItem";
 import {useLocation} from "react-router-dom";
 import {Helmet} from "react-helmet";
-import CardActions from "@mui/material/CardActions";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
-import {
-    ArrowDownward,
-    ArrowUpward,
-    Bolt,
-    Circle,
-    Clear,
-    CopyAll,
-    Expand,
-    IosShare,
-    ToggleOff,
-    UnfoldLess
-} from "@mui/icons-material";
+import {ArrowDownward, ArrowUpward, Circle, Clear, Expand, IosShare, ToggleOff, UnfoldLess} from "@mui/icons-material";
 import Collapse from "@mui/material/Collapse";
 import ListItemText from "@mui/material/ListItemText";
 import './NostrResources.css';
 import ListItemButton from "@mui/material/ListItemButton";
 import Snackbar from "@mui/material/Snackbar";
-import CardMedia from "@mui/material/CardMedia";
 import Input from "@mui/material/Input";
 import {matchString} from "../../../utils/utils";
 import {GUIDES} from "../../../stubs/nostrResources";
-import Button from "@mui/material/Button";
-import ReactHtmlParser from 'react-html-parser';
 import Divider from "@mui/material/Divider";
 import Badge from "@mui/material/Badge";
 import pink from "@mui/material/colors/pink";
-import {nip05, nip19, relayInit} from 'nostr-tools';
-import ListItemAvatar from "@mui/material/ListItemAvatar";
-import Avatar from "@mui/material/Avatar";
-import IconButton from "@mui/material/IconButton";
+import {nip05, nip19} from 'nostr-tools';
 import {Note} from "../Note/Note";
-import {Metadata} from "../Metadata/Metadata";
+import {NoteThread} from "../Thread/Thread";
+import {
+    connectToRelay,
+    Event, findAllMetadata,
+    findNotesByIds,
+    findReactionsByNoteId,
+    findRelatedNotesByNoteId, getMetadataSub,
+    getNotesReactionsSub,
+    getNotesWithRelatedNotesByIdsSub,
+    getStream,
+    handleSub, RELAYS,
+    Stream,
+    STREAMS,
+    StreamStatus
+} from "../../../services/nostr";
+import LinearProgress from "@mui/material/LinearProgress";
+import Box from "@mui/material/Box";
 
 export interface Profile {
     nip05: string;
@@ -70,10 +66,16 @@ export interface Guide {
     isRead?: boolean;
 }
 
-const RELAYS = [
-    'wss://brb.io',
-    'wss://nostr.v0l.io',
-    'wss://relay.damus.io',
+const NOTES = [
+    '62fa89e3ed6e50ebaeae7f688a5229760262e6ccf015ab7accb46d1e944ef030',
+    // 'da34ae690b22309caf65f1b5974f8f02e2924350e9ca703f5594df82f57139ac',
+    // '5c3b9ddb6d87425826af78ae6014f276bb034f9aa7b2c6833af9d0da37a4e73a',
+    // '0e8bdc70e99cbe7fdd8400d2192f82a692399f706879270b98c493f834585692',
+    // 'a54309bd0b66be5e05416221cf3f2e5557e2876899bb5d6d2965a3f0bf555582',
+    // '17f615a2b82640553ca7f5ea6fb417cf5b7e66be854d0e6f683d539174ec772a',
+    // '08db8334578b5571cad7cc849f934b27b98019a3bf008a5a417b1468df9be71a',
+    // '07f82ffd55cb4e0acf3f956ca1b18239a1a265cd4918e3cdc3a1244f37a6404d',
+    // '5222361b78833d775dfb6a47e6dc0b5fbc761c4c11e34ce0315f5dd4bec0a318',
 ];
 
 export const NostrResources = () => {
@@ -84,15 +86,19 @@ export const NostrResources = () => {
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
     const [snackbarMessage, setSnackBarMessage] = useState<string>('');
     const [searchQuery, setSearchQuery] = useState<string>('');
-    const [profiles, setProfiles] = useState<{ [key: string]: Metadata }>({});
+    const [profiles, setProfiles] = useState<any[]>([]);
 
     const [socketUrl, setSocketUrl] = useState<string>(RELAYS[0]);
     const [relay, setRelay] = useState<any>();
 
-    const [stickyNote, setStickyNote] = useState();
-    const [stickyNoteReactions, setStickyNoteReactions] = useState<{ [key: string]: Reaction }>({});
+    const [notes, setNotes] = useState<any[]>([]);
 
     const { hash } = useLocation();
+
+    const [events, setEvents] = useState<Event[]>([]);
+    const [streams, setStreams] = useState<Stream[]>(STREAMS);
+
+    const [progress, setProgress] = useState<number>(-1);
 
     const getInitialGuides = () => {
         const readGuides = getReadGuides();
@@ -101,12 +107,6 @@ export const NostrResources = () => {
             isRead: readGuides.includes(guide.id)
         }))];
     };
-
-    useEffect(() => {
-        setTimeout(() => {
-            initRelay();
-        });
-    }, []);
 
     useEffect(() => {
         if (sort === '') {
@@ -152,111 +152,132 @@ export const NostrResources = () => {
     }, [guides]);
 
     useEffect(() => {
-        relay &&
-        relay.connect().then(() => {
-            getStickyNote();
-            getReactions();
-
-            setGuides(getInitialGuides());
-            const pubkeys = getInitialGuides()
-                .map(guide => guide.bulletPoints && guide.bulletPoints
-                    .filter((point) => new RegExp(/(npub[^ ]{59,}$)/).test(point))
-                    .map(key => key && key.split(':')[1])
-                    .filter(key => key && key.length === 64)
-                )
-                .filter(entries => !!entries && entries.length > 0);
-
-            // @ts-ignore
-            const pks = [].concat.apply([], pubkeys);
-            for (let i = 0; i < pks.length; i++) {
-                queryProfile(pks[i])
-
+        streams.forEach(s => {
+            switch (s.status) {
+                case StreamStatus.OPEN: {
+                    return;
+                }
+                case StreamStatus.EOSE: {
+                    switch (s.name) {
+                        case 'notes': {
+                            const isReactionsStreamClosed = streams &&
+                                (streams.find(s => s.name === 'reactions') || { status: StreamStatus.CLOSED })
+                                    .status === StreamStatus.CLOSED;
+                            if (isReactionsStreamClosed) {
+                                const ids = events
+                                    .filter(n => n.kind === 1)
+                                    .map(n => n.id);
+                                const sub = getNotesReactionsSub(relay, ids);
+                                openSub(sub, 'reactions');
+                            }
+                            return;
+                        }
+                        case 'reactions': {
+                            if (events && events.length > 0) {
+                                const result = findNotesByIds(events, NOTES).map(n => ({
+                                    ...n,
+                                    comments: findRelatedNotesByNoteId(events, n.id).map(n1 => ({
+                                        ...n1,
+                                        reactions: findReactionsByNoteId(events, n1.id)
+                                    })),
+                                    reactions: findReactionsByNoteId(events, n.id)
+                                }));
+                                setNotes(result);
+                            }
+                            const isMetadataStreamClosed = streams &&
+                                (streams.find(s => s.name === 'metadata') || { status: StreamStatus.CLOSED })
+                                    .status === StreamStatus.CLOSED;
+                            if (isMetadataStreamClosed) {
+                                const pubkeys = getPubkeysFromGuidesBulletPoints();
+                                const sub = getMetadataSub(relay, pubkeys);
+                                openSub(sub, 'metadata');
+                            }
+                            return;
+                        }
+                        case 'metadata': {
+                            const metadata = findAllMetadata(events);
+                            setProfiles(metadata.map(m => ({
+                                ...m,
+                                ...(JSON.parse(m.content || ''))
+                            })));
+                            return;
+                        }
+                    }
+                    return;
+                }
+                case StreamStatus.CLOSED: {
+                    return;
+                }
             }
-        }).catch((error: any) => {
-            const nextRelay = RELAYS.filter(relay => relay !== socketUrl)[0];
-            setSocketUrl(nextRelay);
         });
-    }, [relay]);
+    }, [streams]);
 
     useEffect(() => {
-        initRelay();
+        connectToRelay()
+            .then((newRelay) => {
+                const { status } = getStream(streams, 'notes');
+                    if (status === StreamStatus.CLOSED && (!notes || notes.length === 0)) {
+                        const sub = getNotesWithRelatedNotesByIdsSub(newRelay, NOTES);
+                        openSub(sub, 'notes');
+                    }
+
+                setRelay(newRelay);
+                setGuides(getInitialGuides());
+            });
     }, [socketUrl]);
 
-    const initRelay = () => {
-        const relay = relayInit(socketUrl);
-        setRelay(relay);
+    const openSub = (sub: any, streamName: string) => {
+        // update streams
+        setStreams(([
+            ...streams.map(s => s.name === streamName ? ({
+                ...s,
+                status: StreamStatus.OPEN
+            }): { ...s })
+        ]));
+
+        handleSub(sub, (event: Event) => {
+                //update events
+                setEvents((state) => ([
+                    ...state
+                        .filter((e: Event) => e.id !== event.id),
+                    { ...event }
+                ]));
+            },
+            () => {
+                // update streams
+                setStreams(([
+                    ...streams.map(s => s.name === streamName ? ({
+                        ...s,
+                        status: StreamStatus.EOSE
+                    }): { ...s })
+                ]));
+            })
+    };
+
+    const getPubkeysFromGuidesBulletPoints = () => {
+        const pubkeys = getInitialGuides()
+            .map(guide => guide.bulletPoints && guide.bulletPoints
+                .filter((point) => new RegExp(/(npub[^ ]{59,}$)/).test(point))
+                .map(key => key && key.split(':')[1])
+                .filter(key => key && key.length === 64)
+            )
+            .filter(entries => !!entries && entries.length > 0);
+        // @ts-ignore
+        return [].concat.apply([], pubkeys);
+    };
+
+    const getContentWithTags = (event: any) => {
+        const regex = new RegExp(/(#\[[0-9]\]*)/, 'g');
+        return {
+            ...event,
+            content: event.content.replace(regex, event.tags[+'$1'.slice(2, -1)])
+        }
     };
 
     const rejectDelay = async (reason: any) => {
         return new Promise((resolve, reject) => {
             setTimeout(reject.bind(null, reason), 1000);
         });
-    };
-
-    const getStickyNote = async () => {
-        const sub = relay && relay.sub([
-            {
-                kinds: [1],
-                ids: ['62fa89e3ed6e50ebaeae7f688a5229760262e6ccf015ab7accb46d1e944ef030']
-            }
-        ]);
-        sub.on('event', (event: any) => {
-            if (event.content) {
-                setStickyNote(event.content);
-            }
-        });
-        sub.on('eose', () => {
-            sub.unsub();
-        });
-    };
-
-    const getReactions = async () => {
-        const sub = relay && relay.sub([
-            {
-                kinds: [7],
-                '#e': ['62fa89e3ed6e50ebaeae7f688a5229760262e6ccf015ab7accb46d1e944ef030']
-            }
-        ]);
-        sub.on('event', (event: any) => {
-            const { id, content }: Reaction = event;
-            setStickyNoteReactions((prev: { [key: string]: Reaction }) => ({
-                    ...prev,
-                    [id]: {
-                        id,
-                        content
-                    }
-                }
-            ));
-        });
-        sub.on('eose', () => {
-            sub.unsub();
-        });
-    };
-
-    const queryProfile = async (pubkey: string) => {
-        if (!profiles[pubkey]) {
-            const sub = relay && relay.sub([
-                {
-                    kinds: [0],
-                    authors: [pubkey]
-                }
-            ]);
-            sub.on('event', (event: any) => {
-                const profile = JSON.parse(event.content);
-                if (event.pubkey) {
-                    setProfiles((prev) => ({
-                        ...prev,
-                        [event.pubkey]: {
-                            ...profile,
-                            pubkey: event.pubkey
-                        }
-                    }));
-                }
-            });
-            sub.on('eose', () => {
-                sub.unsub();
-            });
-        }
     };
 
     const handleExpanded = (guide: Guide) => {
@@ -337,7 +358,7 @@ export const NostrResources = () => {
                         <Circle sx={{ fontSize: 12, marginRight: '0.33em!important'  }} />
                         { getFilteredGuidesCount() === GUIDES.length ? 'Total' : getFilteredGuidesCount() } of { GUIDES.length } entries
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important', marginRight: '0.33em!important'  }} />
-                        Last update: 2023-01-19
+                        Last update: 2023-01-22
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important'  }} />
                     </Stack>
                     <Stack sx={{ marginLeft: '1em', marginTop: '1em' }} direction="row" spacing={1}>
@@ -374,17 +395,17 @@ export const NostrResources = () => {
                         />
                     </Stack>
                 </ListItem>
-                <ListItem>
-                    { stickyNote && <Note
-                        id={'pinned'}
-                        title={'Pinned note'}
-                        content={stickyNote}
-                        updatedAt={'2023-01-19'}
-                        reactions={stickyNoteReactions && Object.values(stickyNoteReactions)}
-                    />
-                    }
-                    {/*{ stickyNoteReactions && Object.values(stickyNoteReactions).length } reactions*/}
-                </ListItem>
+                { notes && Object.values(notes)
+                    .map(note =>
+
+                            <NoteThread
+                                note={note}
+                                comments={note.comments && Object.values(note.comments)}
+                                reactions={note.reactions && Object.values(note.reactions)}
+                                metadata={profiles}
+                            />
+                    )
+                }
                 {
                     guides
                         .filter(guide => searchQuery === '' || matchString(searchQuery, guide.issue))
@@ -466,7 +487,9 @@ export const NostrResources = () => {
                                                 imageUrls={guide.imageUrls}
                                                 tags={guide.tags}
                                                 urls={guide.urls}
-                                                updatedAt={guide.updatedAt}/>
+                                                updatedAt={guide.updatedAt}
+                                                isExpanded={true}
+                                            />
                                         </ListItem>
                                     </List>
                                 </Collapse>
