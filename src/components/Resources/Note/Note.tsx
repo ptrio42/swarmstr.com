@@ -1,7 +1,7 @@
 import {List} from "@mui/material";
 import ReactHtmlParser from "react-html-parser";
 import React, {useEffect, useState} from "react";
-import {ChatBubble, CopyAll, DoneOutline, Expand, IosShare, ThumbUp, UnfoldLess} from "@mui/icons-material";
+import {ChatBubble, CopyAll, DoneOutline, Expand, IosShare, UnfoldLess, UnfoldMore} from "@mui/icons-material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
@@ -13,19 +13,23 @@ import CardMedia from "@mui/material/CardMedia";
 import Stack from "@mui/material/Stack";
 import CardActions from "@mui/material/CardActions";
 import Snackbar from "@mui/material/Snackbar";
-import {Reaction} from "../NostrResources/NostrResources";
 import IconButton from "@mui/material/IconButton";
 import Badge from "@mui/material/Badge";
-import { nip19 } from 'nostr-tools';
+import {nip19} from 'nostr-tools';
+import {Reaction, Reactions, REACTIONS, ReactionType} from "../Reactions/Reactions";
+import {getNostrKeyPair} from "../../../services/nostr";
+import Button from "@mui/material/Button";
 
 interface NoteProps {
     id: string;
-    title: string;
     content: string;
+    tags?: string[][];
+
+    title: string;
     bulletPoints?: string[];
     metadata?: Metadata[];
     imageUrls?: string[];
-    tags?: string[];
+    guideTags?: string[];
     urls?: string[];
     updatedAt: string;
     reactions?: Reaction[];
@@ -35,12 +39,16 @@ interface NoteProps {
     pinned?: boolean;
     handleClick?: () => any;
     isExpanded?: boolean;
+    isThreadExpanded?: boolean;
     isCollapsable?: boolean;
+    handleUpReaction?: (noteId: string, reaction?: string) => void;
+    handleDownReaction?: (noteId: string, reaction?: string) => void;
 }
 
 export const Note = ({
-     id, title, content, bulletPoints, metadata, imageUrls, tags, urls, updatedAt, reactions,
-     pubkeys, comments, author, pinned, handleClick, isExpanded, isCollapsable }: NoteProps
+     id, title, content, bulletPoints, metadata, imageUrls, guideTags, urls, updatedAt, reactions,
+     pubkeys, comments, author, pinned, handleClick, isExpanded, isCollapsable, handleUpReaction, handleDownReaction,
+                         tags, isThreadExpanded }: NoteProps
 ) => {
 
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
@@ -98,6 +106,29 @@ export const Note = ({
         )
     };
 
+    const getUpReactions = (): Reaction[] => {
+        return reactions && reactions
+            .filter(r => REACTIONS
+                .filter(r1 => r1.type === ReactionType.UP)
+                .map(r2 => r2.content)
+                .includes(r.content)
+            ) || [];
+    };
+
+    const getDownReactions = (): Reaction[] => {
+        return reactions && reactions
+            .filter(r => REACTIONS
+                .filter(r1 => r1.type === ReactionType.DOWN)
+                .map(r2 => r2.content)
+                .includes(r.content)
+            ) || [];
+    };
+
+    const reacted = (type: ReactionType) => {
+       const [_, pubkey] = getNostrKeyPair();
+       return reactions && !!reactions.find(r => r.pubkey && r.pubkey === pubkey);
+    };
+
     return (<React.Fragment>
         <Card sx={{
             minWidth: 275,
@@ -119,6 +150,9 @@ export const Note = ({
                 color="text.secondary"
                 gutterBottom
                 onClick={() => {
+                    if (expanded) {
+                        handleClick && handleClick();
+                    }
                     setExpanded(!expanded);
                 }}
             >
@@ -186,11 +220,11 @@ export const Note = ({
                         )
 
                         }
-                        { tags &&
+                        { guideTags &&
                         <Typography sx={{ fontSize: '12px' }}>
                             <Divider sx={{ margin: '0.4em', marginBottom: '2em' }} component="div" />
                             {
-                                tags.map(tag => (
+                                guideTags.map(tag => (
                                     <Chip sx={{ marginLeft: '0.33em' }} label={tag} color="success" />
                                 ))
                             }
@@ -215,42 +249,63 @@ export const Note = ({
                     <Divider sx={{ margin: '0.4em' }} component="div" />
                     <Stack sx={{ justifyContent: 'flex-start', alignItems: 'center' }} direction="row" spacing={1}>
                         <Typography sx={{ fontSize: '14px' }}>
-                            Last update: {updatedAt}
+                            {updatedAt}
                         </Typography>
                     </Stack>
                     <Divider sx={{ margin: '0.4em' }} component="div" />
-                    <Stack sx={{ justifyContent: 'flex-end', alignItems: 'center' }} direction="row" spacing={1}>
-                        { pinned &&
-                        <DoneOutline color="success" />
-                        }
-                        { comments &&
-                        <IconButton
-                            onClick={(event) => {
-                                handleClick && handleClick() ;
-                            }}
-                        >
-                            <Badge
-                                badgeContent={comments.length}
-                                color="primary"
-                            >
-                                <ChatBubble/>
-                            </Badge>
+                    <Stack sx={{ justifyContent: 'space-between', alignItems: 'center' }} direction="row" spacing={1}>
+                        <Typography sx={{ fontSize: 14, display: 'flex', alignItems: 'center' }}>
+                            { comments &&
+                                <React.Fragment>
+                                    <Button
+                                        color="secondary"
+                                        sx={{ textTransform: 'none' }}
+                                        startIcon={isThreadExpanded ? <UnfoldLess sx={{ fontSize: 18 }} /> : <UnfoldMore sx={{ fontSize: 18 }} /> }
+                                        onClick={(event) => {
+                                            handleClick && handleClick();
+                                        }}
+                                    >
+                                        <Badge
+                                            badgeContent={comments.length}
+                                            color="primary"
+                                        >
+                                            Discussion
+                                        </Badge>
+                                    </Button>
+                                </React.Fragment>
+                            }
+                        </Typography>
+                        <Typography sx={{ fontSize: 14, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                            { pinned &&
+                            <DoneOutline color="success" />
+                            }
 
-                        </IconButton>
-                        }
-                        {
-                            reactions &&
-                            <Badge badgeContent={reactions.length} color="primary">
-                                <ThumbUp />
-                            </Badge>
-                        }
-                        <IconButton
-                            onClick={(event) => {
-                                handleShareAnswer(event);
-                            }}
-                        >
-                            <IosShare />
-                        </IconButton>
+                            {
+                                reactions &&
+                                <React.Fragment>
+                                    <Reactions
+                                        reactions={getUpReactions()}
+                                        type={ReactionType.UP}
+                                        handleReaction={(reaction: string) => {
+                                            handleUpReaction && handleUpReaction(id, reaction);
+                                        }}
+                                        placeholder={REACTIONS[0].content}
+                                        reacted={reacted(ReactionType.UP)}
+                                    />
+                                    <Reactions reactions={getDownReactions()} type={ReactionType.DOWN} handleReaction={(reaction: string) => {
+                                        handleDownReaction && handleDownReaction(id, reaction);
+                                    }} placeholder={REACTIONS[4].content} reacted={reacted(ReactionType.DOWN)} />
+                                </React.Fragment>
+                            }
+                            <IconButton
+                                sx={{ marginLeft: '0.5em' }}
+                                onClick={(event) => {
+                                    handleShareAnswer(event);
+                                }}
+                            >
+                                <IosShare sx={{ fontSize: 18 }} />
+                            </IconButton>
+                        </Typography>
                     </Stack>
                 </Typography>
             }

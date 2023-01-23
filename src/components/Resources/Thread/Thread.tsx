@@ -8,9 +8,11 @@ interface ThreadProps {
     comments?: any[];
     reactions?: any[];
     metadata?: any[];
+    handleUpReaction?: (noteId: string, reaction?: string) => void;
+    handleDownReaction?: (noteId: string, reaction?: string) => void;
 }
 
-export const NoteThread = ({ note, comments, metadata, reactions }: ThreadProps) => {
+export const NoteThread = ({ note, comments, metadata, reactions, handleUpReaction, handleDownReaction }: ThreadProps) => {
 
     const [expanded, setExpanded] = useState(false);
 
@@ -52,6 +54,15 @@ export const NoteThread = ({ note, comments, metadata, reactions }: ThreadProps)
                         handleClick={() => {
                             setExpanded(!expanded);
                         }}
+                        handleUpReaction={(noteId: string, reaction?: string) => {
+                            handleUpReaction && handleUpReaction(noteId, reaction);
+                        }}
+                        handleDownReaction={(noteId: string, reaction?: string) => {
+                            handleDownReaction && handleDownReaction(noteId, reaction);
+
+                        }}
+                        tags={note.tags}
+                        isThreadExpanded={expanded}
                     />
                 </ListItem>
                 {
@@ -73,6 +84,13 @@ export const NoteThread = ({ note, comments, metadata, reactions }: ThreadProps)
                                             pinned={n.pinned}
                                             isExpanded={true}
                                             isCollapsable={true}
+                                            handleUpReaction={(noteId: string, reaction?: string) => {
+                                                handleUpReaction && handleUpReaction(noteId, reaction);
+                                            }}
+                                            handleDownReaction={(noteId: string, reaction?: string) => {
+                                                handleDownReaction && handleDownReaction(noteId, reaction);
+                                            }}
+                                            tags={n.tags}
                                         />
                                     </ListItem>
                                 )

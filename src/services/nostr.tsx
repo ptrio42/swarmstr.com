@@ -1,4 +1,5 @@
-import {Relay, relayInit, Sub } from 'nostr-tools';
+import {getEventHash, Relay, relayInit, signEvent, Sub, getPublicKey, generatePrivateKey} from 'nostr-tools';
+import { uniqBy } from 'lodash';
 
 export interface Event {
     id: string;
@@ -106,6 +107,24 @@ export const getNotesReactionsSub = (relay: Relay, ids: string[]) => {
     ])
 };
 
+export const createReactionEvent = (relay: Relay, privkey: string, pubkey: string, noteId: string, content: string): Event => {
+    const event = {
+        kind: 7,
+        created_at: Math.floor(Date.now() / 1000),
+        tags: [
+            ['e', noteId]
+        ],
+        content,
+        pubkey
+    };
+
+    return {
+        ...event,
+        id: getEventHash(event),
+        sig: signEvent(event, privkey)
+    };
+};
+
 export const findAllMetadata = (collection: Event[]) => {
     return [
         ...collection
@@ -132,9 +151,31 @@ export const findRelatedNotesByNoteId = (collection: Event[], noteId: string) =>
 };
 
 export const findReactionsByNoteId = (collection: Event[], noteId: string) => {
-    return [
+    return uniqBy([
         ...collection
             .filter(e => e.kind === 7)
             .filter(e => !!e.tags.find(t => t.includes('e') && t.includes(noteId)))
-    ]
+    ], 'pubkey')
+};
+
+export const createNostrKeyPair = () => {
+    const privkey = generatePrivateKey();
+    return [
+        privkey,
+        getPublicKey(privkey)
+    ];
+};
+
+export const getNostrKeyPair = (): string[] => {
+    const pair = localStorage.getItem('guest_KeyPair');
+    if (!pair) {
+        const [privkey, pubkey] = createNostrKeyPair();
+        saveNostrKeyPair(privkey, pubkey);
+        return [privkey, pubkey];
+    }
+    return pair.split(',');
+};
+
+export const saveNostrKeyPair = (privkey: string, pubkey: string) => {
+    localStorage.setItem('guest_KeyPair', [privkey, pubkey].join(','));
 };

@@ -18,23 +18,28 @@ import {GUIDES} from "../../../stubs/nostrResources";
 import Divider from "@mui/material/Divider";
 import Badge from "@mui/material/Badge";
 import pink from "@mui/material/colors/pink";
-import {nip05, nip19} from 'nostr-tools';
+import {generatePrivateKey, getPublicKey, nip05, nip19} from 'nostr-tools';
 import {Note} from "../Note/Note";
 import {NoteThread} from "../Thread/Thread";
 import {
     connectToRelay,
-    Event, findAllMetadata,
+    createReactionEvent,
+    Event,
+    findAllMetadata,
     findNotesByIds,
     findReactionsByNoteId,
-    findRelatedNotesByNoteId, getMetadataSub,
+    findRelatedNotesByNoteId,
+    getMetadataSub, getNostrKeyPair,
     getNotesReactionsSub,
     getNotesWithRelatedNotesByIdsSub,
     getStream,
-    handleSub, RELAYS,
+    handleSub,
+    RELAYS,
     Stream,
     STREAMS,
     StreamStatus
 } from "../../../services/nostr";
+import {REACTIONS} from "../Reactions/Reactions";
 import LinearProgress from "@mui/material/LinearProgress";
 import Box from "@mui/material/Box";
 
@@ -46,11 +51,6 @@ export interface Profile {
     picture: string;
     pubkey: string;
     name: string;
-}
-
-export interface Reaction {
-    id: string;
-    content: string;
 }
 
 export interface Guide {
@@ -68,6 +68,8 @@ export interface Guide {
 
 const NOTES = [
     '1bc4db2cd4822334c7ab5f13e907533d7276057ab91312c5b21b2ae0e70cf9a0',
+    // '17f615a2b82640553ca7f5ea6fb417cf5b7e66be854d0e6f683d539174ec772a',
+    // 'a508a7fa14bc308487737af8d1756155cf615483ae65c39f5845aa310b6e3cca',
     // '62fa89e3ed6e50ebaeae7f688a5229760262e6ccf015ab7accb46d1e944ef030',
     // 'da34ae690b22309caf65f1b5974f8f02e2924350e9ca703f5594df82f57139ac',
     // '5c3b9ddb6d87425826af78ae6014f276bb034f9aa7b2c6833af9d0da37a4e73a',
@@ -77,6 +79,10 @@ const NOTES = [
     // '08db8334578b5571cad7cc849f934b27b98019a3bf008a5a417b1468df9be71a',
     // '07f82ffd55cb4e0acf3f956ca1b18239a1a265cd4918e3cdc3a1244f37a6404d',
     // '5222361b78833d775dfb6a47e6dc0b5fbc761c4c11e34ce0315f5dd4bec0a318',
+];
+
+const PUBKEYS = [
+  '000003a2c8076423148fe15e3ff5f182e0304cff6de499a3f54f5adfe3b014e6'
 ];
 
 export const NostrResources = () => {
@@ -99,7 +105,7 @@ export const NostrResources = () => {
     const [events, setEvents] = useState<Event[]>([]);
     const [streams, setStreams] = useState<Stream[]>(STREAMS);
 
-    const [progress, setProgress] = useState<number>(-1);
+    const [loading, setLoading] = useState<boolean>(false);
 
     const getInitialGuides = () => {
         const readGuides = getReadGuides();
@@ -153,12 +159,22 @@ export const NostrResources = () => {
     }, [guides]);
 
     useEffect(() => {
+        // check if a burner pair of keys exists in local storage
+
+        // if not, create a pair of burner keys to use for voting on issues
+
+        // store the pair in the local storage
+    }, []);
+
+    useEffect(() => {
         streams.forEach(s => {
             switch (s.status) {
                 case StreamStatus.OPEN: {
+                    setLoading(true);
                     return;
                 }
                 case StreamStatus.EOSE: {
+                    setLoading(false);
                     switch (s.name) {
                         case 'notes': {
                             const isReactionsStreamClosed = streams &&
@@ -175,14 +191,7 @@ export const NostrResources = () => {
                         }
                         case 'reactions': {
                             if (events && events.length > 0) {
-                                const result = findNotesByIds(events, NOTES).map(n => ({
-                                    ...n,
-                                    comments: findRelatedNotesByNoteId(events, n.id).map(n1 => ({
-                                        ...n1,
-                                        reactions: findReactionsByNoteId(events, n1.id)
-                                    })),
-                                    reactions: findReactionsByNoteId(events, n.id)
-                                }));
+                                const result = getNotesFromEvents(NOTES);
                                 setNotes(result);
                             }
                             const isMetadataStreamClosed = streams &&
@@ -190,7 +199,7 @@ export const NostrResources = () => {
                                     .status === StreamStatus.CLOSED;
                             if (isMetadataStreamClosed) {
                                 const pubkeys = getPubkeysFromGuidesBulletPoints();
-                                const sub = getMetadataSub(relay, pubkeys);
+                                const sub = getMetadataSub(relay, [...pubkeys, ...PUBKEYS]);
                                 openSub(sub, 'metadata');
                             }
                             return;
@@ -226,6 +235,27 @@ export const NostrResources = () => {
                 setGuides(getInitialGuides());
             });
     }, [socketUrl]);
+
+    useEffect(() => {
+        const refreshNotes = streams
+            .map(s => s.status === StreamStatus.EOSE)
+            .reduce((prev, curr) => prev && curr);
+        if (refreshNotes) {
+            const result = getNotesFromEvents(NOTES);
+            setNotes(result);
+        }
+    }, [events]);
+
+    const getNotesFromEvents = (ids: string[]) => {
+        return findNotesByIds(events, ids).map(n => ({
+            ...n,
+            comments: findRelatedNotesByNoteId(events, n.id).map(n1 => ({
+                ...n1,
+                reactions: findReactionsByNoteId(events, n1.id)
+            })),
+            reactions: findReactionsByNoteId(events, n.id)
+        }));
+    };
 
     const openSub = (sub: any, streamName: string) => {
         // update streams
@@ -325,6 +355,10 @@ export const NostrResources = () => {
             .length;
     };
 
+    const getKeyPair = () => {
+        return getNostrKeyPair();
+    };
+
     return (
         <React.Fragment>
             <Helmet>
@@ -334,14 +368,14 @@ export const NostrResources = () => {
 
                 <meta property="og:url" content="https://uselessshit.co/resources/nostr" />
                 <meta property="og:type" content="website" />
-                <meta property="og:title" content="Nostr Newcomers Most Common Questions and Answers - UseLessShit.co" />
+                <meta property="og:title" content="Your guide to the world of Nostr - UseLessShit.co" />
                 <meta property="og:image" content="https://uselessshit.co/images/guide-cover-v2.png" />
                 <meta property="og:description" content="Basic guide for Nostr newcomers. Find answers to the most common questions." />
 
-                <meta itemProp="name" content="Nostr newcomers most common questions and answers - UseLessShit.co" />
+                <meta itemProp="name" content="Your guide to the world of Nostr - UseLessShit.co" />
                 <meta itemProp="image" content="https://uselessshit.co/images/guide-cover-v2.png" />
 
-                <meta name="twitter:title" content="Nostr newcomers most common questions and answers - UseLessShit.co" />
+                <meta name="twitter:title" content="Your guide to the world of Nostr - UseLessShit.co" />
                 <meta name="twitter:description" content="Basic guide for Nostr newcomers. Find answers to the most common questions." />
                 <meta name="twitter:image" content="https://uselessshit.co/images/guide-cover-v2.png" />
 
@@ -354,6 +388,14 @@ export const NostrResources = () => {
                         primaryTypographyProps={{ style: { fontWeight: 'bold', fontSize: '48px', textAlign: 'center' } }}
                     />
                 </ListItem>
+                {
+                    loading &&
+                        <ListItem>
+                            <Box sx={{ width: '100%' }}>
+                                <LinearProgress />
+                            </Box>
+                        </ListItem>
+                }
                 <ListItem sx={{ display: 'flex', flexDirection: 'column' }}>
                     <Stack direction="row" spacing={1} sx={{ alignItems: 'center', fontSize: '12px' }}>
                         <Circle sx={{ fontSize: 12, marginRight: '0.33em!important'  }} />
@@ -404,6 +446,44 @@ export const NostrResources = () => {
                                 comments={note.comments && Object.values(note.comments)}
                                 reactions={note.reactions && Object.values(note.reactions)}
                                 metadata={profiles}
+                                handleUpReaction={(noteId: string, reaction?: string) => {
+                                    // @ts-ignore
+                                    const [privkey, pubkey] = getKeyPair();
+                                    const event = createReactionEvent(relay, privkey, pubkey, noteId, reaction || REACTIONS[1].content);
+                                    const pub = relay.publish(event);
+                                    pub.on('ok', () => {
+                                        // @ts-ignore
+                                        setEvents([
+                                            ...events,
+                                            event
+                                        ]);
+                                    });
+                                    pub.on('seen', () => {
+                                        console.log(`we saw the event on ${relay.url}`)
+                                    });
+                                    pub.on('failed', (reason: any) => {
+                                        console.log(`failed to publish to ${relay.url}: ${reason}`)
+                                    });
+                                }}
+                                handleDownReaction={(noteId: string, reaction?: string) => {
+                                    // @ts-ignore
+                                    const [privkey, pubkey] = getKeyPair();
+                                    const event = createReactionEvent(relay, privkey, pubkey, noteId, reaction || REACTIONS[4].content);
+                                    const pub = relay.publish(event);
+                                    pub.on('ok', () => {
+                                        console.log(`${relay.url} has accepted our event`)
+                                        setEvents([
+                                            ...events,
+                                            event
+                                        ])
+                                    });
+                                    pub.on('seen', () => {
+                                        console.log(`we saw the event on ${relay.url}`)
+                                    });
+                                    pub.on('failed', (reason: any) => {
+                                        console.log(`failed to publish to ${relay.url}: ${reason}`)
+                                    })
+                                }}
                             />
                     )
                 }
@@ -486,7 +566,7 @@ export const NostrResources = () => {
                                                 bulletPoints={guide.bulletPoints}
                                                 metadata={Object.values(profiles)}
                                                 imageUrls={guide.imageUrls}
-                                                tags={guide.tags}
+                                                guideTags={guide.tags}
                                                 urls={guide.urls}
                                                 updatedAt={guide.updatedAt}
                                                 isExpanded={true}
