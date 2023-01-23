@@ -19,6 +19,7 @@ import {nip19} from 'nostr-tools';
 import {Reaction, Reactions, REACTIONS, ReactionType} from "../Reactions/Reactions";
 import {getNostrKeyPair} from "../../../services/nostr";
 import Button from "@mui/material/Button";
+import pink from "@mui/material/colors/pink";
 
 interface NoteProps {
     id: string;
@@ -37,18 +38,21 @@ interface NoteProps {
     comments?: any[];
     author?: string;
     pinned?: boolean;
-    handleClick?: () => any;
+    handleThreadToggle?: (expanded: boolean) => any;
+    handleNoteToggle?: (expanded: boolean) => any;
     isExpanded?: boolean;
     isThreadExpanded?: boolean;
     isCollapsable?: boolean;
     handleUpReaction?: (noteId: string, reaction?: string) => void;
     handleDownReaction?: (noteId: string, reaction?: string) => void;
+    guideId?: string;
+    isRead?: boolean;
 }
 
 export const Note = ({
      id, title, content, bulletPoints, metadata, imageUrls, guideTags, urls, updatedAt, reactions,
-     pubkeys, comments, author, pinned, handleClick, isExpanded, isCollapsable, handleUpReaction, handleDownReaction,
-                         tags, isThreadExpanded }: NoteProps
+     pubkeys, comments, author, pinned, handleNoteToggle, handleThreadToggle, isExpanded, isCollapsable, handleUpReaction, handleDownReaction,
+                         tags, isThreadExpanded, guideId, isRead }: NoteProps
 ) => {
 
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
@@ -61,7 +65,7 @@ export const Note = ({
 
     const handleShareAnswer = (event: any) => {
         event.stopPropagation();
-        navigator.clipboard.writeText(`https://uselessshit.co/resources/nostr/#${id}`);
+        navigator.clipboard.writeText(`https://uselessshit.co/resources/nostr/#${guideId}`);
         setSnackBarMessage('Direct link to answer was copied to clipboard!');
         setSnackbarOpen(true);
     };
@@ -126,7 +130,9 @@ export const Note = ({
 
     const reacted = (type: ReactionType) => {
        const [_, pubkey] = getNostrKeyPair();
-       return reactions && !!reactions.find(r => r.pubkey && r.pubkey === pubkey);
+       return reactions && !!reactions
+           .filter(r => REACTIONS.filter(r3 => r3.type === type).map(r2 => r2.content).includes(r.content))
+           .find(r1 => r1.pubkey && r1.pubkey === pubkey);
     };
 
     return (<React.Fragment>
@@ -150,14 +156,32 @@ export const Note = ({
                 color="text.secondary"
                 gutterBottom
                 onClick={() => {
-                    if (expanded) {
-                        handleClick && handleClick();
-                    }
+                    handleNoteToggle && handleNoteToggle(!expanded);
+                    handleThreadToggle && handleThreadToggle(false);
+
                     setExpanded(!expanded);
                 }}
             >
                 <React.Fragment>
-                    { parseHtml(title) }
+                    <Typography
+                        sx={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }}
+                        component="span"
+                        variant="body1"
+                        color="text.primary"
+                    >
+                        { isRead ?
+                            <React.Fragment>
+                                { parseHtml(title) }
+                            </React.Fragment> :
+                            <Badge sx={{
+                                maxWidth: '100%',
+                                '& .MuiBadge-badge': {
+                                    backgroundColor: pink[300],
+                                }}} badgeContent="" variant="dot">
+                                { parseHtml(title) }
+                            </Badge>
+                        }
+                    </Typography>
                     <Typography>
                         {
                             new RegExp(/([0123456789abcdef]{64})/).test(id) &&
@@ -177,7 +201,7 @@ export const Note = ({
                             isCollapsable &&
                             <IconButton>
                                 {
-                                    expanded ? <UnfoldLess sx={{ fontSize: 18 }} /> : <Expand sx={{ fontSize: 18 }} />
+                                    expanded ? <UnfoldLess sx={{ fontSize: 18 }} /> : <UnfoldMore sx={{ fontSize: 18 }} />
                                 }
                             </IconButton>
                         }
@@ -261,8 +285,8 @@ export const Note = ({
                                         color="secondary"
                                         sx={{ textTransform: 'none' }}
                                         startIcon={isThreadExpanded ? <UnfoldLess sx={{ fontSize: 18 }} /> : <UnfoldMore sx={{ fontSize: 18 }} /> }
-                                        onClick={(event) => {
-                                            handleClick && handleClick();
+                                        onClick={() => {
+                                            handleThreadToggle && handleThreadToggle(!isThreadExpanded);
                                         }}
                                     >
                                         <Badge

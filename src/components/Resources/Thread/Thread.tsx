@@ -10,11 +10,14 @@ interface ThreadProps {
     metadata?: any[];
     handleUpReaction?: (noteId: string, reaction?: string) => void;
     handleDownReaction?: (noteId: string, reaction?: string) => void;
+    handleNoteToggle?: (expanded: boolean, guideId?: string) => void;
+    noteExpandedOnInit?: boolean;
 }
 
-export const NoteThread = ({ note, comments, metadata, reactions, handleUpReaction, handleDownReaction }: ThreadProps) => {
+export const NoteThread = ({ note, comments, metadata, reactions, handleUpReaction, handleDownReaction, handleNoteToggle, noteExpandedOnInit }: ThreadProps) => {
 
     const [expanded, setExpanded] = useState(false);
+    const [noteExpanded, setNoteExpanded] = useState(noteExpandedOnInit);
 
     const getCommentsSorted = () => {
         let commentsSorted = comments && [...comments] || [];
@@ -38,21 +41,26 @@ export const NoteThread = ({ note, comments, metadata, reactions, handleUpReacti
     return (
         <React.Fragment>
             <List>
-                <ListItem>
+                <ListItem sx={{ paddingTop: 0, paddingBottom: 0 }} id={note.guideId}>
                     <Note
                         id={note.id}
-                        title={'Discussion ' + '(' + (comments && comments.length) + ')'}
+                        guideId={note.guideId}
+                        title={note.title || 'Discussion ' + '(' + (comments && comments.length || 0) + ')'}
                         content={note.content}
-                        updatedAt={new Date(note.created_at*1000).toDateString()}
+                        updatedAt={note.updatedAt || new Date(note.created_at*1000).toDateString()}
                         pubkeys={note.pubkey && [note.pubkey] || []}
                         metadata={metadata}
                         reactions={reactions}
                         comments={comments}
                         author={note.pubkey}
-                        isExpanded={true}
+                        isExpanded={noteExpanded}
                         isCollapsable={true}
-                        handleClick={() => {
-                            setExpanded(!expanded);
+                        handleThreadToggle={(exp: boolean) => {
+                            setExpanded(exp);
+                        }}
+                        handleNoteToggle={(exp: boolean) => {
+                            handleNoteToggle && handleNoteToggle(exp, note.guideId);
+                            setNoteExpanded(exp);
                         }}
                         handleUpReaction={(noteId: string, reaction?: string) => {
                             handleUpReaction && handleUpReaction(noteId, reaction);
@@ -63,6 +71,11 @@ export const NoteThread = ({ note, comments, metadata, reactions, handleUpReacti
                         }}
                         tags={note.tags}
                         isThreadExpanded={expanded}
+                        bulletPoints={note.bulletPoints}
+                        urls={note.urls}
+                        guideTags={note.guideTags}
+                        imageUrls={note.imageUrls}
+                        isRead={note.isRead}
                     />
                 </ListItem>
                 {
@@ -91,6 +104,7 @@ export const NoteThread = ({ note, comments, metadata, reactions, handleUpReacti
                                                 handleDownReaction && handleDownReaction(noteId, reaction);
                                             }}
                                             tags={n.tags}
+                                            isRead={true}
                                         />
                                     </ListItem>
                                 )

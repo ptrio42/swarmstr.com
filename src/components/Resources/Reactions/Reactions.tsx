@@ -26,8 +26,8 @@ export const REACTIONS = [
         type: ReactionType.UP
     },
     {
-        name: 'purple_heart',
-        content: '💜',
+        name: 'zap',
+        content: '⚡',
         type: ReactionType.UP
     },
     {
@@ -86,7 +86,7 @@ export const Reactions = ({ reactions, handleReaction, type, placeholder, reacte
         }}
     >
         <Badge ref={reactionsRef} badgeContent={reactions.length} color="primary">
-            { uniqBy(reactions, 'content').map(r => r.content.replace('+', REACTIONS[2].content)) }
+            { uniqBy(reactions, 'content').map(r => r.content.replace('+', '💜')) }
             {
                 reactions.length === 0 && placeholder
             }
@@ -136,7 +136,7 @@ export const Reactions = ({ reactions, handleReaction, type, placeholder, reacte
                                                     setOpen(!open);
                                                 }}
                                             >
-                                                {r.content}
+                                                {r.content.replace('+', '💜')}
                                             </IconButton>
                                         )) }
                                 </MenuItem>

@@ -12,8 +12,8 @@ export interface Event {
 }
 
 export const RELAYS = [
-    'wss://brb.io',
     'wss://nostr.v0l.io',
+    'wss://brb.io',
     'wss://relay.damus.io',
     'wss://nostr-pub.wellorder.net',
 ];
@@ -63,12 +63,14 @@ export const getStream = (streams: Stream[], name: StreamName) => {
         streams.find(s => s.name === name) || { name: '', status: false };
 };
 
-export const handleSub = (sub: Sub, onEvent: (event: Event) => any, onEose: () => any) => {
+export const handleSub = (sub: Sub, onEvent: (event: Event) => any, onEose: () => any, keepOpen?: boolean) => {
     sub.on('event', (event: Event) => {
         onEvent && onEvent(event);
     });
     sub.on('eose', () => {
-        sub.unsub();
+        if (!keepOpen) {
+            sub.unsub();
+        }
         onEose && onEose();
     });
 };
@@ -124,6 +126,16 @@ export const createReactionEvent = (relay: Relay, privkey: string, pubkey: strin
         sig: signEvent(event, privkey)
     };
 };
+
+// export const createNoteEvent = (relay: Relay, privkey: string, pubkey: string, content: string): Event => {
+//     const event = {
+//         kind: 1,
+//         created_at: Math.floor(Date.now() / 1000),
+//         tags: [
+//
+//         ]
+//     }
+// }
 
 export const findAllMetadata = (collection: Event[]) => {
     return [

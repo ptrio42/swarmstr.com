@@ -14,7 +14,7 @@ import ListItemButton from "@mui/material/ListItemButton";
 import Snackbar from "@mui/material/Snackbar";
 import Input from "@mui/material/Input";
 import {matchString} from "../../../utils/utils";
-import {GUIDES} from "../../../stubs/nostrResources";
+import {GUIDES, NOTES, PUBKEYS} from "../../../stubs/nostrResources";
 import Divider from "@mui/material/Divider";
 import Badge from "@mui/material/Badge";
 import pink from "@mui/material/colors/pink";
@@ -35,7 +35,7 @@ import {
     getStream,
     handleSub,
     RELAYS,
-    Stream,
+    Stream, StreamName,
     STREAMS,
     StreamStatus
 } from "../../../services/nostr";
@@ -64,26 +64,8 @@ export interface Guide {
     tags?: string[];
     bulletPoints?: string[];
     isRead?: boolean;
+    attachedNoteId?: string;
 }
-
-const NOTES = [
-    '1bc4db2cd4822334c7ab5f13e907533d7276057ab91312c5b21b2ae0e70cf9a0',
-    // '17f615a2b82640553ca7f5ea6fb417cf5b7e66be854d0e6f683d539174ec772a',
-    // 'a508a7fa14bc308487737af8d1756155cf615483ae65c39f5845aa310b6e3cca',
-    // '62fa89e3ed6e50ebaeae7f688a5229760262e6ccf015ab7accb46d1e944ef030',
-    // 'da34ae690b22309caf65f1b5974f8f02e2924350e9ca703f5594df82f57139ac',
-    // '5c3b9ddb6d87425826af78ae6014f276bb034f9aa7b2c6833af9d0da37a4e73a',
-    // '0e8bdc70e99cbe7fdd8400d2192f82a692399f706879270b98c493f834585692',
-    // 'a54309bd0b66be5e05416221cf3f2e5557e2876899bb5d6d2965a3f0bf555582',
-    // '17f615a2b82640553ca7f5ea6fb417cf5b7e66be854d0e6f683d539174ec772a',
-    // '08db8334578b5571cad7cc849f934b27b98019a3bf008a5a417b1468df9be71a',
-    // '07f82ffd55cb4e0acf3f956ca1b18239a1a265cd4918e3cdc3a1244f37a6404d',
-    // '5222361b78833d775dfb6a47e6dc0b5fbc761c4c11e34ce0315f5dd4bec0a318',
-];
-
-const PUBKEYS = [
-  '000003a2c8076423148fe15e3ff5f182e0304cff6de499a3f54f5adfe3b014e6'
-];
 
 export const NostrResources = () => {
 
@@ -282,7 +264,7 @@ export const NostrResources = () => {
                         status: StreamStatus.EOSE
                     }): { ...s })
                 ]));
-            })
+            }, streamName === 'reactions')
     };
 
     const getPubkeysFromGuidesBulletPoints = () => {
@@ -312,9 +294,9 @@ export const NostrResources = () => {
     };
 
     const handleExpanded = (guide: Guide) => {
-        if (!guide.isRead) {
-            markGuideAsRead(guide.id);
-        }
+        // if (!guide.isRead) {
+        //     markGuideAsRead(guide.id);
+        // }
         let newExpanded;
         if (expanded.includes(guide.id)) {
             newExpanded = expanded.filter(expanded => expanded !== guide.id);
@@ -401,7 +383,7 @@ export const NostrResources = () => {
                         <Circle sx={{ fontSize: 12, marginRight: '0.33em!important'  }} />
                         { getFilteredGuidesCount() === GUIDES.length ? 'Total' : getFilteredGuidesCount() } of { GUIDES.length } entries
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important', marginRight: '0.33em!important'  }} />
-                        Last update: 2023-01-22
+                        Last update: 2023-01-23
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important'  }} />
                     </Stack>
                     <Stack sx={{ marginLeft: '1em', marginTop: '1em' }} direction="row" spacing={1}>
@@ -438,7 +420,7 @@ export const NostrResources = () => {
                         />
                     </Stack>
                 </ListItem>
-                { notes && Object.values(notes)
+                { false && Object.values(notes)
                     .map(note =>
 
                             <NoteThread
@@ -492,89 +474,68 @@ export const NostrResources = () => {
                         .filter(guide => searchQuery === '' || matchString(searchQuery, guide.issue))
                         .map((guide, index) => (
                         <React.Fragment>
-                            <ListItemButton
-                                sx={{ flexWrap: 'wrap' }}
+                            <NoteThread
                                 key={guide.id}
-                                id={guide.id}
-                                onClick={() => {
-                                    handleExpanded(guide)
-                                }}>
-                                <ListItemText
-                                    primary={
-                                    <React.Fragment>
-                                        <Typography
-                                            sx={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }}
-                                            component="span"
-                                            variant="body1"
-                                            color="text.primary"
-                                        >
-                                            { guide.isRead ?
-                                                <React.Fragment>
-                                                    { guide.issue }
-                                                </React.Fragment> :
-                                                <Badge sx={{
-                                                    maxWidth: '100%',
-                                                    '& .MuiBadge-badge': {
-                                                        backgroundColor: pink[300],
-                                                    }}} badgeContent="" variant="dot">
-                                                    {guide.issue}
-                                                </Badge>
-                                            }
-                                        </Typography>
-                                    </React.Fragment>
-                                }
-                                    secondary={
-                                    <React.Fragment>
-                                        <Stack direction="row" spacing={1}>
-                                            { guide.tags &&
-                                            guide.tags.map(tag => (
-                                                <Chip sx={{ marginLeft: '0.33em' }} label={tag} variant="outlined" />
-                                            ))
-                                            }
-                                        </Stack>
-                                        <Typography
-                                            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
-                                            component="span"
-                                            variant="body2"
-                                            color="text.primary"
-                                        >
-                                            {guide.updatedAt}
-                                            <Typography sx={{ width: '72px', display: 'flex', justifyContent: 'space-between' }} component="span" variant="body2">
-                                                {expanded.includes(guide.id) ? <UnfoldLess /> : <Expand />}
-                                                <IosShare sx={{ marginLeft: '0.3em' }} onClick={(event) => {
-                                                    handleShareAnswer(event, guide);
-                                                }} />
-                                            </Typography>
-                                        </Typography>
-                                    </React.Fragment>
-                                } />
-                                <Collapse
-                                    sx={{ width: '100%'}}
-                                    in={expanded.includes(guide.id)}
-                                    timeout="auto"
-                                    unmountOnExit
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                    }}
-                                >
-                                    <List component="div" disablePadding>
-                                        <ListItem sx={{ width: '100%' }}>
-                                            <Note
-                                                id={guide.id}
-                                                title={guide.issue}
-                                                content={guide.fix}
-                                                bulletPoints={guide.bulletPoints}
-                                                metadata={Object.values(profiles)}
-                                                imageUrls={guide.imageUrls}
-                                                guideTags={guide.tags}
-                                                urls={guide.urls}
-                                                updatedAt={guide.updatedAt}
-                                                isExpanded={true}
-                                            />
-                                        </ListItem>
-                                    </List>
-                                </Collapse>
-                            </ListItemButton>
+                                note={{
+                                    id: guide.attachedNoteId,
+                                    guideId: guide.id,
+                                    title: guide.issue,
+                                    content: guide.fix,
+                                    bulletPoints: guide.bulletPoints,
+                                    imageUrls: guide.imageUrls,
+                                    urls: guide.urls,
+                                    updatedAt: guide.updatedAt,
+                                    guideTags: guide.tags,
+                                    isRead: guide.isRead
+                                }}
+                                reactions={guide.attachedNoteId && (notes.find(n => n.id === guide.attachedNoteId) || { reactions: [] }).reactions}
+                                comments={guide.attachedNoteId && (notes.find(n => n.id === guide.attachedNoteId) || { comments: [] }).comments}
+                                metadata={profiles}
+                                handleUpReaction={(noteId: string, reaction?: string) => {
+                                    // @ts-ignore
+                                    const [privkey, pubkey] = getKeyPair();
+                                    const event = createReactionEvent(relay, privkey, pubkey, noteId, reaction || REACTIONS[1].content);
+                                    const pub = relay.publish(event);
+                                    pub.on('ok', () => {
+                                        // @ts-ignore
+                                        setEvents([
+                                            ...events,
+                                            event
+                                        ]);
+                                    });
+                                    pub.on('seen', () => {
+                                        console.log(`we saw the event on ${relay.url}`)
+                                    });
+                                    pub.on('failed', (reason: any) => {
+                                        console.log(`failed to publish to ${relay.url}: ${reason}`)
+                                    });
+                                }}
+                                handleDownReaction={(noteId: string, reaction?: string) => {
+                                    // @ts-ignore
+                                    const [privkey, pubkey] = getKeyPair();
+                                    const event = createReactionEvent(relay, privkey, pubkey, noteId, reaction || REACTIONS[4].content);
+                                    const pub = relay.publish(event);
+                                    pub.on('ok', () => {
+                                        console.log(`${relay.url} has accepted our event`)
+                                        setEvents([
+                                            ...events,
+                                            event
+                                        ])
+                                    });
+                                    pub.on('seen', () => {
+                                        console.log(`we saw the event on ${relay.url}`)
+                                    });
+                                    pub.on('failed', (reason: any) => {
+                                        console.log(`failed to publish to ${relay.url}: ${reason}`)
+                                    })
+                                }}
+                                handleNoteToggle={(exp: boolean, guideId?: string) => {
+                                    if (!guide.isRead) {
+                                        markGuideAsRead(guide.id);
+                                    }
+                                }}
+                                noteExpandedOnInit={expanded.includes(guide.id)}
+                            />
                             <Divider sx={{ margin: '0 1.1em' }} variant="inset" component="li" />
                         </React.Fragment>
                     ))
