@@ -307,7 +307,7 @@ export const CardGenerator = () => {
                                 width: `${cardProps.config.primaryImageFormat[0] * getScale()}in`,
                                 height: `${cardProps.config.primaryImageFormat[1] * getScale()}in`,
                                 objectFit: 'fill',
-                                marginTop: '0.15in'
+                                marginTop: '0.25in'
                             }}
                             image={cardProps.mainImage}
                         />
@@ -319,7 +319,9 @@ export const CardGenerator = () => {
                                     height: `${cardProps.config.secondaryImageFormat[1] * getScale()}in`,
                                     marginLeft: '0.1in',
                                     marginTop: '0.15in',
-                                    overflow: 'hidden'
+                                    overflow: 'hidden',
+                                    border: '0.1in #fff solid',
+                                    borderRadius: '5px'
                                 }}
                             >
                                 {
