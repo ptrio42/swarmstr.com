@@ -12,8 +12,8 @@ export interface Event {
 }
 
 export const RELAYS = [
-    'wss://nostr.v0l.io',
     'wss://brb.io',
+    'wss://nostr.v0l.io',
     'wss://relay.damus.io',
     'wss://nostr-pub.wellorder.net',
 ];
