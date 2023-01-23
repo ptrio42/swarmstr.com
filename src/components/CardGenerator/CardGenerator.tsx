@@ -40,6 +40,7 @@ import {LatestBitcoinBlock} from "../LatestBitcoinBlock/LatestBitcoinBlock";
 import {uploadImage} from "../../services/uploadImage";
 import Snackbar from "@mui/material/Snackbar";
 import {useWindowDimensions} from "../../utils/utils";
+import {renderToStaticMarkup} from "react-dom/server";
 
 export enum CardType {
     BusinessCard = 'business-card',
@@ -66,7 +67,7 @@ const cardsConfig: CardsConfig = {
         orientation: 'landscape',
         primaryImageFormat: [0.75, 0.75],
         secondaryImageFormat: [0.75, 0.75],
-        qrCodeSize: 72,
+        qrCodeSize: 144,
         maxCopies: 9
     },
     [CardType.Bookmark]: {
@@ -74,7 +75,7 @@ const cardsConfig: CardsConfig = {
         orientation: 'portrait',
         primaryImageFormat: [0.75, 0.75],
         secondaryImageFormat: [0.75, 0.75],
-        qrCodeSize: 72,
+        qrCodeSize: 144,
         maxCopies: 5
     },
     [CardType.Sticker]: {
@@ -82,7 +83,7 @@ const cardsConfig: CardsConfig = {
         orientation: 'landscape',
         primaryImageFormat: [1, 1],
         secondaryImageFormat: [1, 1],
-        qrCodeSize: 96,
+        qrCodeSize: 192,
         maxCopies: 6
     },
     [CardType.ChristmasCard]: {
@@ -90,7 +91,7 @@ const cardsConfig: CardsConfig = {
         orientation: 'portrait',
         primaryImageFormat: [1.5, 1.5],
         secondaryImageFormat: [1.5, 1.5],
-        qrCodeSize: 144,
+        qrCodeSize: 288,
         maxCopies: 2
     },
     [CardType.BannerImage]: {
@@ -332,7 +333,7 @@ export const CardGenerator = () => {
                                             }}
                                             ref={qrCodeRefs[i]}
                                         >
-                                            <QRCode size={cardProps.config.qrCodeSize} value={lnurls[i] || cardProps.receiveAddress || '' } />
+                                            <img width="100%" height="100%" src={ 'data:image/svg+xml,' + escape(renderToStaticMarkup((<QRCode size={cardProps.config.qrCodeSize} value={lnurls[i] || cardProps.receiveAddress || '' } />))) }/>
                                         </Box>
                                     ))
                                 }
