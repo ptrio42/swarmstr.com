@@ -222,7 +222,6 @@ export const GUIDES: Guide[] = [
             'There are different ways to get nostr pair of keys.',
             'If you\'re going to use a mobile client like Damus, you\'re probably fine obtaining your keys through the app.',
             'For web clients you\'ll be better of using Alby or nos2x browser extension.',
-            'https://uselessshit.co/resources/nostr/#using-nostr-with-alby-or-nos2x'
         ],
         createdAt: '2023-01-05',
         updatedAt: '2023-01-21',
