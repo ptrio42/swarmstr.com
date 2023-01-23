@@ -379,14 +379,14 @@ export const NostrResources = () => {
                         </ListItem>
                 }
                 <ListItem sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Stack direction="row" spacing={1} sx={{ alignItems: 'center', fontSize: '12px' }}>
+                    <Stack direction="row" spacing={1} sx={{ alignItems: 'center', fontSize: '12px',  width: '100%', justifyContent: 'center' }}>
                         <Circle sx={{ fontSize: 12, marginRight: '0.33em!important'  }} />
                         { getFilteredGuidesCount() === GUIDES.length ? 'Total' : getFilteredGuidesCount() } of { GUIDES.length } entries
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important', marginRight: '0.33em!important'  }} />
                         Last update: 2023-01-23
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important'  }} />
                     </Stack>
-                    <Stack sx={{ marginLeft: '1em', marginTop: '1em' }} direction="row" spacing={1}>
+                    <Stack sx={{ marginLeft: '1em', marginTop: '1em', width: '100%', justifyContent: 'center' }} direction="row" spacing={1}>
                         <Input
                             id="searchQuery"
                             name="searchQuery"
@@ -397,7 +397,7 @@ export const NostrResources = () => {
                             }}
                         />
                     </Stack>
-                    <Stack sx={{ marginTop: '1em', marginLeft: '1em' }} direction="row" spacing={1}>
+                    <Stack sx={{ marginTop: '1em', marginLeft: '1em', width: '100%', justifyContent: 'center' }} direction="row" spacing={1}>
                         <Chip
                             icon={<Clear />}
                             label="No sort"
