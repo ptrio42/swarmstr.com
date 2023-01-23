@@ -1,5 +1,29 @@
 import {Guide} from "../components/Resources/NostrResources/NostrResources";
 
+export const NOTES = [
+    '1bc4db2cd4822334c7ab5f13e907533d7276057ab91312c5b21b2ae0e70cf9a0',
+    '17f615a2b82640553ca7f5ea6fb417cf5b7e66be854d0e6f683d539174ec772a',
+    '05b334027170b8ca8bc953e6ba3fffd6f0d36bc1ee92a8478be528452c73d9eb',
+    '8e74f0ffd303336d5f18507907c9f936be3645ac57230f17e61ce5d687a374a2',
+    'f9769adf49cec7d13f68103f0dbc68ce4e02876a578d2622f07cd5f2d591f6de',
+    '92d120f3efbc59da4025f58f19a2ac6b62fb52a4b620e5d3c50b34778ab7a3e7',
+    '679570d6e77c5f0b15431dcc30a88c359c8c680f4a2d9b975959f7a970fcd8fc'
+    // 'a508a7fa14bc308487737af8d1756155cf615483ae65c39f5845aa310b6e3cca',
+    // '62fa89e3ed6e50ebaeae7f688a5229760262e6ccf015ab7accb46d1e944ef030',
+    // 'da34ae690b22309caf65f1b5974f8f02e2924350e9ca703f5594df82f57139ac',
+    // '5c3b9ddb6d87425826af78ae6014f276bb034f9aa7b2c6833af9d0da37a4e73a',
+    // '0e8bdc70e99cbe7fdd8400d2192f82a692399f706879270b98c493f834585692',
+    // 'a54309bd0b66be5e05416221cf3f2e5557e2876899bb5d6d2965a3f0bf555582',
+    // '17f615a2b82640553ca7f5ea6fb417cf5b7e66be854d0e6f683d539174ec772a',
+    // '08db8334578b5571cad7cc849f934b27b98019a3bf008a5a417b1468df9be71a',
+    // '07f82ffd55cb4e0acf3f956ca1b18239a1a265cd4918e3cdc3a1244f37a6404d',
+    // '5222361b78833d775dfb6a47e6dc0b5fbc761c4c11e34ce0315f5dd4bec0a318',
+];
+
+export const PUBKEYS = [
+    '000003a2c8076423148fe15e3ff5f182e0304cff6de499a3f54f5adfe3b014e6'
+];
+
 export const GUIDES: Guide[] = [
     {
         id: 'what-is-nostr',
@@ -18,6 +42,7 @@ export const GUIDES: Guide[] = [
         createdAt: '2023-01-09',
         updatedAt: '2023-01-11',
         imageUrls: ['https://uselessshit.co/images/explain-it-to-me-like-i-m-5.png'],
+        attachedNoteId: NOTES[1],
         tags: ['Basics']
     },
     {
@@ -230,14 +255,17 @@ export const GUIDES: Guide[] = [
     {
         id: 'using-nostr-with-alby-or-nos2x',
         issue: 'How to use Nostr with the Alby or nos2x extension.',
-        fix: 'As a rule of thumb, you should never paste your private key into websites. ' +
+        fix: 'As a rule of thumb, <b>you should never paste your private key into websites</b>. ' +
             'To generate your keys and handle your keys, use Alby or nos2x extension.',
         bulletPoints: [
-            'https://blog.getalby.com/how-to-use-nostr-with-the-alby-extension/ - How to use Nostr with the Alby extension',
-            'https://youtu.be/IoLw-3ok3_M - The nos2x browser extension'
+            '#### How to use Nostr with the Alby extension',
+            'https://blog.getalby.com/how-to-use-nostr-with-the-alby-extension/',
+            '#### The nos2x browser extension',
+            'https://youtu.be/IoLw-3ok3_M'
         ],
-        updatedAt: '2023-01-17',
-        tags: ['Basics', 'Keys']
+        updatedAt: '2023-01-23',
+        tags: ['Basics', 'Keys'],
+        attachedNoteId: NOTES[2]
     },
     {
         id: 'generate-and-manage-keys-and-sign-events',
@@ -431,7 +459,8 @@ export const GUIDES: Guide[] = [
         ],
         createdAt: '2023-01-06',
         updatedAt: '2023-01-17',
-        tags: ['Basics']
+        tags: ['Basics'],
+        attachedNoteId: NOTES[3]
     },
     {
         id: 'sharing-notes',
@@ -485,7 +514,8 @@ export const GUIDES: Guide[] = [
             'npub1hycynfhz23ardfmf9kgwfw4gpyqj2fsh24r2zuehg4x7lx4kn5cqsqv4y3:b93049a6e2547a36a7692d90e4baa809012526175546a17337454def9ab69d30:StackSats'
         ],
         updatedAt: '2023-01-15',
-        tags: ['Basics']
+        tags: ['Basics'],
+        attachedNoteId: NOTES[4]
     },
     {
         id: 'receiving-sats',
@@ -518,7 +548,8 @@ export const GUIDES: Guide[] = [
         ],
         createdAt: '2022-12-26',
         updatedAt: '2022-01-19',
-        tags: ['⚡️ Lightning', 'Damus']
+        tags: ['⚡️ Lightning', 'Damus'],
+        attachedNoteId: NOTES[5]
     },
     {
         id: 'the-like-emoji',
@@ -662,7 +693,8 @@ export const GUIDES: Guide[] = [
             '#### uselessshit.co',
             'npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4:f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8:pitiunited'
         ],
-        updatedAt: '2023-01-19'
+        updatedAt: '2023-01-19',
+        attachedNoteId: '679570d6e77c5f0b15431dcc30a88c359c8c680f4a2d9b975959f7a970fcd8fc'
     },
     {
         id: 'lnurlp-with-alby',
