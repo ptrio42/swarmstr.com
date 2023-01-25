@@ -24,7 +24,10 @@ export const NOTES = [
 
 export const PUBKEYS = [
     '000003a2c8076423148fe15e3ff5f182e0304cff6de499a3f54f5adfe3b014e6',
-    'ddfbb06a722e51933cd37e4ecdb30b1864f262f9bb5bd6c2d95cbeefc728f096'
+    'ddfbb06a722e51933cd37e4ecdb30b1864f262f9bb5bd6c2d95cbeefc728f096',
+    '0b39c4074924b4bd13202f642628e1a55cff411a904cc17394263c0df0b9686c',
+    'e88a691e98d9987c964521dff60025f60700378a4879180dcbbb4a5027850411',
+    'c48e29f04b482cc01ca1f9ef8c86ef8318c059e0e9353235162f080f26e14c11'
 ];
 
 export const GUIDES: Guide[] = [
@@ -236,17 +239,21 @@ export const GUIDES: Guide[] = [
         bulletPoints: [
             '#### iOS/MacOS',
             'https://damus.io',
+            'Daisy',
             '#### Web',
             'https://astral.ninja',
             'https://yosup.app',
             'https://iris.to',
             'https://snort.social',
             'https://hamstr.to',
+            'https://nostrgram.co',
             '#### Android',
             'https://github.com/KoalaSat/nostros',
-            'https://www.neb.lo/nostr'
+            'https://www.neb.lo/nostr',
+            'Amethyst',
+            'Daisy'
         ],
-        updatedAt: '2023-01-17',
+        updatedAt: '2023-01-25',
         tags: ['Basics', 'Clients']
     },
     {
@@ -381,6 +388,22 @@ export const GUIDES: Guide[] = [
         attachedNoteId: '1fd1a9ac81f4a2a8b3364036659355e01e9bad42536ecfc6ca5f2823346c8df6'
     },
     {
+        id: 'nostrich-origins',
+        issue: 'What\'s a nostrich?',
+        fix: 'Nostrich (a purple ostrich) is a nostr mascott.',
+        bulletPoints: [
+            'The term came to life when',
+            'npub1cj8znuztfqkvq89pl8hceph0svvvqk0qay6nydgk9uyq7fhpfsgsqwrz4u:c48e29f04b482cc01ca1f9ef8c86ef8318c059e0e9353235162f080f26e14c11:walker',
+            'asked ChatGPT to write a joke about nostr.',
+            'https://nostr.build/i/nostr.build_c7549ccb80f6bfea2afc464a9467491168a278e78a763299178e62e0850169ea.jpeg',
+            'Here\'s some Nostrich images',
+            'https://nostr.build/i/walker/01.png',
+            'https://nostr.build/i/walker/LxHDoJ7P_400x400.jpg',
+            'https://nostr.build/i/walker/2087.jpeg'
+        ],
+        updatedAt: '2023-01-25'
+    },
+    {
         id: 'what-is-damus',
         issue: 'What is Damus?',
         fix: 'Watch this simple explainer video to find out about Damus.',
@@ -459,15 +482,16 @@ export const GUIDES: Guide[] = [
             'For now, it\'s not possible to upload images directly from your device. ' +
             'The image has to be hosted somewhere before it can be used. ' +
             'Several free public image hosting services are listed below.',
-        updatedAt: '2022-12-26',
-        tags: ['Basics', 'Media']
-    },
-    {
-        id: 'image-hosting',
-        issue: 'Image hosting services.',
-        fix: 'A list of free image hosting services.',
-        urls: ['https://nostr.build', 'https://imgbb.com', 'https://postimages.org'],
-        updatedAt: '2022-12-26',
+        createdAt: '2022-12-26',
+        updatedAt: '2023-01-25',
+        bulletPoints: [
+            'https://nostr.build',
+            'https://nostrimg.com',
+            'https://imgbb.com',
+            'https://postimages.org',
+            'https://imgur.com',
+            'https://void.cat'
+        ],
         tags: ['Basics', 'Media']
     },
     {
@@ -770,11 +794,18 @@ export const GUIDES: Guide[] = [
     {
         id: 'nip-05',
         issue: 'How to setup NIP-05 identifier (checkmark)?',
-        fix: 'Head down to this basic guide (the gist below) on setting up a NIP-05 identifier. ' +
+        fix: 'Check out these explainers on setting up a NIP-05 identifier below. ' +
             'If you don\'t own a domain you can ask someone to create an id for you at their domain.',
-        urls: ['https://gist.github.com/metasikander/609a538e6a03b2f67e5c8de625baed3e', 'https://nvk.org/n00b-nip5'],
+        bulletPoints: [
+            'npub1pvuugp6fyj6t6yeq9ajzv28p54w07sg6jpxvzuu5yc7qmu9edpkqm2d7a5:0b39c4074924b4bd13202f642628e1a55cff411a904cc17394263c0df0b9686c:MainStreetChungs',
+            'https://mainstreetchungus.com/nostr-nip-05-verification/',
+            '#### metasikander',
+            'https://gist.github.com/metasikander/609a538e6a03b2f67e5c8de625baed3e',
+            'npub1az9xj85cmxv8e9j9y80lvqp97crsqdu2fpu3srwthd99qfu9qsgstam8y8:e88a691e98d9987c964521dff60025f60700378a4879180dcbbb4a5027850411:NVK',
+            'https://nvk.org/n00b-nip5'
+        ],
         createdAt: '2023-01-04',
-        updatedAt: '2023-01-11'
+        updatedAt: '2023-01-25'
     },
     {
         id: 'free-nip-05',
@@ -796,11 +827,29 @@ export const GUIDES: Guide[] = [
             '#### Nostr-Check.com',
             'npub1mhamq6nj9egex0xn0e8vmvctrpj0ychehddadsketjlwl3eg7ztqrv9a4h:ddfbb06a722e51933cd37e4ecdb30b1864f262f9bb5bd6c2d95cbeefc728f096:',
             'https://nostr-check.com',
+            '### lnmarkets.com',
+            'https://lnmarkets.com',
             '#### uselessshit.co',
             'npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4:f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8:pitiunited'
         ],
         updatedAt: '2023-01-19',
         attachedNoteId: '679570d6e77c5f0b15431dcc30a88c359c8c680f4a2d9b975959f7a970fcd8fc'
+    },
+    {
+        id: 'paid-nip-05-providers',
+        issue: 'Paid NIP-05 providers.',
+        fix: 'Here\'a list of NIP-05 providers that charge for setting up handles with them.',
+        bulletPoints: [
+            '#### nostrplebs.com',
+            'https://nostrplebs.com',
+            '#### satoshis.lol',
+            'https://satoshis.lol',
+            '#### plebs.place',
+            'https://plebs.place',
+            '#### nostrverified.com',
+            'https://nostrverified.com'
+        ],
+        updatedAt: '2023-01-25'
     },
     {
         id: 'lnurlp-with-alby',
