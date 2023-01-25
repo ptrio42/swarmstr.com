@@ -79,10 +79,15 @@ export const Note = ({
             // .replace(/(#\[[0-9]\]*)/, pubkeys && pubkeys.length > 0 && nip19.npubEncode(pubkeys[+('$1'.slice(2, '$1'.length - 2))]) + ':' + pubkeys[+('$1'.slice(2, '$1'.length - 2))] + ':pitiunited')
             .replace(/([0123456789abcdef]{64})/, '$1')
             .replace(/(npub[a-z0-9A-Z.:_]{59,}$)/, '<button>$1</button>')
-            .replace(new RegExp(/(https?:\/\/[^ ]*)/, 'g'), '<a href="$1" target="_blank">$1</a>')
+            // .replace(/(https?:\/\/.*\.(?!:png|jpg|jpeg|gif|svg))/i, '<a href="$1" target="_blank">$1</a>')
+            .replace(/(https?:\/\/.*\.(?:png|jpg|jpeg|gif|svg))/i, '<img width="100%" src="$1" />')
+            .replace(new RegExp(/^(?!\=")(https?:\/\/[^]*)/, 'g'), '<a href="$1" target="_blank">$1</a>')
             .replace(/(#### [a-zA-Z0-9\/.,&\'’?\-` ]*)/, '<h4>$1</h4>')
             .replace(/(#+)/, '')
             .replace(/(\n+)/, '$1<br/>')
+            .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
+            .replace(/~~(.*?)~~/g, "<i>$1</i>")
+            .replace(/__(.*?)__/g, "<u>$1</u>")
 
     };
 
@@ -182,7 +187,7 @@ export const Note = ({
                             </Badge>
                         }
                     </Typography>
-                    <Typography>
+                    <Typography sx={{ textAlign: 'end' }}>
                         {
                             new RegExp(/([0123456789abcdef]{64})/).test(id) &&
                             <IconButton
@@ -230,7 +235,7 @@ export const Note = ({
                             { bulletPoints &&
                             <List>
                                 { bulletPoints.map(point =>
-                                    <ListItem>{
+                                    <ListItem sx={{ display: 'block' }}>{
                                         parseHtml(point)
                                     }</ListItem>
                                 ) }

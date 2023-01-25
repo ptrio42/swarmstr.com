@@ -23,7 +23,7 @@ import {Note} from "../Note/Note";
 import {NoteThread} from "../Thread/Thread";
 import {
     connectToRelay,
-    createReactionEvent,
+    createEvent,
     Event,
     findAllMetadata,
     findNotesByIds,
@@ -85,6 +85,7 @@ export const NostrResources = () => {
     const { hash } = useLocation();
 
     const [events, setEvents] = useState<Event[]>([]);
+    const [pendingEvents, setPendingEvents] = useState<Event[]>([]);
     const [streams, setStreams] = useState<Stream[]>(STREAMS);
 
     const [loading, setLoading] = useState<boolean>(false);
@@ -192,6 +193,7 @@ export const NostrResources = () => {
                                 ...m,
                                 ...(JSON.parse(m.content || ''))
                             })));
+                            publishPendingEvents();
                             return;
                         }
                     }
@@ -215,8 +217,17 @@ export const NostrResources = () => {
 
                 setRelay(newRelay);
                 setGuides(getInitialGuides());
+            })
+            .catch(error => {
+                setSocketUrl((previousSocketUrl) => RELAYS.filter(r => r !== previousSocketUrl)[0])
             });
     }, [socketUrl]);
+
+    useEffect(() => {
+        if (relay && relay.status === 1) {
+            publishPendingEvents();
+        }
+    }, [relay]);
 
     useEffect(() => {
         const refreshNotes = streams
@@ -341,6 +352,45 @@ export const NostrResources = () => {
         return getNostrKeyPair();
     };
 
+    const addEvent = (kind: number, content: string, tags?: string[][]) => {
+        const [privkey, pubkey] = getKeyPair();
+        const event = createEvent(relay, privkey, pubkey, kind, content, tags);
+        publishEvent(event);
+    };
+
+    const publishEvent = (event: Event) => {
+        const pub = relay.publish(event);
+        // @ts-ignore
+        setPendingEvents([
+            ...pendingEvents.filter(e => e.id !== event.id),
+            event
+        ]);
+
+        pub.on('ok', () => {
+            // @ts-ignore
+            setEvents([
+                ...events,
+                event
+            ]);
+            setPendingEvents(([
+                ...pendingEvents.filter(e => e.id !== event.id)
+            ]));
+        });
+        pub.on('seen', () => {
+            console.log(`we saw the event on ${relay.url}`)
+        });
+        pub.on('failed', (reason: any) => {
+            console.log(`failed to publish to ${relay.url}: ${reason}`)
+            setSocketUrl((previousSocketUrl) => RELAYS.filter(r => r !== previousSocketUrl)[0]);
+        });
+    };
+
+    const publishPendingEvents = () => {
+        pendingEvents && pendingEvents.forEach(event => {
+           publishEvent(event);
+        });
+    };
+
     return (
         <React.Fragment>
             <Helmet>
@@ -420,55 +470,6 @@ export const NostrResources = () => {
                         />
                     </Stack>
                 </ListItem>
-                { false && Object.values(notes)
-                    .map(note =>
-
-                            <NoteThread
-                                note={note}
-                                comments={note.comments && Object.values(note.comments)}
-                                reactions={note.reactions && Object.values(note.reactions)}
-                                metadata={profiles}
-                                handleUpReaction={(noteId: string, reaction?: string) => {
-                                    // @ts-ignore
-                                    const [privkey, pubkey] = getKeyPair();
-                                    const event = createReactionEvent(relay, privkey, pubkey, noteId, reaction || REACTIONS[1].content);
-                                    const pub = relay.publish(event);
-                                    pub.on('ok', () => {
-                                        // @ts-ignore
-                                        setEvents([
-                                            ...events,
-                                            event
-                                        ]);
-                                    });
-                                    pub.on('seen', () => {
-                                        console.log(`we saw the event on ${relay.url}`)
-                                    });
-                                    pub.on('failed', (reason: any) => {
-                                        console.log(`failed to publish to ${relay.url}: ${reason}`)
-                                    });
-                                }}
-                                handleDownReaction={(noteId: string, reaction?: string) => {
-                                    // @ts-ignore
-                                    const [privkey, pubkey] = getKeyPair();
-                                    const event = createReactionEvent(relay, privkey, pubkey, noteId, reaction || REACTIONS[4].content);
-                                    const pub = relay.publish(event);
-                                    pub.on('ok', () => {
-                                        console.log(`${relay.url} has accepted our event`)
-                                        setEvents([
-                                            ...events,
-                                            event
-                                        ])
-                                    });
-                                    pub.on('seen', () => {
-                                        console.log(`we saw the event on ${relay.url}`)
-                                    });
-                                    pub.on('failed', (reason: any) => {
-                                        console.log(`failed to publish to ${relay.url}: ${reason}`)
-                                    })
-                                }}
-                            />
-                    )
-                }
                 {
                     guides
                         .filter(guide => searchQuery === '' || matchString(searchQuery, guide.issue))
@@ -492,42 +493,10 @@ export const NostrResources = () => {
                                 comments={guide.attachedNoteId && (notes.find(n => n.id === guide.attachedNoteId) || { comments: [] }).comments}
                                 metadata={profiles}
                                 handleUpReaction={(noteId: string, reaction?: string) => {
-                                    // @ts-ignore
-                                    const [privkey, pubkey] = getKeyPair();
-                                    const event = createReactionEvent(relay, privkey, pubkey, noteId, reaction || REACTIONS[1].content);
-                                    const pub = relay.publish(event);
-                                    pub.on('ok', () => {
-                                        // @ts-ignore
-                                        setEvents([
-                                            ...events,
-                                            event
-                                        ]);
-                                    });
-                                    pub.on('seen', () => {
-                                        console.log(`we saw the event on ${relay.url}`)
-                                    });
-                                    pub.on('failed', (reason: any) => {
-                                        console.log(`failed to publish to ${relay.url}: ${reason}`)
-                                    });
+                                    addEvent(7, reaction || REACTIONS[1].content, [['e', noteId]]);
                                 }}
                                 handleDownReaction={(noteId: string, reaction?: string) => {
-                                    // @ts-ignore
-                                    const [privkey, pubkey] = getKeyPair();
-                                    const event = createReactionEvent(relay, privkey, pubkey, noteId, reaction || REACTIONS[4].content);
-                                    const pub = relay.publish(event);
-                                    pub.on('ok', () => {
-                                        console.log(`${relay.url} has accepted our event`)
-                                        setEvents([
-                                            ...events,
-                                            event
-                                        ])
-                                    });
-                                    pub.on('seen', () => {
-                                        console.log(`we saw the event on ${relay.url}`)
-                                    });
-                                    pub.on('failed', (reason: any) => {
-                                        console.log(`failed to publish to ${relay.url}: ${reason}`)
-                                    })
+                                    addEvent(7, reaction || REACTIONS[4].content, [['e', noteId]]);
                                 }}
                                 handleNoteToggle={(exp: boolean, guideId?: string) => {
                                     if (!guide.isRead) {

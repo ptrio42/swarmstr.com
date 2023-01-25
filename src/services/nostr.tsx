@@ -12,8 +12,8 @@ export interface Event {
 }
 
 export const RELAYS = [
-    'wss://brb.io',
     'wss://nostr.v0l.io',
+    'wss://brb.io',
     'wss://relay.damus.io',
     'wss://nostr-pub.wellorder.net',
 ];
@@ -109,13 +109,11 @@ export const getNotesReactionsSub = (relay: Relay, ids: string[]) => {
     ])
 };
 
-export const createReactionEvent = (relay: Relay, privkey: string, pubkey: string, noteId: string, content: string): Event => {
+export const createEvent = (relay: Relay, privkey: string, pubkey: string, kind: number, content: string, tags?: string[][]): Event => {
     const event = {
         kind: 7,
         created_at: Math.floor(Date.now() / 1000),
-        tags: [
-            ['e', noteId]
-        ],
+            ...({tags: tags || [] }),
         content,
         pubkey
     };
