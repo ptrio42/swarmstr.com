@@ -24,7 +24,6 @@ import {NoteThread} from "../Thread/Thread";
 import {
     connectToRelay,
     createEvent,
-    Event,
     findAllMetadata,
     findNotesByIds,
     findReactionsByNoteId,
@@ -33,25 +32,15 @@ import {
     getNotesReactionsSub,
     getNotesWithRelatedNotesByIdsSub,
     getStream,
-    handleSub,
+    handleSub, NostrEvent,
     RELAYS,
-    Stream, StreamName,
+    Stream,
     STREAMS,
     StreamStatus
 } from "../../../services/nostr";
 import {REACTIONS} from "../Reactions/Reactions";
 import LinearProgress from "@mui/material/LinearProgress";
 import Box from "@mui/material/Box";
-
-export interface Profile {
-    nip05: string;
-    lud06: string;
-    lud16: string;
-    about: string;
-    picture: string;
-    pubkey: string;
-    name: string;
-}
 
 export interface Guide {
     id: string;
@@ -84,8 +73,8 @@ export const NostrResources = () => {
 
     const { hash } = useLocation();
 
-    const [events, setEvents] = useState<Event[]>([]);
-    const [pendingEvents, setPendingEvents] = useState<Event[]>([]);
+    const [events, setEvents] = useState<NostrEvent[]>([]);
+    const [pendingEvents, setPendingEvents] = useState<NostrEvent[]>([]);
     const [streams, setStreams] = useState<Stream[]>(STREAMS);
 
     const [loading, setLoading] = useState<boolean>(false);
@@ -140,14 +129,6 @@ export const NostrResources = () => {
                 .map(g3 => g3.id)
         ]);
     }, [guides]);
-
-    useEffect(() => {
-        // check if a burner pair of keys exists in local storage
-
-        // if not, create a pair of burner keys to use for voting on issues
-
-        // store the pair in the local storage
-    }, []);
 
     useEffect(() => {
         streams.forEach(s => {
@@ -259,11 +240,11 @@ export const NostrResources = () => {
             }): { ...s })
         ]));
 
-        handleSub(sub, (event: Event) => {
+        handleSub(sub, (event: NostrEvent) => {
                 //update events
                 setEvents((state) => ([
                     ...state
-                        .filter((e: Event) => e.id !== event.id),
+                        .filter((e: NostrEvent) => e.id !== event.id),
                     { ...event }
                 ]));
             },
@@ -358,7 +339,7 @@ export const NostrResources = () => {
         publishEvent(event);
     };
 
-    const publishEvent = (event: Event) => {
+    const publishEvent = (event: NostrEvent) => {
         const pub = relay.publish(event);
         // @ts-ignore
         setPendingEvents([
@@ -433,7 +414,7 @@ export const NostrResources = () => {
                         <Circle sx={{ fontSize: 12, marginRight: '0.33em!important'  }} />
                         { getFilteredGuidesCount() === GUIDES.length ? 'Total' : getFilteredGuidesCount() } of { GUIDES.length } entries
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important', marginRight: '0.33em!important'  }} />
-                        Last update: 2023-01-25
+                        Last update: 2023-01-27
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important'  }} />
                     </Stack>
                     <Stack sx={{ marginLeft: '1em', marginTop: '1em', width: '100%', justifyContent: 'center' }} direction="row" spacing={1}>

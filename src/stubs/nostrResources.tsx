@@ -887,6 +887,50 @@ export const GUIDES: Guide[] = [
         tags: ['Basics', 'Damus']
     },
     {
+        id: 'finding-others-by-npub-only',
+        issue: 'How to find someone by their npub?',
+        fix: '',
+        bulletPoints: [
+            '#### Damus',
+            'On Damus, simply copy the npub of the person you\'re looking for and paste it into the search bar ' +
+            '(available on the search tab).',
+            'You should be able to visit the profile by tapping on <i>Goto profile npub...</i>',
+            '#### snort.social',
+            'On Snort, simply go to https://snort.social/p/pubkey ' +
+            '(replace pubkey with the npub of the person you\'re looking for).'
+        ],
+        updatedAt: '2023-01-27',
+        tags: ['Damus', 'Snort']
+    },
+    {
+        id: 'blocking-users',
+        issue: 'How do I block users?',
+        fix: 'Similarly to how your notes cannot be deleted on a protocol level (but rather flagged as deleted), ' +
+            'blocking can be performed on the client level only.',
+        bulletPoints: [
+            '#### Blocking a user on Damus',
+            'To block a user, you can either tap & hold on a note of the user you want to block, until a menu shows up',
+            'https://nostr.build/i/nostr.build_8fed7311c247547176e701d2621dd49f4395a24e50105e008546de93dd24bb45.png',
+            'OR go to their profile and tap on the three dots next to the pfp.',
+            'https://nostr.build/i/nostr.build_60863c8a9262c4dee988b650fe6acdd15e8fb179254e50d9c86fe32d4a525c48.png',
+            'From the menu, select <i>Block</i>',
+            'Confirm your choice.',
+            'https://nostr.build/i/nostr.build_cca50d4af67b33130656cb7a6df37981124433a2b695337bcc888760584d3635.png',
+            'If that\'s your first time blocking someone, a prompt asking to create a new mutelist will pop up.',
+            'https://nostr.build/i/nostr.build_012ad9815bb8b12293078b8781a8b6d940146a8bee4e9d135641e3a1ed32cfbd.png',
+            '#### Unblocking',
+            'Open the side panel by clicking on your pfp in the top left corner.',
+            'https://nostr.build/i/nostr.build_2527fd237c0c07d5983ffcc8d1266a33caf1662a2636a98d33e8e4b88b4ae35f.png',
+            'Tap on <i>Blocked</i>.',
+            'https://nostr.build/i/nostr.build_ba5f222efa67659b6674b56a30d5a077ceb1f410d41bf6bd53b8149b36d889c9.png',
+            'Find the user you\'d like to unblock.',
+            'Swipe left and tap the delete icon that will show up.',
+            'https://nostr.build/i/nostr.build_41b6ee72193f5debf7d1a4e5731440b69a679778a1a75a9668c8163c9d363806.png'
+        ],
+        updatedAt: '2023-01-27',
+        tags: ['Damus']
+    },
+    {
         id: 'running-nostr',
         issue: 'How do I setup my own NOSTR relay?',
         fix: 'Check out the resources below to set up a Nostr relay in under 5 minutes.',

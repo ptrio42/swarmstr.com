@@ -1,6 +1,6 @@
 # What is UseLessShit.co?
 
-[UselessShit.co](https://uselessshit.co) is a fun project which purpose is to help spread spread the bitcoin adoption. 
+[UselessShit.co](https://uselessshit.co) is a fun project which purpose is to help spread the bitcoin adoption. 
 One of the ways, in which it's trying to achieve this, is by allowing people to easily create unique, physical paper items
  (like bitcoin cards, bookmarks & stickers), which can be printed and handed out to friends, foes or complete strangers. 
  These items can also serve as gift cards, as they can be loaded with precious sats easily.

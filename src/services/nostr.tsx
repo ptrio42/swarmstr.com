@@ -1,7 +1,7 @@
 import {getEventHash, Relay, relayInit, signEvent, Sub, getPublicKey, generatePrivateKey} from 'nostr-tools';
 import { uniqBy } from 'lodash';
 
-export interface Event {
+export interface NostrEvent {
     id: string;
     pubkey: string;
     created_at: number;
@@ -63,8 +63,8 @@ export const getStream = (streams: Stream[], name: StreamName) => {
         streams.find(s => s.name === name) || { name: '', status: false };
 };
 
-export const handleSub = (sub: Sub, onEvent: (event: Event) => any, onEose: () => any, keepOpen?: boolean) => {
-    sub.on('event', (event: Event) => {
+export const handleSub = (sub: Sub, onEvent: (event: NostrEvent) => any, onEose: () => any, keepOpen?: boolean) => {
+    sub.on('event', (event: NostrEvent) => {
         onEvent && onEvent(event);
     });
     sub.on('eose', () => {
@@ -109,7 +109,7 @@ export const getNotesReactionsSub = (relay: Relay, ids: string[]) => {
     ])
 };
 
-export const createEvent = (relay: Relay, privkey: string, pubkey: string, kind: number, content: string, tags?: string[][]): Event => {
+export const createEvent = (relay: Relay, privkey: string, pubkey: string, kind: number, content: string, tags?: string[][]): NostrEvent => {
     const event = {
         kind: 7,
         created_at: Math.floor(Date.now() / 1000),
@@ -125,24 +125,14 @@ export const createEvent = (relay: Relay, privkey: string, pubkey: string, kind:
     };
 };
 
-// export const createNoteEvent = (relay: Relay, privkey: string, pubkey: string, content: string): Event => {
-//     const event = {
-//         kind: 1,
-//         created_at: Math.floor(Date.now() / 1000),
-//         tags: [
-//
-//         ]
-//     }
-// }
-
-export const findAllMetadata = (collection: Event[]) => {
+export const findAllMetadata = (collection: NostrEvent[]) => {
     return [
         ...collection
             .filter(e => e.kind === 0)
     ];
 };
 
-export const findNotesByIds = (collection: Event[], ids: string[]) => {
+export const findNotesByIds = (collection: NostrEvent[], ids: string[]) => {
     return [
         ...collection
             .filter(e => e.kind === 1)
@@ -150,7 +140,7 @@ export const findNotesByIds = (collection: Event[], ids: string[]) => {
     ];
 };
 
-export const findRelatedNotesByNoteId = (collection: Event[], noteId: string) => {
+export const findRelatedNotesByNoteId = (collection: NostrEvent[], noteId: string) => {
     return [
         ...collection
             .filter(e => e.kind === 1)
@@ -160,7 +150,7 @@ export const findRelatedNotesByNoteId = (collection: Event[], noteId: string) =>
     ];
 };
 
-export const findReactionsByNoteId = (collection: Event[], noteId: string) => {
+export const findReactionsByNoteId = (collection: NostrEvent[], noteId: string) => {
     return uniqBy([
         ...collection
             .filter(e => e.kind === 7)
