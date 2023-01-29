@@ -1,25 +1,19 @@
 import React, {useEffect, useState} from "react";
 import {List} from "@mui/material";
-import Typography from "@mui/material/Typography";
 import ListItem from "@mui/material/ListItem";
-import {useLocation} from "react-router-dom";
+import {useLocation, useSearchParams} from "react-router-dom";
 import {Helmet} from "react-helmet";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
-import {ArrowDownward, ArrowUpward, Circle, Clear, Expand, IosShare, ToggleOff, UnfoldLess} from "@mui/icons-material";
-import Collapse from "@mui/material/Collapse";
+import {ArrowDownward, ArrowUpward, Circle, Clear, ToggleOff} from "@mui/icons-material";
 import ListItemText from "@mui/material/ListItemText";
 import './NostrResources.css';
-import ListItemButton from "@mui/material/ListItemButton";
 import Snackbar from "@mui/material/Snackbar";
 import Input from "@mui/material/Input";
 import {matchString} from "../../../utils/utils";
 import {GUIDES, NOTES, PUBKEYS} from "../../../stubs/nostrResources";
 import Divider from "@mui/material/Divider";
-import Badge from "@mui/material/Badge";
-import pink from "@mui/material/colors/pink";
-import {generatePrivateKey, getPublicKey, nip05, nip19} from 'nostr-tools';
-import {Note} from "../Note/Note";
+import {nip05, nip19} from 'nostr-tools';
 import {NoteThread} from "../Thread/Thread";
 import {
     connectToRelay,
@@ -28,11 +22,13 @@ import {
     findNotesByIds,
     findReactionsByNoteId,
     findRelatedNotesByNoteId,
-    getMetadataSub, getNostrKeyPair,
+    getMetadataSub,
+    getNostrKeyPair,
     getNotesReactionsSub,
     getNotesWithRelatedNotesByIdsSub,
     getStream,
-    handleSub, NostrEvent,
+    handleSub,
+    NostrEvent,
     RELAYS,
     Stream,
     STREAMS,
@@ -78,6 +74,8 @@ export const NostrResources = () => {
     const [streams, setStreams] = useState<Stream[]>(STREAMS);
 
     const [loading, setLoading] = useState<boolean>(false);
+
+    const [queryParams, setQueryParams] = useSearchParams();
 
     const getInitialGuides = () => {
         const readGuides = getReadGuides();
@@ -128,7 +126,18 @@ export const NostrResources = () => {
                 .filter(g2 => g2.isRead)
                 .map(g3 => g3.id)
         ]);
+
+        const searchQueryParams = queryParams.get('s');
+        if (searchQueryParams && searchQueryParams !== '') {
+            setSearchQuery(searchQueryParams);
+        }
     }, [guides]);
+
+    useEffect(() => {
+        if (searchQuery !== '') {
+            setQueryParams({ s: searchQuery });
+        }
+    }, [searchQuery]);
 
     useEffect(() => {
         streams.forEach(s => {
