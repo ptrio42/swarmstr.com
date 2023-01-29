@@ -238,8 +238,10 @@ export const GUIDES: Guide[] = [
         fix: '',
         bulletPoints: [
             '#### iOS/MacOS',
+            '<i>Damus</i>',
             'https://damus.io',
-            'Daisy',
+            '<i>Daisy</i>',
+            'https://www.neb.lol/nostr',
             '#### Web',
             'https://astral.ninja',
             'https://yosup.app',
@@ -247,11 +249,19 @@ export const GUIDES: Guide[] = [
             'https://snort.social',
             'https://hamstr.to',
             'https://nostrgram.co',
+            'https://web.nostrid.app',
             '#### Android',
+            '<i>nostros</i>',
             'https://github.com/KoalaSat/nostros',
-            'https://www.neb.lo/nostr',
-            'Amethyst',
-            'Daisy'
+            '<i>Daisy</i>',
+            'https://www.neb.lol/nostr',
+            '<i>Amethyst</i>',
+            'https://github.com/vitorpamplona/amethyst',
+            '<i>Nostrid</i>',
+            'https://github.com/lapulpeta/Nostrid',
+            '#### Windows',
+            '<i>Nostrid</i>',
+            'https://github.com/lapulpeta/Nostrid'
         ],
         updatedAt: '2023-01-25',
         tags: ['Basics', 'Clients']
@@ -259,8 +269,9 @@ export const GUIDES: Guide[] = [
     {
         id: 'keys',
         issue: 'Getting the keys',
-        fix: 'The keys are your identity. They consist of a public key (npub) and a private key (nsec). ' +
-            'The public can be treated as a username, whereas the private key is more like a password. ' +
+        fix: 'The keys are your identity. ' +
+            'They consist of a public key which starts with <i>npub</i> and a private key starting with <i>nsec</i> (bech32 encoding). ' +
+            'A public key can be treated as a username, whereas a private key is more like a password. ' +
             'Be cautious when entering your private on different sites - if it gets leaked and falls into wrong hands,' +
             'you can think of your \'account\' as compromised.',
         bulletPoints: [
@@ -269,7 +280,7 @@ export const GUIDES: Guide[] = [
             'For web clients you\'ll be better of using Alby or nos2x browser extension.',
         ],
         createdAt: '2023-01-05',
-        updatedAt: '2023-01-21',
+        updatedAt: '2023-01-29',
         tags: ['Basics', 'Keys']
     },
     {
@@ -454,6 +465,33 @@ export const GUIDES: Guide[] = [
         fix: 'You can mine your public HEX key with a desired prefix. Check out nostr.rest to find out how.',
         urls: ['https://nostr.rest'],
         updatedAt: '2023-01-06',
+        tags: ['Keys']
+    },
+    {
+        id: 'vanity-keys',
+        issue: 'Mining vanity keys with Rana.',
+        fix: 'Since your keys are your identity, it\'s advisable to, instead of getting a random key pair, find (or mine) ' +
+            'one that can be tied to your online presence.',
+        bulletPoints: [
+            'Here\'s some vanity keys:',
+            'npub1dergggklka99wwrs92yz8wdjs952h2ux2ha2ed598ngwu9w7a6fsh9xzpc',
+            'npub1sn0wdenkukak0d9dfczzeacvhkrgz92ak56egt7vdgzn8pv2wfqqhrjdv9',
+            'npub1artur379gp42kd39rlsgx703ytke8fwhydytdf6qlezv8mtlqk6q8akg37',
+            '#### What\'s special about these keys?',
+            'If you look closely, you\'ll see that each of these keys has a certain prefix (respectively dergg, sn0wden, artur).',
+            'It means that the owners had to use some energy to guess a key which contains that given prefix.',
+            'The difficulty of finding a key with a given prefix grows exponentially for every character added.',
+            'Depending on a prefix, mining can take minutes, hours, days or even weeks.',
+            'In other words, vanity keys are the proof of work that was needed to find them.',
+            '#### So how do I mine a vanity key?',
+            'Check out Rana, which is available at',
+            'https://github.com/grunch/rana',
+            'Here\'s a good explainer by',
+            'npub1rpes5hhk6mxun5ddt5kecxfm8y3xdr0h5jwal32mc6mxafr48hxsaj2et2:18730a5ef6d6cdc9d1ad5d2d9c193b3922668df7a49ddfc55bc6b66ea4753dcd:Mads',
+            'which can shed some light on the whole process',
+            'https://telegra.ph/How-to-create-a-POW-nostr-key-pair-01-04'
+        ],
+        updatedAt: '2023-01-29',
         tags: ['Keys']
     },
     {
