@@ -382,15 +382,15 @@ export const NostrResources = () => {
                 <meta property="og:url" content="https://uselessshit.co/resources/nostr" />
                 <meta property="og:type" content="website" />
                 <meta property="og:title" content="Your guide to the world of Nostr - UseLessShit.co" />
-                <meta property="og:image" content="https://uselessshit.co/images/guide-cover-v2.png" />
+                <meta property="og:image" content="https://uselessshit.co/images/guide-cover-v3.png" />
                 <meta property="og:description" content="Basic guide for Nostr newcomers. Find answers to the most common questions." />
 
                 <meta itemProp="name" content="Your guide to the world of Nostr - UseLessShit.co" />
-                <meta itemProp="image" content="https://uselessshit.co/images/guide-cover-v2.png" />
+                <meta itemProp="image" content="https://uselessshit.co/images/guide-cover-v3.png" />
 
                 <meta name="twitter:title" content="Your guide to the world of Nostr - UseLessShit.co" />
                 <meta name="twitter:description" content="Basic guide for Nostr newcomers. Find answers to the most common questions." />
-                <meta name="twitter:image" content="https://uselessshit.co/images/guide-cover-v2.png" />
+                <meta name="twitter:image" content="https://uselessshit.co/images/guide-cover-v3.png" />
 
             </Helmet>
             <List>
@@ -414,7 +414,7 @@ export const NostrResources = () => {
                         <Circle sx={{ fontSize: 12, marginRight: '0.33em!important'  }} />
                         { getFilteredGuidesCount() === GUIDES.length ? 'Total' : getFilteredGuidesCount() } of { GUIDES.length } entries
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important', marginRight: '0.33em!important'  }} />
-                        Last update: 2023-01-27
+                        Last update: 2023-01-29
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important'  }} />
                     </Stack>
                     <Stack sx={{ marginLeft: '1em', marginTop: '1em', width: '100%', justifyContent: 'center' }} direction="row" spacing={1}>
