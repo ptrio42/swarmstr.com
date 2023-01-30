@@ -37,6 +37,7 @@ import {
 import {REACTIONS} from "../Reactions/Reactions";
 import LinearProgress from "@mui/material/LinearProgress";
 import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 
 export interface Guide {
     id: string;
@@ -418,15 +419,31 @@ export const NostrResources = () => {
                             </Box>
                         </ListItem>
                 }
-                <ListItem sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Stack direction="row" spacing={1} sx={{ alignItems: 'center', fontSize: '12px',  width: '100%', justifyContent: 'center' }}>
+                <ListItem sx={{ display: 'flex', flexDirection: 'column!important' }}>
+                    <Typography
+                        component="div"
+                        sx={{
+                            alignItems: 'center',
+                            fontSize: '14px!important',
+                            width: '100%',
+                            display: 'flex',
+                            justifyContent: 'center'
+                    }}>
                         <Circle sx={{ fontSize: 12, marginRight: '0.33em!important'  }} />
                         { getFilteredGuidesCount() === GUIDES.length ? 'Total' : getFilteredGuidesCount() } of { GUIDES.length } entries
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important', marginRight: '0.33em!important'  }} />
                         Last update: 2023-01-29
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important'  }} />
-                    </Stack>
-                    <Stack sx={{ marginLeft: '1em', marginTop: '1em', width: '100%', justifyContent: 'center' }} direction="row" spacing={1}>
+                    </Typography>
+                    <Typography
+                        component="div"
+                        sx={{
+                            marginLeft: '1em',
+                            marginTop: '1em',
+                            width: '100%',
+                            display: 'flex',
+                            justifyContent: 'center'
+                    }}>
                         <Input
                             id="searchQuery"
                             name="searchQuery"
@@ -436,8 +453,16 @@ export const NostrResources = () => {
                                 setSearchQuery(event.target.value);
                             }}
                         />
-                    </Stack>
-                    <Stack sx={{ marginTop: '1em', marginLeft: '1em', width: '100%', justifyContent: 'center' }} direction="row" spacing={1}>
+                    </Typography>
+                    <Typography
+                        component="div"
+                        sx={{
+                            marginTop: '1em',
+                            marginLeft: '1em',
+                            width: '100%',
+                            display: 'flex',
+                            justifyContent: 'center'
+                        }}>
                         <Chip
                             icon={<Clear />}
                             label="No sort"
@@ -447,6 +472,7 @@ export const NostrResources = () => {
                             }}
                         />
                         <Chip
+                            sx={{ marginLeft: '0.5em' }}
                             icon={sort === 'asc' ?
                                 <ArrowUpward /> : sort === 'desc' ? <ArrowDownward /> : <ToggleOff />
                             }
@@ -458,7 +484,7 @@ export const NostrResources = () => {
                                 )
                             }}
                         />
-                    </Stack>
+                    </Typography>
                 </ListItem>
                 {
                     guides
