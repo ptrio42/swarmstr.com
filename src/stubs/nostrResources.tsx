@@ -417,20 +417,34 @@ export const GUIDES: Guide[] = [
     {
         id: 'what-is-damus',
         issue: 'What is Damus?',
-        fix: 'Watch this simple explainer video to find out about Damus.',
-        urls: ['https://youtu.be/I_A7NLIyX1o'],
+        fix: '',
+        bulletPoints: [
+            'Watch this simple explainer video to find out about Damus.',
+            'https://youtu.be/I_A7NLIyX1o',
+
+        ],
         createdAt: '2023-01-10',
-        updatedAt: '2023-01-10',
+        updatedAt: '2023-02-01',
         tags: ['Damus', 'Clients']
     },
+    // {
+    //     id: 'damus-test-flight',
+    //     issue: 'Damus TestFlight',
+    //     fix: '',
+    //     updatedAt: '2023-02-01'
+    // },
     {
         id: 'running-damus',
-        issue: 'Damus TestFlight is full. Can I still try it?',
-        fix: 'To be able to test Damus without participating in the TestFlight beta you\'ll need a Mac and optionally an ' +
-            'iOS device (iPhone or iPad).',
+        issue: 'Running Damus',
+        fix: '<strike>To be able to test Damus without participating in the TestFlight beta you\'ll need a Mac and optionally an ' +
+            'iOS device (iPhone or iPad).</strike>',
         bulletPoints: [
+            '#### Damus is now officially available in the App Store.',
+            'If you\'d like to try the latest Damus features, you can get the source from github and build the app yourself.',
+            'You\'ll need a Mac and optionally an iOS device.',
             '1. Download Xcode from the AppStore on your Mac OS.',
-            '2. Clone the official Damus repository from GitHub. (link attached below)',
+            '2. Clone the official Damus repository from GitHub.',
+            'https://github.com/damus-io/damus',
             '3. Open the project (the repo you\'ve just cloned) with Xcode.',
             '4. Don\'t have/want to use your mobile device? Jump directly to #15.',
             '#### Follow the steps below if you\'re building on iPhone.',
@@ -455,9 +469,8 @@ export const GUIDES: Guide[] = [
             'Thanks to npub1fmd02wwyjrs3yagacdrhzar75vgu9wu0utzf6trvumdrz3l3mzrsm7vmml:realmuster for contributing to this particular guide.'
 
         ],
-        urls: ['https://github.com/damus-io/damus'],
-        tags: ['Damus'],
-        updatedAt: '2023-01-17'
+        tags: ['Damus', 'Intermediate'],
+        updatedAt: '2023-02-01'
     },
     {
         id: 'mining-the-public-hex-key',
@@ -505,12 +518,24 @@ export const GUIDES: Guide[] = [
     },
     {
         id: 'how-do-i-tag-a-person',
-        issue: 'How do I tag a person?',
-        fix: 'Use this person\'s public key instead of their handle. ' +
+        issue: 'How do I tag someone?',
+        fix: '' +
+            '<strike>Use this person\'s public key instead of their handle. ' +
             'The public key can be obtained in a person\'s profile, under the key icon. ' +
             'Then, to tag this person, you got to put the @ symbol in front of their pubkey ' +
-            '(@<pubkey>) eg. @npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4',
-        updatedAt: '2023-01-06',
+            '(@pubkey) eg. @npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4)</strike>',
+        bulletPoints: [
+            '#### These days, most nostr clients support tagging by user name.',
+            'To tag someone in a note, type the <i>@</i> symbol and at least ' +
+            'the first letter/digit from the user name you\'re looking for.',
+            'A list with user profiles should show up.',
+            'Tap on a profile to select it.',
+            'https://uselessshit.co/images/tagging-example.png',
+            'You can tag multiple people in a single note.',
+            '<i>You might only be able to tag people you follow.</i>'
+        ],
+        createdAt: '2022-12-25',
+        updatedAt: '2023-02-01',
         tags: ['Basics', 'Keys']
     },
     {
@@ -533,12 +558,23 @@ export const GUIDES: Guide[] = [
         tags: ['Basics', 'Media']
     },
     {
-        id: 'adding-avatar',
-        issue: 'Adding an avatar.',
-        fix: 'Upload desired image to a public server as described in the steps above. ' +
-            'Copy the image url and paste it into PROFILE PICTURE input under Profile EDIT view.',
+        id: 'adding-pfp',
+        issue: 'Adding a profile picture',
+        fix: 'For now, most clients don\'t support direct image uploads.',
+        bulletPoints: [
+            '#### You\'ll need to upload the desired image to a public image hosting service. ',
+            'https://nostr.build',
+            'https://nostrimg.com',
+            'https://imgbb.com',
+            'https://postimages.org',
+            'https://imgur.com',
+            'https://void.cat',
+            'Once the image is online, copy the image url and paste it into the <i>PROFILE PICTURE</i> input under Profile <i>Edit</i> view.',
+            'https://uselessshit.co/images/profile-pic-edit-damus.png',
+            '<i>Note: You can set the profile banner in the same way.</i>'
+        ],
         createdAt: '2022-12-26',
-        updatedAt: '2023-01-11',
+        updatedAt: '2023-02-01',
         tags: ['Basics', 'Media', 'Damus'],
     },
     {
@@ -587,9 +623,22 @@ export const GUIDES: Guide[] = [
     {
         id: 'dropping-an-invoice',
         issue: 'How do I drop an invoice?',
-        fix: 'Open a Lightning Wallet, click Receive, edit the amount and copy the Lightning Invoice. ' +
-            'Then simply paste it into the post.',
-        updatedAt: '2022-12-26',
+        fix: 'Open a Lightning Wallet of your choice, click Receive, edit the amount and copy the Lightning Invoice. ',
+        bulletPoints: [
+            'Instructions for different wallets are pretty similar.',
+            'Here\'s some examples',
+            '#### Wallet of Satoshi',
+            // '<i>Great for beginners. Custodial.</i>',
+            'https://uselessshit.co/images/lightning-invoice-wos.png',
+            '#### Phoenix Wallet',
+            // '<i>More advanced. Self-custody.</i>',
+            'https://uselessshit.co/images/lightning-invoice-phoenix.png',
+            'Then simply paste the lightning invoice into the note.',
+            'https://uselessshit.co/images/lightning-invoice-damus.png',
+            'Now someone will be able to pay that invoice.'
+        ],
+        createdAt: '2022-12-26',
+        updatedAt: '2023-02-01',
         tags: ['Basics', '⚡️ Lightning']
     },
     {
@@ -624,6 +673,13 @@ export const GUIDES: Guide[] = [
         updatedAt: '2023-01-17',
         tags: ['Basics'],
         attachedNoteId: NOTES[3]
+    },
+    {
+        id: 'deleting-accounts',
+        issue: 'Deleting accounts',
+        fix: 'You cannot delete on the protocol level. ' +
+            'Some clients might allow you to delete your account, but they only mark it as deleted.',
+        updatedAt: '2023-02-01'
     },
     {
         id: 'sharing-notes',
@@ -679,6 +735,17 @@ export const GUIDES: Guide[] = [
         updatedAt: '2023-01-15',
         tags: ['Basics'],
         attachedNoteId: NOTES[4]
+    },
+    {
+        id: 'dms-mirroring',
+        issue: 'Do DMs on nostr disappear after certain time?',
+        fix: '',
+        bulletPoints: [
+            'Answered by',
+            'npub1xtscya34g58tk0z605fvr788k263gsu6cy9x0mhnm87echrgufzsevkk5s:32e1827635450ebb3c5a7d12c1f8e7b2b514439ac10a67eef3d9fd9c5c68e245:jb55',
+            '"DMs may not be mirrored between relays, so they may get lost over time when relays disappear."'
+        ],
+        updatedAt: '2023-02-01'
     },
     {
         id: 'receiving-sats',
