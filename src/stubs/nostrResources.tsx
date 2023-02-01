@@ -27,7 +27,9 @@ export const PUBKEYS = [
     'ddfbb06a722e51933cd37e4ecdb30b1864f262f9bb5bd6c2d95cbeefc728f096',
     '0b39c4074924b4bd13202f642628e1a55cff411a904cc17394263c0df0b9686c',
     'e88a691e98d9987c964521dff60025f60700378a4879180dcbbb4a5027850411',
-    'c48e29f04b482cc01ca1f9ef8c86ef8318c059e0e9353235162f080f26e14c11'
+    'c48e29f04b482cc01ca1f9ef8c86ef8318c059e0e9353235162f080f26e14c11',
+    'f8e6c64342f1e052480630e27e1016dce35fc3a614e60434fef4aa2503328ca9',
+
 ];
 
 export const GUIDES: Guide[] = [
@@ -37,6 +39,7 @@ export const GUIDES: Guide[] = [
         fix: 'Notes and Other Stuff Transmitted by Relays, ' +
             'or NOSTR, is an open protocol, designed to create a censorship-resistant social network. ',
         bulletPoints: [
+            '',
             '#### Nostr Protocol',
             'https://github.com/nostr-protocol/nostr',
             '#### NIPS',
@@ -57,6 +60,51 @@ export const GUIDES: Guide[] = [
         imageUrls: ['https://uselessshit.co/images/explain-it-to-me-like-i-m-5.png'],
         attachedNoteId: NOTES[1],
         tags: ['Basics']
+    },
+    {
+        id: 'how-does-nostr-work',
+        issue: 'How does nostr work?',
+        fix: '',
+        bulletPoints: [
+            '💡 There are two components: clients and relays. Each user runs a client. Anyone can run a relay.',
+            '💡 Every user is identified by a public key. Every post is signed. Every client validates these signatures.',
+            '💡 Clients fetch data from relays of their choice and publish data to other relays of their choice. ' +
+            'A relay doesn\'t talk to another relay, only directly to users.',
+            '💡 For example, to "follow" someone a user just instructs their client to query the relays it knows for posts ' +
+            'from that public key.',
+            '💡 On startup, a client queries data from all relays it knows for all users it follows (for example, ' +
+            'all updates from the last day), then displays that data to the user chronologically.',
+            '💡 A "post" can contain any kind of structured data, but the most used ones are going to find their way into ' +
+            'the standard so all clients and relays can handle them seamlessly.',
+            'https://github.com/nostr-protocol/nostr#how-does-nostr-work'
+        ],
+        updatedAt: '2023-02-01'
+    },
+    {
+        id: 'about-nostr-clients',
+        issue: 'What are nostr clients?',
+        fix: '"Everybody runs a client. It can be a native client, a web client, etc. ' +
+            'To publish something, you write a post, sign it with your key and send it ' +
+            'to multiple relays (servers hosted by someone else, or yourself). To get updates from other people, ' +
+            'you ask multiple relays if they know anything about these other people. [...] ' +
+            'Signatures are verified on the client side."',
+        bulletPoints: [
+            'https://github.com/nostr-protocol/nostr#very-short-summary-of-how-it-works-if-you-dont-plan-to-read-anything-else'
+        ],
+        updatedAt: '2023-02-01',
+        tags: ['Basics', 'Clients']
+    },
+    {
+        id: 'about-relays',
+        issue: 'What\'s a (nostr) relay?',
+        fix: '"Anyone can run a relay. ' +
+            'A relay is very simple and dumb. It does nothing besides accepting posts from some people and forwarding to others. ' +
+            'Relays don\'t have to be trusted. "',
+        bulletPoints: [
+            'https://github.com/nostr-protocol/nostr#very-short-summary-of-how-it-works-if-you-dont-plan-to-read-anything-else'
+        ],
+        updatedAt: '2023-02-01',
+        tags: ['Basics', 'Relays']
     },
     {
         id: 'the-list',
@@ -187,6 +235,7 @@ export const GUIDES: Guide[] = [
             '#### Bitcoin & Nostr Art',
             'npub1z4m7gkva6yxgvdyclc7zp0vz4ta0s2d9jh8g83w03tp5vdf3kzdsxana6p:1577e4599dd10c863498fe3c20bd82aafaf829a595ce83c5cf8ac3463531b09b:yegorpetrov',
             'npub1qv0nc6gxr80sgredulxm7g6zm6z9gp4ns9nudq6mfxq0ed87gsnq7wswaz:031f3c690619df040f2de7cdbf2342de845406b38167c6835b4980fcb4fe4426:BitcoinImagined',
+            'npub19v2e3xgzwa7xydw7k7ky9tngjcmtnpqgpctzvl9ak3v37mkn54js988kdv:2b15989902777c6235deb7ac42ae689636b984080e16267cbdb4591f6ed3a565:rabbinstein',
             '#### nostr.band',
             'npub1xdtducdnjerex88gkg2qk2atsdlqsyxqaag4h05jmcpyspqt30wscmntxy:3356de61b39647931ce8b2140b2bab837e0810c0ef515bbe92de0248040b8bdd:brugeman',
             'https://github.com/brugeman',
@@ -224,6 +273,13 @@ export const GUIDES: Guide[] = [
             'https://github.com/ursuscamp/nostore',
             '#### nostr-resources.com',
             'npub1dergggklka99wwrs92yz8wdjs952h2ux2ha2ed598ngwu9w7a6fsh9xzpc:6e468422dfb74a5738702a8823b9b28168abab8655faacb6853cd0ee15deee93:dergigi',
+            '#### nostrgram.co',
+            'npub1t9a59hjk48svr8hz6rx727ta6kx53n5d6fw8x26vsua0zytpl87sa6h4uw:597b42de56a9e0c19ee2d0cde5797dd58d48ce8dd25c732b4c873af11161f9fd:jleger2023',
+            'https://nostrgram.co',
+            'https://nostrum.com',
+            '#### NostrReport',
+            'npub19mduaf5569jx9xz555jcx3v06mvktvtpu0zgk47n4lcpjsz43zzqhj6vzk:2edbcea694d164629854a52583458fd6d965b161e3c48b57d3aff01940558884:NostrReport',
+            '',
             '#### List maintainer',
             'https://github.com/ptrio42/uselessshit.co',
             'npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4:f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8:pitiunited',
@@ -679,7 +735,8 @@ export const GUIDES: Guide[] = [
         issue: 'Deleting accounts',
         fix: 'You cannot delete on the protocol level. ' +
             'Some clients might allow you to delete your account, but they only mark it as deleted.',
-        updatedAt: '2023-02-01'
+        updatedAt: '2023-02-01',
+        tags: ['Basics']
     },
     {
         id: 'sharing-notes',
@@ -745,7 +802,8 @@ export const GUIDES: Guide[] = [
             'npub1xtscya34g58tk0z605fvr788k263gsu6cy9x0mhnm87echrgufzsevkk5s:32e1827635450ebb3c5a7d12c1f8e7b2b514439ac10a67eef3d9fd9c5c68e245:jb55',
             '"DMs may not be mirrored between relays, so they may get lost over time when relays disappear."'
         ],
-        updatedAt: '2023-02-01'
+        updatedAt: '2023-02-01',
+        tags: ['Basics']
     },
     {
         id: 'receiving-sats',
@@ -778,25 +836,25 @@ export const GUIDES: Guide[] = [
         ],
         createdAt: '2022-12-26',
         updatedAt: '2022-01-19',
-        tags: ['⚡️ Lightning', 'Damus'],
+        tags: ['Basics', '⚡️ Lightning', 'Damus'],
         attachedNoteId: NOTES[5]
     },
     {
-        id: 'the-like-emoji',
-        issue: 'I see a lot of 🤙 emojis floating around everywhere. What does it mean?',
-        fix: '🤙 (also called shaka) is for Likes. Also ⚡ is for sats.',
+        id: 'vibes',
+        issue: 'Nostr Vibes 🔥',
+        fix: 'Nostr is unlike any other place you know. At the heart of it are passionate individuals, ' +
+            'with a simple mission to make this world a bit better place for everyone. ' +
+            'When you first join nostr, you quickly notice it\'s unique vibe full of love and care.',
+        bulletPoints: [
+            'To get more familiar with the vibe on nostr, have a look at the <b>Starter Pack™️</b> by',
+            'npub1lrnvvs6z78s9yjqxxr38uyqkmn34lsaxznnqgd877j4z2qej3j5s09qnw5:f8e6c64342f1e052480630e27e1016dce35fc3a614e60434fef4aa2503328ca9:corndalorian',
+            'https://uselessshit.co/images/nostr-starter-pack.jpeg',
+            'These are a big part of the nostr history and its present.',
+            'As you spend more time on nostr, you\'ll get to experience its essence in many different forms and have the freedom ' +
+            'and power to shape its future.'
+        ],
         createdAt: '2022-12-26',
-        updatedAt: '2023-01-09'
-    },
-    {
-        id: 'adding-more-relays',
-        issue: 'The content won\'t load or loads extremely slow.',
-        fix: 'You can find a list of public relays at nostr.watch and add some more items to RELAYS section of your Settings. ' +
-            'You might also want to check the RECOMMENDED RELAYS section and pick up some from there.',
-        urls: ['https://nostr.watch'],
-        createdAt: '2022-12-30',
-        updatedAt: '2022-01-11',
-        tags: ['Basics', 'Damus']
+        updatedAt: '2023-02-01'
     },
     {
         id: 'selecting-default-lightning-wallet',
@@ -876,6 +934,16 @@ export const GUIDES: Guide[] = [
         urls: ['https://nostr.build/', 'https://nostr.build/profilepic.html'],
         updatedAt: '2023-01-05',
         tags: ['Media']
+    },
+    {
+        id: 'adding-more-relays',
+        issue: 'The content won\'t load or loads extremely slow.',
+        fix: 'You can find a list of public relays at nostr.watch and add some more items to RELAYS section of your Settings. ' +
+            'You might also want to check the RECOMMENDED RELAYS section and pick up some from there.',
+        urls: ['https://nostr.watch'],
+        createdAt: '2022-12-30',
+        updatedAt: '2022-01-11',
+        tags: ['Basics', 'Damus']
     },
     {
         id: 'too-many-relays',
