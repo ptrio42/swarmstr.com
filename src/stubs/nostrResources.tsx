@@ -9,7 +9,9 @@ export const NOTES = [
     '92d120f3efbc59da4025f58f19a2ac6b62fb52a4b620e5d3c50b34778ab7a3e7',
     '679570d6e77c5f0b15431dcc30a88c359c8c680f4a2d9b975959f7a970fcd8fc',
     '1fd1a9ac81f4a2a8b3364036659355e01e9bad42536ecfc6ca5f2823346c8df6',
-    '4118cde32ca3946544c85ec761c1ebce7ff31e6187df30c98ad759bc7731beea'
+    '4118cde32ca3946544c85ec761c1ebce7ff31e6187df30c98ad759bc7731beea',
+    'c5d66fc688f59c06512ec989193d4d883d93761009a34d17a0742587c2f8e863',
+    '2840a196b4128d685345400072dff72199f62256cce159bf2c261fccf85067d1'
     // 'a508a7fa14bc308487737af8d1756155cf615483ae65c39f5845aa310b6e3cca',
     // '62fa89e3ed6e50ebaeae7f688a5229760262e6ccf015ab7accb46d1e944ef030',
     // 'da34ae690b22309caf65f1b5974f8f02e2924350e9ca703f5594df82f57139ac',
@@ -286,7 +288,7 @@ export const GUIDES: Guide[] = [
 
         ],
         tags: ['Essentials', 'People', 'Projects'],
-        attachedNoteId: '4118cde32ca3946544c85ec761c1ebce7ff31e6187df30c98ad759bc7731beea'
+        attachedNoteId: NOTES[10]
     },
     {
         id: 'nostr-clients',
@@ -588,7 +590,8 @@ export const GUIDES: Guide[] = [
             'Tap on a profile to select it.',
             'https://uselessshit.co/images/tagging-example.png',
             'You can tag multiple people in a single note.',
-            '<i>You might only be able to tag people you follow.</i>'
+            '<i>You might only be able to tag people you follow.</i>',
+            '<i>Also the search might be case sensitive.</i>'
         ],
         createdAt: '2022-12-25',
         updatedAt: '2023-02-01',
@@ -678,7 +681,7 @@ export const GUIDES: Guide[] = [
     },
     {
         id: 'dropping-an-invoice',
-        issue: 'How do I drop an invoice?',
+        issue: 'How do I drop a lightning invoice?',
         fix: 'Open a Lightning Wallet of your choice, click Receive, edit the amount and copy the Lightning Invoice. ',
         bulletPoints: [
             'Instructions for different wallets are pretty similar.',
@@ -854,7 +857,8 @@ export const GUIDES: Guide[] = [
             'and power to shape its future.'
         ],
         createdAt: '2022-12-26',
-        updatedAt: '2023-02-01'
+        updatedAt: '2023-02-01',
+        attachedNoteId: NOTES[9]
     },
     {
         id: 'selecting-default-lightning-wallet',
