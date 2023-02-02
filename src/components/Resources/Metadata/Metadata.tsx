@@ -151,6 +151,13 @@ export const Metadata = ({ picture, lud06, lud16, nip05, name, npub, about, hand
                                     <MenuItem onClick={() => { setDialogOpen(true) }}>
                                         <QrCodeScanner sx={{ fontSize: 18, marginRight: 1 }} /> Show QR
                                     </MenuItem>
+                                    <MenuItem onClick={() => {
+                                        const a = document.createElement('a');
+                                        a.href = 'nostr:' + npub;
+                                        a.click();
+                                    }}>
+                                        <Launch sx={{ fontSize: 18, marginRight: 1 }}/> Open in client
+                                    </MenuItem>
                                 </Menu>
                             </Typography>
                         </React.Fragment>
