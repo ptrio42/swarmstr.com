@@ -41,16 +41,23 @@ export const GUIDES: Guide[] = [
         fix: 'Notes and Other Stuff Transmitted by Relays, ' +
             'or NOSTR, is an open protocol, designed to create a censorship-resistant social network. ',
         bulletPoints: [
-            '',
+            'https://uselessshit.co/images/nostr-ostrich.jpeg',
             '#### Nostr Protocol',
             'https://github.com/nostr-protocol/nostr',
-            '#### NIPS',
+            '#### NIPs',
             'https://github.com/nostr-protocol/nips',
             '#### Development',
             'https://github.com/nbd-wtf/nostr-tools',
             '#### Resources',
-            'https://usenostr.org',
+            '#### nostr-resources.com by @dergigi',
             'https://nostr-resources.com',
+            'npub1dergggklka99wwrs92yz8wdjs952h2ux2ha2ed598ngwu9w7a6fsh9xzpc:6e468422dfb74a5738702a8823b9b28168abab8655faacb6853cd0ee15deee93:dergigi',
+            '#### Beginner\'s guide by @walker',
+            'https://www.btctimes.com/news/what-is-nostr-how-does-it-work-why-does-it-matter',
+            'npub1cj8znuztfqkvq89pl8hceph0svvvqk0qay6nydgk9uyq7fhpfsgsqwrz4u:c48e29f04b482cc01ca1f9ef8c86ef8318c059e0e9353235162f080f26e14c11:walker',
+            '#### usenostr.org by @pluja',
+            'https://usenostr.org',
+            '#### More Resources',
             'https://github.com/vishalxl/nostr_console/discussions/31',
             'https://wiki.wellorder.net/post/nostr-intro/',
             'https://audaciousdenizen.substack.com/p/my-quick-guide-to-nostr',
@@ -80,6 +87,7 @@ export const GUIDES: Guide[] = [
             'the standard so all clients and relays can handle them seamlessly.',
             'https://github.com/nostr-protocol/nostr#how-does-nostr-work'
         ],
+        tags: ['Basics'],
         updatedAt: '2023-02-01'
     },
     {
@@ -282,6 +290,8 @@ export const GUIDES: Guide[] = [
             '#### NostrReport',
             'npub19mduaf5569jx9xz555jcx3v06mvktvtpu0zgk47n4lcpjsz43zzqhj6vzk:2edbcea694d164629854a52583458fd6d965b161e3c48b57d3aff01940558884:NostrReport',
             '',
+            '#### rot13maxi',
+            'npub1hycynfhz23ardfmf9kgwfw4gpyqj2fsh24r2zuehg4x7lx4kn5cqsqv4y3:b93049a6e2547a36a7692d90e4baa809012526175546a17337454def9ab69d30:rot13maxi',
             '#### List maintainer',
             'https://github.com/ptrio42/uselessshit.co',
             'npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4:f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8:pitiunited',
@@ -326,7 +336,7 @@ export const GUIDES: Guide[] = [
     },
     {
         id: 'keys',
-        issue: 'Getting the keys',
+        issue: 'Getting the keys 🔑',
         fix: 'The keys are your identity. ' +
             'They consist of a public key which starts with <i>npub</i> and a private key starting with <i>nsec</i> (bech32 encoding). ' +
             'A public key can be treated as a username, whereas a private key is more like a password. ' +
@@ -335,7 +345,11 @@ export const GUIDES: Guide[] = [
         bulletPoints: [
             'There are different ways to get nostr pair of keys.',
             'If you\'re going to use a mobile client like Damus, you\'re probably fine obtaining your keys through the app.',
-            'For web clients you\'ll be better of using Alby or nos2x browser extension.',
+            'For web clients you\'ll be better off using Alby or nos2x browser extension.',
+            '#### How to use Nostr with the Alby extension',
+            'https://blog.getalby.com/how-to-use-nostr-with-the-alby-extension/',
+            '#### The nos2x browser extension',
+            'https://youtu.be/IoLw-3ok3_M'
         ],
         createdAt: '2023-01-05',
         updatedAt: '2023-01-29',
@@ -353,7 +367,7 @@ export const GUIDES: Guide[] = [
             'https://youtu.be/IoLw-3ok3_M'
         ],
         updatedAt: '2023-01-23',
-        tags: ['Basics', 'Keys'],
+        tags: ['Basics', 'Keys', 'Essentials'],
         attachedNoteId: NOTES[2]
     },
     {
@@ -366,7 +380,7 @@ export const GUIDES: Guide[] = [
             'https://orangepill.dev/nostr-guides/guide-nostr-key-generation-and-management/'
         ],
         updatedAt: '2023-01-22',
-        tags: ['Keys']
+        tags: ['Keys', 'Guides']
     },
     {
         id: 'nostr-sources-list-for-new-users',
@@ -454,7 +468,8 @@ export const GUIDES: Guide[] = [
             'https://utxo.live/',
             'Pretty colours, static, informative <3'
         ],
-        attachedNoteId: '1fd1a9ac81f4a2a8b3364036659355e01e9bad42536ecfc6ca5f2823346c8df6'
+        attachedNoteId: '1fd1a9ac81f4a2a8b3364036659355e01e9bad42536ecfc6ca5f2823346c8df6',
+        tags: ['People', 'Projects']
     },
     {
         id: 'nostrich-origins',
@@ -479,6 +494,7 @@ export const GUIDES: Guide[] = [
         bulletPoints: [
             'Watch this simple explainer video to find out about Damus.',
             'https://youtu.be/I_A7NLIyX1o',
+            'https://techcrunch.com/2023/02/01/damus-another-decentralized-social-networking-app-arrives-to-take-on-twitter/'
 
         ],
         createdAt: '2023-01-10',
