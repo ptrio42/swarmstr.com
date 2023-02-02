@@ -52,13 +52,14 @@ export interface CardProps {
     qrCodeSize?: number;
     lnurl?: string;
     lineHeight?: number;
+    disableClick?: boolean;
 }
 export const SocialCard = ({ slogan, sloganColor, sloganFontSize, sloganTextShadow, sloganTextShadowColor, mainImage,
                          backgroundImage, backgroundImageSize, satsAmount, type, footer,
                          footerColor, footerFontSize, overlay, overlayColor, latestBlock = undefined, latestBlockColor,
                          cardWidth, cardHeight, backgroundPositionX, backgroundPositionY,
                          primaryImageFormatWidth, primaryImageFormatHeight, includeLightningGift = false,
-                         secondaryImageFormatWidth, secondaryImageFormatHeight, qrCodeSize = 72, lnurl = '', lineHeight = 1 }: CardProps) => {
+                         secondaryImageFormatWidth, secondaryImageFormatHeight, qrCodeSize = 72, lnurl = '', lineHeight = 1, disableClick }: CardProps) => {
 
     const qrCodeRef = useRef();
 
@@ -77,10 +78,6 @@ export const SocialCard = ({ slogan, sloganColor, sloganFontSize, sloganTextShad
 
     return (
         <React.Fragment>
-            <Backdrop
-                sx={{ color: '#fff', background: '#000', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-                open={true}
-            >
                 <Card sx={{
                     marginTop: '2em !important',
                     width: `${cardWidth}in`,
@@ -103,6 +100,7 @@ export const SocialCard = ({ slogan, sloganColor, sloganFontSize, sloganTextShad
                         justifyContent: type === CardType.BusinessCard ? 'center' : 'flex-start' }}
                     >
                         <Box sx={{ display: 'flex', justifyContent: type === CardType.BusinessCard ? 'center' : 'flex-start' }}>
+                            { mainImage && mainImage !== '' &&
                             <CardMedia
                                 component="img"
                                 sx={{
@@ -115,22 +113,25 @@ export const SocialCard = ({ slogan, sloganColor, sloganFontSize, sloganTextShad
                                 }}
                                 image={mainImage}
                             />
+                            }
                             {
                                 (includeLightningGift || (type === CardType.Sticker && lnurl !== '')) &&
                                 <Box
                                     sx={{
                                         width: `${secondaryImageFormatWidth}in`,
                                         height: `${secondaryImageFormatHeight}in`,
-                                        marginLeft: '0.1in',
-                                        marginTop: '0.15in',
+                                        marginLeft: secondaryImageFormatWidth === cardWidth ? 0 : '0.1in',
+                                        marginTop: secondaryImageFormatHeight === cardHeight ? 0 : '0.15in',
                                         overflow: 'hidden',
-                                        border: '4px solid rgba(0,0,0,.7)',
+                                        border: secondaryImageFormatWidth === cardWidth && secondaryImageFormatHeight === cardHeight ? 'none' : '4px solid rgba(0,0,0,.7)',
                                         borderRadius: '10px'
                                     }}
                                     onClick={() => {
-                                        navigator.clipboard.writeText(lnurl);
-                                        setMessage('Lightning URL copied to clipboard!');
-                                        setOpen(true);
+                                        if (!disableClick) {
+                                            navigator.clipboard.writeText(lnurl);
+                                            setMessage('Lightning URL copied to clipboard!');
+                                            setOpen(true);
+                                        }
                                     }}
                                 >
                                     <Box
@@ -178,6 +179,7 @@ export const SocialCard = ({ slogan, sloganColor, sloganFontSize, sloganTextShad
                             </Typography>
                         </CardContent>
                         <CardActions>
+                            { footer && footer !== '' &&
                             <Typography
                                 sx={{
                                     fontSize: `${footerFontSize}pt`,
@@ -197,6 +199,7 @@ export const SocialCard = ({ slogan, sloganColor, sloganFontSize, sloganTextShad
                                     }}
                                 />
                             </Typography>
+                            }
                         </CardActions>
                     </CardActionArea>
                 </Card>
@@ -206,7 +209,6 @@ export const SocialCard = ({ slogan, sloganColor, sloganFontSize, sloganTextShad
                     onClose={() => setOpen(false)}
                     message={message}
                 />
-            </Backdrop>
         </React.Fragment>
     );
 };

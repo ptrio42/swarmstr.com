@@ -3,6 +3,7 @@ import {useEffect, useState} from "react";
 import {Helmet} from "react-helmet";
 import React from "react";
 import {useParams} from "react-router-dom";
+import {Backdrop} from "@mui/material";
 
 const TIP_JARS: CardProps[] = [
     {
@@ -109,34 +110,39 @@ export const TipJar = () => {
           <Helmet>
               <title>{username}'s tip jar - UseLessShit.co</title>
           </Helmet>
-          { props && <SocialCard
-              slogan={props.slogan}
-              sloganColor={props.sloganColor}
-              sloganFontSize={props.sloganFontSize}
-              sloganTextShadow={props.sloganTextShadow}
-              sloganTextShadowColor={props.sloganTextShadowColor}
-              mainImage={props.mainImage}
-              backgroundImage={props.backgroundImage}
-              backgroundImageSize={props.backgroundImageSize}
-              type={props.type}
-              footer={props.footer}
-              footerColor={props.footerColor}
-              footerFontSize={props.footerFontSize}
-              cardWidth={props.cardWidth}
-              cardHeight={props.cardHeight}
-              backgroundPositionX={props.backgroundPositionX}
-              backgroundPositionY={props.backgroundPositionY}
-              primaryImageFormatWidth={props.primaryImageFormatWidth}
-              primaryImageFormatHeight={props.primaryImageFormatHeight}
-              secondaryImageFormatWidth={props.secondaryImageFormatWidth}
-              secondaryImageFormatHeight={props.secondaryImageFormatHeight}
-              lineHeight={props.lineHeight}
-              lnurl={props.lnurl}
-              qrCodeSize={props.qrCodeSize}
-              latestBlock={props.latestBlock}
-              latestBlockColor={props.latestBlockColor}
-          />
-
+          { props &&
+          <Backdrop
+            sx={{ color: '#fff', background: '#000', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            open={true}
+          >
+              <SocialCard
+                  slogan={props.slogan}
+                  sloganColor={props.sloganColor}
+                  sloganFontSize={props.sloganFontSize}
+                  sloganTextShadow={props.sloganTextShadow}
+                  sloganTextShadowColor={props.sloganTextShadowColor}
+                  mainImage={props.mainImage}
+                  backgroundImage={props.backgroundImage}
+                  backgroundImageSize={props.backgroundImageSize}
+                  type={props.type}
+                  footer={props.footer}
+                  footerColor={props.footerColor}
+                  footerFontSize={props.footerFontSize}
+                  cardWidth={props.cardWidth}
+                  cardHeight={props.cardHeight}
+                  backgroundPositionX={props.backgroundPositionX}
+                  backgroundPositionY={props.backgroundPositionY}
+                  primaryImageFormatWidth={props.primaryImageFormatWidth}
+                  primaryImageFormatHeight={props.primaryImageFormatHeight}
+                  secondaryImageFormatWidth={props.secondaryImageFormatWidth}
+                  secondaryImageFormatHeight={props.secondaryImageFormatHeight}
+                  lineHeight={props.lineHeight}
+                  lnurl={props.lnurl}
+                  qrCodeSize={props.qrCodeSize}
+                  latestBlock={props.latestBlock}
+                  latestBlockColor={props.latestBlockColor}
+              />
+          </Backdrop>
           }
       </React.Fragment>
   )
