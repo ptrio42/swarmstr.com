@@ -1,12 +1,21 @@
 import {List} from "@mui/material";
 import ReactHtmlParser from "react-html-parser";
 import React, {useEffect, useState} from "react";
-import {ChatBubble, CopyAll, DoneOutline, Expand, IosShare, UnfoldLess, UnfoldMore} from "@mui/icons-material";
+import {
+    ChatBubble,
+    CopyAll,
+    DoneOutline,
+    Expand,
+    IosShare,
+    QrCodeScanner,
+    UnfoldLess,
+    UnfoldMore
+} from "@mui/icons-material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import ListItem from "@mui/material/ListItem";
-import {Metadata} from "../Metadata/Metadata";
+import {Metadata, QrCodeDialog} from "../Metadata/Metadata";
 import Divider from "@mui/material/Divider";
 import Chip from "@mui/material/Chip";
 import CardMedia from "@mui/material/CardMedia";
@@ -20,6 +29,8 @@ import {Reaction, Reactions, REACTIONS, ReactionType} from "../Reactions/Reactio
 import {getNostrKeyPair} from "../../../services/nostr";
 import Button from "@mui/material/Button";
 import pink from "@mui/material/colors/pink";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 
 interface NoteProps {
     id: string;
@@ -59,9 +70,22 @@ export const Note = ({
     const [snackbarMessage, setSnackBarMessage] = useState<string>('');
     const [expanded, setExpanded] = useState<boolean>(false);
 
+    const [menuAnchorEl, setMenuAnchorEl] = React.useState<null | HTMLElement>(null);
+
+    const menuOpen = Boolean(menuAnchorEl);
+    const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+
     useEffect(() => {
         setExpanded(!!isExpanded);
     }, []);
+
+    const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+        setMenuAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+        setMenuAnchorEl(null);
+    };
 
     const handleShareAnswer = (event: any) => {
         event.stopPropagation();
@@ -82,7 +106,7 @@ export const Note = ({
             // .replace(/(https?:\/\/.*\.(?!:png|jpg|jpeg|gif|svg))/i, '<a href="$1" target="_blank">$1</a>')
             .replace(/(https?:\/\/.*\.(?:png|jpg|jpeg|gif|svg))/i, '<img width="100%" src="$1" />')
             .replace(new RegExp(/^(?!\=")(https?:\/\/[^]*)/, 'g'), '<a href="$1" target="_blank">$1</a>')
-            .replace(/(#### [a-zA-Z0-9\/.,&\'’?\-` ]*)/, '<h4>$1</h4>')
+            .replace(/(#### [a-zA-Z0-9\/.,&\'’?\-`@ ]*)/, '<h4>$1</h4>')
             .replace(/(#+)/, '')
             .replace(/(\n+)/, '$1<br/>')
             .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
@@ -190,17 +214,39 @@ export const Note = ({
                     <Typography sx={{ textAlign: 'end' }}>
                         {
                             new RegExp(/([0123456789abcdef]{64})/).test(id) &&
-                            <IconButton
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    const noteEncoded = nip19.noteEncode(id);
-                                    navigator.clipboard.writeText(noteEncoded);
-                                    setSnackBarMessage(noteEncoded);
-                                    setSnackbarOpen(true);
-                                }}
-                            >
-                                <CopyAll sx={{ fontSize: 18 }} />
-                            </IconButton>
+                            <React.Fragment>
+                                <IconButton
+                                    aria-controls={menuOpen ? 'account-menu' : undefined}
+                                    aria-haspopup="true"
+                                    aria-expanded={menuOpen ? 'true' : undefined}
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        handleMenuOpen(event);
+                                    }}
+                                >
+                                    <CopyAll sx={{ fontSize: 18 }} />
+                                </IconButton>
+                                <Menu
+                                    anchorEl={menuAnchorEl}
+                                    id="account-menu"
+                                    open={menuOpen}
+                                    onClose={handleMenuClose}
+                                    onClick={handleMenuClose}
+                                >
+                                    <MenuItem onClick={(event) => {
+                                        event.stopPropagation();
+                                        const noteEncoded = nip19.noteEncode(id);
+                                        navigator.clipboard.writeText(noteEncoded);
+                                        setSnackBarMessage(noteEncoded);
+                                        setSnackbarOpen(true);
+                                    }}>
+                                        <CopyAll sx={{ fontSize: 18, marginRight: 1 }} /> Copy npub
+                                    </MenuItem>
+                                    <MenuItem onClick={() => { setDialogOpen(true) }}>
+                                        <QrCodeScanner sx={{ fontSize: 18, marginRight: 1 }} /> Show QR
+                                    </MenuItem>
+                                </Menu>
+                            </React.Fragment>
                         }
                         {
                             isCollapsable &&
@@ -346,5 +392,6 @@ export const Note = ({
             onClose={() => setSnackbarOpen(false)}
             message={snackbarMessage}
         />
+        <QrCodeDialog pubkey={id && new RegExp(/([0123456789abcdef]{64})/).test(id) && nip19.noteEncode(id) || ''} dialogOpen={dialogOpen} close={() => setDialogOpen(false)} />
     </React.Fragment>);
 };
