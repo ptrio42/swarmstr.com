@@ -925,7 +925,8 @@ export const GUIDES: Guide[] = [
         ],
         createdAt: '2022-12-26',
         updatedAt: '2023-02-01',
-        attachedNoteId: NOTES[9]
+        attachedNoteId: NOTES[9],
+        tags: ['Essentials']
     },
     {
         id: 'selecting-default-lightning-wallet',
