@@ -60,7 +60,7 @@ export const NostrResources = () => {
     const [expanded, setExpanded] = useState<string[]>([]);
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
     const [snackbarMessage, setSnackBarMessage] = useState<string>('');
-    const [searchQuery, setSearchQuery] = useState<string>('');
+    const [searchQuery, setSearchQuery] = useState<string|undefined>();
     const [profiles, setProfiles] = useState<any[]>([]);
 
     const [socketUrl, setSocketUrl] = useState<string>(RELAYS[0]);
@@ -135,7 +135,7 @@ export const NostrResources = () => {
     }, [guides]);
 
     useEffect(() => {
-        if (searchQuery !== '') {
+        if (searchQuery || searchQuery === '') {
             setQueryParams({ s: searchQuery });
         }
     }, [searchQuery]);
@@ -335,7 +335,7 @@ export const NostrResources = () => {
 
     const getFilteredGuidesCount = () => {
         return guides
-            .filter(guide => searchQuery === '' || matchString(searchQuery, guide.issue))
+            .filter(guide => !searchQuery || searchQuery === '' || (searchQuery && matchString(searchQuery, guide.issue)))
             .length;
     };
 
@@ -424,7 +424,7 @@ export const NostrResources = () => {
                         component="div"
                         sx={{
                             alignItems: 'center',
-                            fontSize: '14px!important',
+                            fontSize: '13px!important',
                             width: '100%',
                             display: 'flex',
                             justifyContent: 'center'
@@ -432,7 +432,7 @@ export const NostrResources = () => {
                         <Circle sx={{ fontSize: 12, marginRight: '0.33em!important'  }} />
                         { getFilteredGuidesCount() === GUIDES.length ? 'Total' : getFilteredGuidesCount() } of { GUIDES.length } entries
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important', marginRight: '0.33em!important'  }} />
-                        Last update: 2023-02-02
+                        Last update: 2023-02-03
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important'  }} />
                     </Typography>
                     <Typography
@@ -488,7 +488,7 @@ export const NostrResources = () => {
                 </ListItem>
                 {
                     guides
-                        .filter(guide => searchQuery === '' || matchString(searchQuery, guide.issue))
+                        .filter(guide => !searchQuery || searchQuery === '' || (searchQuery && (matchString(searchQuery, guide.issue) || (guide.tags && guide.tags.map(t => t.toLowerCase()).includes(searchQuery.toLowerCase())))))
                         .map((guide, index) => (
                         <React.Fragment>
                             <NoteThread

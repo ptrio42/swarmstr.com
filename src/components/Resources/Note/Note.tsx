@@ -104,7 +104,7 @@ export const Note = ({
             .replace(/([0123456789abcdef]{64})/, '$1')
             .replace(/(npub[a-z0-9A-Z.:_]{59,}$)/, '<button>$1</button>')
             // .replace(/(https?:\/\/.*\.(?!:png|jpg|jpeg|gif|svg))/i, '<a href="$1" target="_blank">$1</a>')
-            .replace(/(https?:\/\/.*\.(?:png|jpg|jpeg|gif|svg))/i, '<img width="100%" src="$1" />')
+            .replace(/(https?:\/\/.*\.(?:png|jpg|jpeg|gif|svg))/i, '<img width="100%" src="$1" style="max-width:512px;" />')
             .replace(new RegExp(/^(?!\=")(https?:\/\/[^]*)/, 'g'), '<a href="$1" target="_blank">$1</a>')
             .replace(/(#### [a-zA-Z0-9\/.,&\'’?\-`@ ]*)/, '<h4>$1</h4>')
             .replace(/(#+)/, '')
@@ -369,7 +369,7 @@ export const Note = ({
                                     />
                                     <Reactions reactions={getDownReactions()} type={ReactionType.DOWN} handleReaction={(reaction: string) => {
                                         handleDownReaction && handleDownReaction(id, reaction);
-                                    }} placeholder={REACTIONS[4].content} reacted={reacted(ReactionType.DOWN)} />
+                                    }} placeholder={REACTIONS[4].content.replace('-', '👎')} reacted={reacted(ReactionType.DOWN)} />
                                 </React.Fragment>
                             }
                             <IconButton
