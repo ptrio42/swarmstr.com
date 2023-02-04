@@ -240,7 +240,7 @@ export const Note = ({
                                         setSnackBarMessage(noteEncoded);
                                         setSnackbarOpen(true);
                                     }}>
-                                        <CopyAll sx={{ fontSize: 18, marginRight: 1 }} /> Copy npub
+                                        <CopyAll sx={{ fontSize: 18, marginRight: 1 }} /> Copy note ID
                                     </MenuItem>
                                     <MenuItem onClick={() => { setDialogOpen(true) }}>
                                         <QrCodeScanner sx={{ fontSize: 18, marginRight: 1 }} /> Show QR

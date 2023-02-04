@@ -1,4 +1,7 @@
 import {useEffect, useState} from "react";
+import {nip19} from "nostr-tools";
+import {List, LISTS} from "../stubs/lists";
+import {uniq} from "lodash";
 
 export const matchString = (searchString: string, phrase: string) => {
   const regEx = new RegExp(searchString.toLowerCase(), 'g');
@@ -28,4 +31,22 @@ export const useWindowDimensions = () => {
   }, []);
 
   return windowDimensions;
+};
+
+export const getPeopleInvolvedInNostr = () => {
+  return LISTS[0];
+};
+
+const getPubkeysCount = (list: List): number => {
+  const pubkeys = uniq(Object.values(list).flat(1).map(v => v[1])).filter(v1 => !!v1);
+  return pubkeys.length;
+};
+
+export const listToMarkup = (list: List): string[] => {
+  const markup = Object.keys(list)
+      .map((k, i) => [`#### ${k}`, ...Object.values(list)[i].map(v => ([`${v[1]}:${v[1] && nip19.decode(v[1]).data}:${v[0]}`, v[2]]))])
+      .flat(2);
+
+  markup.splice(2, 0, `#### Currently ${getPubkeysCount(list)} pubkeys listed.`);
+  return markup;
 };
