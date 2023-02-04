@@ -151,7 +151,7 @@ export const LISTS = [
             ['NostrReport', 'npub19mduaf5569jx9xz555jcx3v06mvktvtpu0zgk47n4lcpjsz43zzqhj6vzk']
         ],
         'key-convertr': [
-            ['rot13maxi', 'npub1hycynfhz23ardfmf9kgwfw4gpyqj2fsh24r2zuehg4x7lx4kn5cqsqv4y3', 'https://github.com/rot13maxi']
+            ['rot13maxi', 'npub1mxrssnzg8y9zjr6a9g6xqwhxfa23xlvmftluakxqatsrp6ez9gjssu0htc', 'https://github.com/rot13maxi']
         ],
         'brb.io': [
             ['NVK', 'npub1az9xj85cmxv8e9j9y80lvqp97crsqdu2fpu3srwthd99qfu9qsgstam8y8', 'https://brb.io']
