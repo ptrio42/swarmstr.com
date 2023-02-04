@@ -40,7 +40,7 @@ If you're involved in a NOSTR project but you're not on the list, feel free to a
 
 The list is a simple JSON in src/stubs/lists.tsx 
 
-Each entry is in a list is organised as so:
+Each entry on the list is organised as so:
 
 ```
     'PROJECT_NAME': [
@@ -58,7 +58,7 @@ Each project can have multiple participants:
     ]
 ```
 
-####### Adding new project
+###### Adding new project
 
 The entries on the list are displayed from top to bottom. Find a desirable place to add your entry.
 
