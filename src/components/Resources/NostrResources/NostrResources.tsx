@@ -432,7 +432,7 @@ export const NostrResources = () => {
                         <Circle sx={{ fontSize: 12, marginRight: '0.33em!important'  }} />
                         { getFilteredGuidesCount() === GUIDES.length ? 'Total' : getFilteredGuidesCount() } of { GUIDES.length } entries
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important', marginRight: '0.33em!important'  }} />
-                        Last update: 2023-02-03
+                        Last update: 2023-02-05
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important'  }} />
                     </Typography>
                     <Typography

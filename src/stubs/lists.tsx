@@ -116,8 +116,14 @@ export const LISTS = [
             ['BitcoinImagined', 'npub1qv0nc6gxr80sgredulxm7g6zm6z9gp4ns9nudq6mfxq0ed87gsnq7wswaz'],
             ['rabbinstein', 'npub19v2e3xgzwa7xydw7k7ky9tngjcmtnpqgpctzvl9ak3v37mkn54js988kdv']
         ],
+        'nostrland': [
+            ['Karnage', 'npub1r0rs5q2gk0e3dk3nlc7gnu378ec6cnlenqp8a3cjhyzu6f8k5sgs4sq9ac', 'https://nostrland.com']
+        ],
         'nostr.band': [
             ['brugeman', 'npub1xdtducdnjerex88gkg2qk2atsdlqsyxqaag4h05jmcpyspqt30wscmntxy', 'https://github.com/brugeman']
+        ],
+        'nostrum.pro': [
+            ['jleger2023', 'npub1t9a59hjk48svr8hz6rx727ta6kx53n5d6fw8x26vsua0zytpl87sa6h4uw', 'https://nostrum.pro']
         ],
         'nostrplebs.com': [
             ['derekross', 'npub12262qa4uhw7u8gdwlgmntqtv7aye8vdcmvszkqwgs0zchel6mz7s6cgrkj', 'https://github.com/derekross'],
@@ -148,7 +154,12 @@ export const LISTS = [
             ['jleger2023', 'npub1t9a59hjk48svr8hz6rx727ta6kx53n5d6fw8x26vsua0zytpl87sa6h4uw', 'https://nostrgram.co']
         ],
         'NostrReport': [
-            ['NostrReport', 'npub19mduaf5569jx9xz555jcx3v06mvktvtpu0zgk47n4lcpjsz43zzqhj6vzk']
+            ['NostrReport', 'npub19mduaf5569jx9xz555jcx3v06mvktvtpu0zgk47n4lcpjsz43zzqhj6vzk', 'https://nostreport.com'],
+            ['MainStreetChungus', 'npub1pvuugp6fyj6t6yeq9ajzv28p54w07sg6jpxvzuu5yc7qmu9edpkqm2d7a5'],
+            ['doc', 'npub1xy54p83r6wnpyhs52xjeztd7qyyeu9ghymz8v66yu8kt3jzx75rqhf3urc'],
+            ['sophiaw1926', 'npub13pdlcgrk7xpfwwcy2qjyt92jxvhkw3mh9k27zvs0jvfxa0ch88zs6sx3yr'],
+            ['corndalorian', 'npub1lrnvvs6z78s9yjqxxr38uyqkmn34lsaxznnqgd877j4z2qej3j5s09qnw5'],
+            ['Lau', 'npub1t2wy3j850q34zy6amzw9mzfsl66eedcx2tlaxlv3v7leytedzp5szs8c2u']
         ],
         'key-convertr': [
             ['rot13maxi', 'npub1mxrssnzg8y9zjr6a9g6xqwhxfa23xlvmftluakxqatsrp6ez9gjssu0htc', 'https://github.com/rot13maxi']
@@ -167,12 +178,16 @@ export const LISTS = [
             ['lee', 'npub1taycl7qfuqk9dp0rhkse8lxhz3az9eanjug8j4ympwehvslnetxqkujg5y', 'https://github.com/leesalminen'],
             ['dave', 'npub1cldxy9f5shk0kxm90yk8nn3lum7wdmta3m6ndjcjr4aqcuewjt0sx3rps5', 'https://github.com/davestgermain'],
             ['LiranCohen', 'npub148jmlutaa49y5wl5mcll003ftj59v79vf7wuv3apcwpf75hx22vs7kk9ay', 'https://github.com/LiranCohen'],
-            ['solobalbo', 'npub1x8dzy9xegwmdk2vy30l8u08caspcqq2yzncxehdsa6kvnte9pr3qnt8pg4']
+            ['solobalbo', 'npub1x8dzy9xegwmdk2vy30l8u08caspcqq2yzncxehdsa6kvnte9pr3qnt8pg4'],
+            ['IntuitiveGuy', 'npub13pnmakf738yn6rv2ex9jgs7924renmderyp5d9rtztsr7ymxg3gqej06vw'],
+            ['Nakadai', 'npub1sqaxzwvh5fhgw9q3d7v658ucapvfeds3dcd2587fcwyesn7dnwuqt2r45v'],
+            ['bitcoinbull', 'npub1gl23nnfmlewvvuz7xgrrauuexx2xj70whdf5yhd47tj0r8p68t6sww70gt'],
+            ['stacksatsio', 'npub10jnx6stxk9h4fgtgdqv3hgwx8p4fwe3y73357wykmxm8gz3c3j3sjlvcrd'],
+            ['BitcoinNostrich', 'npub128q9nu7vrqpfjllpcnnq6cc4cgs8ngp9sge9v9s2c7lur098ctts99gupa']
 
         ],
         'List contributors': [
             ['lukeonchain', 'npub138guayty78ch9k42n3uyz5ch3jcaa3u390647hwq0c83m2lypekq6wk36k'],
-            ['pitiunited', 'npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4', 'https://github.com/ptrio42/uselessshit.co']
         ],
         'List maintainer': [
             ['pitiunited', 'npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4', 'https://github.com/ptrio42/uselessshit.co']
