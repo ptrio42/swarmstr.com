@@ -841,6 +841,80 @@ export const GUIDES: Guide[] = [
         tags: ['Media']
     },
     {
+        id: 'paid-relays',
+        issue: 'Paid relays',
+        fix: 'One of the promises of paid relays is to cut spam and provide better reliability. ' +
+            'Once you add a particular relay to your relay list, you should receive a DM with a lightning invoice, ' +
+            'which you should pay to gain access. Fees are one time only (for now at least).',
+        bulletPoints: [
+            'wss://nostr.milou.lol',
+            '1,000 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'wss://relay.nostrati.com',
+            '2,000 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'wss://relay.orangepill.dev',
+            '4,500 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'wss://eden.nostr.land',
+            '5,000 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'wss://nostr.inosta.cc',
+            '5,000 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'wss://relay.nostr.com.au',
+            '6,969 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'wss://nostr.wine',
+            '8,888 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'wss://puravida.nostr.land',
+            '10,000 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'wss://atlas.nostr.land',
+            '15,000 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'wss://nostr-pub.semisol.dev',
+            '15,000 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'Courtesy of',
+            'npub10jnx6stxk9h4fgtgdqv3hgwx8p4fwe3y73357wykmxm8gz3c3j3sjlvcrd:7ca66d4166b16f54a16868191ba1c6386a976624f4634f3896d9b6740a388ca3:stacksatsio'
+        ],
+        updatedAt: '2023-02-05',
+        tags: ['Relays'],
+        attachedNoteId: 'a5c3a106ff4d4b6ba50e3fdf08235a08c6f7c67854db86c549ad3cb89c4ca50f'
+    },
+    {
+        id: 'stats',
+        issue: 'NOSTR stats',
+        fix: 'Checking network and relay stats:',
+        bulletPoints: [
+            '#### nostr.band',
+            'https://nostr.band/stats.html',
+            'by',
+            'npub1xdtducdnjerex88gkg2qk2atsdlqsyxqaag4h05jmcpyspqt30wscmntxy:3356de61b39647931ce8b2140b2bab837e0810c0ef515bbe92de0248040b8bdd:brugeman',
+            '#### nostr.io',
+            'https://nostr.io',
+            'by',
+            'npub1mkq63wkt4v94cvq869njlwpszwpmf62c84p3sdvc2ptjy04jnzjs20r4tx:dd81a8bacbab0b5c3007d1672fb8301383b4e9583d431835985057223eb298a5:plantimals',
+            '#### nostr.watch',
+            'https://nostr.watch',
+            'by',
+            'npub1uac67zc9er54ln0kl6e4qp2y6ta3enfcg7ywnayshvlw9r5w6ehsqq99rx:e771af0b05c8e95fcdf6feb3500544d2fb1ccd384788e9f490bb3ee28e8ed66f:sandwich',
+            'Courtesy of',
+            'npub128q9nu7vrqpfjllpcnnq6cc4cgs8ngp9sge9v9s2c7lur098ctts99gupa:51c059f3cc1802997fe1c4e60d6315c22079a025823256160ac7bfc1bca7c2d7:BitcoinNostrich'
+        ],
+        updatedAt: '2023-02-05'
+    },
+    {
+        id: 'twitter-nostr-migration',
+        issue: 'Twitter 👉 NOSTR migration',
+        fix: 'A quick guide on how to find out who from you twitter followers is already on nostr and how to add them to your list.',
+        bulletPoints: [
+            '1. Verify yourself in ',
+            'https://nostr.directory',
+            '2. Use the Snort client and go to ',
+            'https://snort.social/new',
+            '3. Insert your twitter handle and see a list of your twitter followers who are also on nostr.',
+            '4. Follow with 1 button press or follow one by one.',
+            '<i>If you used this successfully, spread wide to others so that we can find each other and make it easier to drop twitter altogether.</i>',
+            'Courtesy of',
+            'npub1sqaxzwvh5fhgw9q3d7v658ucapvfeds3dcd2587fcwyesn7dnwuqt2r45v:803a613997a26e8714116f99aa1f98e8589cb6116e1aaa1fc9c389984fcd9bb8:Nakadai',
+        ],
+        updatedAt: '2023-02-05',
+        tags: ['Essentials', 'Snort']
+    },
+    {
         id: 'adding-more-relays',
         issue: 'The content won\'t load or loads extremely slow.',
         fix: 'You can find a list of public relays at nostr.watch and add some more items to RELAYS section of your Settings. ' +
