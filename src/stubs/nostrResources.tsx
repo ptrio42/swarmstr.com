@@ -844,13 +844,18 @@ export const GUIDES: Guide[] = [
         id: 'paid-relays',
         issue: 'Paid relays',
         fix: 'One of the promises of paid relays is to cut spam and provide better reliability. ' +
-            'Once you add a particular relay to your relay list, you should receive a DM with a lightning invoice, ' +
+            'Once you add a particular relay to your relay list, you should navigate to its ' +
+            'respective url to get a lightning invoice (replace wss with https in your browser), ' +
             'which you should pay to gain access. Fees are one time only (for now at least).',
         bulletPoints: [
+            'wss://relay.nostriches.org',
+            '421 <i class="fak fa-satoshisymbol-solidtilt" />',
             'wss://nostr.milou.lol',
             '1,000 <i class="fak fa-satoshisymbol-solidtilt" />',
             'wss://relay.nostrati.com',
             '2,000 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'wss://relay.nostrich.land',
+            '2,100 <i class="fak fa-satoshisymbol-solidtilt" />',
             'wss://relay.orangepill.dev',
             '4,500 <i class="fak fa-satoshisymbol-solidtilt" />',
             'wss://eden.nostr.land',
@@ -859,6 +864,12 @@ export const GUIDES: Guide[] = [
             '5,000 <i class="fak fa-satoshisymbol-solidtilt" />',
             'wss://relay.nostr.com.au',
             '6,969 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'wss://nostr.plebchain.org',
+            '6,969 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'wss://bitcoiner.social',
+            '7,000 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'wss://bitcoin.decentony.com',
+            '7,000 <i class="fak fa-satoshisymbol-solidtilt" />',
             'wss://nostr.wine',
             '8,888 <i class="fak fa-satoshisymbol-solidtilt" />',
             'wss://puravida.nostr.land',
@@ -868,7 +879,8 @@ export const GUIDES: Guide[] = [
             'wss://nostr-pub.semisol.dev',
             '15,000 <i class="fak fa-satoshisymbol-solidtilt" />',
             'Courtesy of',
-            'npub10jnx6stxk9h4fgtgdqv3hgwx8p4fwe3y73357wykmxm8gz3c3j3sjlvcrd:7ca66d4166b16f54a16868191ba1c6386a976624f4634f3896d9b6740a388ca3:stacksatsio'
+            'npub10jnx6stxk9h4fgtgdqv3hgwx8p4fwe3y73357wykmxm8gz3c3j3sjlvcrd:7ca66d4166b16f54a16868191ba1c6386a976624f4634f3896d9b6740a388ca3:stacksatsio',
+            'https://relay.exchange'
         ],
         updatedAt: '2023-02-05',
         tags: ['Relays'],
