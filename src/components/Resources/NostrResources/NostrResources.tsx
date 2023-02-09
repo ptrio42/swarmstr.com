@@ -198,7 +198,7 @@ export const NostrResources = () => {
     }, [streams]);
 
     useEffect(() => {
-        connectToRelay()
+        connectToRelay(socketUrl)
             .then((newRelay) => {
                 const { status } = getStream(streams, 'notes');
                     if (status === StreamStatus.CLOSED && (!notes || notes.length === 0)) {
@@ -208,17 +208,12 @@ export const NostrResources = () => {
 
                 setRelay(newRelay);
                 setGuides(getInitialGuides());
+                publishPendingEvents();
             })
             .catch(error => {
                 setSocketUrl((previousSocketUrl) => RELAYS.filter(r => r !== previousSocketUrl)[0])
             });
     }, [socketUrl]);
-
-    useEffect(() => {
-        if (relay && relay.status === 1) {
-            publishPendingEvents();
-        }
-    }, [relay]);
 
     useEffect(() => {
         const refreshNotes = streams
@@ -281,41 +276,6 @@ export const NostrResources = () => {
         return [].concat.apply([], pubkeys);
     };
 
-    const getContentWithTags = (event: any) => {
-        const regex = new RegExp(/(#\[[0-9]\]*)/, 'g');
-        return {
-            ...event,
-            content: event.content.replace(regex, event.tags[+'$1'.slice(2, -1)])
-        }
-    };
-
-    const rejectDelay = async (reason: any) => {
-        return new Promise((resolve, reject) => {
-            setTimeout(reject.bind(null, reason), 1000);
-        });
-    };
-
-    const handleExpanded = (guide: Guide) => {
-        // if (!guide.isRead) {
-        //     markGuideAsRead(guide.id);
-        // }
-        let newExpanded;
-        if (expanded.includes(guide.id)) {
-            newExpanded = expanded.filter(expanded => expanded !== guide.id);
-        } else {
-            newExpanded = [ ...expanded ];
-            newExpanded.push(guide.id);
-        }
-        setExpanded(newExpanded);
-    };
-
-    const handleShareAnswer = (event: any, guide: Guide) => {
-        event.stopPropagation();
-        navigator.clipboard.writeText(`https://uselessshit.co/resources/nostr/#${guide.id}`);
-        setSnackBarMessage('Direct link to answer was copied to clipboard!');
-        setSnackbarOpen(true);
-    };
-
     const getReadGuides = () => {
         return (localStorage.getItem('readGuides') || '')
             .split(',');
@@ -351,28 +311,27 @@ export const NostrResources = () => {
 
     const publishEvent = (event: NostrEvent) => {
         const pub = relay.publish(event);
-        // @ts-ignore
-        setPendingEvents([
-            ...pendingEvents.filter(e => e.id !== event.id),
-            event
-        ]);
 
         pub.on('ok', () => {
-            // @ts-ignore
-            setEvents([
-                ...events,
-                event
-            ]);
-            setPendingEvents(([
-                ...pendingEvents.filter(e => e.id !== event.id)
-            ]));
+            console.log('ok');
         });
         pub.on('seen', () => {
-            console.log(`we saw the event on ${relay.url}`)
+            console.log(`we saw the event on ${relay.url}`);
+            setEvents((prevState => ([
+                ...prevState,
+                event
+            ])));
         });
         pub.on('failed', (reason: any) => {
-            console.log(`failed to publish to ${relay.url}: ${reason}`)
-            setSocketUrl((previousSocketUrl) => RELAYS.filter(r => r !== previousSocketUrl)[0]);
+            console.log(`failed to publish to ${relay.url}: ${reason}`);
+            setPendingEvents([
+                ...pendingEvents.filter(e => e.id !== event.id),
+                event
+            ]);
+            setSocketUrl((previousSocketUrl) => {
+                console.log({previousSocketUrl, socketUrl, nextSocket: RELAYS.filter(r => r !== previousSocketUrl)[0]});
+                return RELAYS.filter(r => r !== previousSocketUrl)[0]
+            });
         });
     };
 
@@ -385,7 +344,7 @@ export const NostrResources = () => {
     return (
         <React.Fragment>
             <Helmet>
-                <title>Nostr newcomers most common questions and answers - UseLessShit.co</title>
+                <title>Your guide to the world of Nostr - UseLessShit.co</title>
                 <meta property="description" content="Basic guide for Nostr newcomers. Find answers to the most common questions." />
                 <meta property="keywords" content="nostr guide, nostr resources, nostr most common questions, getting started on nostr, what is nostr" />
 
@@ -432,7 +391,7 @@ export const NostrResources = () => {
                         <Circle sx={{ fontSize: 12, marginRight: '0.33em!important'  }} />
                         { getFilteredGuidesCount() === GUIDES.length ? 'Total' : getFilteredGuidesCount() } of { GUIDES.length } entries
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important', marginRight: '0.33em!important'  }} />
-                        Last update: 2023-02-05
+                        Last update: 2023-02-09
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important'  }} />
                     </Typography>
                     <Typography

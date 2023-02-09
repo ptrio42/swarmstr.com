@@ -13,9 +13,11 @@ export interface NostrEvent {
 
 export const RELAYS = [
     'wss://brb.io',
-    'wss://nostr.v0l.io',
     'wss://relay.damus.io',
     'wss://nostr-pub.wellorder.net',
+    'wss://nostr.v0l.io',
+    'wss://nostr.uselessshit.co',
+    'wss://nostr.milou.lol',
 ];
 
 export enum StreamStatus {
@@ -46,9 +48,9 @@ export const STREAMS: Stream[] = [
     }
 ];
 
-export const connectToRelay = async () => {
+export const connectToRelay = async (socketUrl?: string) => {
     // @ts-ignore
-    const relay = relayInit(RELAYS[0]);
+    const relay = relayInit(socketUrl || RELAYS[0]);
     await relay.connect();
     return relay;
 };

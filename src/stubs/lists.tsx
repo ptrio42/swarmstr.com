@@ -167,6 +167,9 @@ export const LISTS = [
         'brb.io': [
             ['NVK', 'npub1az9xj85cmxv8e9j9y80lvqp97crsqdu2fpu3srwthd99qfu9qsgstam8y8', 'https://brb.io']
         ],
+        'bountsr.org': [
+            ['NVK', 'npub1az9xj85cmxv8e9j9y80lvqp97crsqdu2fpu3srwthd99qfu9qsgstam8y8', 'https://brb.io']
+        ],
         'nosbin.com': [
             ['JackChakany', 'npub1s8gvenj9j87yux0raa6j52cq8mer4xrvkv08sd020kxhektdgl4qu7ldqa', 'https://nosbin.com']
         ],

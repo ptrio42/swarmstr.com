@@ -62,11 +62,12 @@ export const GUIDES: Guide[] = [
             'https://github.com/vishalxl/nostr_console/discussions/31',
             'https://wiki.wellorder.net/post/nostr-intro/',
             'https://audaciousdenizen.substack.com/p/my-quick-guide-to-nostr',
+            'https://www.austrich.net/nostr/',
             '',
             'Image credits: @coderjourney1'
         ],
         createdAt: '2023-01-09',
-        updatedAt: '2023-01-23',
+        updatedAt: '2023-02-09',
         imageUrls: ['https://uselessshit.co/images/explain-it-to-me-like-i-m-5.png'],
         attachedNoteId: NOTES[1],
         tags: ['Basics', 'Essentials']
@@ -153,6 +154,8 @@ export const GUIDES: Guide[] = [
             'https://hamstr.to',
             'https://nostrgram.co',
             'https://web.nostrid.app',
+            'https://member.cash',
+            'https://coracle.social',
             '#### Android',
             '<i>nostros</i>',
             'https://github.com/KoalaSat/nostros',
@@ -162,11 +165,13 @@ export const GUIDES: Guide[] = [
             'https://github.com/vitorpamplona/amethyst',
             '<i>Nostrid</i>',
             'https://github.com/lapulpeta/Nostrid',
+            '<i>Plasma</i>',
+            'https://github.com/plasma-social/plasma',
             '#### Windows',
             '<i>Nostrid</i>',
             'https://github.com/lapulpeta/Nostrid'
         ],
-        updatedAt: '2023-01-25',
+        updatedAt: '2023-02-09',
         tags: ['Basics', 'Clients']
     },
     {
@@ -185,10 +190,13 @@ export const GUIDES: Guide[] = [
             '#### How to use Nostr with the Alby extension',
             'https://blog.getalby.com/how-to-use-nostr-with-the-alby-extension/',
             '#### The nos2x browser extension',
-            'https://youtu.be/IoLw-3ok3_M'
+            'https://youtu.be/IoLw-3ok3_M',
+            'You can also check out the nos2x fork for Firefox',
+            '#### nos2x-fox',
+            'https://github.com/diegogurpegui/nos2x-fox'
         ],
         createdAt: '2023-01-05',
-        updatedAt: '2023-01-29',
+        updatedAt: '2023-02-09',
         tags: ['Basics', 'Keys', 'Essentials']
     },
     {
@@ -848,19 +856,33 @@ export const GUIDES: Guide[] = [
             'respective url to get a lightning invoice (replace wss with https in your browser), ' +
             'which you should pay to gain access. Fees are one time only (for now at least).',
         bulletPoints: [
+            'wss://paid.spore.ws',
+            '420 <i class="fak fa-satoshisymbol-solidtilt" />',
             'wss://relay.nostriches.org',
             '421 <i class="fak fa-satoshisymbol-solidtilt" />',
             'wss://nostr.milou.lol',
+            '1,000 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'wss://bitcoiner.social',
             '1,000 <i class="fak fa-satoshisymbol-solidtilt" />',
             'wss://relay.nostrati.com',
             '2,000 <i class="fak fa-satoshisymbol-solidtilt" />',
             'wss://relay.nostrich.land',
             '2,100 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'wss://nostr.uselessshit.co',
+            '2,169 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'wss://nostr.ownscale.org',
+            '4,000 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'wss://nostr.naut.social',
+            '4,000 <i class="fak fa-satoshisymbol-solidtilt" />',
             'wss://relay.orangepill.dev',
             '4,500 <i class="fak fa-satoshisymbol-solidtilt" />',
             'wss://eden.nostr.land',
             '5,000 <i class="fak fa-satoshisymbol-solidtilt" />',
             'wss://nostr.inosta.cc',
+            '5,000 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'wss://nostr.howtobitcoin.shop',
+            '5,000 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'wss://nostr.bitcoinplebs.de',
             '5,000 <i class="fak fa-satoshisymbol-solidtilt" />',
             'wss://relay.nostr.com.au',
             '6,969 <i class="fak fa-satoshisymbol-solidtilt" />',
@@ -868,11 +890,17 @@ export const GUIDES: Guide[] = [
             '6,969 <i class="fak fa-satoshisymbol-solidtilt" />',
             'wss://bitcoiner.social',
             '7,000 <i class="fak fa-satoshisymbol-solidtilt" />',
-            'wss://bitcoin.decentony.com',
+            'wss://nostr.decentony.com',
             '7,000 <i class="fak fa-satoshisymbol-solidtilt" />',
             'wss://nostr.wine',
             '8,888 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'wss://private.red.gb.net',
+            '8,888 <i class="fak fa-satoshisymbol-solidtilt" />',
             'wss://puravida.nostr.land',
+            '10,000 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'wss://nostr.gives.africa',
+            '10,000 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'wss://nostr.bitcoinpuertori.co',
             '10,000 <i class="fak fa-satoshisymbol-solidtilt" />',
             'wss://atlas.nostr.land',
             '15,000 <i class="fak fa-satoshisymbol-solidtilt" />',
@@ -882,9 +910,18 @@ export const GUIDES: Guide[] = [
             'npub10jnx6stxk9h4fgtgdqv3hgwx8p4fwe3y73357wykmxm8gz3c3j3sjlvcrd:7ca66d4166b16f54a16868191ba1c6386a976624f4634f3896d9b6740a388ca3:stacksatsio',
             'https://relay.exchange'
         ],
-        updatedAt: '2023-02-05',
+        updatedAt: '2023-02-09',
         tags: ['Relays'],
         attachedNoteId: 'a5c3a106ff4d4b6ba50e3fdf08235a08c6f7c67854db86c549ad3cb89c4ca50f'
+    },
+    {
+        id: 'setting-up-a-paid-relay',
+        issue: 'Setting up a paid relay',
+        fix: 'Check out the link below for a guide on how to set up a paid nostr relay with Nostream and ZBD payment processor.',
+        bulletPoints: [
+            'https://andreneves.xyz/p/how-to-setup-a-paid-nostr-relay'
+        ],
+        updatedAt: '2023-02-09'
     },
     {
         id: 'stats',
@@ -923,7 +960,10 @@ export const GUIDES: Guide[] = [
             'Courtesy of',
             'npub1sqaxzwvh5fhgw9q3d7v658ucapvfeds3dcd2587fcwyesn7dnwuqt2r45v:803a613997a26e8714116f99aa1f98e8589cb6116e1aaa1fc9c389984fcd9bb8:Nakadai',
         ],
-        updatedAt: '2023-02-05',
+        urls: [
+            'https://nostr-twit.glitch.me'
+        ],
+        updatedAt: '2023-02-09',
         tags: ['Essentials', 'Snort']
     },
     {
@@ -1011,9 +1051,11 @@ export const GUIDES: Guide[] = [
             '#### plebs.place',
             'https://plebs.place',
             '#### nostrverified.com',
-            'https://nostrverified.com'
+            'https://nostrverified.com',
+            '#### no.str.cr',
+            'https://no.str.cr/verify.html'
         ],
-        updatedAt: '2023-01-25'
+        updatedAt: '2023-02-09'
     },
     {
         id: 'lnurlp-with-alby',
