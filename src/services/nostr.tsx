@@ -61,11 +61,14 @@ export const getSub = (relay: Relay, query: any[]) => {
 };
 
 export const getStream = (streams: Stream[], name: StreamName) => {
-    return streams &&
-        streams.find(s => s.name === name) || { name: '', status: false };
+    return streams && streams.find(s => s.name === name) || { name: '', status: false };
 };
 
-export const handleSub = (sub: Sub, onEvent: (event: NostrEvent) => any, onEose: () => any, keepOpen?: boolean) => {
+export const handleSub = (
+    sub: Sub,
+    onEvent: (event: NostrEvent) => any,
+    onEose: () => any, keepOpen?: boolean
+) => {
     sub.on('event', (event: NostrEvent) => {
         onEvent && onEvent(event);
     });
@@ -111,7 +114,14 @@ export const getNotesReactionsSub = (relay: Relay, ids: string[]) => {
     ])
 };
 
-export const createEvent = (relay: Relay, privkey: string, pubkey: string, kind: number, content: string, tags?: string[][]): NostrEvent => {
+export const createEvent = (
+    relay: Relay,
+    privkey: string,
+    pubkey: string,
+    kind: number,
+    content: string,
+    tags?: string[][]
+): NostrEvent => {
     const event = {
         kind: 7,
         created_at: Math.floor(Date.now() / 1000),

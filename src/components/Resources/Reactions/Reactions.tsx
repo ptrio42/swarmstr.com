@@ -95,7 +95,11 @@ export const Reactions = ({ reactions, handleReaction, type, placeholder, reacte
             setOpen(!open);
         }}
     >
-        <Badge ref={reactionsRef} badgeContent={reactions.length} color="primary" sx={{ opacity: reacted ? 1 : 0.5 }}>
+        <Badge
+            ref={reactionsRef}
+            badgeContent={reactions.length}
+            color="primary" sx={{ opacity: reacted ? 1 : 0.5 }}
+        >
             { uniqBy(reactions, 'content')
                 .map(r =>
                     r.content
@@ -152,7 +156,9 @@ export const Reactions = ({ reactions, handleReaction, type, placeholder, reacte
                                                     setOpen(!open);
                                                 }}
                                             >
-                                                {r.content.replace('+', '💜').replace('-', '👎')}
+                                                {r.content
+                                                    .replace('+', '💜').
+                                                    replace('-', '👎')}
                                             </IconButton>
                                         )) }
                                 </MenuItem>

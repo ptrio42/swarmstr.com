@@ -3,7 +3,6 @@ import {List} from "@mui/material";
 import ListItem from "@mui/material/ListItem";
 import {useLocation, useSearchParams} from "react-router-dom";
 import {Helmet} from "react-helmet";
-import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
 import {ArrowDownward, ArrowUpward, Circle, Clear, ToggleOff} from "@mui/icons-material";
 import ListItemText from "@mui/material/ListItemText";
@@ -329,7 +328,6 @@ export const NostrResources = () => {
                 event
             ]);
             setSocketUrl((previousSocketUrl) => {
-                console.log({previousSocketUrl, socketUrl, nextSocket: RELAYS.filter(r => r !== previousSocketUrl)[0]});
                 return RELAYS.filter(r => r !== previousSocketUrl)[0]
             });
         });
