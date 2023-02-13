@@ -10,7 +10,7 @@ import './NostrResources.css';
 import Snackbar from "@mui/material/Snackbar";
 import Input from "@mui/material/Input";
 import {matchString} from "../../../utils/utils";
-import {GUIDES, NOTES, PUBKEYS} from "../../../stubs/nostrResources";
+import {GUIDES, GUIDES_LAST_UPDATE, NOTES, PUBKEYS} from "../../../stubs/nostrResources";
 import Divider from "@mui/material/Divider";
 import {nip05, nip19} from 'nostr-tools';
 import {NoteThread} from "../Thread/Thread";
@@ -389,7 +389,7 @@ export const NostrResources = () => {
                         <Circle sx={{ fontSize: 12, marginRight: '0.33em!important'  }} />
                         { getFilteredGuidesCount() === GUIDES.length ? 'Total' : getFilteredGuidesCount() } of { GUIDES.length } entries
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important', marginRight: '0.33em!important'  }} />
-                        Last update: 2023-02-09
+                        Last update: { GUIDES_LAST_UPDATE }
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important'  }} />
                     </Typography>
                     <Typography

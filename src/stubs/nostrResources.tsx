@@ -13,16 +13,6 @@ export const NOTES = [
     '4118cde32ca3946544c85ec761c1ebce7ff31e6187df30c98ad759bc7731beea',
     'c5d66fc688f59c06512ec989193d4d883d93761009a34d17a0742587c2f8e863',
     '2840a196b4128d685345400072dff72199f62256cce159bf2c261fccf85067d1'
-    // 'a508a7fa14bc308487737af8d1756155cf615483ae65c39f5845aa310b6e3cca',
-    // '62fa89e3ed6e50ebaeae7f688a5229760262e6ccf015ab7accb46d1e944ef030',
-    // 'da34ae690b22309caf65f1b5974f8f02e2924350e9ca703f5594df82f57139ac',
-    // '5c3b9ddb6d87425826af78ae6014f276bb034f9aa7b2c6833af9d0da37a4e73a',
-    // '0e8bdc70e99cbe7fdd8400d2192f82a692399f706879270b98c493f834585692',
-    // 'a54309bd0b66be5e05416221cf3f2e5557e2876899bb5d6d2965a3f0bf555582',
-    // '17f615a2b82640553ca7f5ea6fb417cf5b7e66be854d0e6f683d539174ec772a',
-    // '08db8334578b5571cad7cc849f934b27b98019a3bf008a5a417b1468df9be71a',
-    // '07f82ffd55cb4e0acf3f956ca1b18239a1a265cd4918e3cdc3a1244f37a6404d',
-    // '5222361b78833d775dfb6a47e6dc0b5fbc761c4c11e34ce0315f5dd4bec0a318',
 ];
 
 export const PUBKEYS = [
@@ -34,6 +24,8 @@ export const PUBKEYS = [
     'f8e6c64342f1e052480630e27e1016dce35fc3a614e60434fef4aa2503328ca9',
 
 ];
+
+export const GUIDES_LAST_UPDATE = '2023-02-13';
 
 export const GUIDES: Guide[] = [
     {
@@ -575,35 +567,6 @@ export const GUIDES: Guide[] = [
         tags: ['Media', 'Damus']
     },
     {
-        id: 'dropping-an-invoice',
-        issue: 'How do I drop a lightning invoice?',
-        fix: 'Open a Lightning Wallet of your choice, click Receive, edit the amount and copy the Lightning Invoice. ',
-        bulletPoints: [
-            'Instructions for different wallets are pretty similar.',
-            'Here\'s some examples',
-            '#### Wallet of Satoshi',
-            // '<i>Great for beginners. Custodial.</i>',
-            'https://uselessshit.co/images/lightning-invoice-wos.png',
-            '#### Phoenix Wallet',
-            // '<i>More advanced. Self-custody.</i>',
-            'https://uselessshit.co/images/lightning-invoice-phoenix.png',
-            'Then simply paste the lightning invoice into the note.',
-            'https://uselessshit.co/images/lightning-invoice-damus.png',
-            'Now someone will be able to pay that invoice.'
-        ],
-        createdAt: '2022-12-26',
-        updatedAt: '2023-02-01',
-        tags: ['Basics', '⚡️ Lightning']
-    },
-    {
-        id: 'multiple-invoices',
-        issue: 'Can I drop more than one invoice in a note?',
-        fix: 'Yes, some clients support dropping multiple invoices in a single note. Simply copy & paste lnurls, ' +
-            'separated by spaces, into a new note.',
-        updatedAt: '2023-01-03',
-        tags: ['⚡️ Lightning']
-    },
-    {
         id: 'how-to-quote-a-note',
         issue: 'How to refer to an existing post (note)?',
         fix: 'Click (press) and hold on the note you would like to quote. A menu should pop up. Select Copy Note ID. ' +
@@ -704,11 +667,60 @@ export const GUIDES: Guide[] = [
         tags: ['Basics']
     },
     {
-        id: 'receiving-sats',
-        issue: 'NOSTR and Lightning ⚡',
+        id: 'zaps',
+        issue: 'WTF are zaps ⚡️?',
+        fix: '',
+        bulletPoints: [
+            'https://uselessshit.co/images/zaps-definition.png',
+            '1. to send unstoppable, ungovernable and permissionless money to a person or a group of people ' +
+            'in a matter of seconds as an appreciation for their doings.',
+            '<i>"I just zapped you 1k sats"</i>',
+            '<i>"Thanks to whomever zapped me 69 sats"</i>',
+            '<i>"Zapping is highly appeciated"</i>',
+            'https://media.tenor.com/UcJMMDEAkOMAAAAS/big-trouble-in-little-china-raiden.gif',
+
+            '#### Zapping people on NOSTR is a breeze.',
+            'Most clients support zapping through profiles, whereas Damus, Amethyst and snort.social ' +
+            'also allow for zapping through notes.',
+
+            '#### This guide is for zapping on Damus.',
+
+            '#### Zapping through profile',
+            'Once on the profile view, look for a button with a lightning bolt symbol and tap it.',
+            'https://uselessshit.co/images/zaps/zaps-06.png',
+            'A new view should pop up, asking you to select the lightning wallet you\'d like to use for zapping.',
+            'https://uselessshit.co/images/zaps/zaps-07.png',
+            'Tap on the desired one and enter the amount you\'d like to send.',
+            'https://uselessshit.co/images/zaps/zaps-08.png',
+            'Tap on <i>DONE</i> and <i>OK</i> (for Wallet of Satoshi).',
+            'https://uselessshit.co/images/zaps/zaps-09.png',
+            'That\'s it!',
+            '',
+            '#### Zapping through a note',
+            'Look for a lightning bolt under a specific note and tap it.',
+            'https://uselessshit.co/images/zaps/zaps-01.png',
+            'The lightning bolt should rotate 90 degrees and turn yellow.',
+            'https://uselessshit.co/images/zaps/zaps-02.png',
+            'Select the lightning wallet you\'d like to use for zapping.',
+            'https://uselessshit.co/images/zaps/zaps-03.png',
+            'For now the default zap amount is 1k sats and cannot be changed.',
+            'https://uselessshit.co/images/zaps/zaps-04.png',
+            'Tap on <i>Pay</i>.',
+            'https://uselessshit.co/images/zaps/zaps-05.png',
+            'Hoorey! You just zapped someone through a note!',
+
+            // TODO: zaps on snort.social
+        ],
+        tags: ['Basics', 'Lightning', 'Zaps', 'Damus'],
+        updatedAt: '2023-02-13'
+    },
+    {
+        id: 'receiving-zaps',
+        issue: 'Receiving zaps ⚡',
         fix: 'With bitcoin and lightning it\'s easy to exchange value. ' +
             'Nostr protocol is where this can be seen in action. ' +
-            'Make sure your profile is set up correctly and people can send you sats, so you can experience the V4V magic first hand.' +
+            'Make sure your profile is set up correctly and people can send you sats ' +
+            'and you can experience the V4V magic first hand.' +
             '',
         bulletPoints: [
             '#### Instructions for setting up your profile to be able to receive sats',
@@ -747,9 +759,84 @@ export const GUIDES: Guide[] = [
         ],
         createdAt: '2022-12-26',
         updatedAt: '2022-02-03',
-        tags: ['Basics', '⚡️ Lightning', 'Damus', 'Essentials'],
+        tags: ['Basics', 'Lightning', 'Damus', 'Essentials', 'Zaps'],
         attachedNoteId: NOTES[5]
     },
+    {
+        id: 'dropping-an-invoice',
+        issue: 'Dropping lightning invoices',
+        fix: 'Open a Lightning Wallet of your choice, click Receive, edit the amount and copy the Lightning Invoice. ',
+        bulletPoints: [
+            'Instructions for different wallets are pretty similar.',
+            'Here\'s some examples',
+            '#### Wallet of Satoshi',
+            // '<i>Great for beginners. Custodial.</i>',
+            'https://uselessshit.co/images/lightning-invoice-wos.png',
+            '#### Phoenix Wallet',
+            // '<i>More advanced. Self-custody.</i>',
+            'https://uselessshit.co/images/lightning-invoice-phoenix.png',
+            'Then simply paste the lightning invoice into the note.',
+            'https://uselessshit.co/images/lightning-invoice-damus.png',
+            'Now someone will be able to pay that invoice.',
+            '<i>Some clients support dropping multiple invoices in a single note. Simply copy & paste lnurls, ' +
+            'separated by spaces, into a new note.</i>'
+        ],
+        createdAt: '2022-12-26',
+        updatedAt: '2023-02-01',
+        tags: ['Basics', 'Lightning']
+    },
+    {
+        id: 'free-100-sats',
+        issue: '#100SatsTheStandard',
+        fix: '',
+        bulletPoints: [
+            '<i>Want to test out lightning on nostr and get free 100 sats?</i>',
+            '',
+            'Post a lightning invoice for 100 sats.',
+            'Tag @bitcoinbull',
+            'npub1gl23nnfmlewvvuz7xgrrauuexx2xj70whdf5yhd47tj0r8p68t6sww70gt:47d519cd3bfe5cc6705e32063ef39931946979eebb53425db5f2e4f19c3a3af5:bitcoinbull',
+            'Watch the magic happen before your own eyes 🪄'
+        ],
+        createdAt: '2023-01-11',
+        updatedAt: '2023-01-16',
+        tags: ['Lightning']
+    },
+    {
+        id: 'disable-allow-to-paste',
+        issue: 'How to turn off \'Allow to paste\' prompt on iOS?',
+        fix: '',
+        bulletPoints: [
+            'For a smoother experience, when interacting with nostr & lightning, you might want to disable the ' +
+            '<i>Don\'t Allow Paste \ Allow Paste</i> prompt.',
+            'https://uselessshit.co/images/deny-allow-prompt-01.jpeg',
+            '#### Disabling the prompt on iOS',
+            'You need to go to the wallet\'s of your choice settings, ' +
+            'in your phone settings app (eg. <i>Settings</i> -> <i>Wallet of Satoshi</i>) and ' +
+            'change <i>Paste from Other Apps</i> from the default to either <i>Deny</i> ' +
+            'or <i>Allow</i>.',
+            'https://uselessshit.co/images/deny-allow-prompt-02.png',
+            'https://uselessshit.co/images/deny-allow-prompt-03.png',
+        ],
+        updatedAt: '2023-02-13',
+        tags: ['Basics', 'Lightning', 'Wallets'],
+    },
+    // TODO: add these sections
+    // {
+    //     id: 'follow-all-button',
+    //     issue: '',
+    //     fix: '',
+    //     tags: ['Snort'],
+    //     updatedAt: '2023-02-13'
+    // },
+    // {
+    //     id: 'global-feed-filters',
+    //     issue: 'Global Feed',
+    //     fix: '',
+    //     bulletPoints: [
+    //
+    //     ],
+    //     updatedAt: '2023-02-13'
+    // },
     {
         id: 'starter-pack',
         issue: 'Nostr Starter Pack™️ 🔥',
@@ -778,7 +865,7 @@ export const GUIDES: Guide[] = [
             'The default wallet can be chosen from the list under "Select default wallet".',
         createdAt: '2023-01-06',
         updatedAt: '2023-01-14',
-        tags: ['⚡️ Lightning', 'Damus']
+        tags: ['Lightning', 'Damus']
     },
     {
         id: 'dark-mode',
@@ -908,6 +995,7 @@ export const GUIDES: Guide[] = [
             '15,000 <i class="fak fa-satoshisymbol-solidtilt" />',
             'Courtesy of',
             'npub10jnx6stxk9h4fgtgdqv3hgwx8p4fwe3y73357wykmxm8gz3c3j3sjlvcrd:7ca66d4166b16f54a16868191ba1c6386a976624f4634f3896d9b6740a388ca3:stacksatsio',
+            'You will find an up to date list of paid relays at',
             'https://relay.exchange'
         ],
         updatedAt: '2023-02-09',
@@ -1185,20 +1273,6 @@ export const GUIDES: Guide[] = [
             'If your app keeps crashing, make sure you\'ve updated Damus and iOS to the latest versions.',
         updatedAt: '2023-01-09',
         tags: ['Troubleshooting', 'Damus']
-    },
-    {
-        id: 'free-100-sats',
-        issue: 'Want to test lightning and get free 100 sats?',
-        fix: '',
-        bulletPoints: [
-            'Post a lightning invoice for 100 sats.',
-            'Tag @bitcoinbull',
-            'npub1gl23nnfmlewvvuz7xgrrauuexx2xj70whdf5yhd47tj0r8p68t6sww70gt:47d519cd3bfe5cc6705e32063ef39931946979eebb53425db5f2e4f19c3a3af5:bitcoinbull',
-            'Watch the magic happen before your own eyes 🪄'
-        ],
-        createdAt: '2023-01-11',
-        updatedAt: '2023-01-16',
-        tags: ['⚡️ Lightning']
     },
     {
         id: 'more-resources',
