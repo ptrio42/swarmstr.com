@@ -6,7 +6,7 @@ import {
     CopyAll,
     DoneOutline,
     Expand,
-    IosShare,
+    IosShare, Launch,
     QrCodeScanner,
     UnfoldLess,
     UnfoldMore
@@ -235,16 +235,27 @@ export const Note = ({
                                     onClick={handleMenuClose}
                                 >
                                     <MenuItem onClick={(event) => {
-                                        event.stopPropagation();
                                         const noteEncoded = nip19.noteEncode(id);
                                         navigator.clipboard.writeText(noteEncoded);
                                         setSnackBarMessage(noteEncoded);
                                         setSnackbarOpen(true);
+                                        event.stopPropagation();
                                     }}>
                                         <CopyAll sx={{ fontSize: 18, marginRight: 1 }} /> Copy note ID
                                     </MenuItem>
-                                    <MenuItem onClick={() => { setDialogOpen(true) }}>
+                                    <MenuItem
+                                        onClick={(event) => {
+                                            setDialogOpen(true);
+                                        }}>
                                         <QrCodeScanner sx={{ fontSize: 18, marginRight: 1 }} /> Show QR
+                                    </MenuItem>
+                                    <MenuItem onClick={(event) => {
+                                        const noteEncoded = nip19.noteEncode(id);
+                                        const a = document.createElement('a');
+                                        a.href = 'nostr:' + noteEncoded;
+                                        a.click();
+                                    }}>
+                                        <Launch sx={{ fontSize: 18, marginRight: 1 }}/> Open in client
                                     </MenuItem>
                                     {/*<MenuItem*/}
                                         {/*onClick={() => {*/}
