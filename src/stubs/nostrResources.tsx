@@ -12,7 +12,8 @@ export const NOTES = [
     '1fd1a9ac81f4a2a8b3364036659355e01e9bad42536ecfc6ca5f2823346c8df6',
     '4118cde32ca3946544c85ec761c1ebce7ff31e6187df30c98ad759bc7731beea',
     'c5d66fc688f59c06512ec989193d4d883d93761009a34d17a0742587c2f8e863',
-    '2840a196b4128d685345400072dff72199f62256cce159bf2c261fccf85067d1'
+    '2840a196b4128d685345400072dff72199f62256cce159bf2c261fccf85067d1',
+    '16e0b43f67e111a168abcab297aafc27b18b48a4ab7b67582458197a86ac63a0'
 ];
 
 export const PUBKEYS = [
@@ -25,7 +26,7 @@ export const PUBKEYS = [
 
 ];
 
-export const GUIDES_LAST_UPDATE = '2023-02-13';
+export const GUIDES_LAST_UPDATE = '2023-02-14';
 
 export const GUIDES: Guide[] = [
     {
@@ -820,23 +821,39 @@ export const GUIDES: Guide[] = [
         updatedAt: '2023-02-13',
         tags: ['Basics', 'Lightning', 'Wallets'],
     },
-    // TODO: add these sections
-    // {
-    //     id: 'follow-all-button',
-    //     issue: '',
-    //     fix: '',
-    //     tags: ['Snort'],
-    //     updatedAt: '2023-02-13'
-    // },
-    // {
-    //     id: 'global-feed-filters',
-    //     issue: 'Global Feed',
-    //     fix: '',
-    //     bulletPoints: [
-    //
-    //     ],
-    //     updatedAt: '2023-02-13'
-    // },
+    {
+        id: 'global-feed-filters',
+        issue: 'Global Feed',
+        fix: 'Nowadays, if you\'re using free relays, your global feed will likely be full of spam. ' +
+            'With the raise of paid relays, came a solution to cut it out - the admission fee keeps the ' +
+            'spammers at bay most of the times.',
+        bulletPoints: [
+            'If you\'d like to keep your global feed clean, you might want to add a bunch of paid relays to your relay list.',
+            'Previously it would mean that you\'d have to drop some (or all) of the free relays.',
+            'This would also mean that you wouldn\'t be able to see any profiles or notes that are stored on those relays.',
+            'With the <i>Global Feed</i> filters you can take the advantage of subscribing to paid relays without losing any of your data.',
+
+            '<i>Tip: The admission fee usually applies to write access, so you don\'t need to pay the fee if you only want your</i>' +
+            ' <i>client to read the data from a paid relay.</i>',
+
+            '#### Instructions for Global Feed filtering on Damus',
+            'Once you have some paid relays added to your relay list, you can change the filters on the Global Feed ' +
+            'to only show data from paid relays',
+            'Go to <i>Global Feed</i> view and tap on the funnel symbol in the top right corner.',
+            'https://uselessshit.co/images/global-feed-01.png',
+            'Pick desired relays by them toggling on/off on the list that will show up.',
+            'For a clean feed you might want to select paid relays only or experiment with different setups.',
+            'https://uselessshit.co/images/global-feed-02.png',
+            'Now you can enjoy a clean Global Feed.',
+            'https://uselessshit.co/images/global-feed-03.png',
+            '',
+            'If you\'d like to keep Global Feed clean and still be able to see data from free relays, ',
+            'you might want to consider adding a paid filter relay.',
+            'Check out this link for more information.',
+            'https://github.com/nostr-wine/filter-relay/blob/main/README.md'
+        ],
+        updatedAt: '2023-02-14'
+    },
     {
         id: 'starter-pack',
         issue: 'Nostr Starter Pack™️ 🔥',
@@ -938,11 +955,18 @@ export const GUIDES: Guide[] = [
     {
         id: 'paid-relays',
         issue: 'Paid relays',
-        fix: 'One of the promises of paid relays is to cut spam and provide better reliability. ' +
-            'Once you add a particular relay to your relay list, you should navigate to its ' +
-            'respective url to get a lightning invoice (replace wss with https in your browser), ' +
-            'which you should pay to gain access. Fees are one time only (for now at least).',
+        fix: 'One of the promises of paid relays is to cut spam and provide better reliability.',
         bulletPoints: [
+            '#### Instructions for gaining write access to a paid relay',
+            '1. Add the desired relay(s) to your relay list. ',
+            '2. You should receive a DM afterwards with a lightning invoice which you should pay to get admitted.',
+            '3. If you didn\'t receive an invoice via DM, visit a given relay\'s website and take it from there (replace wss with https to get the url).',
+            '<i>If you\'re using Damus, you can also find each relay\'s website url by tapping on it\'s name on the RELAYS view ' +
+            '(after it\'s been added to your relay list).',
+            '#### Fees are one time only (for now at least).',
+            '<i>When using multiple nostr clients, it should be enough to update the relay list in a single client.</i>',
+            '',
+            '#### Paid relays',
             'wss://paid.spore.ws',
             '420 <i class="fak fa-satoshisymbol-solidtilt" />',
             'wss://relay.nostriches.org',
@@ -998,7 +1022,7 @@ export const GUIDES: Guide[] = [
             'You will find an up to date list of paid relays at',
             'https://relay.exchange'
         ],
-        updatedAt: '2023-02-09',
+        updatedAt: '2023-02-14',
         tags: ['Relays'],
         attachedNoteId: 'a5c3a106ff4d4b6ba50e3fdf08235a08c6f7c67854db86c549ad3cb89c4ca50f'
     },
