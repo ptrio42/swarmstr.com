@@ -1,6 +1,9 @@
 import {Guide} from "../components/Resources/NostrResources/NostrResources";
 import {getPeopleInvolvedInNostr, listToMarkup} from "../utils/utils";
 
+
+// These are the notes ids that are used as discussion notes for
+// most of the guides in the faq
 export const NOTES = [
     '1bc4db2cd4822334c7ab5f13e907533d7276057ab91312c5b21b2ae0e70cf9a0',
     '17f615a2b82640553ca7f5ea6fb417cf5b7e66be854d0e6f683d539174ec772a',
@@ -13,7 +16,30 @@ export const NOTES = [
     '4118cde32ca3946544c85ec761c1ebce7ff31e6187df30c98ad759bc7731beea',
     'c5d66fc688f59c06512ec989193d4d883d93761009a34d17a0742587c2f8e863',
     '2840a196b4128d685345400072dff72199f62256cce159bf2c261fccf85067d1',
-    '16e0b43f67e111a168abcab297aafc27b18b48a4ab7b67582458197a86ac63a0'
+    '16e0b43f67e111a168abcab297aafc27b18b48a4ab7b67582458197a86ac63a0',
+    '556fb051744fd4a17a348c69ce95500971bc9a4f6305507ef01f0eda0f093695',
+    'a902308552b36ad1863f830ec4b6648166d793b157f5188f20f463c3eaf94cf4',
+    '6baf8bdbf85e4d8d27382e69c7c92d53efc2b01d4d945a461c170e5c586482a4',
+    '375488c5378dd2a0f873578dcdd878d86b4f483a0310301e123a71fa9e1662b9',
+    '9b94b0645bc2c755769b2c01304bf63aa1fe434a2be21948f33264ef810365ee',
+    '9f158637de6ec5bd97e272ec3d1d2f10c14dffa6afedb04c0aee2869a3a18bbd',
+    '8fe64dfee6323bd3971b4a5718eb890258dff9e952059f3b04adb1e6e9b0fc84',
+    '863918f4e2c7530c006ac333a28b3cd37829b27879d556ceec5107e673b96839',
+    '45a4d2808dcb4cdc99b17bd47f24e0d27111c9f0ab599e6c1b1b5a602c3b0e0c',
+    '7810556aa05f2439e90b503a097776e4637f5c362ecfca0a4d242fbf172d5e95',
+    'ea338ad542d718c40bc70f7b47cb24d5ac58d7136dc06ebdd35e8ebad971a343',
+    '5f323b94489db9b48ef75f6353e26f1b455d374b98b4d67bab27ead8fbcf878a',
+    '53a435eb103ef2ed7af2efa4c90d7391532efebfcec7ecb97ca0cfca57797fc6',
+    'a755d5370b26976988d8da115af615d4233e02cff8cefafbec86fc4553a7c898',
+    '0d1e655919007561763bf10207d2ac29c14a52caa7b705c23568197680ceed77',
+    '59a938bcfadbe487ffcff86ebb3ee9f8415ec6f4a91f634ad647561b59e79cc4',
+    '679570d6e77c5f0b15431dcc30a88c359c8c680f4a2d9b975959f7a970fcd8fc',
+    'f6fda04013bcbca98b33bd419822ce1b807dc24796892389f74df22b78f312a9',
+    'a6d79e2a426bef6a9ac75c159feb405584fa8fc8f9c683867ba789f392921efb',
+    'a1bc9e57e7dd0a86350b1a4175e9120e83d4dc22ce0d2bb35e2cf7ac7aa2b893',
+    'ba402b5b346aa49125f07504aa9d42cbc8003715c5c6f9d48f42cb9531307ff9',
+    '54939b180633ebbc25d0e863b1e9372aeeca03fbe87dbf8c557bbcfaf4a1fbbf',
+    'a5c3a106ff4d4b6ba50e3fdf08235a08c6f7c67854db86c549ad3cb89c4ca50f'
 ];
 
 export const PUBKEYS = [
@@ -83,7 +109,8 @@ export const GUIDES: Guide[] = [
             'https://github.com/nostr-protocol/nostr#how-does-nostr-work'
         ],
         tags: ['Basics', 'Essentials'],
-        updatedAt: '2023-02-01'
+        updatedAt: '2023-02-01',
+        attachedNoteId: NOTES[12]
     },
     {
         id: 'about-nostr-clients',
@@ -97,7 +124,8 @@ export const GUIDES: Guide[] = [
             'https://github.com/nostr-protocol/nostr#very-short-summary-of-how-it-works-if-you-dont-plan-to-read-anything-else'
         ],
         updatedAt: '2023-02-01',
-        tags: ['Basics', 'Clients']
+        tags: ['Basics', 'Clients'],
+        attachedNoteId: NOTES[13]
     },
     {
         id: 'about-relays',
@@ -109,7 +137,8 @@ export const GUIDES: Guide[] = [
             'https://github.com/nostr-protocol/nostr#very-short-summary-of-how-it-works-if-you-dont-plan-to-read-anything-else'
         ],
         updatedAt: '2023-02-01',
-        tags: ['Basics', 'Relays']
+        tags: ['Basics', 'Relays'],
+        attachedNoteId: NOTES[14]
     },
     {
         id: 'the-list',
@@ -165,7 +194,8 @@ export const GUIDES: Guide[] = [
             'https://github.com/lapulpeta/Nostrid'
         ],
         updatedAt: '2023-02-09',
-        tags: ['Basics', 'Clients']
+        tags: ['Basics', 'Clients'],
+        attachedNoteId: NOTES[15]
     },
     {
         id: 'keys',
@@ -190,7 +220,8 @@ export const GUIDES: Guide[] = [
         ],
         createdAt: '2023-01-05',
         updatedAt: '2023-02-09',
-        tags: ['Basics', 'Keys', 'Essentials']
+        tags: ['Basics', 'Keys', 'Essentials'],
+        attachedNoteId: NOTES[16]
     },
     {
         id: 'using-nostr-with-alby-or-nos2x',
@@ -217,7 +248,8 @@ export const GUIDES: Guide[] = [
             'https://orangepill.dev/nostr-guides/guide-nostr-key-generation-and-management/'
         ],
         updatedAt: '2023-01-22',
-        tags: ['Keys', 'Guides']
+        tags: ['Keys', 'Guides'],
+        attachedNoteId: NOTES[17]
     },
     {
         id: 'nostr-sources-list-for-new-users',
@@ -340,7 +372,7 @@ export const GUIDES: Guide[] = [
             '\n',
             '⚡️ wrigglypie41@walletofsatoshi.com ⚡️ 💜🍀'
         ],
-        attachedNoteId: '8fe64dfee6323bd3971b4a5718eb890258dff9e952059f3b04adb1e6e9b0fc84',
+        attachedNoteId: NOTES[18],
         tags: ['People', 'Projects']
     },
     {
@@ -357,7 +389,8 @@ export const GUIDES: Guide[] = [
             'https://nostr.build/i/walker/LxHDoJ7P_400x400.jpg',
             'https://nostr.build/i/walker/2087.jpeg'
         ],
-        updatedAt: '2023-01-25'
+        updatedAt: '2023-01-25',
+        attachedNoteId: NOTES[19]
     },
     {
         id: 'what-is-damus',
@@ -416,7 +449,8 @@ export const GUIDES: Guide[] = [
 
         ],
         tags: ['Damus', 'Intermediate'],
-        updatedAt: '2023-02-01'
+        updatedAt: '2023-02-01',
+        attachedNoteId: NOTES[20]
     },
     {
         id: 'mining-the-public-hex-key',
@@ -451,7 +485,8 @@ export const GUIDES: Guide[] = [
             'https://telegra.ph/How-to-create-a-POW-nostr-key-pair-01-04'
         ],
         updatedAt: '2023-01-29',
-        tags: ['Keys']
+        tags: ['Keys'],
+        attachedNoteId: NOTES[21]
     },
     {
         id: 'logging-in-with-someone-else-s-key',
@@ -488,13 +523,13 @@ export const GUIDES: Guide[] = [
     {
         id: 'adding-images',
         issue: 'How to add an image to a post?',
-        fix: 'Image urls are processed and displayed as images. ' +
-            'For now, it\'s not possible to upload images directly from your device. ' +
-            'The image has to be hosted somewhere before it can be used. ' +
-            'Several free public image hosting services are listed below.',
+        fix: 'Image urls are processed and displayed as images. ',
         createdAt: '2022-12-26',
-        updatedAt: '2023-01-25',
+        updatedAt: '2023-02-14',
         bulletPoints: [
+            'For now, only some clients (like snort.social) allow you to upload images directly from your device. ',
+            'In most cases, the image has to be hosted somewhere before it can be used. ',
+            'Here\'s a list of free public image hosting services are listed below.',
             'https://nostr.build',
             'https://nostrimg.com',
             'https://imgbb.com',
@@ -502,7 +537,8 @@ export const GUIDES: Guide[] = [
             'https://imgur.com',
             'https://void.cat'
         ],
-        tags: ['Basics', 'Media']
+        tags: ['Basics', 'Media'],
+        attachedNoteId: NOTES[22]
     },
     {
         id: 'adding-pfp',
@@ -523,6 +559,7 @@ export const GUIDES: Guide[] = [
         createdAt: '2022-12-26',
         updatedAt: '2023-02-01',
         tags: ['Basics', 'Media', 'Damus'],
+        attachedNoteId: NOTES[23]
     },
     {
         id: 'gifs',
@@ -597,8 +634,13 @@ export const GUIDES: Guide[] = [
         issue: 'Deleting accounts',
         fix: 'You cannot delete on the protocol level. ' +
             'Some clients might allow you to delete your account, but they only mark it as deleted.',
-        updatedAt: '2023-02-01',
-        tags: ['Basics', 'Essentials']
+        bulletPoints: [
+            'You can `delete` your account on Damus in <i>Settings</i> by tapping on <i>Delete Account</i>.',
+            'http://localhost:3000/images/deleting-accounts.png'
+        ],
+        updatedAt: '2023-02-14',
+        tags: ['Basics', 'Essentials'],
+        attachedNoteId: NOTES[24]
     },
     {
         id: 'sharing-notes',
@@ -665,7 +707,8 @@ export const GUIDES: Guide[] = [
             '"DMs may not be mirrored between relays, so they may get lost over time when relays disappear."'
         ],
         updatedAt: '2023-02-01',
-        tags: ['Basics']
+        tags: ['Basics'],
+        attachedNoteId: NOTES[32]
     },
     {
         id: 'zaps',
@@ -704,7 +747,7 @@ export const GUIDES: Guide[] = [
             'https://uselessshit.co/images/zaps/zaps-02.png',
             'Select the lightning wallet you\'d like to use for zapping.',
             'https://uselessshit.co/images/zaps/zaps-03.png',
-            'For now the default zap amount is 1k sats and cannot be changed.',
+            'The zap amount will be whatever you\'ve set in Damus <i>Settings</i> -> <i>DEFAULT ZAP AMOUNT IN SATS</i> (the default is 1k sats).',
             'https://uselessshit.co/images/zaps/zaps-04.png',
             'Tap on <i>Pay</i>.',
             'https://uselessshit.co/images/zaps/zaps-05.png',
@@ -713,7 +756,8 @@ export const GUIDES: Guide[] = [
             // TODO: zaps on snort.social
         ],
         tags: ['Basics', 'Lightning', 'Zaps', 'Damus'],
-        updatedAt: '2023-02-13'
+        updatedAt: '2023-02-14',
+        attachedNoteId: NOTES[25]
     },
     {
         id: 'receiving-zaps',
@@ -784,7 +828,8 @@ export const GUIDES: Guide[] = [
         ],
         createdAt: '2022-12-26',
         updatedAt: '2023-02-01',
-        tags: ['Basics', 'Lightning']
+        tags: ['Basics', 'Lightning'],
+        attachedNoteId: NOTES[33]
     },
     {
         id: 'free-100-sats',
@@ -852,7 +897,8 @@ export const GUIDES: Guide[] = [
             'Check out this link for more information.',
             'https://github.com/nostr-wine/filter-relay/blob/main/README.md'
         ],
-        updatedAt: '2023-02-14'
+        updatedAt: '2023-02-14',
+        attachedNoteId: NOTES[26]
     },
     {
         id: 'starter-pack',
@@ -1024,7 +1070,7 @@ export const GUIDES: Guide[] = [
         ],
         updatedAt: '2023-02-14',
         tags: ['Relays'],
-        attachedNoteId: 'a5c3a106ff4d4b6ba50e3fdf08235a08c6f7c67854db86c549ad3cb89c4ca50f'
+        attachedNoteId: NOTES[34]
     },
     {
         id: 'setting-up-a-paid-relay',
@@ -1149,7 +1195,7 @@ export const GUIDES: Guide[] = [
             'npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4:f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8:pitiunited'
         ],
         updatedAt: '2023-01-19',
-        attachedNoteId: '679570d6e77c5f0b15431dcc30a88c359c8c680f4a2d9b975959f7a970fcd8fc'
+        attachedNoteId: NOTES[28]
     },
     {
         id: 'paid-nip-05-providers',
@@ -1167,7 +1213,8 @@ export const GUIDES: Guide[] = [
             '#### no.str.cr',
             'https://no.str.cr/verify.html'
         ],
-        updatedAt: '2023-02-09'
+        updatedAt: '2023-02-09',
+        attachedNoteId: NOTES[27]
     },
     {
         id: 'lnurlp-with-alby',
@@ -1246,7 +1293,8 @@ export const GUIDES: Guide[] = [
             'https://nostr.build/i/nostr.build_41b6ee72193f5debf7d1a4e5731440b69a679778a1a75a9668c8163c9d363806.png'
         ],
         updatedAt: '2023-01-27',
-        tags: ['Damus']
+        tags: ['Damus'],
+        attachedNoteId: NOTES[29]
     },
     {
         id: 'running-nostr',
@@ -1266,14 +1314,16 @@ export const GUIDES: Guide[] = [
                 '#### (Advanced) Command line users can try \"key-convertr\" tool instead (it also converts \"hex back to npub\" for other use cases).',
                 'https://github.com/rot13maxi/key-convertr',
             ],
-        updatedAt: '2023-01-17'
+        updatedAt: '2023-01-17',
+        attachedNoteId: NOTES[30]
     },
     {
         id: 'security-and-privacy-tips',
         issue: 'Security and Privacy tips.',
         fix: '',
         urls: ['https://ron.stoner.com/nostr_Security_and_Privacy/'],
-        updatedAt: '2022-12-30'
+        updatedAt: '2022-12-30',
+        attachedNoteId: NOTES[31]
     },
     {
         id: 'blurred-images',
