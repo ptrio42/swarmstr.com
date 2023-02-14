@@ -50,3 +50,11 @@ export const listToMarkup = (list: List): string[] => {
   markup.splice(2, 0, `#### Currently ${getPubkeysCount(list)} pubkeys listed.`);
   return markup;
 };
+
+export const listToNote = (list: List) => {
+  const content = Object.keys(list)
+      .map((k, i) => [`${k}\n`, ...Object.values(list)[i].map(v => ([`${v[0]} - @${v[1]}`, v[2] && v[2].replace('https://', '') + '\n']))])
+      .flat(2)
+      .join('\n');
+  return content;
+};
