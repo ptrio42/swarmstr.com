@@ -37,6 +37,7 @@ import {REACTIONS} from "../Reactions/Reactions";
 import LinearProgress from "@mui/material/LinearProgress";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import {uniq} from "lodash";
 
 export interface Guide {
     id: string;
@@ -172,7 +173,7 @@ export const NostrResources = () => {
                                     .status === StreamStatus.CLOSED;
                             if (isMetadataStreamClosed) {
                                 const pubkeys = getPubkeysFromGuidesBulletPoints();
-                                const sub = getMetadataSub(relay, [...pubkeys, ...PUBKEYS]);
+                                const sub = getMetadataSub(relay, pubkeys);
                                 openSub(sub, 'metadata');
                             }
                             return;
@@ -183,7 +184,6 @@ export const NostrResources = () => {
                                 ...m,
                                 ...(JSON.parse(m.content || ''))
                             })));
-                            publishPendingEvents();
                             return;
                         }
                     }
@@ -197,28 +197,44 @@ export const NostrResources = () => {
     }, [streams]);
 
     useEffect(() => {
-        connectToRelay(socketUrl)
+        if (relay && (relay.url === socketUrl || relay.status === 1)) {
+            console.log(`[${socketUrl}] Won't connect! Already connecting/connected to ${relay.url}`);
+            return;
+        }
+        console.log(`[${socketUrl}] Connecting...`);
+        socketUrl && connectToRelay(socketUrl)
             .then((newRelay) => {
-                const { status } = getStream(streams, 'notes');
-                    if (status === StreamStatus.CLOSED && (!notes || notes.length === 0)) {
-                        const sub = getNotesWithRelatedNotesByIdsSub(newRelay, NOTES);
-                        openSub(sub, 'notes');
-                    }
+                console.log(`[${socketUrl}] Connected! Relay status: ${newRelay && newRelay.status}`);
 
                 setRelay(newRelay);
                 setGuides(getInitialGuides());
                 publishPendingEvents();
             })
             .catch(error => {
+                console.error(`[${socketUrl}] Cannot connect!`, error);
+                console.log('Trying different relay...');
                 setSocketUrl((previousSocketUrl) => RELAYS.filter(r => r !== previousSocketUrl)[0])
             });
     }, [socketUrl]);
+
+    useEffect(() => {
+        if (relay) {
+            const { status } = getStream(streams, 'notes');
+            if (status === StreamStatus.CLOSED && (!notes || notes.length === 0)) {
+                const sub = getNotesWithRelatedNotesByIdsSub(relay, NOTES);
+                openSub(sub, 'notes');
+            } else {
+                console.log(`[${relay.url}] notes stream already closed. Total of ${notes.length} notes`);
+            }
+        }
+    }, [relay]);
 
     useEffect(() => {
         const refreshNotes = streams
             .map(s => s.status === StreamStatus.EOSE)
             .reduce((prev, curr) => prev && curr);
         if (refreshNotes) {
+            console.log(`Refreshing notes from total ${events.length} events`);
             const result = getNotesFromEvents(NOTES);
             setNotes(result);
         }
@@ -244,6 +260,8 @@ export const NostrResources = () => {
             }): { ...s })
         ]));
 
+        console.log(`[${relay.url}] Opening ${streamName} stream...`);
+
         handleSub(sub, (event: NostrEvent) => {
                 //update events
                 setEvents((state) => ([
@@ -253,6 +271,7 @@ export const NostrResources = () => {
                 ]));
             },
             () => {
+                console.log(`[${relay.url}] Closing ${streamName} stream...`);
                 // update streams
                 setStreams(([
                     ...streams.map(s => s.name === streamName ? ({
@@ -263,16 +282,20 @@ export const NostrResources = () => {
             }, streamName === 'reactions')
     };
 
-    const getPubkeysFromGuidesBulletPoints = () => {
+    const getPubkeysFromGuidesBulletPoints = (): string[] => {
         const pubkeys = getInitialGuides()
             .map(guide => guide.bulletPoints && guide.bulletPoints
                 .filter((point) => new RegExp(/(npub[^ ]{59,}$)/).test(point))
                 .map(key => key && key.split(':')[1])
                 .filter(key => key && key.length === 64)
             )
-            .filter(entries => !!entries && entries.length > 0);
+            .filter(entries => !!entries && entries.length > 0)
+            .flat(2);
         // @ts-ignore
-        return [].concat.apply([], pubkeys);
+        console.log(`${pubkeys.length} total pubkeys in guide entries`);
+        console.log(`${PUBKEYS.length} total pubkeys in guide entries`);
+        console.log(`${(uniq([...pubkeys, PUBKEYS])).length} total pubkeys altogether`);
+        return uniq([...pubkeys, ...PUBKEYS]) as string[];
     };
 
     const getReadGuides = () => {
@@ -309,35 +332,53 @@ export const NostrResources = () => {
     };
 
     const publishEvent = (event: NostrEvent) => {
-        const pub = relay.publish(event);
+        if (events && events.findIndex(e => e.id === event.id) === -1) {
+            try {
+                const pub = relay.publish(event);
 
-        pub.on('ok', () => {
-            console.log('ok');
-        });
-        pub.on('seen', () => {
-            console.log(`we saw the event on ${relay.url}`);
-            setEvents((prevState => ([
-                ...prevState,
-                event
-            ])));
-        });
-        pub.on('failed', (reason: any) => {
-            console.log(`failed to publish to ${relay.url}: ${reason}`);
-            setPendingEvents([
-                ...pendingEvents.filter(e => e.id !== event.id),
-                event
-            ]);
-            setSocketUrl((previousSocketUrl) => {
-                return RELAYS.filter(r => r !== previousSocketUrl)[0]
-            });
-        });
+                pub.on('ok', () => {
+                    console.log('ok');
+                });
+                pub.on('seen', () => {
+                    console.log(`[${relay.url}] Event #${event.id} seen!`);
+                    setEvents([
+                        ...events.filter(e => e.id !== event.id),
+                        event
+                    ]);
+                });
+                pub.on('failed', (reason: any) => {
+                    console.log(`failed to publish to ${relay.url}: ${reason}`);
+                    console.log(`[${relay.url}] Status: ${relay.status}`);
+                    setPendingEvents([
+                        ...pendingEvents.filter(e => e.id !== event.id),
+                        event
+                    ]);
+                    setSocketUrl((previousSocketUrl) => {
+                        return RELAYS.filter(r => r !== previousSocketUrl)[0]
+                    });
+                });
+            } catch (error) {
+                console.error(`[${relay.url}] Closed or closing state! Relay status: ${relay.status}`);
+            }
+        }
     };
 
     const publishPendingEvents = () => {
         pendingEvents && pendingEvents.forEach(event => {
            publishEvent(event);
         });
+        setPendingEvents([]);
     };
+
+    // const findPeopleFromNoteComments = () => {
+    //     const noteId = '16e0b43f67e111a168abcab297aafc27b18b48a4ab7b67582458197a86ac63a0';
+    //     const people = [
+    //         notes
+    //             .filter(n => n.tags.includes(['e', noteId]))
+    //             .map(n1 => n1.pubkey)
+    //
+    //     ];
+    // };
 
     return (
         <React.Fragment>

@@ -31,6 +31,7 @@ import Button from "@mui/material/Button";
 import pink from "@mui/material/colors/pink";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import {getPeopleInvolvedInNostr, listToNote} from "../../../utils/utils";
 
 interface NoteProps {
     id: string;
@@ -62,8 +63,8 @@ interface NoteProps {
 
 export const Note = ({
      id, title, content, bulletPoints, metadata, imageUrls, guideTags, urls, updatedAt, reactions,
-     pubkeys, comments, author, pinned, handleNoteToggle, handleThreadToggle, isExpanded, isCollapsable, handleUpReaction, handleDownReaction,
-                         tags, isThreadExpanded, guideId, isRead }: NoteProps
+     pubkeys, comments, author, pinned, handleNoteToggle, handleThreadToggle, isExpanded, isCollapsable, handleUpReaction,
+     handleDownReaction, tags, isThreadExpanded, guideId, isRead }: NoteProps
 ) => {
 
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
@@ -245,6 +246,13 @@ export const Note = ({
                                     <MenuItem onClick={() => { setDialogOpen(true) }}>
                                         <QrCodeScanner sx={{ fontSize: 18, marginRight: 1 }} /> Show QR
                                     </MenuItem>
+                                    {/*<MenuItem*/}
+                                        {/*onClick={() => {*/}
+                                            {/*const content = listToNote(getPeopleInvolvedInNostr());*/}
+                                            {/*console.log({content})*/}
+                                        {/*}}>*/}
+                                        {/*<CopyAll sx={{ fontSize: 18 }} /> Copy note text*/}
+                                    {/*</MenuItem>*/}
                                 </Menu>
                             </React.Fragment>
                         }

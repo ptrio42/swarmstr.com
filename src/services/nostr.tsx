@@ -48,9 +48,9 @@ export const STREAMS: Stream[] = [
     }
 ];
 
-export const connectToRelay = async (socketUrl?: string) => {
+export const connectToRelay = async (socketUrl: string) => {
     // @ts-ignore
-    const relay = relayInit(socketUrl || RELAYS[0]);
+    const relay = relayInit(socketUrl);
     await relay.connect();
     return relay;
 };
