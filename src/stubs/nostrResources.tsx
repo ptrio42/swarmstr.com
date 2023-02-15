@@ -636,7 +636,7 @@ export const GUIDES: Guide[] = [
             'Some clients might allow you to delete your account, but they only mark it as deleted.',
         bulletPoints: [
             'You can `delete` your account on Damus in <i>Settings</i> by tapping on <i>Delete Account</i>.',
-            'http://localhost:3000/images/deleting-accounts.png'
+            'https://uselessshit.co/images/deleting-accounts.png'
         ],
         updatedAt: '2023-02-14',
         tags: ['Basics', 'Essentials'],
