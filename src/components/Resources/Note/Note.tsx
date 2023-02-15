@@ -6,7 +6,7 @@ import {
     CopyAll,
     DoneOutline,
     Expand,
-    IosShare, Launch,
+    IosShare, Launch, MoreHoriz,
     QrCodeScanner,
     UnfoldLess,
     UnfoldMore
@@ -225,7 +225,7 @@ export const Note = ({
                                         handleMenuOpen(event);
                                     }}
                                 >
-                                    <CopyAll sx={{ fontSize: 18 }} />
+                                    <MoreHoriz sx={{ fontSize: 18 }} />
                                 </IconButton>
                                 <Menu
                                     anchorEl={menuAnchorEl}
