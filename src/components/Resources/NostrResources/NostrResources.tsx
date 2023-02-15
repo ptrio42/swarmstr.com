@@ -198,23 +198,11 @@ export const NostrResources = () => {
 
     useEffect(() => {
         if (relay && (relay.url === socketUrl || relay.status === 1)) {
-            console.log(`[${socketUrl}] Won't connect! Already connecting/connected to ${relay.url}`);
+            console.log(`[${socketUrl}] No need to connect! Already connecting/connected to ${relay.url}`);
+            publishPendingEvents();
             return;
         }
-        console.log(`[${socketUrl}] Connecting...`);
-        socketUrl && connectToRelay(socketUrl)
-            .then((newRelay) => {
-                console.log(`[${socketUrl}] Connected! Relay status: ${newRelay && newRelay.status}`);
-
-                setRelay(newRelay);
-                setGuides(getInitialGuides());
-                publishPendingEvents();
-            })
-            .catch(error => {
-                console.error(`[${socketUrl}] Cannot connect!`, error);
-                console.log('Trying different relay...');
-                setSocketUrl((previousSocketUrl) => RELAYS.filter(r => r !== previousSocketUrl)[0])
-            });
+        initRelayConnection();
     }, [socketUrl]);
 
     useEffect(() => {
@@ -226,11 +214,19 @@ export const NostrResources = () => {
             } else {
                 console.log(`[${relay.url}] notes stream already closed. Total of ${notes.length} notes`);
             }
+
+            if (relay.status === 1) {
+                console.log(`[${relay.url}] Will publish all pending events`);
+                // setTimeout(() => {
+                    publishPendingEvents();
+                // });
+            }
         }
     }, [relay]);
 
     useEffect(() => {
         const refreshNotes = streams
+            .filter(s1 => s1.name !== 'metadata')
             .map(s => s.status === StreamStatus.EOSE)
             .reduce((prev, curr) => prev && curr);
         if (refreshNotes) {
@@ -239,6 +235,26 @@ export const NostrResources = () => {
             setNotes(result);
         }
     }, [events]);
+
+    useEffect(() => {
+        console.log(`Total pending events: ${pendingEvents && pendingEvents.length}`);
+    }, [pendingEvents]);
+
+    const initRelayConnection = () => {
+        console.log(`[${socketUrl}] Connecting...`);
+        socketUrl && connectToRelay(socketUrl)
+            .then((newRelay) => {
+                console.log(`[${socketUrl}] Connected! Relay status: ${newRelay && newRelay.status}`);
+
+                setRelay(newRelay);
+                setGuides(getInitialGuides());
+            })
+            .catch(error => {
+                console.error(`[${socketUrl}] Cannot connect!`, error);
+                console.log('Trying different relay...');
+                setSocketUrl((previousSocketUrl) => RELAYS.filter(r => r !== previousSocketUrl)[0])
+            });
+    };
 
     const getNotesFromEvents = (ids: string[]) => {
         return findNotesByIds(events, ids).map(n => ({
@@ -294,7 +310,7 @@ export const NostrResources = () => {
         // @ts-ignore
         console.log(`${pubkeys.length} total pubkeys in guide entries`);
         console.log(`${PUBKEYS.length} total pubkeys in guide entries`);
-        console.log(`${(uniq([...pubkeys, PUBKEYS])).length} total pubkeys altogether`);
+        console.log(`${(uniq([...pubkeys, PUBKEYS])).length} total unique pubkeys altogether`);
         return uniq([...pubkeys, ...PUBKEYS]) as string[];
     };
 
@@ -332,7 +348,18 @@ export const NostrResources = () => {
     };
 
     const publishEvent = (event: NostrEvent) => {
-        if (events && events.findIndex(e => e.id === event.id) === -1) {
+        console.log(`[${relay.url}] An attempt to publish event. Relay status: ${relay.status}`);
+        if (relay.status === 3) {
+            console.log(`[${relay.url}] Connection closing/closed. Attempting to reconnect.`);
+            console.log(`Adding #${event.id} to pending events`);
+            setPendingEvents([
+                ...pendingEvents.filter(e => e.id !== event.id),
+                event
+            ]);
+            initRelayConnection();
+            return;
+        }
+        if (events && (events.findIndex(e => e.id === event.id) === -1)) {
             try {
                 const pub = relay.publish(event);
 
@@ -349,6 +376,7 @@ export const NostrResources = () => {
                 pub.on('failed', (reason: any) => {
                     console.log(`failed to publish to ${relay.url}: ${reason}`);
                     console.log(`[${relay.url}] Status: ${relay.status}`);
+                    console.log(`Adding #${event.id} to pending events.`);
                     setPendingEvents([
                         ...pendingEvents.filter(e => e.id !== event.id),
                         event
@@ -364,7 +392,9 @@ export const NostrResources = () => {
     };
 
     const publishPendingEvents = () => {
+        console.log(`There are ${pendingEvents && pendingEvents.length} pending events`);
         pendingEvents && pendingEvents.forEach(event => {
+            console.log(`[${relay.url}] Publishing pending event #${event.id}`);
            publishEvent(event);
         });
         setPendingEvents([]);
