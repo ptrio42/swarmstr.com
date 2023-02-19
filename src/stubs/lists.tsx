@@ -168,10 +168,16 @@ export const LISTS = [
             ['NVK', 'npub1az9xj85cmxv8e9j9y80lvqp97crsqdu2fpu3srwthd99qfu9qsgstam8y8', 'https://brb.io']
         ],
         'bountsr.org': [
-            ['NVK', 'npub1az9xj85cmxv8e9j9y80lvqp97crsqdu2fpu3srwthd99qfu9qsgstam8y8', 'https://brb.io']
+            ['NVK', 'npub1az9xj85cmxv8e9j9y80lvqp97crsqdu2fpu3srwthd99qfu9qsgstam8y8', 'https://bounstr.org']
         ],
         'nosbin.com': [
             ['JackChakany', 'npub1s8gvenj9j87yux0raa6j52cq8mer4xrvkv08sd020kxhektdgl4qu7ldqa', 'https://nosbin.com']
+        ],
+        'nostrstuff.com': [
+            ['SamSamskies', 'npub1vp8fdcyejd4pqjyrjk9sgz68vuhq7pyvnzk8j0ehlljvwgp8n6eqsrnpsw', 'https://nostrstuff.com']
+        ],
+        'nsotrgram.co': [
+            ['jleger2023', 'npub1t9a59hjk48svr8hz6rx727ta6kx53n5d6fw8x26vsua0zytpl87sa6h4uw', 'https://nsotrgram.co']
         ],
         'Notable individuals': [
             ['jack', 'npub1sg6plzptd64u62a878hep2kev88swjh3tw00gjsfl8f237lmu63q0uf63m'],

@@ -39,7 +39,8 @@ export const NOTES = [
     'a1bc9e57e7dd0a86350b1a4175e9120e83d4dc22ce0d2bb35e2cf7ac7aa2b893',
     'ba402b5b346aa49125f07504aa9d42cbc8003715c5c6f9d48f42cb9531307ff9',
     '54939b180633ebbc25d0e863b1e9372aeeca03fbe87dbf8c557bbcfaf4a1fbbf',
-    'a5c3a106ff4d4b6ba50e3fdf08235a08c6f7c67854db86c549ad3cb89c4ca50f'
+    'a5c3a106ff4d4b6ba50e3fdf08235a08c6f7c67854db86c549ad3cb89c4ca50f',
+    'd6f703f3cb275f40417cbb1837197c7b488756967f2155db6681b68ba70a4939'
 ];
 
 export const PUBKEYS = [
@@ -52,7 +53,7 @@ export const PUBKEYS = [
 
 ];
 
-export const GUIDES_LAST_UPDATE = '2023-02-14';
+export const GUIDES_LAST_UPDATE = '2023-02-19';
 
 export const GUIDES: Guide[] = [
     {
@@ -846,6 +847,26 @@ export const GUIDES: Guide[] = [
         createdAt: '2023-01-11',
         updatedAt: '2023-01-16',
         tags: ['Lightning']
+    },
+    {
+        id: 'zaps-compatible-wallets',
+        issue: '(NIP-57) Zaps compatible wallets',
+        fix: 'All Lightning wallets can send Lightning tips on Nostr. Only the ones listed below are aware that Nostr exists ' +
+            'and can communicate with Nostr, allowing for the Zap count on posts and profiles to increment.',
+        bulletPoints: [
+            'strike.army',
+            'vida.page',
+            'Bitcoin Jungle',
+            'ln.tips (LightningTipBot)',
+            'Geyser',
+            'Bitcoin Beach',
+            'Wallet of Satoshi',
+            '',
+            'Courtesy of',
+            'npub12262qa4uhw7u8gdwlgmntqtv7aye8vdcmvszkqwgs0zchel6mz7s6cgrkj:52b4a076bcbbbdc3a1aefa3735816cf74993b1b8db202b01c883c58be7fad8bd:DerekRoss'
+        ],
+        updatedAt: '2023-02-19',
+        attachedNoteId: NOTES[35]
     },
     {
         id: 'disable-allow-to-paste',
