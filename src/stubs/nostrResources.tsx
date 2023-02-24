@@ -53,7 +53,7 @@ export const PUBKEYS = [
 
 ];
 
-export const GUIDES_LAST_UPDATE = '2023-02-19';
+export const GUIDES_LAST_UPDATE = '2023-02-24';
 
 export const GUIDES: Guide[] = [
     {
@@ -144,7 +144,7 @@ export const GUIDES: Guide[] = [
     {
         id: 'the-list',
         issue: 'People involved in NOSTR',
-        updatedAt: '2023-01-18',
+        updatedAt: '2023-02-24',
         fix: 'You can open each person\'s profile in a client of your choice by tapping on the copy icon ' +
             'next to their name and selecting <i>Open in client</i>' +
             '<br/><br/>' +
@@ -169,6 +169,8 @@ export const GUIDES: Guide[] = [
             'https://damus.io',
             '<i>Daisy</i>',
             'https://www.neb.lol/nostr',
+            '<i>Iris.to</i>',
+            'https://testflight.apple.com/join/5xdoDCmG',
             '#### Web',
             'https://astral.ninja',
             'https://yosup.app',
@@ -179,6 +181,7 @@ export const GUIDES: Guide[] = [
             'https://web.nostrid.app',
             'https://member.cash',
             'https://coracle.social',
+            'https://habla.news',
             '#### Android',
             '<i>nostros</i>',
             'https://github.com/KoalaSat/nostros',
@@ -190,11 +193,16 @@ export const GUIDES: Guide[] = [
             'https://github.com/lapulpeta/Nostrid',
             '<i>Plasma</i>',
             'https://github.com/plasma-social/plasma',
-            '#### Windows',
+            '<i>Iris.to</i>',
+            'https://play.google.com/store/apps/details?id=to.iris.twa',
+            '#### Desktop',
             '<i>Nostrid</i>',
-            'https://github.com/lapulpeta/Nostrid'
+            'https://github.com/lapulpeta/Nostrid',
+            '<i>Gossip</i>',
+            'https://github.com/mikedilger/gossip'
+
         ],
-        updatedAt: '2023-02-09',
+        updatedAt: '2023-02-24',
         tags: ['Basics', 'Clients'],
         attachedNoteId: NOTES[15]
     },
@@ -861,11 +869,13 @@ export const GUIDES: Guide[] = [
             'Geyser',
             'Bitcoin Beach',
             'Wallet of Satoshi',
+            'stacker.news',
+            'Alby',
             '',
             'Courtesy of',
             'npub12262qa4uhw7u8gdwlgmntqtv7aye8vdcmvszkqwgs0zchel6mz7s6cgrkj:52b4a076bcbbbdc3a1aefa3735816cf74993b1b8db202b01c883c58be7fad8bd:DerekRoss'
         ],
-        updatedAt: '2023-02-19',
+        updatedAt: '2023-02-24',
         attachedNoteId: NOTES[35]
     },
     {

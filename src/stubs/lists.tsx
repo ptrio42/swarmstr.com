@@ -179,6 +179,9 @@ export const LISTS = [
         'nsotrgram.co': [
             ['jleger2023', 'npub1t9a59hjk48svr8hz6rx727ta6kx53n5d6fw8x26vsua0zytpl87sa6h4uw', 'https://nsotrgram.co']
         ],
+        'getcurrent.io': [
+            ['starbuilder', 'npub1mz3vx0ew9le6n48l9f2e8u745k0fzel6thksv0gwfxy3wanprcxq79mymx', 'https://getcurrent.io']
+        ],
         'Notable individuals': [
             ['jack', 'npub1sg6plzptd64u62a878hep2kev88swjh3tw00gjsfl8f237lmu63q0uf63m'],
             ['Snowden', 'npub1sn0wdenkukak0d9dfczzeacvhkrgz92ak56egt7vdgzn8pv2wfqqhrjdv9'],
@@ -192,7 +195,10 @@ export const LISTS = [
             ['Nakadai', 'npub1sqaxzwvh5fhgw9q3d7v658ucapvfeds3dcd2587fcwyesn7dnwuqt2r45v'],
             ['bitcoinbull', 'npub1gl23nnfmlewvvuz7xgrrauuexx2xj70whdf5yhd47tj0r8p68t6sww70gt'],
             ['stacksatsio', 'npub10jnx6stxk9h4fgtgdqv3hgwx8p4fwe3y73357wykmxm8gz3c3j3sjlvcrd'],
-            ['BitcoinNostrich', 'npub128q9nu7vrqpfjllpcnnq6cc4cgs8ngp9sge9v9s2c7lur098ctts99gupa']
+            ['BitcoinNostrich', 'npub128q9nu7vrqpfjllpcnnq6cc4cgs8ngp9sge9v9s2c7lur098ctts99gupa'],
+            ['SovrynMatt', 'npub1fl7pr0azlpgk469u034lsgn46dvwguz9g339p03dpetp9cs5pq5qxzeknp', 'https://github.com/SovrynMatt/Nostr-Website-Button-Design'],
+            ['benthecarman', 'npub1u8lnhlw5usp3t9vmpz60ejpyt649z33hu82wc2hpv6m5xdqmuxhs46turz'],
+            ['Gu₿i', 'npub1gpppr3hfwcl5njxqmp3zumaly9j4pd6gvapywsq2y5n7p7278fus6nz7l5']
 
         ],
         'List contributors': [
