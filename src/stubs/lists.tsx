@@ -198,7 +198,7 @@ export const LISTS = [
             ['BitcoinNostrich', 'npub128q9nu7vrqpfjllpcnnq6cc4cgs8ngp9sge9v9s2c7lur098ctts99gupa'],
             ['SovrynMatt', 'npub1fl7pr0azlpgk469u034lsgn46dvwguz9g339p03dpetp9cs5pq5qxzeknp', 'https://github.com/SovrynMatt/Nostr-Website-Button-Design'],
             ['benthecarman', 'npub1u8lnhlw5usp3t9vmpz60ejpyt649z33hu82wc2hpv6m5xdqmuxhs46turz'],
-            ['Gu₿i', 'npub1gpppr3hfwcl5njxqmp3zumaly9j4pd6gvapywsq2y5n7p7278fus6nz7l5']
+            ['GuBi', 'npub1gpppr3hfwcl5njxqmp3zumaly9j4pd6gvapywsq2y5n7p7278fus6nz7l5']
 
         ],
         'List contributors': [
