@@ -411,6 +411,6 @@ export const Note = ({
             onClose={() => setSnackbarOpen(false)}
             message={snackbarMessage}
         />
-        <QrCodeDialog pubkey={id && new RegExp(/([0123456789abcdef]{64})/).test(id) && nip19.noteEncode(id) || ''} dialogOpen={dialogOpen} close={() => setDialogOpen(false)} />
+        <QrCodeDialog str={id && new RegExp(/([0123456789abcdef]{64})/).test(id) && `nostr:${nip19.noteEncode(id)}` || ''} dialogOpen={dialogOpen} close={() => setDialogOpen(false)} />
     </React.Fragment>);
 };
