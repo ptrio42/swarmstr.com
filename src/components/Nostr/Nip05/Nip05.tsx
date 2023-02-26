@@ -97,7 +97,7 @@ export const Nip05 = () => {
                 <meta name="twitter:description" content="Get verified on Nostr @nostrich.love" />
 
             </Helmet>
-            <Box>
+            <Box sx={{ flexDirection: 'column' }}>
                 <Typography
                     component="div"
                     variant="h5"
@@ -105,11 +105,14 @@ export const Nip05 = () => {
                 >
                     Get yourname@nostrich.love NIP-05 handle
                 </Typography>
-                <Typography sx={{ margin: '0.33em' }}>
+                <Typography component="div" sx={{ margin: '0.33em' }}>
                     Human readable identifier for your public key.
                 </Typography>
-                <Typography sx={{ margin: '0.33em' }}>
+                <Typography component="div" sx={{ margin: '0.33em' }}>
                     Provide your Nostr pubkey and desired name to generate a Bitcoin Lightning invoice.
+                </Typography>
+                <Typography component="div" sx={{ margin: '0.33em' }}>
+                    Fee: 420 sats
                 </Typography>
                 <Card>
                     <CardContent>
