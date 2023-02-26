@@ -7,7 +7,7 @@ import {Link} from "react-router-dom";
 import Button from '@mui/material/Button';
 import Receipt from '@mui/icons-material/Receipt';
 import Media from 'react-media';
-import {Build, CurrencyBitcoin, ElectricBolt, Menu as MenuIcon, Payments, School} from '@mui/icons-material';
+import {Build, CurrencyBitcoin, ElectricBolt, Menu as MenuIcon, Payments, School, Verified} from '@mui/icons-material';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -85,6 +85,14 @@ export const NavBar = () => {
                         <ListItemText sx={{ textTransform: 'uppercase' }} primary="Nostr" />
                     </ListItemButton>
                 </ListItem>
+                <ListItem disablePadding component={Link} to="/nostr/nip-05" sx={{ color: '#000' }}>
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <Verified />
+                        </ListItemIcon>
+                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Nip-05" />
+                    </ListItemButton>
+                </ListItem>
             </List>
         </Box>
     );
@@ -97,14 +105,22 @@ export const NavBar = () => {
             >
                 <Toolbar>
                     <Link className="logo" to="/">
-                        <img  width="40px" alt="Useless Shit" src={process.env.PUBLIC_URL + '/images/new-uselessshit-logo.png'} />
-                        <img className="logo-text" height="40px" alt="Useless Shit" src={process.env.PUBLIC_URL + '/images/new-uselessshit-logo-text.png'} />
+                        <img
+                            width="40px"
+                            alt="Use Less Shit"
+                            src={process.env.PUBLIC_URL + '/images/new-uselessshit-logo.png'}
+                        />
+                        <img className="logo-text"
+                             height="40px"
+                             alt="Use Less Shit"
+                             src={process.env.PUBLIC_URL + '/images/new-uselessshit-logo-text.png'}
+                        />
                     </Link>
                     <Grid
                         container
                         justifyContent="flex-end"
                         className="navbar-actions">
-                        <Media query={{ maxWidth: '815px' }} render={() => (
+                        <Media query={{ maxWidth: '909px' }} render={() => (
                             <React.Fragment>
                                 <IconButton onClick={toggleDrawer(true)}><MenuIcon /></IconButton>
                                 <Drawer
@@ -116,7 +132,7 @@ export const NavBar = () => {
                                 </Drawer>
                             </React.Fragment>
                         )} />
-                        <Media query={{ minWidth: '816px' }} render={() => (
+                        <Media query={{ minWidth: '910px' }} render={() => (
                             <React.Fragment>
                                 <Button
                                     sx={{ fontWeight: 'bold' }}
@@ -157,6 +173,16 @@ export const NavBar = () => {
                                     startIcon={<ElectricBolt />}
                                 >
                                     NOSTR
+                                </Button>
+                                <Button
+                                    sx={{ fontWeight: 'bold' }}
+                                    variant="text"
+                                    color="inherit"
+                                    component={Link}
+                                    to="/nostr/nip-05"
+                                    startIcon={<Verified />}
+                                >
+                                    NIP-05
                                 </Button>
                                 <Menu
                                     id="tools-menu"
