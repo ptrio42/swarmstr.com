@@ -167,7 +167,7 @@ export const Nip05 = () => {
                 str={invoice && `lightning:${invoice}` || ''}
                 dialogOpen={dialogOpen}
                 close={() => setDialogOpen(false)}
-                fee={1}
+                fee={420}
                 status={invoiceStatus}
             />
         </React.Fragment>
