@@ -11,14 +11,17 @@ import {CardType, SocialCard} from "../../Card/Card";
 import DialogTitle from "@mui/material/DialogTitle";
 import Dialog from "@mui/material/Dialog";
 import CloseIcon from '@mui/icons-material/Close';
+import CircularProgress from "@mui/material/CircularProgress";
 
-interface MetadataDialogProps {
+interface QrCodeDialogProps {
     dialogOpen: boolean;
-    pubkey: string;
+    str: string;
     close?: () => void;
+    fee?: number;
+    status?: string;
 }
 
-export const QrCodeDialog = ({ dialogOpen, pubkey, close }: MetadataDialogProps) => {
+export const QrCodeDialog = ({ dialogOpen, str, close, fee, status }: QrCodeDialogProps) => {
 
     return <Dialog open={dialogOpen} onClose={close} >
         <DialogTitle>
@@ -36,6 +39,11 @@ export const QrCodeDialog = ({ dialogOpen, pubkey, close }: MetadataDialogProps)
                 <CloseIcon />
             </IconButton>
         </DialogTitle>
+        {
+            fee && <Typography sx={{ textAlign: 'center' }}>
+                Pay {fee} sats
+            </Typography>
+        }
         <Typography sx={{ padding: '1em' }}>
             <SocialCard
                 slogan=""
@@ -58,10 +66,24 @@ export const QrCodeDialog = ({ dialogOpen, pubkey, close }: MetadataDialogProps)
                 secondaryImageFormatWidth={3}
                 secondaryImageFormatHeight={3}
                 qrCodeSize={288}
-                lnurl={'nostr:' + pubkey}
+                lnurl={str}
                 disableClick={true}
             />
         </Typography>
+        {
+            status && <Typography sx={{ textAlign: 'center' }}>
+                {
+                    status === 'pending' && <Typography sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '-3em' }}>
+                        <CircularProgress sx={{ marginRight: '0.33em', marginBottom: '0.33em' }} color="secondary" /> Pending
+                    </Typography>
+                }
+                {
+                    status === 'completed' && <Typography sx={{ color: 'green', marginTop: '-3em' }}>
+                        Payment {status}
+                    </Typography>
+                }
+            </Typography>
+        }
     </Dialog>
 };
 
@@ -176,7 +198,7 @@ export const Metadata = ({ picture, lud06, lud16, nip05, name, npub, about, hand
                     }) }
                 />
             </Typography>
-            <QrCodeDialog pubkey={npub || ''} dialogOpen={dialogOpen} close={() => setDialogOpen(false)} />
+            <QrCodeDialog str={`nostr:${npub}` || ''} dialogOpen={dialogOpen} close={() => setDialogOpen(false)} />
         </React.Fragment>
     );
 };
