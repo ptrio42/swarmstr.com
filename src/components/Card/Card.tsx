@@ -87,8 +87,7 @@ export const SocialCard = ({ slogan, sloganColor, sloganFontSize, sloganTextShad
                     backgroundSize: getCardPreviewBackgroundSize(),
                     backgroundRepeat: 'no-repeat',
                     backgroundPositionY: type === CardType.Bookmark ? '2in' : '0',
-                    backgroundPosition: `${-backgroundPositionX}px ${-backgroundPositionY}px`,
-                    borderRadius: '33px',
+                    backgroundPosition: `${-backgroundPositionX}px ${-backgroundPositionY}px`
                 }}>
                     <CardActionArea sx={{
                         width: overlay ? '90%' : '100%',
