@@ -9,6 +9,7 @@ import { nip19 } from 'nostr-tools';
 import {checkName, createInvoice, getInvoiceStatus} from '../../../services/invoices';
 import Button from "@mui/material/Button";
 import {QrCodeDialog} from "../../Resources/Metadata/Metadata";
+import {Helmet} from "react-helmet";
 
 export const Nip05 = () => {
     const [pubkey, setPubkey] = useState<string>();
@@ -80,6 +81,22 @@ export const Nip05 = () => {
 
     return (
         <React.Fragment>
+            <Helmet>
+                <title>Human readable identifier for your public key - UseLessShit.co</title>
+                <meta property="description" content="Get verified on Nostr @nostrich.love" />
+                <meta property="keywords" content="nostr, nostr nip05, nip-05, getting verified" />
+
+                <meta property="og:url" content="https://uselessshit.co/resources/nostr" />
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content="Human readable identifier for your public key - UseLessShit.co" />
+                <meta property="og:description" content="Get verified on Nostr @nostrich.love" />
+
+                <meta itemProp="name" content="Human readable identifier for your public key - UseLessShit.co" />
+
+                <meta name="twitter:title" content="Human readable identifier for your public key - UseLessShit.co" />
+                <meta name="twitter:description" content="Get verified on Nostr @nostrich.love" />
+
+            </Helmet>
             <Box>
                 <Typography
                     component="div"
