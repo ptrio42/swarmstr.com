@@ -92,6 +92,10 @@ export const PageContent = () => {
                 </Stack>
 
                 <Box sx={{ marginBottom: '3em' }} component="div">
+                    <Link color='secondary' to='nostr/nip-05'>Get NIP-05 verified on NOSTR</Link>
+                </Box>
+
+                <Box sx={{ marginBottom: '3em' }} component="div">
                     <img width="100%" src={process.env.PUBLIC_URL + '/images/uselessshit-splashscreen-updated.jpeg'} />
                 </Box>
 
