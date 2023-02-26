@@ -13,6 +13,8 @@ import {ThemeContext, themes} from "./contexts/ThemeContext";
 import {NostrResources} from "./components/Resources/NostrResources/NostrResources";
 import {Resources} from "./components/Resources/Resources";
 import {TipJar} from "./components/TipJar/TipJar";
+import {Nostr} from "./components/Nostr/Nostr";
+import {Nip05} from "./components/Nostr/Nip05/Nip05";
 
 const theme = createTheme({
     typography: {
@@ -112,6 +114,9 @@ function App() {
                 </Route>
                 <Route path="/card-generator" element={<CardGenerator />} />
                 <Route path="/tip-jar/:username" element={<TipJar />} />
+                <Route path="/nostr" element={<Nostr/>}>
+                    <Route path="nip-05" element={<Nip05/>} />
+                </Route>
             </Routes>
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                 <ThemeContext.Consumer>
