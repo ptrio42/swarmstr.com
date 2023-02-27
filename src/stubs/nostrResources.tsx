@@ -53,7 +53,7 @@ export const PUBKEYS = [
 
 ];
 
-export const GUIDES_LAST_UPDATE = '2023-02-25';
+export const GUIDES_LAST_UPDATE = '2023-02-27';
 
 export const GUIDES: Guide[] = [
     {
@@ -171,6 +171,8 @@ export const GUIDES: Guide[] = [
             'https://www.neb.lol/nostr',
             '<i>Iris.to</i>',
             'https://testflight.apple.com/join/5xdoDCmG',
+            '<i>Current</i>',
+            'https://testflight.apple.com/join/mB0EwMiV',
             '#### Web',
             'https://astral.ninja',
             'https://yosup.app',
@@ -195,6 +197,8 @@ export const GUIDES: Guide[] = [
             'https://github.com/plasma-social/plasma',
             '<i>Iris.to</i>',
             'https://play.google.com/store/apps/details?id=to.iris.twa',
+            '<i>Current</i>',
+            'https://play.google.com/apps/testing/io.getcurrent.current',
             '#### Desktop',
             '<i>Nostrid</i>',
             'https://github.com/lapulpeta/Nostrid',
@@ -202,7 +206,7 @@ export const GUIDES: Guide[] = [
             'https://github.com/mikedilger/gossip'
 
         ],
-        updatedAt: '2023-02-24',
+        updatedAt: '2023-02-26',
         tags: ['Basics', 'Clients'],
         attachedNoteId: NOTES[15]
     },
@@ -1220,12 +1224,14 @@ export const GUIDES: Guide[] = [
             '#### Nostr-Check.com',
             'npub1mhamq6nj9egex0xn0e8vmvctrpj0ychehddadsketjlwl3eg7ztqrv9a4h:ddfbb06a722e51933cd37e4ecdb30b1864f262f9bb5bd6c2d95cbeefc728f096:',
             'https://nostr-check.com',
-            '### lnmarkets.com',
+            '#### lnmarkets.com',
             'https://lnmarkets.com',
+            '#### hitchhikersguidethroughthemetaverse.info',
+            'npub132vp7xhrl2enqz65338jqe2vkrcax5zf339kdpymw059gcqpmjsq6fm80g:8a981f1ae3fab3300b548c4f20654cb0f1d350498c4b66849b73e8546001dca0:WShakesp',
             '#### uselessshit.co',
             'npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4:f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8:pitiunited'
         ],
-        updatedAt: '2023-01-19',
+        updatedAt: '2023-02-26',
         attachedNoteId: NOTES[28]
     },
     {
@@ -1242,9 +1248,11 @@ export const GUIDES: Guide[] = [
             '#### nostrverified.com',
             'https://nostrverified.com',
             '#### no.str.cr',
-            'https://no.str.cr/verify.html'
+            'https://no.str.cr/verify.html',
+            '#### nostrich.love',
+            'https://uselessshit.co/nostr/nip-05/'
         ],
-        updatedAt: '2023-02-09',
+        updatedAt: '2023-02-26',
         attachedNoteId: NOTES[27]
     },
     {
