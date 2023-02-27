@@ -184,6 +184,7 @@ export const GUIDES: Guide[] = [
             'https://member.cash',
             'https://coracle.social',
             'https://habla.news',
+            'https://blogstack.io',
             '#### Android',
             '<i>nostros</i>',
             'https://github.com/KoalaSat/nostros',
@@ -206,7 +207,7 @@ export const GUIDES: Guide[] = [
             'https://github.com/mikedilger/gossip'
 
         ],
-        updatedAt: '2023-02-26',
+        updatedAt: '2023-02-27',
         tags: ['Basics', 'Clients'],
         attachedNoteId: NOTES[15]
     },
