@@ -24,6 +24,10 @@ export const Nip05 = () => {
 
     useEffect(() => {
         checkPubkey();
+        if (invoice) {
+            setInvoice(undefined);
+            setInvoiceStatus(undefined);
+        }
     }, [pubkey]);
 
     useEffect(() => {
@@ -31,6 +35,10 @@ export const Nip05 = () => {
             checkName(name).then(response => {
                 setNameAvailable(response.nameAvailable);
             });
+        }
+        if (invoice) {
+            setInvoice(undefined);
+            setInvoiceStatus(undefined);
         }
     }, [name]);
 
@@ -148,7 +156,7 @@ export const Nip05 = () => {
                         />
                             <Button
                                 color="secondary"
-                                disabled={!pubkey || !pubkeyValid || !name || !nameAvailable}
+                                disabled={!pubkey || !pubkeyValid || !name || !nameAvailable || (invoiceStatus && invoiceStatus === 'completed')}
                                 onClick={() => {
                                     if (pubkey && name) {
                                         createInvoice(pubkey, name)
@@ -165,6 +173,11 @@ export const Nip05 = () => {
                             </Button>
                     </CardContent>
                 </Card>
+                {
+                    invoiceStatus && invoiceStatus === 'completed' && <Typography sx={{ marginTop: '0.33em' }} variant="h5">
+                        Payment { invoiceStatus }! Your handle is now all set and ready to be used 💜
+                    </Typography>
+                }
             </Box>
             <QrCodeDialog
                 str={invoice && `lightning:${invoice}` || ''}
@@ -172,6 +185,7 @@ export const Nip05 = () => {
                 close={() => setDialogOpen(false)}
                 fee={420}
                 status={invoiceStatus}
+                lnbc={invoice}
             />
         </React.Fragment>
     );

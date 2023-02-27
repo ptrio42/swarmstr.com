@@ -33,9 +33,9 @@ export interface CardProps {
     backgroundImageSize: number;
     satsAmount?: number;
     type: CardType;
-    footer: string;
-    footerColor: string;
-    footerFontSize: number;
+    footer?: string;
+    footerColor?: string;
+    footerFontSize?: number;
     overlay?: boolean;
     overlayColor?: string;
     latestBlock?: number;
@@ -53,13 +53,14 @@ export interface CardProps {
     lnurl?: string;
     lineHeight?: number;
     disableClick?: boolean;
+    qrCodeOnly?: boolean;
 }
 export const SocialCard = ({ slogan, sloganColor, sloganFontSize, sloganTextShadow, sloganTextShadowColor, mainImage,
                          backgroundImage, backgroundImageSize, satsAmount, type, footer,
                          footerColor, footerFontSize, overlay, overlayColor, latestBlock = undefined, latestBlockColor,
                          cardWidth, cardHeight, backgroundPositionX, backgroundPositionY,
                          primaryImageFormatWidth, primaryImageFormatHeight, includeLightningGift = false,
-                         secondaryImageFormatWidth, secondaryImageFormatHeight, qrCodeSize = 72, lnurl = '', lineHeight = 1, disableClick }: CardProps) => {
+                         secondaryImageFormatWidth, secondaryImageFormatHeight, qrCodeSize = 72, lnurl = '', lineHeight = 1, disableClick, qrCodeOnly }: CardProps) => {
 
     const qrCodeRef = useRef();
 
@@ -79,7 +80,6 @@ export const SocialCard = ({ slogan, sloganColor, sloganFontSize, sloganTextShad
     return (
         <React.Fragment>
                 <Card sx={{
-                    marginTop: '2em !important',
                     width: `${cardWidth}in`,
                     height: `${cardHeight}in`,
                     margin: '0 auto 3em auto',
@@ -122,8 +122,8 @@ export const SocialCard = ({ slogan, sloganColor, sloganFontSize, sloganTextShad
                                         marginLeft: secondaryImageFormatWidth === cardWidth ? 0 : '0.1in',
                                         marginTop: secondaryImageFormatHeight === cardHeight ? 0 : '0.15in',
                                         overflow: 'hidden',
-                                        border: secondaryImageFormatWidth === cardWidth && secondaryImageFormatHeight === cardHeight ? 'none' : '4px solid rgba(0,0,0,.7)',
-                                        borderRadius: '10px'
+                                        border: (secondaryImageFormatWidth === cardWidth && secondaryImageFormatHeight === cardHeight) || qrCodeOnly ? 'none' : '4px solid rgba(0,0,0,.7)',
+                                        borderRadius: qrCodeOnly ? '0' : '10px'
                                     }}
                                     onClick={() => {
                                         if (!disableClick) {
@@ -190,10 +190,10 @@ export const SocialCard = ({ slogan, sloganColor, sloganFontSize, sloganTextShad
                                     variant="outlined"
                                     sx={{color: footerColor}}
                                     icon={<ElectricBolt sx={{ color: yellow[500]+'!important' }} />}
-                                    label={footer}
+                                    label={footer.length > 23 ? footer.slice(0, 23) + '...' : footer}
                                     onClick={() => {
                                         navigator.clipboard.writeText(footer);
-                                        setMessage('Lightning Address copied to clipboard!');
+                                        setMessage('Copied to clipboard!');
                                         setOpen(true);
                                     }}
                                 />

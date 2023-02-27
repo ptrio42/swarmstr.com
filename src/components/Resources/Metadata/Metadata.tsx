@@ -19,9 +19,10 @@ interface QrCodeDialogProps {
     close?: () => void;
     fee?: number;
     status?: string;
+    lnbc?: string
 }
 
-export const QrCodeDialog = ({ dialogOpen, str, close, fee, status }: QrCodeDialogProps) => {
+export const QrCodeDialog = ({ dialogOpen, str, close, fee, status, lnbc }: QrCodeDialogProps) => {
 
     return <Dialog open={dialogOpen} onClose={close} >
         <DialogTitle>
@@ -54,20 +55,21 @@ export const QrCodeDialog = ({ dialogOpen, str, close, fee, status }: QrCodeDial
                 mainImage=""
                 backgroundImageSize={100}
                 type={CardType.Sticker}
-                footer=""
                 footerColor=""
                 footerFontSize={14}
-                cardWidth={3}
-                cardHeight={3}
+                cardWidth={2.5}
+                cardHeight={3.25}
                 backgroundPositionX={0}
                 backgroundPositionY={0}
                 primaryImageFormatWidth={0}
                 primaryImageFormatHeight={0}
-                secondaryImageFormatWidth={3}
-                secondaryImageFormatHeight={3}
-                qrCodeSize={288}
+                secondaryImageFormatWidth={2.5}
+                secondaryImageFormatHeight={2.5}
+                qrCodeSize={240}
                 lnurl={str}
+                {...(lnbc && { footer: lnbc }) }
                 disableClick={true}
+                qrCodeOnly={true}
             />
         </Typography>
         {
@@ -79,7 +81,7 @@ export const QrCodeDialog = ({ dialogOpen, str, close, fee, status }: QrCodeDial
                 }
                 {
                     status === 'completed' && <Typography sx={{ color: 'green', marginTop: '-3em' }}>
-                        Payment {status}
+                        Payment {status}!
                     </Typography>
                 }
             </Typography>
