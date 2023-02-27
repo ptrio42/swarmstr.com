@@ -1388,6 +1388,18 @@ export const GUIDES: Guide[] = [
         tags: ['Troubleshooting', 'Damus']
     },
     {
+        id: 'bookmarks',
+        issue: 'Bookmarks',
+        fix: 'Starting Damus 1.1.0 (9), you can bookmark notes.',
+        bulletPoints: [
+          'To bookmark a given note, tap and hold on its content.',
+          'From the menu that will show up, select <i>Add Bookmark</i>.',
+          'You can see all bookmarked notes from the side menu (which you can open by clicking on your pfp) -> <i>Bookmarks</i>.'
+        ],
+        updatedAt: '2023-02-27',
+        tags: ['Damus']
+    },
+    {
         id: 'more-resources',
         issue: 'Additional NOSTR resources.',
         fix: 'Check out the urls listed below for additional resources.',
