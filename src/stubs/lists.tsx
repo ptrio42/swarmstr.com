@@ -182,6 +182,12 @@ export const LISTS = [
         'getcurrent.io': [
             ['starbuilder', 'npub1mz3vx0ew9le6n48l9f2e8u745k0fzel6thksv0gwfxy3wanprcxq79mymx', 'https://getcurrent.io']
         ],
+        'zaplife.lol': [
+            ['pablof7z', 'npub1l2vyh47mk2p0qlsku7hg0vn29faehy9hy34ygaclpn66ukqp3afqutajft', 'https://zaplife.lol']
+        ],
+        'getflamingo.org': [
+            ['Tristan', 'npub1fh3uydhtwxawwe8hrpy9aacwjra6c59yw6gkkr45hgax7tfxtzjsa2y9wx' ,'https://getflamingo.org']
+        ],
         'Notable individuals': [
             ['jack', 'npub1sg6plzptd64u62a878hep2kev88swjh3tw00gjsfl8f237lmu63q0uf63m'],
             ['Snowden', 'npub1sn0wdenkukak0d9dfczzeacvhkrgz92ak56egt7vdgzn8pv2wfqqhrjdv9'],

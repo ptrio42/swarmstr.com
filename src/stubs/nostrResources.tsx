@@ -53,7 +53,7 @@ export const PUBKEYS = [
 
 ];
 
-export const GUIDES_LAST_UPDATE = '2023-02-27';
+export const GUIDES_LAST_UPDATE = '2023-03-01';
 
 export const GUIDES: Guide[] = [
     {
@@ -144,7 +144,7 @@ export const GUIDES: Guide[] = [
     {
         id: 'the-list',
         issue: 'People involved in NOSTR',
-        updatedAt: '2023-02-24',
+        updatedAt: '2023-03-01',
         fix: 'You can open each person\'s profile in a client of your choice by tapping on the copy icon ' +
             'next to their name and selecting <i>Open in client</i>' +
             '<br/><br/>' +
@@ -1193,16 +1193,22 @@ export const GUIDES: Guide[] = [
         id: 'nip-05',
         issue: 'How to setup NIP-05 identifier (checkmark)?',
         fix: 'Check out these explainers on setting up a NIP-05 identifier below. ' +
-            'If you don\'t own a domain you can ask someone to create an id for you at their domain.',
+            'If you don\'t own a domain you can ask someone to create an id for you at their domain (for free or a small fee). ' +
+            'Check out <i>Free NIP-05 handles</i> and <i>Paid NIP-05 providers</i> sections for more info.',
         bulletPoints: [
             'npub1pvuugp6fyj6t6yeq9ajzv28p54w07sg6jpxvzuu5yc7qmu9edpkqm2d7a5:0b39c4074924b4bd13202f642628e1a55cff411a904cc17394263c0df0b9686c:MainStreetChungs',
             'https://mainstreetchungus.com/nostr-nip-05-verification/',
             '#### metasikander',
             'https://gist.github.com/metasikander/609a538e6a03b2f67e5c8de625baed3e',
             'npub1az9xj85cmxv8e9j9y80lvqp97crsqdu2fpu3srwthd99qfu9qsgstam8y8:e88a691e98d9987c964521dff60025f60700378a4879180dcbbb4a5027850411:NVK',
-            'https://nvk.org/n00b-nip5'
+            'https://nvk.org/n00b-nip5',
+            'Once you got your handle, you need update your profile.',
+            '',
+            '#### Updating profile on Damus',
+            '<i>Note NIP-05 VERIFICATION input</i>',
+            'https://uselessshit.co/images/nip05-01.png'
         ],
-        createdAt: '2023-01-04',
+        createdAt: '2023-03-01',
         updatedAt: '2023-01-25'
     },
     {
@@ -1220,6 +1226,8 @@ export const GUIDES: Guide[] = [
             'https://nostr.industries',
             '#### stacker.new',
             'https://stacker.news',
+            '#### getalby.com',
+            'https://getalby.com',
             '#### bitpaint.club',
             'npub1t8makd5nzwt36nym6j4mrn9dkv4cn43m24tqy8rxv34v3gflxwjqkqlw4s:59f7db369313971d4c9bd4abb1ccadb32b89d63b5556021c66646ac8a13f33a4:bitpaint',
             '#### Nostr-Check.com',
@@ -1229,10 +1237,12 @@ export const GUIDES: Guide[] = [
             'https://lnmarkets.com',
             '#### hitchhikersguidethroughthemetaverse.info',
             'npub132vp7xhrl2enqz65338jqe2vkrcax5zf339kdpymw059gcqpmjsq6fm80g:8a981f1ae3fab3300b548c4f20654cb0f1d350498c4b66849b73e8546001dca0:WShakesp',
+            '#### Verified-Nostr.com',
+            'https://verified-nostr.com',
             '#### uselessshit.co',
             'npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4:f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8:pitiunited'
         ],
-        updatedAt: '2023-02-26',
+        updatedAt: '2023-03-01',
         attachedNoteId: NOTES[28]
     },
     {
@@ -1250,10 +1260,12 @@ export const GUIDES: Guide[] = [
             'https://nostrverified.com',
             '#### no.str.cr',
             'https://no.str.cr/verify.html',
+            '#### Verified-Nostr.com',
+            'https://verified-nostr.com',
             '#### nostrich.love',
             'https://uselessshit.co/nostr/nip-05/'
         ],
-        updatedAt: '2023-02-26',
+        updatedAt: '2023-03-01',
         attachedNoteId: NOTES[27]
     },
     {
@@ -1393,11 +1405,14 @@ export const GUIDES: Guide[] = [
         issue: 'Bookmarks',
         fix: 'Starting Damus 1.1.0 (9), you can bookmark notes.',
         bulletPoints: [
-          'To bookmark a given note, tap and hold on its content.',
-          'From the menu that will show up, select <i>Add Bookmark</i>.',
-          'You can see all bookmarked notes from the side menu (which you can open by clicking on your pfp) -> <i>Bookmarks</i>.'
+            'To bookmark a given note, tap and hold on its content.',
+            'From the menu that will show up, select <i>Add Bookmark</i>.',
+            'https://uselessshit.co/images/bookmarks-01.png',
+            'You can see all bookmarked notes from the side menu (which you can open by clicking on your pfp) -> <i>Bookmarks</i>.',
+            'https://uselessshit.co/images/bookmarks-02.png',
+            'https://uselessshit.co/images/bookmarks-03.png'
         ],
-        updatedAt: '2023-02-27',
+        updatedAt: '2023-03-01',
         tags: ['Damus']
     },
     {
