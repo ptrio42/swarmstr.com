@@ -53,7 +53,7 @@ export const PUBKEYS = [
 
 ];
 
-export const GUIDES_LAST_UPDATE = '2023-03-01';
+export const GUIDES_LAST_UPDATE = '2023-03-06';
 
 export const GUIDES: Guide[] = [
     {
@@ -144,7 +144,7 @@ export const GUIDES: Guide[] = [
     {
         id: 'the-list',
         issue: 'People involved in NOSTR',
-        updatedAt: '2023-03-01',
+        updatedAt: '2023-03-06',
         fix: 'You can open each person\'s profile in a client of your choice by tapping on the copy icon ' +
             'next to their name and selecting <i>Open in client</i>' +
             '<br/><br/>' +
@@ -173,6 +173,8 @@ export const GUIDES: Guide[] = [
             'https://testflight.apple.com/join/5xdoDCmG',
             '<i>Current</i>',
             'https://testflight.apple.com/join/mB0EwMiV',
+            '<i>Nostur</i>',
+            'https://testflight.apple.com/join/TyrRNCXA',
             '#### Web',
             'https://astral.ninja',
             'https://yosup.app',
@@ -204,10 +206,11 @@ export const GUIDES: Guide[] = [
             '<i>Nostrid</i>',
             'https://github.com/lapulpeta/Nostrid',
             '<i>Gossip</i>',
-            'https://github.com/mikedilger/gossip'
-
+            'https://github.com/mikedilger/gossip',
+            '<i>Monstr</i>',
+            'https://github.com/alemmens/monstr'
         ],
-        updatedAt: '2023-02-27',
+        updatedAt: '2023-03-06',
         tags: ['Basics', 'Clients'],
         attachedNoteId: NOTES[15]
     },
@@ -876,11 +879,14 @@ export const GUIDES: Guide[] = [
             'Wallet of Satoshi',
             'stacker.news',
             'Alby',
+            'ZBD',
+            'Current (Client+Wallet)',
+            'fountain.fm',
             '',
             'Courtesy of',
             'npub12262qa4uhw7u8gdwlgmntqtv7aye8vdcmvszkqwgs0zchel6mz7s6cgrkj:52b4a076bcbbbdc3a1aefa3735816cf74993b1b8db202b01c883c58be7fad8bd:DerekRoss'
         ],
-        updatedAt: '2023-02-24',
+        updatedAt: '2023-03-06',
         attachedNoteId: NOTES[35]
     },
     {
@@ -954,6 +960,22 @@ export const GUIDES: Guide[] = [
         updatedAt: '2023-02-01',
         attachedNoteId: NOTES[9],
         tags: ['Essentials']
+    },
+    {
+        id: 'badges',
+        issue: 'WTF are badges?',
+        fix: '',
+        bulletPoints: [
+            '<i>Users MAY be awarded badges (but not limited to) in recognition, in gratitude, for participation, or in appreciation of a certain goal, task or cause.\n</i>',
+            '<i> Users MAY choose to decorate their profiles with badges for fame, notoriety, recognition, support, etc., from badge issuers they deem reputable.</i>',
+            'https://github.com/nostr-protocol/nips/blob/master/58.md#motivation',
+            'https://uselessshit.co/images/badge-01.png',
+            'Visit https://badges.page to create badges or to accept one you\'ve been awarded.',
+            '<b>When you log in on browser, be sure to use a browser extension for security reasons!</b>',
+            'nostrich.love badge:',
+            'https://badges.page/b/naddr1qqxxummnw3exjcmgd3hhvegzyqqqqqazeqrkggc53ls4u0l47xpwqvzvlak7fxdr74844hlrkq2wvqcyqqq82wglxtgyl'
+        ],
+        updatedAt: '2023-03-06'
     },
     {
         id: 'selecting-default-lightning-wallet',
@@ -1067,6 +1089,8 @@ export const GUIDES: Guide[] = [
             '4,000 <i class="fak fa-satoshisymbol-solidtilt" />',
             'wss://nostr.naut.social',
             '4,000 <i class="fak fa-satoshisymbol-solidtilt" />',
+            'wss://nostr.rocketstyle.com.au',
+            '4,242 <i class="fak fa-satoshisymbol-solidtilt" />',
             'wss://relay.orangepill.dev',
             '4,500 <i class="fak fa-satoshisymbol-solidtilt" />',
             'wss://eden.nostr.land',
@@ -1104,7 +1128,7 @@ export const GUIDES: Guide[] = [
             'You will find an up to date list of paid relays at',
             'https://relay.exchange'
         ],
-        updatedAt: '2023-02-14',
+        updatedAt: '2023-03-06',
         tags: ['Relays'],
         attachedNoteId: NOTES[34]
     },
@@ -1224,7 +1248,7 @@ export const GUIDES: Guide[] = [
             'npub138guayty78ch9k42n3uyz5ch3jcaa3u390647hwq0c83m2lypekq6wk36k:89d1ce9164f1f172daaa9c784153178cb1dec7912bf55f5dc07e0f1dabe40e6c:lukeonchain',
             '#### nostr.industries',
             'https://nostr.industries',
-            '#### stacker.new',
+            '#### stacker.news',
             'https://stacker.news',
             '#### getalby.com',
             'https://getalby.com',

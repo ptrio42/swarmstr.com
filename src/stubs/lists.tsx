@@ -157,7 +157,6 @@ export const LISTS = [
             ['NostrReport', 'npub19mduaf5569jx9xz555jcx3v06mvktvtpu0zgk47n4lcpjsz43zzqhj6vzk', 'https://nostreport.com'],
             ['MainStreetChungus', 'npub1pvuugp6fyj6t6yeq9ajzv28p54w07sg6jpxvzuu5yc7qmu9edpkqm2d7a5'],
             ['doc', 'npub1xy54p83r6wnpyhs52xjeztd7qyyeu9ghymz8v66yu8kt3jzx75rqhf3urc'],
-            ['sophiaw1926', 'npub13pdlcgrk7xpfwwcy2qjyt92jxvhkw3mh9k27zvs0jvfxa0ch88zs6sx3yr'],
             ['corndalorian', 'npub1lrnvvs6z78s9yjqxxr38uyqkmn34lsaxznnqgd877j4z2qej3j5s09qnw5'],
             ['Lau', 'npub1t2wy3j850q34zy6amzw9mzfsl66eedcx2tlaxlv3v7leytedzp5szs8c2u']
         ],
@@ -187,6 +186,10 @@ export const LISTS = [
         ],
         'getflamingo.org': [
             ['Tristan', 'npub1fh3uydhtwxawwe8hrpy9aacwjra6c59yw6gkkr45hgax7tfxtzjsa2y9wx' ,'https://getflamingo.org']
+        ],
+        'badges.page': [
+            ['verbiricha', 'npub107jk7htfv243u0x5ynn43scq9wrxtaasmrwwa8lfu2ydwag6cx2quqncxg', 'https://github.com/verbiricha'],
+            ['Karnage', 'npub1r0rs5q2gk0e3dk3nlc7gnu378ec6cnlenqp8a3cjhyzu6f8k5sgs4sq9ac']
         ],
         'Notable individuals': [
             ['jack', 'npub1sg6plzptd64u62a878hep2kev88swjh3tw00gjsfl8f237lmu63q0uf63m'],
