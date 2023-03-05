@@ -420,15 +420,15 @@ export const NostrResources = () => {
                 <meta property="og:url" content="https://uselessshit.co/resources/nostr" />
                 <meta property="og:type" content="website" />
                 <meta property="og:title" content="Your guide to the world of Nostr - UseLessShit.co" />
-                <meta property="og:image" content="https://uselessshit.co/images/guide-cover-v3.png" />
+                <meta property="og:image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />
                 <meta property="og:description" content="Basic guide for Nostr newcomers. Find answers to the most common questions." />
 
                 <meta itemProp="name" content="Your guide to the world of Nostr - UseLessShit.co" />
-                <meta itemProp="image" content="https://uselessshit.co/images/guide-cover-v3.png" />
+                <meta itemProp="image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />
 
                 <meta name="twitter:title" content="Your guide to the world of Nostr - UseLessShit.co" />
                 <meta name="twitter:description" content="Basic guide for Nostr newcomers. Find answers to the most common questions." />
-                <meta name="twitter:image" content="https://uselessshit.co/images/guide-cover-v3.png" />
+                <meta name="twitter:image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />
 
             </Helmet>
             <List>
