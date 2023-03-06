@@ -975,7 +975,8 @@ export const GUIDES: Guide[] = [
             'nostrich.love badge:',
             'https://badges.page/b/naddr1qqxxummnw3exjcmgd3hhvegzyqqqqqazeqrkggc53ls4u0l47xpwqvzvlak7fxdr74844hlrkq2wvqcyqqq82wglxtgyl'
         ],
-        updatedAt: '2023-03-06'
+        updatedAt: '2023-03-06',
+        tags: ['Badges']
     },
     {
         id: 'selecting-default-lightning-wallet',

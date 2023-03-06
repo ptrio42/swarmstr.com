@@ -400,16 +400,6 @@ export const NostrResources = () => {
         setPendingEvents([]);
     };
 
-    // const findPeopleFromNoteComments = () => {
-    //     const noteId = '16e0b43f67e111a168abcab297aafc27b18b48a4ab7b67582458197a86ac63a0';
-    //     const people = [
-    //         notes
-    //             .filter(n => n.tags.includes(['e', noteId]))
-    //             .map(n1 => n1.pubkey)
-    //
-    //     ];
-    // };
-
     return (
         <React.Fragment>
             <Helmet>
