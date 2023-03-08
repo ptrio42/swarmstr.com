@@ -53,7 +53,11 @@ export const PUBKEYS = [
 
 ];
 
-export const GUIDES_LAST_UPDATE = '2023-03-06';
+export const GUIDES_LAST_UPDATE = '2023-03-08';
+
+const LEVEL_1_TAGS = ['Basics', 'Lists', 'Stories', 'Tutorials', 'Contact', 'Other'];
+
+const LEVEL_2_TAGS = ['Protocol', 'Lightning', 'Media', 'Clients', 'Keys', 'Badges', 'Notes'];
 
 export const GUIDES: Guide[] = [
     {
@@ -78,6 +82,9 @@ export const GUIDES: Guide[] = [
             'npub1cj8znuztfqkvq89pl8hceph0svvvqk0qay6nydgk9uyq7fhpfsgsqwrz4u:c48e29f04b482cc01ca1f9ef8c86ef8318c059e0e9353235162f080f26e14c11:walker',
             '#### usenostr.org by @pluja',
             'https://usenostr.org',
+            '#### Nostr introduction',
+            'npub1fl7pr0azlpgk469u034lsgn46dvwguz9g339p03dpetp9cs5pq5qxzeknp:4ffc11bfa2f8516ae8bc7c6bf82275d358e47045446250be2d0e5612e2140828:SovrynMatt',
+            'https://sovryn.com/all-things-sovryn/introducing-nostr-a-decentralized-social-network-for-sovereign-individuals',
             '#### More Resources',
             'https://github.com/vishalxl/nostr_console/discussions/31',
             'https://wiki.wellorder.net/post/nostr-intro/',
@@ -87,10 +94,10 @@ export const GUIDES: Guide[] = [
             'Image credits: @coderjourney1'
         ],
         createdAt: '2023-01-09',
-        updatedAt: '2023-02-09',
+        updatedAt: '2023-03-08',
         imageUrls: ['https://uselessshit.co/images/explain-it-to-me-like-i-m-5.png'],
         attachedNoteId: NOTES[1],
-        tags: ['Basics', 'Essentials']
+        tags: ['Basics', 'Protocol']
     },
     {
         id: 'how-does-nostr-work',
@@ -109,7 +116,7 @@ export const GUIDES: Guide[] = [
             'the standard so all clients and relays can handle them seamlessly.',
             'https://github.com/nostr-protocol/nostr#how-does-nostr-work'
         ],
-        tags: ['Basics', 'Essentials'],
+        tags: ['Basics', 'Protocol'],
         updatedAt: '2023-02-01',
         attachedNoteId: NOTES[12]
     },
@@ -125,7 +132,7 @@ export const GUIDES: Guide[] = [
             'https://github.com/nostr-protocol/nostr#very-short-summary-of-how-it-works-if-you-dont-plan-to-read-anything-else'
         ],
         updatedAt: '2023-02-01',
-        tags: ['Basics', 'Clients'],
+        tags: ['Basics', 'Protocol'],
         attachedNoteId: NOTES[13]
     },
     {
@@ -138,7 +145,7 @@ export const GUIDES: Guide[] = [
             'https://github.com/nostr-protocol/nostr#very-short-summary-of-how-it-works-if-you-dont-plan-to-read-anything-else'
         ],
         updatedAt: '2023-02-01',
-        tags: ['Basics', 'Relays'],
+        tags: ['Basics', 'Protocol'],
         attachedNoteId: NOTES[14]
     },
     {
@@ -156,7 +163,7 @@ export const GUIDES: Guide[] = [
             '<i>Let me know if anything is wrong or missing and I will change it."</i>',
             ...listToMarkup(getPeopleInvolvedInNostr())
         ],
-        tags: ['Essentials', 'People', 'Projects'],
+        tags: ['Lists', 'People'],
         attachedNoteId: NOTES[10]
     },
     {
@@ -211,7 +218,7 @@ export const GUIDES: Guide[] = [
             'https://github.com/alemmens/monstr'
         ],
         updatedAt: '2023-03-06',
-        tags: ['Basics', 'Clients'],
+        tags: ['Lists', 'Clients'],
         attachedNoteId: NOTES[15]
     },
     {
@@ -237,7 +244,7 @@ export const GUIDES: Guide[] = [
         ],
         createdAt: '2023-01-05',
         updatedAt: '2023-02-09',
-        tags: ['Basics', 'Keys', 'Essentials'],
+        tags: ['Basics', 'Keys'],
         attachedNoteId: NOTES[16]
     },
     {
@@ -252,7 +259,7 @@ export const GUIDES: Guide[] = [
             'https://youtu.be/IoLw-3ok3_M'
         ],
         updatedAt: '2023-01-23',
-        tags: ['Basics', 'Keys'],
+        tags: ['Tutorials', 'Keys'],
         attachedNoteId: NOTES[2]
     },
     {
@@ -265,7 +272,7 @@ export const GUIDES: Guide[] = [
             'https://orangepill.dev/nostr-guides/guide-nostr-key-generation-and-management/'
         ],
         updatedAt: '2023-01-22',
-        tags: ['Keys', 'Guides'],
+        tags: ['Tutorials', 'Keys'],
         attachedNoteId: NOTES[17]
     },
     {
@@ -390,7 +397,7 @@ export const GUIDES: Guide[] = [
             '⚡️ wrigglypie41@walletofsatoshi.com ⚡️ 💜🍀'
         ],
         attachedNoteId: NOTES[18],
-        tags: ['People', 'Projects']
+        tags: ['Lists', 'Resources']
     },
     {
         id: 'nostrich-origins',
@@ -407,7 +414,8 @@ export const GUIDES: Guide[] = [
             'https://nostr.build/i/walker/2087.jpeg'
         ],
         updatedAt: '2023-01-25',
-        attachedNoteId: NOTES[19]
+        attachedNoteId: NOTES[19],
+        tags: ['Stories']
     },
     {
         id: 'what-is-damus',
@@ -421,14 +429,8 @@ export const GUIDES: Guide[] = [
         ],
         createdAt: '2023-01-10',
         updatedAt: '2023-02-01',
-        tags: ['Damus', 'Clients']
+        tags: ['Basics', 'Clients']
     },
-    // {
-    //     id: 'damus-test-flight',
-    //     issue: 'Damus TestFlight',
-    //     fix: '',
-    //     updatedAt: '2023-02-01'
-    // },
     {
         id: 'running-damus',
         issue: 'Running Damus',
@@ -465,17 +467,9 @@ export const GUIDES: Guide[] = [
             'Thanks to npub1fmd02wwyjrs3yagacdrhzar75vgu9wu0utzf6trvumdrz3l3mzrsm7vmml:realmuster for contributing to this particular guide.'
 
         ],
-        tags: ['Damus', 'Intermediate'],
+        tags: ['Tutorials', 'Damus'],
         updatedAt: '2023-02-01',
         attachedNoteId: NOTES[20]
-    },
-    {
-        id: 'mining-the-public-hex-key',
-        issue: 'How to mine a public key?',
-        fix: 'You can mine your public HEX key with a desired prefix. Check out nostr.rest to find out how.',
-        urls: ['https://nostr.rest'],
-        updatedAt: '2023-01-06',
-        tags: ['Keys']
     },
     {
         id: 'vanity-keys',
@@ -499,10 +493,14 @@ export const GUIDES: Guide[] = [
             'Here\'s a good explainer by',
             'npub1rpes5hhk6mxun5ddt5kecxfm8y3xdr0h5jwal32mc6mxafr48hxsaj2et2:18730a5ef6d6cdc9d1ad5d2d9c193b3922668df7a49ddfc55bc6b66ea4753dcd:Mads',
             'which can shed some light on the whole process',
-            'https://telegra.ph/How-to-create-a-POW-nostr-key-pair-01-04'
+            'https://telegra.ph/How-to-create-a-POW-nostr-key-pair-01-04',
+            '------------------',
+            '<b>Mining a HEX key online</b>',
+            'https://nostr.rest'
+            // TODO: Add info about needing to login through a webclient after mining vanity keys (Damus)
         ],
-        updatedAt: '2023-01-29',
-        tags: ['Keys'],
+        updatedAt: '2023-03-08',
+        tags: ['Tutorials', 'Keys'],
         attachedNoteId: NOTES[21]
     },
     {
@@ -512,7 +510,7 @@ export const GUIDES: Guide[] = [
             'and see the world through their lens.',
         createdAt: '2023-01-09',
         updatedAt: '2023-01-14',
-        tags: ['Keys']
+        tags: ['Basics', 'Keys']
     },
     {
         id: 'how-do-i-tag-a-person',
@@ -535,7 +533,7 @@ export const GUIDES: Guide[] = [
         ],
         createdAt: '2022-12-25',
         updatedAt: '2023-02-01',
-        tags: ['Basics', 'Keys']
+        tags: ['Tutorials', 'Notes']
     },
     {
         id: 'adding-images',
@@ -580,11 +578,19 @@ export const GUIDES: Guide[] = [
     },
     {
         id: 'gifs',
-        issue: 'User avatars and post images can be GIFs.',
-        fix: 'Animated user avatars and post images work just like any other images.',
-        urls: ['https://tenor.com'],
-        updatedAt: '2022-12-26',
-        tags: ['Media']
+        issue: 'GIFs',
+        fix: 'GIFs work just like any other images.',
+        bulletPoints: [
+          '<b>Turning videos into GIFs</b>',
+          'https://ezgif.com',
+          '<b>Animating images</b>',
+          'Motionleap (available on Android and iOS)',
+          '<b>Finding GIFs online</b>',
+          'https://tenor.com',
+          'https://giphy.com'
+        ],
+        updatedAt: '2023-03-08',
+        tags: ['Basics', 'Media']
     },
     {
         id: 'gifs-will-not-display',
@@ -592,16 +598,7 @@ export const GUIDES: Guide[] = [
         fix: 'Some clients prevent GIFs larger than 1MB from loading. ' +
             'Try an image-compressing tool to downsize.',
         updatedAt: '2023-01-05',
-        tags: ['Media', 'Troubleshooting']
-    },
-    {
-        id: 'turning-images-into-gifs',
-        issue: 'How to turn static images into gifs?',
-        fix: 'Download MotionLeap (available on Android and iOS) to add animations to your image. ' +
-            'With a free version you\'d also need ezgif.com to convert MotionLeap output to GIF.',
-        urls: ['https://ezgif.com'],
-        updatedAt: '2023-01-05',
-        tags: ['Media']
+        tags: ['Basics', 'Media', 'Troubleshooting']
     },
     {
         id: 'multiple-images',
@@ -609,7 +606,7 @@ export const GUIDES: Guide[] = [
         fix: 'For multiple images to be displayed in a single post, simply add a direct image url for every image you\'d like to see. ' +
             'They\'ll appear in a carousel (swipe left/right to browse).',
         updatedAt: '2022-12-27',
-        tags: ['Media']
+        tags: ['Basics', 'Media']
     },
     {
         id: 'adding-videos',
@@ -619,7 +616,7 @@ export const GUIDES: Guide[] = [
             'That\'s it!',
         createdAt: '2022-12-29',
         updatedAt: '2022-01-11',
-        tags: ['Media', 'Damus']
+        tags: ['Basics', 'Media']
     },
     {
         id: 'how-to-quote-a-note',
@@ -627,7 +624,7 @@ export const GUIDES: Guide[] = [
         fix: 'Click (press) and hold on the note you would like to quote. A menu should pop up. Select Copy Note ID. ' +
             'Then use that id prefixed by @ in your new post.',
         updatedAt: '2023-01-03',
-        tags: ['Basics']
+        tags: ['Basics', 'Notes']
     },
     {
         id: 'deleting-notes',
@@ -643,7 +640,7 @@ export const GUIDES: Guide[] = [
         ],
         createdAt: '2023-01-06',
         updatedAt: '2023-01-17',
-        tags: ['Basics', 'Essentials'],
+        tags: ['Basics', 'Notes'],
         attachedNoteId: NOTES[3]
     },
     {
@@ -656,7 +653,7 @@ export const GUIDES: Guide[] = [
             'https://uselessshit.co/images/deleting-accounts.png'
         ],
         updatedAt: '2023-02-14',
-        tags: ['Basics', 'Essentials'],
+        tags: ['Basics', 'Clients'],
         attachedNoteId: NOTES[24]
     },
     {
@@ -666,7 +663,7 @@ export const GUIDES: Guide[] = [
             'Simply tap on the Share icon under the post and choose a desired option.',
         createdAt: '2023-01-07',
         updatedAt: '2023-01-11',
-        tags: ['Basics']
+        tags: ['Basics', 'Notes']
     },
     {
         id: 'reactions',
@@ -674,7 +671,7 @@ export const GUIDES: Guide[] = [
         fix: 'Since Damus build 1.0.0-6 you can now see who liked your posts with the new reactions view.' +
             'Reactions can be viewed from the Thread screen.',
         updatedAt: '2023-01-14',
-        tags: ['Basics', 'Damus']
+        tags: ['Basics', 'Clients', 'Damus']
     },
     {
         id: 'left-handers',
@@ -683,7 +680,7 @@ export const GUIDES: Guide[] = [
             'To do that, go to Settings (tap on your pfp in top left corner to open side panel), ' +
             'scroll down to LEFT HANDED section and then tap on the toggle. Restart the app for the changes to take effect.',
         updatedAt: '2023-01-14',
-        tags: ['Damus']
+        tags: ['Basics', 'Clients', 'Damus']
     },
     {
         id: 'banner-image',
@@ -696,7 +693,7 @@ export const GUIDES: Guide[] = [
         createdAt: '2023-01-14',
         updatedAt: '2023-01-15',
         urls: ['https://uselessshit.co/card-generator'],
-        tags: ['Media', 'Damus']
+        tags: ['Basics', 'Media', 'Damus']
     },
     {
         id: 'dms',
@@ -711,7 +708,7 @@ export const GUIDES: Guide[] = [
             'npub1hycynfhz23ardfmf9kgwfw4gpyqj2fsh24r2zuehg4x7lx4kn5cqsqv4y3:b93049a6e2547a36a7692d90e4baa809012526175546a17337454def9ab69d30:StackSats'
         ],
         updatedAt: '2023-01-15',
-        tags: ['Basics', 'Essentials'],
+        tags: ['Basics', 'Notes'],
         attachedNoteId: NOTES[4]
     },
     {
@@ -724,7 +721,7 @@ export const GUIDES: Guide[] = [
             '"DMs may not be mirrored between relays, so they may get lost over time when relays disappear."'
         ],
         updatedAt: '2023-02-01',
-        tags: ['Basics'],
+        tags: ['Basics', 'Notes'],
         attachedNoteId: NOTES[32]
     },
     {
@@ -772,7 +769,7 @@ export const GUIDES: Guide[] = [
 
             // TODO: zaps on snort.social
         ],
-        tags: ['Basics', 'Lightning', 'Zaps', 'Damus'],
+        tags: ['Basics', 'Lightning', 'Zaps'],
         updatedAt: '2023-02-14',
         attachedNoteId: NOTES[25]
     },
@@ -821,7 +818,7 @@ export const GUIDES: Guide[] = [
         ],
         createdAt: '2022-12-26',
         updatedAt: '2022-02-03',
-        tags: ['Basics', 'Lightning', 'Damus', 'Essentials', 'Zaps'],
+        tags: ['Basics', 'Lightning', 'Zaps'],
         attachedNoteId: NOTES[5]
     },
     {
@@ -862,7 +859,7 @@ export const GUIDES: Guide[] = [
         ],
         createdAt: '2023-01-11',
         updatedAt: '2023-01-16',
-        tags: ['Lightning']
+        tags: ['Basics', 'Lightning']
     },
     {
         id: 'zaps-compatible-wallets',
@@ -887,6 +884,7 @@ export const GUIDES: Guide[] = [
             'npub12262qa4uhw7u8gdwlgmntqtv7aye8vdcmvszkqwgs0zchel6mz7s6cgrkj:52b4a076bcbbbdc3a1aefa3735816cf74993b1b8db202b01c883c58be7fad8bd:DerekRoss'
         ],
         updatedAt: '2023-03-06',
+        tags: ['Basics', 'Lightning', 'Zaps'],
         attachedNoteId: NOTES[35]
     },
     {
@@ -940,6 +938,7 @@ export const GUIDES: Guide[] = [
             'https://github.com/nostr-wine/filter-relay/blob/main/README.md'
         ],
         updatedAt: '2023-02-14',
+        tags: ['Basics', 'Notes'],
         attachedNoteId: NOTES[26]
     },
     {
@@ -959,7 +958,7 @@ export const GUIDES: Guide[] = [
         createdAt: '2022-12-26',
         updatedAt: '2023-02-01',
         attachedNoteId: NOTES[9],
-        tags: ['Essentials']
+        tags: ['Stories']
     },
     {
         id: 'badges',
@@ -976,7 +975,7 @@ export const GUIDES: Guide[] = [
             'https://badges.page/b/naddr1qqxxummnw3exjcmgd3hhvegzyqqqqqazeqrkggc53ls4u0l47xpwqvzvlak7fxdr74844hlrkq2wvqcyqqq82wglxtgyl'
         ],
         updatedAt: '2023-03-06',
-        tags: ['Badges']
+        tags: ['Basics', 'Badges']
     },
     {
         id: 'selecting-default-lightning-wallet',
@@ -987,7 +986,7 @@ export const GUIDES: Guide[] = [
             'The default wallet can be chosen from the list under "Select default wallet".',
         createdAt: '2023-01-06',
         updatedAt: '2023-01-14',
-        tags: ['Lightning', 'Damus']
+        tags: ['Basics', 'Lightning', 'Damus']
     },
     {
         id: 'dark-mode',
@@ -995,7 +994,7 @@ export const GUIDES: Guide[] = [
         fix: 'Set you iOS theme to dark.',
         createdAt: '2022-12-26',
         updatedAt: '2023-01-11',
-        tags: ['Damus']
+        tags: ['Basics', 'Clients', 'Damus']
     },
     {
         id: 'clearing-cache',
@@ -1003,7 +1002,7 @@ export const GUIDES: Guide[] = [
         fix: 'Clear cache option is located in Settings (side panel, accessible through tapping on your pfp) under CLEAR CACHE section.',
         createdAt: '2023-01-07',
         updatedAt: '2023-01-14',
-        tags: ['Basics', 'Damus']
+        tags: ['Basics', 'Clients', 'Damus']
     },
     {
         id: 'saving-images-to-library',
@@ -1011,7 +1010,7 @@ export const GUIDES: Guide[] = [
         fix: 'Tap on the picture you want to save. In the newly opened window tap & hold on the image and select Save Image.',
         createdAt: '2023-01-07',
         updatedAt: '2023-01-11',
-        tags: ['Media', 'Damus']
+        tags: ['Basics', 'Media', 'Damus']
     },
     {
         id: 'who-to-follow',
@@ -1041,13 +1040,6 @@ export const GUIDES: Guide[] = [
 
     },
     {
-        id: 'markdown',
-        issue: 'Using markdown in posts.',
-        fix: 'Some of the markdown tags are supported by clients. Try formatting your posts with a guide at markdownguide.org',
-        urls: ['https://markdownguide.org'],
-        updatedAt: '2022-12-27'
-    },
-    {
         id: 'uploading-to-nostr-build',
         issue: 'Uploading to nostr.build',
         fix: 'nostr.build is a nice place to upload your images. ' +
@@ -1055,7 +1047,15 @@ export const GUIDES: Guide[] = [
             'Be cautious when uploading images there as anyone can see them even without a direct link.',
         urls: ['https://nostr.build/', 'https://nostr.build/profilepic.html'],
         updatedAt: '2023-01-05',
-        tags: ['Media']
+        // tags: ['Media']
+    },
+    {
+        id: 'markdown',
+        issue: 'Using markdown in posts.',
+        fix: 'Some of the markdown tags are supported by clients. Try formatting your posts with a guide at markdownguide.org',
+        urls: ['https://markdownguide.org'],
+        tags: ['Basics', 'Notes'],
+        updatedAt: '2022-12-27'
     },
     {
         id: 'paid-relays',
@@ -1130,7 +1130,7 @@ export const GUIDES: Guide[] = [
             'https://relay.exchange'
         ],
         updatedAt: '2023-03-06',
-        tags: ['Relays'],
+        tags: ['Lists', 'Relays'],
         attachedNoteId: NOTES[34]
     },
     {
@@ -1140,7 +1140,8 @@ export const GUIDES: Guide[] = [
         bulletPoints: [
             'https://andreneves.xyz/p/how-to-setup-a-paid-nostr-relay'
         ],
-        updatedAt: '2023-02-09'
+        updatedAt: '2023-02-09',
+        tags: ['Tutorials', 'Relays']
     },
     {
         id: 'stats',
@@ -1162,7 +1163,8 @@ export const GUIDES: Guide[] = [
             'Courtesy of',
             'npub128q9nu7vrqpfjllpcnnq6cc4cgs8ngp9sge9v9s2c7lur098ctts99gupa:51c059f3cc1802997fe1c4e60d6315c22079a025823256160ac7bfc1bca7c2d7:BitcoinNostrich'
         ],
-        updatedAt: '2023-02-05'
+        updatedAt: '2023-02-05',
+        tags: ['Lists', 'Stats']
     },
     {
         id: 'twitter-nostr-migration',
@@ -1183,7 +1185,7 @@ export const GUIDES: Guide[] = [
             'https://nostr-twit.glitch.me'
         ],
         updatedAt: '2023-02-09',
-        tags: ['Essentials', 'Snort']
+        tags: ['Tutorials', 'Snort']
     },
     {
         id: 'adding-more-relays',
@@ -1193,7 +1195,7 @@ export const GUIDES: Guide[] = [
         urls: ['https://nostr.watch'],
         createdAt: '2022-12-30',
         updatedAt: '2022-01-11',
-        tags: ['Basics', 'Damus']
+        tags: ['Basics', 'Clients', 'Troubleshooting']
     },
     {
         id: 'too-many-relays',
@@ -1202,7 +1204,8 @@ export const GUIDES: Guide[] = [
             'resulting in better experience, ' +
             'having too many relays could be an issue as well. Be cautious when using a mobile internet with limited bandwidth ' +
             'and try limiting the amount of relays to well under 10.',
-        updatedAt: '2023-01-02'
+        updatedAt: '2023-01-02',
+        tags: ['Basics', 'Clients', 'Troubleshooting']
     },
     {
         id: 'removing-relays',
@@ -1212,7 +1215,7 @@ export const GUIDES: Guide[] = [
             'You might want to restart the client for the changes to take place.',
         createdAt: '2022-12-30',
         updatedAt: '2023-01-14',
-        tags: ['Basics']
+        tags: ['Basics', 'Clients']
     },
     {
         id: 'nip-05',
@@ -1234,7 +1237,8 @@ export const GUIDES: Guide[] = [
             'https://uselessshit.co/images/nip05-01.png'
         ],
         createdAt: '2023-03-01',
-        updatedAt: '2023-01-25'
+        updatedAt: '2023-01-25',
+        tags: ['Tutorials', 'NIP-05']
     },
     {
         id: 'free-nip-05',
@@ -1268,7 +1272,8 @@ export const GUIDES: Guide[] = [
             'npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4:f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8:pitiunited'
         ],
         updatedAt: '2023-03-01',
-        attachedNoteId: NOTES[28]
+        attachedNoteId: NOTES[28],
+        tags: ['Lists']
     },
     {
         id: 'paid-nip-05-providers',
@@ -1291,7 +1296,8 @@ export const GUIDES: Guide[] = [
             'https://uselessshit.co/nostr/nip-05/'
         ],
         updatedAt: '2023-03-01',
-        attachedNoteId: NOTES[27]
+        attachedNoteId: NOTES[27],
+        tags: ['Lists']
     },
     {
         id: 'lnurlp-with-alby',
@@ -1300,7 +1306,8 @@ export const GUIDES: Guide[] = [
             'If you\'d like a lightning address @uselessshit.co let me know (see Contact)',
         urls: ['https://nvk.org/alby-lnurlp'],
         createdAt: '2023-01-10',
-        updatedAt: '2023-01-11'
+        updatedAt: '2023-01-11',
+        tags: ['Tutorials']
     },
     {
         id: 'lnurlp-with-wos',
@@ -1318,7 +1325,8 @@ export const GUIDES: Guide[] = [
             'npub16jzr7npgp2a684pasnkhjf9j2e7hc9n0teefskulqmf42cqmt4uqwszk52:d4843f4c280abba3d43d84ed7924b2567d7c166f5e72985b9f06d355601b5d78:EzoFox',
             'got you covered (link below).'
         ],
-        urls: ['https://orangepill.dev/lightning-guides/guide-to-create-lnaddress-redirection-on-your-domain/']
+        urls: ['https://orangepill.dev/lightning-guides/guide-to-create-lnaddress-redirection-on-your-domain/'],
+        tags: ['Tutorials']
     },
     {
         id: 'grey-and-purple-checkmarks',
@@ -1326,7 +1334,7 @@ export const GUIDES: Guide[] = [
         fix: 'People you aren\'t following have grey checkmarks, whereas the ones you follow have purple checkmarks.',
         createdAt: '2023-01-04',
         updatedAt: '2023-01-17',
-        tags: ['Basics', 'Damus']
+        // tags: ['Basics', 'Damus']
     },
     {
         id: 'finding-others-by-npub-only',
@@ -1342,7 +1350,7 @@ export const GUIDES: Guide[] = [
             '(replace pubkey with the npub of the person you\'re looking for).'
         ],
         updatedAt: '2023-01-27',
-        tags: ['Damus', 'Snort']
+        // tags: ['Damus', 'Snort']
     },
     {
         id: 'blocking-users',
@@ -1370,7 +1378,7 @@ export const GUIDES: Guide[] = [
             'https://nostr.build/i/nostr.build_41b6ee72193f5debf7d1a4e5731440b69a679778a1a75a9668c8163c9d363806.png'
         ],
         updatedAt: '2023-01-27',
-        tags: ['Damus'],
+        tags: ['Basics', 'Clients'],
         attachedNoteId: NOTES[29]
     },
     {
@@ -1379,7 +1387,8 @@ export const GUIDES: Guide[] = [
         fix: 'Check out the resources below to set up a Nostr relay in under 5 minutes.',
         urls: ['https://github.com/Cameri/nostream', 'https://andreneves.xyz/p/set-up-a-nostr-relay-server-in-under'],
         createdAt: '2022-12-30',
-        updatedAt: '2023-01-09'
+        updatedAt: '2023-01-09',
+        tags: ['Tutorials']
     },
     {
         id: 'converting-nostr-keys',
@@ -1392,7 +1401,8 @@ export const GUIDES: Guide[] = [
                 'https://github.com/rot13maxi/key-convertr',
             ],
         updatedAt: '2023-01-17',
-        attachedNoteId: NOTES[30]
+        attachedNoteId: NOTES[30],
+        tags: ['Tutorials']
     },
     {
         id: 'security-and-privacy-tips',
@@ -1400,13 +1410,15 @@ export const GUIDES: Guide[] = [
         fix: '',
         urls: ['https://ron.stoner.com/nostr_Security_and_Privacy/'],
         updatedAt: '2022-12-30',
-        attachedNoteId: NOTES[31]
+        attachedNoteId: NOTES[31],
+        tags: ['Tutorials']
     },
     {
         id: 'blurred-images',
         issue: 'Some images are blurred. Need to click on the image to see it. What\'s up?',
         fix: 'You can only see images from the people you\'re following, the remaining ones come up blurred.',
-        updatedAt: '2022-12-30'
+        updatedAt: '2022-12-30',
+        tags: ['Basics', 'Clients', 'Troubleshooting']
     },
     {
         id: 'reposting-issues',
@@ -1415,15 +1427,7 @@ export const GUIDES: Guide[] = [
             'The workaround is to open a given thread and repost the note from there.',
         createdAt: '2023-01-09',
         updatedAt: '2023-01-14',
-        tags: ['Troubleshooting', 'Damus']
-    },
-    {
-        id: 'damus-is-crashing',
-        issue: 'Damus keeps crashing.',
-        fix: 'Damus is still in beta, so bugs are not uncommon. ' +
-            'If your app keeps crashing, make sure you\'ve updated Damus and iOS to the latest versions.',
-        updatedAt: '2023-01-09',
-        tags: ['Troubleshooting', 'Damus']
+        tags: ['Basics', 'Clients', 'Troubleshooting']
     },
     {
         id: 'bookmarks',
@@ -1438,7 +1442,7 @@ export const GUIDES: Guide[] = [
             'https://uselessshit.co/images/bookmarks-03.png'
         ],
         updatedAt: '2023-03-01',
-        tags: ['Damus']
+        tags: ['Basics', 'Clients', 'Damus']
     },
     {
         id: 'more-resources',
@@ -1452,7 +1456,8 @@ export const GUIDES: Guide[] = [
             'https://wiki.wellorder.net/post/nostr-intro/',
             'https://t.me/NostrTalk/73'
         ],
-        updatedAt: '2023-01-02'
+        updatedAt: '2023-01-02',
+        tags: ['Lists', 'Resources']
     },
     {
         id: 'contact',
@@ -1467,6 +1472,7 @@ export const GUIDES: Guide[] = [
         ],
         urls: ['https://uselessshit.co/resources/bitcoin'],
         createdAt: '2022-12-29',
-        updatedAt: '2023-01-16'
+        updatedAt: '2023-01-16',
+        tags: ['Contact']
     }
 ];
