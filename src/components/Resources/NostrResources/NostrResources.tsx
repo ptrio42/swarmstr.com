@@ -37,7 +37,7 @@ import {REACTIONS} from "../Reactions/Reactions";
 import LinearProgress from "@mui/material/LinearProgress";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import {uniq} from "lodash";
+import {uniq, groupBy, forOwn} from "lodash";
 
 export interface Guide {
     id: string;
@@ -88,7 +88,7 @@ export const NostrResources = () => {
 
     useEffect(() => {
         if (sort === '') {
-            setGuides(getInitialGuides());
+            setGuides([getTableOfContents(), ...getInitialGuides()]);
         } else {
             const guidesSorted = [ ... guides ];
 
@@ -132,6 +132,7 @@ export const NostrResources = () => {
         if (searchQueryParams && searchQueryParams !== '') {
             setSearchQuery(searchQueryParams);
         }
+        const tableOfContents = getTableOfContents();
     }, [guides]);
 
     useEffect(() => {
@@ -247,7 +248,7 @@ export const NostrResources = () => {
                 console.log(`[${socketUrl}] Connected! Relay status: ${newRelay && newRelay.status}`);
 
                 setRelay(newRelay);
-                setGuides(getInitialGuides());
+                setGuides([getTableOfContents(), ...getInitialGuides()]);
             })
             .catch(error => {
                 console.error(`[${socketUrl}] Cannot connect!`, error);
@@ -398,6 +399,35 @@ export const NostrResources = () => {
            publishEvent(event);
         });
         setPendingEvents([]);
+    };
+
+    const goToGuide = (id: string) => {
+        console.log('click');
+        const anchor = document.createElement('a');
+        anchor.href = `#${id}`;
+        anchor.click();
+    };
+
+    const getTableOfContents = (): Guide => {
+        const tableOfContents = groupBy(
+            GUIDES
+                .map(({ id, issue, tags }) => ({ id, issue, tags })),
+            (guide) => guide.tags && guide.tags[0] || 'Other'
+        );
+        const bulletPoints: string[] = [];
+        if (tableOfContents) {
+            forOwn(tableOfContents, (entries, key) => {
+                bulletPoints.push(`#### ${key}`, ...entries.map(entry => `<a href="#${entry.id}">${entry.issue}</a>`))
+            });
+        }
+
+        return {
+            id: 'table-of-contents',
+            issue: 'Table of Contents',
+            fix: '',
+            updatedAt: '2023-03-08',
+            bulletPoints
+        };
     };
 
     return (
