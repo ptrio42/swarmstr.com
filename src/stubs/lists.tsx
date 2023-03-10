@@ -66,6 +66,15 @@ export const LISTS = [
             ['vishalxl', 'npub1xg6sx67sj47lkf7vmgpdg5khca3musxfrgdvpq46dxpmy53c8zxqqy7kwr', 'https://github.com/vishalxl'],
             ['radixrat', 'npub14j0vqgqhq92lpl4nglcdwalwtlpcm50nvdfsjvzxxgmydnl4z60sdv04f4', 'https://github.com/radixrat/']
         ],
+        'nostrit.com': [
+            ['pablof7z', 'npub1l2vyh47mk2p0qlsku7hg0vn29faehy9hy34ygaclpn66ukqp3afqutajft', 'https://nostrit.com']
+        ],
+        'nostri.chat': [
+            ['pablof7z', 'npub1l2vyh47mk2p0qlsku7hg0vn29faehy9hy34ygaclpn66ukqp3afqutajft', 'https://nostri.chat']
+        ],
+        'ananostr.com': [
+            ['pablof7z', 'npub1l2vyh47mk2p0qlsku7hg0vn29faehy9hy34ygaclpn66ukqp3afqutajft', 'https://ananostr.com']
+        ],
         'Coracle': [
             ['hodlbod', 'npub1jlrs53pkdfjnts29kveljul2sm0actt6n8dxrrzqcersttvcuv3qdjynqn', 'https://github.com/staab/coracle']
         ],
