@@ -15,7 +15,8 @@ export const Nip05 = () => {
     const [pubkey, setPubkey] = useState<string>();
     const [pubkeyValid, setPubkeyValid] = useState<boolean>();
     const [name, setName] = useState<string>();
-    const [nameAvailable, setNameAvailable] = useState();
+    const [nameAvailable, setNameAvailable] = useState<boolean>();
+    const [nameAvailableMessage, setNameAvailableMessage] = useState<string>('');
     const [invoice, setInvoice] = useState();
     const [invoiceStatus, setInvoiceStatus] = useState();
     const [dialogOpen, setDialogOpen] = useState<boolean>(false);
@@ -31,9 +32,17 @@ export const Nip05 = () => {
     }, [pubkey]);
 
     useEffect(() => {
+        if (name && new RegExp(/(^[a-zA-Z0-9_.]+$)/).test(name) === false) {
+            setNameAvailable(false);
+            setNameAvailableMessage('Name not available (used characters not allowed).');
+            return;
+        }
         if (name) {
             checkName(name).then(response => {
                 setNameAvailable(response.nameAvailable);
+                if (!response.nameAvailable) {
+                    setNameAvailableMessage('Name already registered.')
+                }
             });
         }
         if (invoice) {
@@ -122,6 +131,12 @@ export const Nip05 = () => {
                 <Typography component="div" sx={{ margin: '0.33em' }}>
                     Fee: 420 sats
                 </Typography>
+                <Typography component="div" sx={{ margin: '0.33em' }}>
+                    Allowed characters: a-zA-Z0-9_.
+                </Typography>
+                <Typography component="div" sx={{ margin: '0.33em' }}>
+                    Having issues? Reach out on Nostr or Telegram @pitiunited
+                </Typography>
                 <Card>
                     <CardContent>
                         <Typography
@@ -141,7 +156,7 @@ export const Nip05 = () => {
                             onChange={(event) => {
                                 setName(event.target.value);
                             }}
-                            {...(name && name.length > 0 && !nameAvailable) ? { error: true, helperText: 'Name not available' } : {error: false}}
+                            {...(name && name.length > 0 && !nameAvailable) ? { error: true, helperText: nameAvailableMessage } : {error: false}}
                         />
                         <TextField
                             sx={{ margin: '0.33em' }}
