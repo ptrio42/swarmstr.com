@@ -53,18 +53,18 @@ export const PageContent = () => {
                             </Typography>
                         </CardContent>
                     </Card>
-                    <Card className="splash__card">
-                        <CardContent>
-                            <DesignServices sx={{ fontSize: '80px' }} />
-                            <Typography variant="h4" component="div" gutterBottom>
-                                Bitcoin Artwork
-                            </Typography>
-                            <Typography variant="body1" component="div" gutterBottom>
-                                Create beautiful bitcoin cards, bookmarks & stickers with <Link color='secondary' to='card-generator'>a dedicated panel</Link>.
-                                Turn your cards into gifts with Lightning.
-                            </Typography>
-                        </CardContent>
-                    </Card>
+                    {/*<Card className="splash__card">*/}
+                        {/*<CardContent>*/}
+                            {/*<DesignServices sx={{ fontSize: '80px' }} />*/}
+                            {/*<Typography variant="h4" component="div" gutterBottom>*/}
+                                {/*Bitcoin Artwork*/}
+                            {/*</Typography>*/}
+                            {/*<Typography variant="body1" component="div" gutterBottom>*/}
+                                {/*Create beautiful bitcoin cards, bookmarks & stickers with <Link color='secondary' to='card-generator'>a dedicated panel</Link>.*/}
+                                {/*Turn your cards into gifts with Lightning.*/}
+                            {/*</Typography>*/}
+                        {/*</CardContent>*/}
+                    {/*</Card>*/}
 
                     <Card className="splash__card">
                         <CardContent>

@@ -53,14 +53,14 @@ export const NavBar = () => {
             onKeyDown={toggleDrawer(false)}
         >
             <List>
-                <ListItem disablePadding component={Link} to="/card-generator"  sx={{ color: '#000' }}>
-                    <ListItemButton>
-                        <ListItemIcon>
-                            <CurrencyBitcoin />
-                        </ListItemIcon>
-                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Bitcoin Artwork" />
-                    </ListItemButton>
-                </ListItem>
+                {/*<ListItem disablePadding component={Link} to="/card-generator"  sx={{ color: '#000' }}>*/}
+                    {/*<ListItemButton>*/}
+                        {/*<ListItemIcon>*/}
+                            {/*<CurrencyBitcoin />*/}
+                        {/*</ListItemIcon>*/}
+                        {/*<ListItemText sx={{ textTransform: 'uppercase' }} primary="Bitcoin Artwork" />*/}
+                    {/*</ListItemButton>*/}
+                {/*</ListItem>*/}
                 <ListItem disablePadding component={Link} to="/#converter" sx={{ color: '#000' }}>
                     <ListItemButton>
                         <ListItemIcon>
@@ -74,7 +74,7 @@ export const NavBar = () => {
                         <ListItemIcon>
                             <Receipt />
                         </ListItemIcon>
-                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Resources" />
+                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Bitcoin Resources" />
                     </ListItemButton>
                 </ListItem>
                 <ListItem disablePadding component={Link} to="/resources/nostr" sx={{ color: '#000' }}>
@@ -134,16 +134,16 @@ export const NavBar = () => {
                         )} />
                         <Media query={{ minWidth: '910px' }} render={() => (
                             <React.Fragment>
-                                <Button
-                                    sx={{ fontWeight: 'bold' }}
-                                    variant="text"
-                                    color="inherit"
-                                    component={Link}
-                                    to="/card-generator"
-                                    startIcon={<CurrencyBitcoin color="warning" />}
-                                >
-                                    BITCOIN ARTWORK
-                                </Button>
+                                {/*<Button*/}
+                                    {/*sx={{ fontWeight: 'bold' }}*/}
+                                    {/*variant="text"*/}
+                                    {/*color="inherit"*/}
+                                    {/*component={Link}*/}
+                                    {/*to="/card-generator"*/}
+                                    {/*startIcon={<CurrencyBitcoin color="warning" />}*/}
+                                {/*>*/}
+                                    {/*BITCOIN ARTWORK*/}
+                                {/*</Button>*/}
                                 <Button
                                     sx={{ fontWeight: 'bold' }}
                                     variant="text"
@@ -162,7 +162,7 @@ export const NavBar = () => {
                                     to="/resources/bitcoin"
                                     startIcon={<School />}
                                 >
-                                    Resources
+                                    BITCOIN RESOURCES
                                 </Button>
                                 <Button
                                     sx={{ fontWeight: 'bold' }}

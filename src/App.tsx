@@ -112,7 +112,7 @@ function App() {
                     <Route path="bitcoin" element={<BitcoinResources />} />
                     <Route path="nostr" element={<NostrResources/>} />
                 </Route>
-                <Route path="/card-generator" element={<CardGenerator />} />
+                {/*<Route path="/card-generator" element={<CardGenerator />} />*/}
                 <Route path="/tip-jar/:username" element={<TipJar />} />
                 <Route path="/nostr" element={<Nostr/>}>
                     <Route path="nip-05" element={<Nip05/>} />
