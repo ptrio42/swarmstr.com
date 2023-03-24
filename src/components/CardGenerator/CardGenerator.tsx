@@ -37,7 +37,7 @@ import ReactCrop, {Crop} from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import {cropImage, resizeImage} from "../../services/cardGenerator";
 import {LatestBitcoinBlock} from "../LatestBitcoinBlock/LatestBitcoinBlock";
-import {uploadImage} from "../../services/uploadImage";
+// import {uploadImage} from "../../services/uploadImage";
 import Snackbar from "@mui/material/Snackbar";
 import {useWindowDimensions} from "../../utils/utils";
 import {renderToStaticMarkup} from "react-dom/server";
@@ -494,18 +494,18 @@ export const CardGenerator = () => {
         const cardCanvas = await html2canvas(cardElement);
 
         cardCanvas.toBlob(async (blob: any) => {
-            const imageFile = new File([blob], "fileName.png", { type: "image/png" });
-            const formData = new FormData();
-            formData.append('fileToUpload', imageFile);
-            formData.append('submit', 'Upload Image');
-            const response = await uploadImage(formData);
-
-            const regExp = new RegExp(/(https?:\/\/[^ ]*)/, 'g');
-            let imageUrl: string = response.match(regExp)[9];
-            imageUrl = imageUrl.slice(0, imageUrl.indexOf('\"'));
-            handleIsLoading(false);
-            setSnackbarMessage('Upload successfull! Image URL: ' + imageUrl);
-            setSnackbarOpen(true);
+            // const imageFile = new File([blob], "fileName.png", { type: "image/png" });
+            // const formData = new FormData();
+            // formData.append('fileToUpload', imageFile);
+            // formData.append('submit', 'Upload Image');
+            // const response = await uploadImage(formData);
+            //
+            // const regExp = new RegExp(/(https?:\/\/[^ ]*)/, 'g');
+            // let imageUrl: string = response.match(regExp)[9];
+            // imageUrl = imageUrl.slice(0, imageUrl.indexOf('\"'));
+            // handleIsLoading(false);
+            // setSnackbarMessage('Upload successfull! Image URL: ' + imageUrl);
+            // setSnackbarOpen(true);
         }, 'image/png');
 
     };
