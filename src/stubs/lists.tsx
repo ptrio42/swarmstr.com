@@ -207,15 +207,15 @@ export const LISTS = [
         'notabot.net': [
             ['jason', 'npub1avar8zfzwswhq9xh3t0gc5l38pf5kesrkqe2s2ymrnymv3ddl2ps38t7kg', 'https://notabot.net']
         ],
-        'nostrbounties.com': [
-            ['diego', '', 'https://nostrbounties.com']
-        ],
+        // 'nostrbounties.com': [
+        //     ['diego', '', 'https://nostrbounties.com']
+        // ],
         'migrate.nostr.com': [
             ['talvasconcelos', 'npub13a56exdeda7y44vtnrxr3ljaxh8q9kh04e73vzw8jl8rknuj7h7sst4t9m', 'https://migrate.nostr.com']
         ],
-        'nostr-mux': [
-            ['murakmii', '', 'https://github.com/murakmii/nostr-mux']
-        ],
+        // 'nostr-mux': [
+        //     ['murakmii', '', 'https://github.com/murakmii/nostr-mux']
+        // ],
         'nostryfied.online': [
             ['iefan', 'npub1cmmswlckn82se7f2jeftl6ll4szlc6zzh8hrjyyfm9vm3t2afr7svqlr6f', 'https://nostryfied.online']
         ],
