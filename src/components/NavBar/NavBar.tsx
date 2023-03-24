@@ -205,18 +205,18 @@ export const NavBar = () => {
                                             FIAT TO SATS CONVERTER
                                         </ListItemText>
                                     </MenuItem>
-                                    <MenuItem
-                                        onClick={handleToolsMenuClose}
-                                        component={Link}
-                                        to="/card-generator"
-                                    >
-                                        <ListItemIcon>
-                                            <Payments color="secondary" />
-                                        </ListItemIcon>
-                                        <ListItemText>
-                                            CARD GENERATOR
-                                        </ListItemText>
-                                    </MenuItem>
+                                    {/*<MenuItem*/}
+                                        {/*onClick={handleToolsMenuClose}*/}
+                                        {/*component={Link}*/}
+                                        {/*to="/card-generator"*/}
+                                    {/*>*/}
+                                        {/*<ListItemIcon>*/}
+                                            {/*<Payments color="secondary" />*/}
+                                        {/*</ListItemIcon>*/}
+                                        {/*<ListItemText>*/}
+                                            {/*CARD GENERATOR*/}
+                                        {/*</ListItemText>*/}
+                                    {/*</MenuItem>*/}
                                 </Menu>
                             </React.Fragment>
                         )} />
