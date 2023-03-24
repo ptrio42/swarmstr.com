@@ -200,6 +200,34 @@ export const LISTS = [
             ['verbiricha', 'npub107jk7htfv243u0x5ynn43scq9wrxtaasmrwwa8lfu2ydwag6cx2quqncxg', 'https://github.com/verbiricha'],
             ['Karnage', 'npub1r0rs5q2gk0e3dk3nlc7gnu378ec6cnlenqp8a3cjhyzu6f8k5sgs4sq9ac']
         ],
+        'footstr.com': [
+            ['CARLA', 'npub1hu3hdctm5nkzd8gslnyedfr5ddz3z547jqcl5j88g4fame2jd08qh6h8nh'],
+            ['walker', 'npub1cj8znuztfqkvq89pl8hceph0svvvqk0qay6nydgk9uyq7fhpfsgsqwrz4u']
+        ],
+        'notabot.net': [
+            ['jason', 'npub1avar8zfzwswhq9xh3t0gc5l38pf5kesrkqe2s2ymrnymv3ddl2ps38t7kg', 'https://notabot.net']
+        ],
+        'nostrbounties.com': [
+            ['diego', '', 'https://nostrbounties.com']
+        ],
+        'migrate.nostr.com': [
+            ['talvasconcelos', 'npub13a56exdeda7y44vtnrxr3ljaxh8q9kh04e73vzw8jl8rknuj7h7sst4t9m', 'https://migrate.nostr.com']
+        ],
+        'nostr-mux': [
+            ['murakmii', '', 'https://github.com/murakmii/nostr-mux']
+        ],
+        'nostryfied.online': [
+            ['iefan', 'npub1cmmswlckn82se7f2jeftl6ll4szlc6zzh8hrjyyfm9vm3t2afr7svqlr6f', 'https://nostryfied.online']
+        ],
+        'mostro': [
+            ['negrunch', 'npub1qqqqqqqx2tj99mng5qgc07cgezv5jm95dj636x4qsq7svwkwmwnse3rfkq', 'https://github.com/MostroP2P/mostro']
+        ],
+        'nostr.capital': [
+            ['maciek', 'npub1c3765rxjrfc8jllfgp8clcxr7euu9drpfpug6y54uepyyvsxfuwslj9ezu', 'https://nostr.capital']
+        ],
+        'nostr.guru': [
+            ['fiatjaf', 'npub180cvv07tjdrrgpa0j7j7tmnyl2yr6yr7l8j4s3evf6u64th6gkwsyjh6w6', 'https://github.com/fiatjaf/nostr-gateway']
+        ],
         'Notable individuals': [
             ['jack', 'npub1sg6plzptd64u62a878hep2kev88swjh3tw00gjsfl8f237lmu63q0uf63m'],
             ['Snowden', 'npub1sn0wdenkukak0d9dfczzeacvhkrgz92ak56egt7vdgzn8pv2wfqqhrjdv9'],
@@ -221,6 +249,7 @@ export const LISTS = [
         ],
         'List contributors': [
             ['lukeonchain', 'npub138guayty78ch9k42n3uyz5ch3jcaa3u390647hwq0c83m2lypekq6wk36k'],
+            ['pablof7z', 'npub1l2vyh47mk2p0qlsku7hg0vn29faehy9hy34ygaclpn66ukqp3afqutajft']
         ],
         'List maintainer': [
             ['pitiunited', 'npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4', 'https://github.com/ptrio42/uselessshit.co']

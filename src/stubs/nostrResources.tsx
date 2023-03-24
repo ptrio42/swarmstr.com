@@ -53,11 +53,7 @@ export const PUBKEYS = [
 
 ];
 
-export const GUIDES_LAST_UPDATE = '2023-03-08';
-
-const LEVEL_1_TAGS = ['Basics', 'Lists', 'Stories', 'Tutorials', 'Contact', 'Other'];
-
-const LEVEL_2_TAGS = ['Protocol', 'Lightning', 'Media', 'Clients', 'Keys', 'Badges', 'Notes'];
+export const GUIDES_LAST_UPDATE = '2023-03-24';
 
 export const GUIDES: Guide[] = [
     {
@@ -91,11 +87,11 @@ export const GUIDES: Guide[] = [
             'https://audaciousdenizen.substack.com/p/my-quick-guide-to-nostr',
             'https://www.austrich.net/nostr/',
             '',
+            'https://uselessshit.co/images/explain-it-to-me-like-i-m-5.png',
             'Image credits: @coderjourney1'
         ],
         createdAt: '2023-01-09',
-        updatedAt: '2023-03-08',
-        imageUrls: ['https://uselessshit.co/images/explain-it-to-me-like-i-m-5.png'],
+        updatedAt: '2023-03-24',
         attachedNoteId: NOTES[1],
         tags: ['Basics', 'Protocol']
     },
@@ -114,10 +110,12 @@ export const GUIDES: Guide[] = [
             'all updates from the last day), then displays that data to the user chronologically.',
             '💡 A "post" can contain any kind of structured data, but the most used ones are going to find their way into ' +
             'the standard so all clients and relays can handle them seamlessly.',
-            'https://github.com/nostr-protocol/nostr#how-does-nostr-work'
+            'https://github.com/nostr-protocol/nostr#how-does-nostr-work',
+            'https://uselessshit.co/images/how-does-nostr-work-02.jpeg',
+            'Image credits: unknown'
         ],
         tags: ['Basics', 'Protocol'],
-        updatedAt: '2023-02-01',
+        updatedAt: '2023-03-24',
         attachedNoteId: NOTES[12]
     },
     {
@@ -151,7 +149,7 @@ export const GUIDES: Guide[] = [
     {
         id: 'the-list',
         issue: 'People involved in NOSTR',
-        updatedAt: '2023-03-06',
+        updatedAt: '2023-03-24',
         fix: 'You can open each person\'s profile in a client of your choice by tapping on the copy icon ' +
             'next to their name and selecting <i>Open in client</i>' +
             '<br/><br/>' +
@@ -182,6 +180,8 @@ export const GUIDES: Guide[] = [
             'https://testflight.apple.com/join/mB0EwMiV',
             '<i>Nostur</i>',
             'https://testflight.apple.com/join/TyrRNCXA',
+            '<i>Plebstr</i>',
+            'https://plebstr.com',
             '#### Web',
             'https://astral.ninja',
             'https://yosup.app',
@@ -194,6 +194,7 @@ export const GUIDES: Guide[] = [
             'https://coracle.social',
             'https://habla.news',
             'https://blogstack.io',
+            'https://primal.net',
             '#### Android',
             '<i>nostros</i>',
             'https://github.com/KoalaSat/nostros',
@@ -209,6 +210,8 @@ export const GUIDES: Guide[] = [
             'https://play.google.com/store/apps/details?id=to.iris.twa',
             '<i>Current</i>',
             'https://play.google.com/apps/testing/io.getcurrent.current',
+            '<i>Plebstr</i>',
+            'https://plebstr.com',
             '#### Desktop',
             '<i>Nostrid</i>',
             'https://github.com/lapulpeta/Nostrid',
@@ -217,7 +220,7 @@ export const GUIDES: Guide[] = [
             '<i>Monstr</i>',
             'https://github.com/alemmens/monstr'
         ],
-        updatedAt: '2023-03-06',
+        updatedAt: '2023-03-24',
         tags: ['Lists', 'Clients'],
         attachedNoteId: NOTES[15]
     },
@@ -1268,10 +1271,12 @@ export const GUIDES: Guide[] = [
             'npub132vp7xhrl2enqz65338jqe2vkrcax5zf339kdpymw059gcqpmjsq6fm80g:8a981f1ae3fab3300b548c4f20654cb0f1d350498c4b66849b73e8546001dca0:WShakesp',
             '#### Verified-Nostr.com',
             'https://verified-nostr.com',
+            '#### NostrCheck.me',
+            'https://nostrcheck.me',
             '#### uselessshit.co',
             'npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4:f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8:pitiunited'
         ],
-        updatedAt: '2023-03-01',
+        updatedAt: '2023-03-24',
         attachedNoteId: NOTES[28],
         tags: ['Lists']
     },
