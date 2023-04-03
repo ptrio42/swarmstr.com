@@ -7,7 +7,16 @@ import {Link} from "react-router-dom";
 import Button from '@mui/material/Button';
 import Receipt from '@mui/icons-material/Receipt';
 import Media from 'react-media';
-import {Build, CurrencyBitcoin, ElectricBolt, Menu as MenuIcon, Payments, School, Verified} from '@mui/icons-material';
+import {
+    Build,
+    CurrencyBitcoin,
+    Dns,
+    ElectricBolt,
+    Menu as MenuIcon,
+    Payments,
+    School,
+    Verified
+} from '@mui/icons-material';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -53,14 +62,14 @@ export const NavBar = () => {
             onKeyDown={toggleDrawer(false)}
         >
             <List>
-                {/*<ListItem disablePadding component={Link} to="/card-generator"  sx={{ color: '#000' }}>*/}
-                    {/*<ListItemButton>*/}
-                        {/*<ListItemIcon>*/}
-                            {/*<CurrencyBitcoin />*/}
-                        {/*</ListItemIcon>*/}
-                        {/*<ListItemText sx={{ textTransform: 'uppercase' }} primary="Bitcoin Artwork" />*/}
-                    {/*</ListItemButton>*/}
-                {/*</ListItem>*/}
+                <ListItem disablePadding component={Link} to="/card-generator"  sx={{ color: '#000' }}>
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <CurrencyBitcoin />
+                        </ListItemIcon>
+                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Bitcoin Artwork" />
+                    </ListItemButton>
+                </ListItem>
                 <ListItem disablePadding component={Link} to="/#converter" sx={{ color: '#000' }}>
                     <ListItemButton>
                         <ListItemIcon>
@@ -83,6 +92,14 @@ export const NavBar = () => {
                             <ElectricBolt />
                         </ListItemIcon>
                         <ListItemText sx={{ textTransform: 'uppercase' }} primary="Nostr" />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem disablePadding component="a" href="https://nostr.uselessshit.co" target="_blank" sx={{ color: '#000' }}>
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <Dns />
+                        </ListItemIcon>
+                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Relay" />
                     </ListItemButton>
                 </ListItem>
                 <ListItem disablePadding component={Link} to="/nostr/nip-05" sx={{ color: '#000' }}>
@@ -120,7 +137,7 @@ export const NavBar = () => {
                         container
                         justifyContent="flex-end"
                         className="navbar-actions">
-                        <Media query={{ maxWidth: '909px' }} render={() => (
+                        <Media query={{ maxWidth: '1060px' }} render={() => (
                             <React.Fragment>
                                 <IconButton onClick={toggleDrawer(true)}><MenuIcon /></IconButton>
                                 <Drawer
@@ -132,18 +149,18 @@ export const NavBar = () => {
                                 </Drawer>
                             </React.Fragment>
                         )} />
-                        <Media query={{ minWidth: '910px' }} render={() => (
+                        <Media query={{ minWidth: '1061px' }} render={() => (
                             <React.Fragment>
-                                {/*<Button*/}
-                                    {/*sx={{ fontWeight: 'bold' }}*/}
-                                    {/*variant="text"*/}
-                                    {/*color="inherit"*/}
-                                    {/*component={Link}*/}
-                                    {/*to="/card-generator"*/}
-                                    {/*startIcon={<CurrencyBitcoin color="warning" />}*/}
-                                {/*>*/}
-                                    {/*BITCOIN ARTWORK*/}
-                                {/*</Button>*/}
+                                <Button
+                                    sx={{ fontWeight: 'bold' }}
+                                    variant="text"
+                                    color="inherit"
+                                    component={Link}
+                                    to="/card-generator"
+                                    startIcon={<CurrencyBitcoin color="warning" />}
+                                >
+                                    BITCOIN ARTWORK
+                                </Button>
                                 <Button
                                     sx={{ fontWeight: 'bold' }}
                                     variant="text"
@@ -173,6 +190,17 @@ export const NavBar = () => {
                                     startIcon={<ElectricBolt />}
                                 >
                                     NOSTR
+                                </Button>
+                                <Button
+                                    sx={{ fontWeight: 'bold' }}
+                                    variant="text"
+                                    color="inherit"
+                                    component="a"
+                                    href="https://nostr.uselessshit.co"
+                                    target="_blank"
+                                    startIcon={<Dns />}
+                                >
+                                    RELAY
                                 </Button>
                                 <Button
                                     sx={{ fontWeight: 'bold' }}
