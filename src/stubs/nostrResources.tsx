@@ -685,19 +685,19 @@ export const GUIDES: Guide[] = [
         updatedAt: '2023-01-14',
         tags: ['Basics', 'Clients', 'Damus']
     },
-    // {
-    //     id: 'banner-image',
-    //     issue: 'Banner images.',
-    //     fix: 'You can now set your own banner image. To achieve that, go to your profile, tap Edit and set the BANNER IMAGE ' +
-    //         '(it has to be a direct image url). The banner image ratio should be ~ 3:1 (width:height). Also note that ' +
-    //         'Damus does some auto-cropping so even though your image dimensions do not fit the ratio requirements, ' +
-    //         'it can still be displayed properly. If you\'d like more control over what\'s ' +
-    //         'being cropped off you can try the image processor linked below (alpha).',
-    //     createdAt: '2023-01-14',
-    //     updatedAt: '2023-01-15',
-    //     urls: ['https://uselessshit.co/card-generator'],
-    //     tags: ['Basics', 'Media', 'Damus']
-    // },
+    {
+        id: 'banner-image',
+        issue: 'Banner images.',
+        fix: 'You can now set your own banner image. To achieve that, go to your profile, tap Edit and set the BANNER IMAGE ' +
+            '(it has to be a direct image url). The banner image ratio should be ~ 3:1 (width:height). Also note that ' +
+            'Damus does some auto-cropping so even though your image dimensions do not fit the ratio requirements, ' +
+            'it can still be displayed properly. If you\'d like more control over what\'s ' +
+            'being cropped off you can try the image processor linked below (alpha).',
+        createdAt: '2023-01-14',
+        updatedAt: '2023-01-15',
+        urls: ['https://uselessshit.co/card-generator'],
+        tags: ['Basics', 'Media', 'Damus']
+    },
     {
         id: 'dms',
         issue: 'Are DMs on NOSTR private?',

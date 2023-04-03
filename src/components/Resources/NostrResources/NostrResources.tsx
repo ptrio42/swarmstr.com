@@ -478,7 +478,7 @@ export const NostrResources = () => {
                             justifyContent: 'center'
                     }}>
                         <Circle sx={{ fontSize: 12, marginRight: '0.33em!important'  }} />
-                        { getFilteredGuidesCount() === GUIDES.length ? 'Total' : getFilteredGuidesCount() } of { GUIDES.length } entries
+                        { getFilteredGuidesCount() === GUIDES.length + 1 ? 'Total' : getFilteredGuidesCount() } of { GUIDES.length } entries
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important', marginRight: '0.33em!important'  }} />
                         Last update: { GUIDES_LAST_UPDATE }
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important'  }} />
