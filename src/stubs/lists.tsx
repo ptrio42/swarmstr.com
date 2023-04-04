@@ -207,15 +207,15 @@ export const LISTS = [
         'notabot.net': [
             ['jason', 'npub1avar8zfzwswhq9xh3t0gc5l38pf5kesrkqe2s2ymrnymv3ddl2ps38t7kg', 'https://notabot.net']
         ],
-        // 'nostrbounties.com': [
-        //     ['diego', '', 'https://nostrbounties.com']
-        // ],
+        'nostrbounties.com': [
+            ['diego', '', 'https://nostrbounties.com']
+        ],
         'migrate.nostr.com': [
             ['talvasconcelos', 'npub13a56exdeda7y44vtnrxr3ljaxh8q9kh04e73vzw8jl8rknuj7h7sst4t9m', 'https://migrate.nostr.com']
         ],
-        // 'nostr-mux': [
-        //     ['murakmii', '', 'https://github.com/murakmii/nostr-mux']
-        // ],
+        'nostr-mux': [
+            ['murakmii', '', 'https://github.com/murakmii/nostr-mux']
+        ],
         'nostryfied.online': [
             ['iefan', 'npub1cmmswlckn82se7f2jeftl6ll4szlc6zzh8hrjyyfm9vm3t2afr7svqlr6f', 'https://nostryfied.online']
         ],
@@ -244,7 +244,9 @@ export const LISTS = [
             ['BitcoinNostrich', 'npub128q9nu7vrqpfjllpcnnq6cc4cgs8ngp9sge9v9s2c7lur098ctts99gupa'],
             ['SovrynMatt', 'npub1fl7pr0azlpgk469u034lsgn46dvwguz9g339p03dpetp9cs5pq5qxzeknp', 'https://github.com/SovrynMatt/Nostr-Website-Button-Design'],
             ['benthecarman', 'npub1u8lnhlw5usp3t9vmpz60ejpyt649z33hu82wc2hpv6m5xdqmuxhs46turz'],
-            ['GuBi', 'npub1gpppr3hfwcl5njxqmp3zumaly9j4pd6gvapywsq2y5n7p7278fus6nz7l5']
+            ['GuBi', 'npub1gpppr3hfwcl5njxqmp3zumaly9j4pd6gvapywsq2y5n7p7278fus6nz7l5'],
+            ['saifedean', 'npub1gdu7w6l6w65qhrdeaf6eyywepwe7v7ezqtugsrxy7hl7ypjsvxksd76nak'],
+            ['Excellion', 'npub1excellx58e497gan6fcsdnseujkjm7ym5yp3m4rp0ud4j8ss39js2pn72a']
 
         ],
         'List contributors': [

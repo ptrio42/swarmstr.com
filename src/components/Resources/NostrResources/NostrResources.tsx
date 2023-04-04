@@ -456,7 +456,11 @@ export const NostrResources = () => {
                     <ListItemText
                         sx={{ textTransform: 'uppercase', lineHeight: '1' }}
                         primary="Nostr Guide"
-                        primaryTypographyProps={{ style: { fontWeight: 'bold', fontSize: '48px', textAlign: 'center' } }}
+                        primaryTypographyProps={{
+                            style: {
+                                fontWeight: 'bold', fontSize: '48px', textAlign: 'center'
+                            }
+                        }}
                     />
                 </ListItem>
                 {
@@ -467,16 +471,11 @@ export const NostrResources = () => {
                             </Box>
                         </ListItem>
                 }
-                <ListItem sx={{ display: 'flex', flexDirection: 'column!important' }}>
+                <ListItem key="guide-menu" className="guide-menu">
                     <Typography
                         component="div"
-                        sx={{
-                            alignItems: 'center',
-                            fontSize: '13px!important',
-                            width: '100%',
-                            display: 'flex',
-                            justifyContent: 'center'
-                    }}>
+                        className="guide-info"
+                    >
                         <Circle sx={{ fontSize: 12, marginRight: '0.33em!important'  }} />
                         { getFilteredGuidesCount() === GUIDES.length + 1 ? 'Total' : getFilteredGuidesCount() } of { GUIDES.length } entries
                         <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important', marginRight: '0.33em!important'  }} />
@@ -485,13 +484,8 @@ export const NostrResources = () => {
                     </Typography>
                     <Typography
                         component="div"
-                        sx={{
-                            marginLeft: '1em',
-                            marginTop: '1em',
-                            width: '100%',
-                            display: 'flex',
-                            justifyContent: 'center'
-                    }}>
+                        className="guide-search"
+                    >
                         <Input
                             id="searchQuery"
                             name="searchQuery"
@@ -504,13 +498,8 @@ export const NostrResources = () => {
                     </Typography>
                     <Typography
                         component="div"
-                        sx={{
-                            marginTop: '1em',
-                            marginLeft: '1em',
-                            width: '100%',
-                            display: 'flex',
-                            justifyContent: 'center'
-                        }}>
+                        className="guide-sort"
+                    >
                         <Chip
                             icon={<Clear />}
                             label="No sort"

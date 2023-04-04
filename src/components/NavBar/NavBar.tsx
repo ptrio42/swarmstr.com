@@ -86,7 +86,7 @@ export const NavBar = () => {
                         <ListItemText sx={{ textTransform: 'uppercase' }} primary="Bitcoin Resources" />
                     </ListItemButton>
                 </ListItem>
-                <ListItem disablePadding component={Link} to="/resources/nostr" sx={{ color: '#000' }}>
+                <ListItem disablePadding component={Link} to="/resources/nostr/" sx={{ color: '#000' }}>
                     <ListItemButton>
                         <ListItemIcon>
                             <ElectricBolt />
@@ -186,7 +186,7 @@ export const NavBar = () => {
                                     variant="text"
                                     color="inherit"
                                     component={Link}
-                                    to="/resources/nostr"
+                                    to="/resources/nostr/"
                                     startIcon={<ElectricBolt />}
                                 >
                                     NOSTR
@@ -233,18 +233,6 @@ export const NavBar = () => {
                                             FIAT TO SATS CONVERTER
                                         </ListItemText>
                                     </MenuItem>
-                                    {/*<MenuItem*/}
-                                        {/*onClick={handleToolsMenuClose}*/}
-                                        {/*component={Link}*/}
-                                        {/*to="/card-generator"*/}
-                                    {/*>*/}
-                                        {/*<ListItemIcon>*/}
-                                            {/*<Payments color="secondary" />*/}
-                                        {/*</ListItemIcon>*/}
-                                        {/*<ListItemText>*/}
-                                            {/*CARD GENERATOR*/}
-                                        {/*</ListItemText>*/}
-                                    {/*</MenuItem>*/}
                                 </Menu>
                             </React.Fragment>
                         )} />

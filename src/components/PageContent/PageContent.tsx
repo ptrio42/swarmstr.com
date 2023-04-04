@@ -49,7 +49,7 @@ export const PageContent = () => {
                                 Nostr Guide
                             </Typography>
                             <Typography variant="body1" component="div" gutterBottom>
-                                New to Nostr? Check out <Link color='secondary' to='resources/nostr'>newcomers most common questions with answers</Link>.
+                                New to Nostr? Check out <Link color='secondary' to='resources/nostr/'>newcomers most common questions with answers</Link>.
                             </Typography>
                         </CardContent>
                     </Card>
