@@ -434,20 +434,20 @@ export const NostrResources = () => {
         <React.Fragment>
             <Helmet>
                 <title>Your guide to the world of Nostr - UseLessShit.co</title>
-                <meta property="description" content="Basic guide for Nostr newcomers. Find answers to the most common questions." />
+                <meta property="description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />
                 <meta property="keywords" content="nostr guide, nostr resources, nostr most common questions, getting started on nostr, what is nostr" />
 
                 <meta property="og:url" content="https://uselessshit.co/resources/nostr" />
                 <meta property="og:type" content="website" />
                 <meta property="og:title" content="Your guide to the world of Nostr - UseLessShit.co" />
                 <meta property="og:image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />
-                <meta property="og:description" content="Basic guide for Nostr newcomers. Find answers to the most common questions." />
+                <meta property="og:description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />
 
                 <meta itemProp="name" content="Your guide to the world of Nostr - UseLessShit.co" />
                 <meta itemProp="image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />
 
                 <meta name="twitter:title" content="Your guide to the world of Nostr - UseLessShit.co" />
-                <meta name="twitter:description" content="Basic guide for Nostr newcomers. Find answers to the most common questions." />
+                <meta name="twitter:description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />
                 <meta name="twitter:image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />
 
             </Helmet>
@@ -471,16 +471,36 @@ export const NostrResources = () => {
                             </Box>
                         </ListItem>
                 }
-                <ListItem key="guide-menu" className="guide-menu">
+                <ListItem
+                    key="guide-menu"
+                    className="guide-menu"
+                >
                     <Typography
                         component="div"
                         className="guide-info"
+                        gutterBottom
                     >
-                        <Circle sx={{ fontSize: 12, marginRight: '0.33em!important'  }} />
+                        <Circle
+                            sx={{
+                                fontSize: 12,
+                                marginRight: '0.33em!important'
+                            }}
+                        />
                         { getFilteredGuidesCount() === GUIDES.length + 1 ? 'Total' : getFilteredGuidesCount() } of { GUIDES.length } entries
-                        <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important', marginRight: '0.33em!important'  }} />
+                        <Circle
+                            sx={{
+                                fontSize: 12,
+                                marginLeft: '0.33em!important',
+                                marginRight: '0.33em!important'
+                            }}
+                        />
                         Last update: { GUIDES_LAST_UPDATE }
-                        <Circle sx={{ fontSize: 12, marginLeft: '0.33em!important'  }} />
+                        <Circle
+                            sx={{
+                                fontSize: 12,
+                                marginLeft: '0.33em!important'
+                            }}
+                        />
                     </Typography>
                     <Typography
                         component="div"
@@ -523,10 +543,11 @@ export const NostrResources = () => {
                         />
                     </Typography>
                 </ListItem>
-                {
-                    guides
-                        .filter(guide => !searchQuery || searchQuery === '' || (searchQuery && (matchString(searchQuery, guide.issue) || (guide.tags && guide.tags.map(t => t.toLowerCase()).includes(searchQuery.toLowerCase())))))
-                        .map((guide, index) => (
+            </List>
+            {
+                guides
+                    .filter(guide => !searchQuery || searchQuery === '' || (searchQuery && (matchString(searchQuery, guide.issue) || (guide.tags && guide.tags.map(t => t.toLowerCase()).includes(searchQuery.toLowerCase())))))
+                    .map((guide, index) => (
                         <React.Fragment>
                             <NoteThread
                                 key={guide.id}
@@ -558,11 +579,9 @@ export const NostrResources = () => {
                                 }}
                                 noteExpandedOnInit={expanded.includes(guide.id)}
                             />
-                            <Divider sx={{ margin: '0 1.1em' }} variant="inset" component="li" />
                         </React.Fragment>
                     ))
-                }
-            </List>
+            }
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={3000}
