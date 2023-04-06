@@ -1,7 +1,7 @@
 import {createContext} from "react";
 
 export const themes = {
-    light: '',
+    light: 'theme--light',
     dark: 'theme--dark'
 };
 

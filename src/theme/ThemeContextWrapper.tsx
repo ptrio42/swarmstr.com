@@ -15,9 +15,12 @@ export const ThemeContextWrapper = ({ children }: ThemeContextWrapperProps) => {
 
     useEffect(() => {
        const selectedTheme = localStorage.getItem('theme');
-       if (selectedTheme) {
+        if (selectedTheme === null) {
+            setTheme(themes.dark);
+        }
+        if (selectedTheme) {
            setTheme(selectedTheme);
-       }
+        }
     }, []);
 
     useEffect(() => {
