@@ -451,14 +451,14 @@ export const NostrResources = () => {
                 <meta name="twitter:image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />
 
             </Helmet>
-            <List>
+            <List className="list-container">
                 <ListItem key="nostr-resources">
                     <ListItemText
                         sx={{ textTransform: 'uppercase', lineHeight: '1' }}
                         primary="Nostr Guide"
                         primaryTypographyProps={{
                             style: {
-                                fontWeight: 'bold', fontSize: '48px', textAlign: 'center'
+                                fontWeight: 'bold', fontSize: '48px', textAlign: 'center', textShadow: '1px 1px #000'
                             }
                         }}
                     />

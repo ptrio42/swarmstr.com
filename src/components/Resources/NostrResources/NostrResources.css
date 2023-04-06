@@ -11,6 +11,7 @@ a:hover {
 
 .guide-menu-container {
     justify-content: center !important;
+    background: #fff;
 }
 
 .guide-info {
@@ -55,4 +56,14 @@ input {
 
 .theme--dark .guide-sort div {
     color: rgba(255, 255, 255, .77);
+}
+
+.theme--dark .guide-menu-container {
+    background: #000;
+}
+
+.theme--dark .list-container {
+    background: url('https://uselessshit.co/images/bitcoin-world.png');
+    background-size: 100%;
+    background-position-y: 10px;
 }

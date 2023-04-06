@@ -53,7 +53,7 @@ export const PUBKEYS = [
 
 ];
 
-export const GUIDES_LAST_UPDATE = '2023-04-04';
+export const GUIDES_LAST_UPDATE = '2023-04-06';
 
 export const GUIDES: Guide[] = [
     {
