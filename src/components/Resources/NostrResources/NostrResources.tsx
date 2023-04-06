@@ -473,8 +473,12 @@ export const NostrResources = () => {
                 }
                 <ListItem
                     key="guide-menu"
-                    className="guide-menu"
-                    sx={{ paddingLeft: '0!important', paddingRight: '0!important', justifyContent: 'center' }}
+                    className="guide-menu-container"
+                    sx={{
+                        paddingLeft: '0!important',
+                        paddingRight: '0!important',
+                        justifyContent: 'center'
+                    }}
                 >
                     <List>
                         <ListItem sx={{ paddingLeft: '0!important', paddingRight: '0!important' }}>

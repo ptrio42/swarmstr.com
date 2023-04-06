@@ -9,10 +9,8 @@ a:hover {
     text-decoration: underline;
 }
 
-.guide-menu {
-    display: flex;
-    flex-direction: column! important;
-    width: 100%;
+.guide-menu-container {
+    justify-content: center !important;
 }
 
 .guide-info {
