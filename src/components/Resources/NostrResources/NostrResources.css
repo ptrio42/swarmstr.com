@@ -18,15 +18,24 @@ a:hover {
 .guide-info {
     align-items: center;
     font-size: 13px !important;
-    width: 100%;
+    width: 100% !important;
     display: flex;
-    justify-content: center;
+    justify-content: center !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.guide-info div {
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .guide-search, .guide-sort {
     margin-top: 1em !important;
-    margin-left: 1em !important;
     width: 100%;
     display: flex;
-    justify-content: center
+    justify-content: center !important;
+    padding-left: 0 !important;
 }

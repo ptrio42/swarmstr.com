@@ -475,73 +475,73 @@ export const NostrResources = () => {
                     key="guide-menu"
                     className="guide-menu"
                 >
-                    <Typography
-                        component="div"
-                        className="guide-info"
-                        gutterBottom
-                    >
-                        <Circle
-                            sx={{
-                                fontSize: 12,
-                                marginRight: '0.33em!important'
-                            }}
-                        />
-                        { getFilteredGuidesCount() === GUIDES.length + 1 ? 'Total' : getFilteredGuidesCount() } of { GUIDES.length } entries
-                        <Circle
-                            sx={{
-                                fontSize: 12,
-                                marginLeft: '0.33em!important',
-                                marginRight: '0.33em!important'
-                            }}
-                        />
-                        Last update: { GUIDES_LAST_UPDATE }
-                        <Circle
-                            sx={{
-                                fontSize: 12,
-                                marginLeft: '0.33em!important'
-                            }}
-                        />
-                    </Typography>
-                    <Typography
-                        component="div"
-                        className="guide-search"
-                    >
-                        <Input
-                            id="searchQuery"
-                            name="searchQuery"
-                            placeholder={'Search for answers'}
-                            value={searchQuery}
-                            onChange={(event) => {
-                                setSearchQuery(event.target.value);
-                            }}
-                        />
-                    </Typography>
-                    <Typography
-                        component="div"
-                        className="guide-sort"
-                    >
-                        <Chip
-                            icon={<Clear />}
-                            label="No sort"
-                            variant={sort === '' ? 'filled' : 'outlined'}
-                            onClick={() => {
-                                setSort('')
-                            }}
-                        />
-                        <Chip
-                            sx={{ marginLeft: '0.5em' }}
-                            icon={sort === 'asc' ?
-                                <ArrowUpward /> : sort === 'desc' ? <ArrowDownward /> : <ToggleOff />
-                            }
-                            variant={sort !== '' ? 'filled' : 'outlined'}
-                            label="Last updated"
-                            onClick={() => {
-                                setSort(
-                                    sort === 'asc' ? 'desc' : 'asc'
-                                )
-                            }}
-                        />
-                    </Typography>
+                    <List>
+                        <ListItem sx={{ paddingLeft: '0!important', paddingRight: '0!important' }}>
+                            <Typography className="guide-info" component="div">
+                                <Typography component="div">
+                                    <Circle
+                                        sx={{
+                                            fontSize: 12,
+                                            marginRight: '0.33em!important'
+                                        }}
+                                    />
+                                    { getFilteredGuidesCount() === GUIDES.length + 1 ? 'Total' : getFilteredGuidesCount() } of { GUIDES.length } entries
+                                </Typography>
+                                <Typography component="div">
+                                    <Circle
+                                        sx={{
+                                            fontSize: 12,
+                                            marginLeft: '0.33em!important',
+                                            marginRight: '0.33em!important'
+                                        }}
+                                    />
+                                </Typography>
+                                <Typography component="div">
+                                    Last update: { GUIDES_LAST_UPDATE }
+                                    <Circle
+                                        sx={{
+                                            fontSize: 12,
+                                            marginLeft: '0.33em!important'
+                                        }}
+                                    />
+                                </Typography>
+                            </Typography>
+                        </ListItem>
+                        <ListItem className="guide-search">
+                            <Input
+                                id="searchQuery"
+                                name="searchQuery"
+                                placeholder={'Search for answers'}
+                                value={searchQuery}
+                                onChange={(event) => {
+                                    setSearchQuery(event.target.value);
+                                }}
+                            />
+                        </ListItem>
+                        <ListItem className="guide-sort">
+                            <Chip
+                                icon={<Clear />}
+                                label="No sort"
+                                variant={sort === '' ? 'filled' : 'outlined'}
+                                onClick={() => {
+                                    setSort('')
+                                }}
+                            />
+                            <Chip
+                                sx={{ marginLeft: '0.5em' }}
+                                icon={sort === 'asc' ?
+                                    <ArrowUpward /> : sort === 'desc' ? <ArrowDownward /> : <ToggleOff />
+                                }
+                                variant={sort !== '' ? 'filled' : 'outlined'}
+                                label="Last updated"
+                                onClick={() => {
+                                    setSort(
+                                        sort === 'asc' ? 'desc' : 'asc'
+                                    )
+                                }}
+                            />
+                        </ListItem>
+                    </List>
                 </ListItem>
             </List>
             {
