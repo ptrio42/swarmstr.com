@@ -8,6 +8,7 @@ import MenuList from "@mui/material/MenuList";
 import MenuItem from "@mui/material/MenuItem";
 import Badge from "@mui/material/Badge";
 import { uniqBy } from 'lodash';
+import './Reactions.css';
 
 export enum ReactionType {
     UP = 'Up',
@@ -99,6 +100,7 @@ export const Reactions = ({ reactions, handleReaction, type, placeholder, reacte
             ref={reactionsRef}
             badgeContent={reactions.length}
             color="primary" sx={{ opacity: reacted ? 1 : 0.5 }}
+            className="reactions-count"
         >
             { uniqBy(reactions, 'content')
                 .map(r =>

@@ -105,19 +105,6 @@ function App() {
     <div className="App">
         <ThemeProvider theme={theme}>
             <NavBar />
-            <Routes>
-                <Route path="/" element={<PageContent />} />
-                <Route path="/spread-the-word" element={<SpreadTheWord />} />
-                <Route path="resources" element={<Resources />}>
-                    <Route path="bitcoin" element={<BitcoinResources />} />
-                    <Route path="nostr" element={<NostrResources/>} />
-                </Route>
-                <Route path="/card-generator" element={<CardGenerator />} />
-                <Route path="/tip-jar/:username" element={<TipJar />} />
-                <Route path="/nostr" element={<Nostr/>}>
-                    <Route path="nip-05" element={<Nip05/>} />
-                </Route>
-            </Routes>
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                 <ThemeContext.Consumer>
                     {
@@ -138,6 +125,19 @@ function App() {
                     }
                 </ThemeContext.Consumer>
             </Box>
+            <Routes>
+                <Route path="/" element={<PageContent />} />
+                <Route path="/spread-the-word" element={<SpreadTheWord />} />
+                <Route path="resources" element={<Resources />}>
+                    <Route path="bitcoin" element={<BitcoinResources />} />
+                    <Route path="nostr" element={<NostrResources/>} />
+                </Route>
+                <Route path="/card-generator" element={<CardGenerator />} />
+                <Route path="/tip-jar/:username" element={<TipJar />} />
+                <Route path="/nostr" element={<Nostr/>}>
+                    <Route path="nip-05" element={<Nip05/>} />
+                </Route>
+            </Routes>
             <Footer />
         </ThemeProvider>
     </div>

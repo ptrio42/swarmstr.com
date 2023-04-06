@@ -38,4 +38,23 @@ a:hover {
     display: flex;
     justify-content: center !important;
     padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+input {
+    border-radius: 3px;
+    padding-left: 10px !important;
+}
+
+.theme--dark {
+    color: rgba(255, 255, 255, .77);
+}
+
+.theme--dark input {
+    border: 1px solid rgba(255, 255, 255, .3);
+    color: #fff;
+}
+
+.theme--dark .guide-sort div {
+    color: rgba(255, 255, 255, .77);
 }

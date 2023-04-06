@@ -32,6 +32,7 @@ import pink from "@mui/material/colors/pink";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import {getPeopleInvolvedInNostr, listToNote} from "../../../utils/utils";
+import './Note.css';
 
 interface NoteProps {
     id: string;
@@ -166,12 +167,15 @@ export const Note = ({
     };
 
     return (<React.Fragment>
-        <Card sx={{
-            minWidth: 275,
-            marginBottom: '0.5em',
-            width: '100%',
-            ...(pinned && { backgroundColor: '#f1f1f1' })
-        }}>
+        <Card
+            sx={{
+                minWidth: 275,
+                marginBottom: '0.5em',
+                width: '100%',
+                ...(pinned && { backgroundColor: '#f1f1f1' })
+            }}
+            className="note"
+        >
         <CardContent sx={{ paddingBottom: 0 }}>
             <Typography
                 sx={{
@@ -362,6 +366,7 @@ export const Note = ({
                                         <Badge
                                             badgeContent={comments.length}
                                             color="primary"
+                                            className="comments-count"
                                         >
                                             Discussion
                                         </Badge>
