@@ -9,11 +9,6 @@ a:hover {
     text-decoration: underline;
 }
 
-.guide-menu-container {
-    justify-content: center !important;
-    background: #fff;
-}
-
 .guide-info {
     align-items: center;
     font-size: 13px !important;
@@ -58,7 +53,12 @@ input {
     color: rgba(255, 255, 255, .77);
 }
 
-.theme--dark .guide-menu-container {
+.list-container li:nth-child(2) {
+    justify-content: center !important;
+    background: #fff;
+}
+
+.theme--dark .list-container li:nth-child(2) {
     background: #000;
 }
 

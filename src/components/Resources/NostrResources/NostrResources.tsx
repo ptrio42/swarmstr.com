@@ -451,6 +451,11 @@ export const NostrResources = () => {
                 <meta name="twitter:image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />
 
             </Helmet>
+            <Box sx={{ width: '100%', height: '10px' }}>
+                {
+                    loading && <LinearProgress />
+                }
+            </Box>
             <List className="list-container">
                 <ListItem key="nostr-resources">
                     <ListItemText
@@ -458,19 +463,11 @@ export const NostrResources = () => {
                         primary="Nostr Guide"
                         primaryTypographyProps={{
                             style: {
-                                fontWeight: 'bold', fontSize: '48px', textAlign: 'center', textShadow: '1px 1px #000'
+                                fontWeight: 'bold', fontSize: '48px', textAlign: 'center', textShadow: '1px 1px #000', marginTop: '-10px'
                             }
                         }}
                     />
                 </ListItem>
-                {
-                    loading &&
-                        <ListItem>
-                            <Box sx={{ width: '100%' }}>
-                                <LinearProgress />
-                            </Box>
-                        </ListItem>
-                }
                 <ListItem
                     key="guide-menu"
                     className="guide-menu-container"
