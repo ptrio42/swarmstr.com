@@ -96,6 +96,10 @@ export const PageContent = () => {
                 </Box>
 
                 <Box sx={{ marginBottom: '3em' }} component="div">
+                    <Link color='secondary' to='nostr/zaps'>Team 21 vs 69ers Scoreboard</Link>
+                </Box>
+
+                <Box sx={{ marginBottom: '3em' }} component="div">
                     <img width="100%" src={process.env.PUBLIC_URL + '/images/uselessshit-splashscreen-updated.jpeg'} />
                 </Box>
 
