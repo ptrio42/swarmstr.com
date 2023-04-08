@@ -15,6 +15,7 @@ import {Resources} from "./components/Resources/Resources";
 import {TipJar} from "./components/TipJar/TipJar";
 import {Nostr} from "./components/Nostr/Nostr";
 import {Nip05} from "./components/Nostr/Nip05/Nip05";
+import {Zaps} from "./components/Nostr/Zaps/Zaps";
 
 const theme = createTheme({
     typography: {
@@ -136,6 +137,7 @@ function App() {
                 <Route path="/tip-jar/:username" element={<TipJar />} />
                 <Route path="/nostr" element={<Nostr/>}>
                     <Route path="nip-05" element={<Nip05/>} />
+                    <Route path="zaps" element={<Zaps/>} />
                 </Route>
             </Routes>
             <Footer />

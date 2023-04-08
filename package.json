@@ -21,6 +21,7 @@
     "jspdf": "^2.5.1",
     "loadable-components": "^2.2.3",
     "lodash": "^4.17.21",
+    "nostr-mux": "^0.0.8",
     "nostr-tools": "^1.1.2",
     "react": "^18.2.0",
     "react-color": "^2.19.3",
