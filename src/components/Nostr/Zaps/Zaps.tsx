@@ -15,6 +15,7 @@ import CardMedia from "@mui/material/CardMedia";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
+import {Helmet} from "react-helmet";
 
 const getPubkeysFromEventTags = (event: any): string[] => {
     return event.tags
@@ -207,7 +208,25 @@ export const Zaps = () => {
 
     return (
         <React.Fragment>
-            <Typography component="div" variant="h4" gutterBottom>
+
+            <title>Team 21 vs 69ers Scoreboard - UseLessShit.co</title>
+            <meta property="description" content="Today's zaps from Team 21 and 69ers." />
+            <meta property="keywords" content="nostr guide, nostr resources, nostr most common questions, getting started on nostr, what is nostr" />
+
+            <meta property="og:url" content="https://uselessshit.co/resources/nostr" />
+            <meta property="og:type" content="website" />
+            <meta property="og:title" content="Team 21 vs 69ers Scoreboard - UseLessShit.co" />
+            <meta property="og:image" content="https://uselessshit.co/images/team21-vs-69ers.png" />
+            <meta property="og:description" content="Today's zaps from Team 21 and 69ers." />
+
+            <meta itemProp="name" content="Team 21 vs 69ers Scoreboard - UseLessShit.co" />
+            <meta itemProp="image" content="https://uselessshit.co/images/team21-vs-69ers.png" />
+
+            <meta name="twitter:title" content="Team 21 vs 69ers Scoreboard - UseLessShit.co" />
+            <meta name="twitter:description" content="Today's zaps from Team 21 and 69ers." />
+            <meta name="twitter:image" content="https://uselessshit.co/images/team21-vs-69ers.png" />
+
+            <Typography component="div" variant="h4" gutterBottom sx={{ background: 'transparent!important',fontSize: '28px', height: 'auto!important'  }}>
                 Today's stats
             </Typography>
             <Stack direction="row" sx={{ justifyContent: 'center', display: 'flex' }}>
