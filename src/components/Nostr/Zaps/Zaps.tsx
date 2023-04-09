@@ -297,7 +297,7 @@ export const Zaps = () => {
                                 sx={{ position: 'absolute', top: 0 }}
                                 component="img"
                                 height="180"
-                                image="http://localhost:3000/images/lightning-left.png"
+                                image="https://uselessshit.co/images/lightning-left.png"
                                 alt="team 21 lightning"
                                 className="lightning"
                             />
@@ -329,7 +329,7 @@ export const Zaps = () => {
                                 sx={{ position: 'absolute', top: 0 }}
                                 component="img"
                                 height="180"
-                                image="http://localhost:3000/images/lightning-right.png"
+                                image="https://uselessshit.co/images/lightning-right.png"
                                 alt="69ers lightning"
                                 className="lightning"
                             />
