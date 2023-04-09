@@ -8,7 +8,7 @@ import {
     parseGenericProfile, SubscriptionOptions,
 } from 'nostr-mux';
 import { nip19 } from 'nostr-tools';
-import { uniq, uniqBy } from 'lodash';
+import { uniq, uniqBy, last } from 'lodash';
 import {Card, Paper} from "@mui/material";
 import CardActionArea from "@mui/material/CardActionArea";
 import CardMedia from "@mui/material/CardMedia";
@@ -16,6 +16,8 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import {Helmet} from "react-helmet";
+import './Zaps.css';
+import Snackbar from "@mui/material/Snackbar";
 
 const getPubkeysFromEventTags = (event: any): string[] => {
     return event.tags
@@ -60,7 +62,11 @@ const DEFAULT_RELAYS = [
     'wss://relay.current.fyi',
     'wss://nostr.relayer.se',
     'wss://nostr.uselessshit.co',
-    'wss://nostr.bitcoiner.social'
+    'wss://nostr.bitcoiner.social',
+    'wss://nostr.milou.lol',
+    'wss://nostr.zebedee.cloud',
+    'wss://relay.nostr.bg',
+    'wss://nostr.wine'
 ];
 
 const mux = new Mux();
@@ -73,11 +79,15 @@ DEFAULT_RELAYS.forEach((url: string) => {
 export const Zaps = () => {
 
     const [pubkeysTeam21, setPubkeysTeam21] = useState<string[]>([]);
-    const [zapsTeam21, setZapsTeam21] = useState<{bolt11: string, pubkey: string}[]>([]);
+    const [zapsTeam21, setZapsTeam21] = useState<{bolt11: string, pubkey: string, counted?: boolean}[]>([]);
     const [pubkeys69ers, setPubkeys69ers] = useState<string[]>([]);
-    const [zaps69ers, setZaps69ers] = useState<{bolt11: string, pubkey: string}[]>([]);
+    const [zaps69ers, setZaps69ers] = useState<{bolt11: string, pubkey: string, counted?: boolean}[]>([]);
+    const [displayTeam21Lightning, setDisplayTeam21Lightning] = useState<boolean>(false);
+    const [display69ersLightning, setDisplay69ersLightning] = useState<boolean>(false);
     const [names21, setNames21] = useState<{name: string, pubkey: string}[]>([]);
     const [names69, setNames69] = useState<{name: string, pubkey: string}[]>([]);
+    const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
+    const [snackbarMessage, setSnackbarMessage] = useState<string>('');
 
     useEffect(() => {
         // Subscribe
@@ -206,6 +216,50 @@ export const Zaps = () => {
             });
     }, []);
 
+    useEffect(() => {
+        const latestZap = last(zapsTeam21);
+        if (latestZap && !latestZap.counted && pubkeysTeam21.includes(latestZap.pubkey)) {
+            const zapper = names21.find((n: any) => n.pubkey === latestZap.pubkey);
+            if (zapper) {
+                setZapsTeam21([
+                    ...zapsTeam21.filter((z: any) => z.bolt11 !== latestZap.bolt11),
+                    {
+                        ...latestZap,
+                        counted: true
+                    }
+                ]);
+                setDisplayTeam21Lightning(true);
+                setSnackbarMessage(`Team 21: Zap ⚡️ from ${zapper.name}`);
+                setSnackbarOpen(true);
+                setTimeout(() => {
+                    setDisplayTeam21Lightning(false);
+                }, 1000);
+            }
+        }
+    }, [zapsTeam21]);
+
+    useEffect(() => {
+        const latestZap = last(zaps69ers);
+        if (latestZap && !latestZap.counted && pubkeys69ers.includes(latestZap.pubkey)) {
+            const zapper = names69.find((n: any) => n.pubkey === latestZap.pubkey);
+            if (zapper) {
+                setZaps69ers([
+                    ...zaps69ers.filter((z: any) => z.bolt11 !== latestZap.bolt11),
+                    {
+                        ...latestZap,
+                        counted: true
+                    }
+                ]);
+                setDisplay69ersLightning(true);
+                setSnackbarMessage(`69ers: Zap ⚡️ from ${zapper.name}`);
+                setSnackbarOpen(true);
+                setTimeout(() => {
+                    setDisplay69ersLightning(false);
+                }, 1000);
+            }
+        }
+    }, [zaps69ers]);
+
     return (
         <React.Fragment>
 
@@ -238,6 +292,16 @@ export const Zaps = () => {
                             image="https://uselessshit.co/images/team-21-logo.png"
                             alt="team 21"
                         />
+                        {
+                            displayTeam21Lightning && <CardMedia
+                                sx={{ position: 'absolute', top: 0 }}
+                                component="img"
+                                height="180"
+                                image="http://localhost:3000/images/lightning-left.png"
+                                alt="team 21 lightning"
+                                className="lightning"
+                            />
+                        }
                         <CardContent>
                             <Typography gutterBottom variant="h5" component="div">
                                 Team 21
@@ -260,6 +324,16 @@ export const Zaps = () => {
                             image="https://uselessshit.co/images/69ers-team-logo.png"
                             alt="69ers"
                         />
+                        {
+                            display69ersLightning && <CardMedia
+                                sx={{ position: 'absolute', top: 0 }}
+                                component="img"
+                                height="180"
+                                image="http://localhost:3000/images/lightning-right.png"
+                                alt="69ers lightning"
+                                className="lightning"
+                            />
+                        }
                         <CardContent>
                             <Typography gutterBottom variant="h5" component="div">
                                 69ers
@@ -275,6 +349,12 @@ export const Zaps = () => {
             <Typography component="div" sx={{ padding: '16px', marginBottom: '230px' }}>
                 Want to join a team? Check <a href="https://snort.social/e/note16r4p7hvuvjv2uag2lg4v779vywu3kc5a4ugex5j7vspeusdrj4sqynfmav" target="_blank">this note</a>.
             </Typography>
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={() => setSnackbarOpen(false)}
+                message={snackbarMessage}
+            />
         </React.Fragment>
     );
 };
