@@ -48,6 +48,15 @@ const FILTER_4 = {
     since: Math.floor(DATE.getTime() / 1000)
 };
 
+const FILTER_5 = {
+    authors: ['000003a2c8076423148fe15e3ff5f182e0304cff6de499a3f54f5adfe3b014e6'],
+    '#a': ['30009:000003a2c8076423148fe15e3ff5f182e0304cff6de499a3f54f5adfe3b014e6:420-gang']
+};
+
+const FILTER_6 = {
+    authors: ['000003a2c8076423148fe15e3ff5f182e0304cff6de499a3f54f5adfe3b014e6'],
+    '#a': ['30009:000003a2c8076423148fe15e3ff5f182e0304cff6de499a3f54f5adfe3b014e6:grand-zappers']
+};
 
 const DEFAULT_RELAYS = [
     'wss://eden.nostr.land',
@@ -66,7 +75,10 @@ const DEFAULT_RELAYS = [
     'wss://nostr.milou.lol',
     'wss://nostr.zebedee.cloud',
     'wss://relay.nostr.bg',
-    'wss://nostr.wine'
+    'wss://nostr.wine',
+    'wss://purplepag.es',
+    'wss://nostr.mutinywallet.com',
+    'wss://blastr.f7z.xyz'
 ];
 
 const mux = new Mux();
@@ -76,16 +88,55 @@ DEFAULT_RELAYS.forEach((url: string) => {
     mux.addRelay(new Relay(url));
 });
 
+const BADGES = [
+    {
+        id: 'team-21',
+        name: 'Team 21',
+        image: 'https://uselessshit.co/images/team-21-logo.png',
+        lightningImage: 'https://uselessshit.co/images/lightning-left.png',
+        zapAmount: 21
+    },
+    {
+        id: '69ers',
+        name: 'Team 21',
+        image: 'https://uselessshit.co/images/69ers-team-logo.png',
+        lightningImage: 'https://uselessshit.co/images/lightning-right.png',
+        zapAmount: 69
+    },
+    {
+        id: '420-gang',
+        name: '420 gang',
+        image: 'https://uselessshit.co/images/420-gang-team-logo.png',
+        lightningImage: 'https://uselessshit.co/images/lightning-right.png',
+        zapAmount: 420
+    },
+    {
+        id: '420-gang',
+        name: '420 gang',
+        image: 'https://uselessshit.co/images/grand-zappers-team-logo.png',
+        lightningImage: 'https://uselessshit.co/images/lightning-left.png',
+        zapAmount: 1000
+    }
+];
+
 export const Zaps = () => {
 
     const [pubkeysTeam21, setPubkeysTeam21] = useState<string[]>([]);
     const [zapsTeam21, setZapsTeam21] = useState<{bolt11: string, pubkey: string, counted?: boolean}[]>([]);
     const [pubkeys69ers, setPubkeys69ers] = useState<string[]>([]);
     const [zaps69ers, setZaps69ers] = useState<{bolt11: string, pubkey: string, counted?: boolean}[]>([]);
+    const [pubkeys420Gang, setPubkeys420Gang] = useState<string[]>([]);
+    const [zaps420Gang, setZaps420Gang] = useState<{bolt11: string, pubkey: string, counted?: boolean}[]>([]);
+    const [pubkeysGrandZappers, setPubkeysGrandZappers] = useState<string[]>([]);
+    const [zapsGrandZappers, setZapsGrandZappers] = useState<{bolt11: string, pubkey: string, counted?: boolean}[]>([]);
     const [displayTeam21Lightning, setDisplayTeam21Lightning] = useState<boolean>(false);
     const [display69ersLightning, setDisplay69ersLightning] = useState<boolean>(false);
+    const [display420GangLightning, setDisplay420GangLightning] = useState<boolean>(false);
+    const [displayGrandZappersLightning, setDisplayGrandZappersLightning] = useState<boolean>(false);
     const [names21, setNames21] = useState<{name: string, pubkey: string}[]>([]);
     const [names69, setNames69] = useState<{name: string, pubkey: string}[]>([]);
+    const [names420, setNames420] = useState<{name: string, pubkey: string}[]>([]);
+    const [names1000, setNames1000] = useState<{name: string, pubkey: string}[]>([]);
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
     const [snackbarMessage, setSnackbarMessage] = useState<string>('');
 
@@ -116,6 +167,18 @@ export const Zaps = () => {
                                 {bolt11, pubkey: description.pubkey}
                             ], 'bolt11'));
                         }
+                        if (bolt11.indexOf('4200') >= 0) {
+                            setZaps420Gang((zaps) => uniqBy([
+                                ...zaps,
+                                {bolt11, pubkey: description.pubkey}
+                            ], 'bolt11'));
+                        }
+                        if (bolt11.indexOf('10000') >= 0) {
+                            setZapsGrandZappers((zaps) => uniqBy([
+                                ...zaps,
+                                {bolt11, pubkey: description.pubkey}
+                            ], 'bolt11'));
+                        }
 
                     },
                     onEose: (subID) => {
@@ -127,92 +190,177 @@ export const Zaps = () => {
                     },
                 } as SubscriptionOptions);
 
-                    mux.subscribe({
-                        filters: [FILTER_1],
-                        onEvent: (e: any) => {
-                            console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
-                            const pks = getPubkeysFromEventTags(e[0].received.event);
-                            setPubkeysTeam21((pubkeys) => uniq([
-                                ...pubkeys,
-                                ...pks
-                            ]));
+                // Team 21 badge owners
+                mux.subscribe({
+                    filters: [FILTER_1],
+                    onEvent: (e: any) => {
+                        console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
+                        const pks = getPubkeysFromEventTags(e[0].received.event);
+                        setPubkeysTeam21((pubkeys) => uniq([
+                            ...pubkeys,
+                            ...pks
+                        ]));
 
-                            if (pks.some(pk => pubkeysTeam21.includes(pk))) {
-                                return;
-                            }
+                        if (pks.some(pk => pubkeysTeam21.includes(pk))) {
+                            return;
+                        }
 
-                            mux.subscribe({
-                                filters: [FILTER_3(pks)],
-                                onEvent: (e: any) => {
-                                    console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
-                                    const data = JSON.parse(e[0].received.event.content);
-                                    setNames21((names) => uniqBy([
-                                        ...names,
-                                        { name: data.name, pubkey: e[0].received.event.pubkey }
-                                    ], 'pubkey'));
+                        mux.subscribe({
+                            filters: [FILTER_3(pks)],
+                            onEvent: (e: any) => {
+                                console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
+                                const data = JSON.parse(e[0].received.event.content);
+                                setNames21((names) => uniqBy([
+                                    ...names,
+                                    { name: data.name, pubkey: e[0].received.event.pubkey }
+                                ], 'pubkey'));
 
-                                },
-                                onEose: (subID) => {
-                                    console.log(`subscription(id: ${subID}) EOSE`);
-                                    mux.unSubscribe(subID);
-                                },
-                                onRecovered: (relay) => {
-                                    console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
-                                    return [FILTER_3(pks)]
-                                },
-                            } as SubscriptionOptions);
+                            },
+                            onEose: (subID) => {
+                                console.log(`subscription(id: ${subID}) EOSE`);
+                                mux.unSubscribe(subID);
+                            },
+                            onRecovered: (relay) => {
+                                console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
+                                return [FILTER_3(pks)]
+                            },
+                        } as SubscriptionOptions);
 
-                        },
-                        onEose: (subID) => {
-                            console.log(`subscription(id: ${subID}) EOSE`);
-                        },
-                        onRecovered: (relay) => {
-                            console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
-                            return [FILTER_1]
-                        },
-                    } as SubscriptionOptions);
+                    },
+                    onEose: (subID) => {
+                        console.log(`subscription(id: ${subID}) EOSE`);
+                    },
+                    onRecovered: (relay) => {
+                        console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
+                        return [FILTER_1]
+                    },
+                } as SubscriptionOptions);
 
+                // 69ers badge owners
+                mux.subscribe({
+                    filters: [FILTER_2],
+                    onEvent: (e: any) => {
+                        console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
+                        const pks = getPubkeysFromEventTags(e[0].received.event);
+                        setPubkeys69ers((pubkeys) => uniq([
+                            ...pubkeys,
+                            ...pks
+                        ]));
+                        if (pks.some(pk => pubkeys69ers.includes(pk))) {
+                            return;
+                        }
+                        mux.subscribe({
+                            filters: [FILTER_3(pks)],
+                            onEvent: (e: any) => {
+                                console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
+                                const data = JSON.parse(e[0].received.event.content);
+                                setNames69((names) => uniqBy([
+                                    ...names,
+                                    { name: data.name !== '' ? data.name : data.displayed_name, pubkey: e[0].received.event.pubkey }
+                                ], 'pubkey'));
+                            },
+                            onEose: (subID) => {
+                                mux.unSubscribe(subID);
+                            },
+                            onRecovered: (relay) => {
+                                console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
+                                return [FILTER_3(pks)]
+                            },
+                        } as SubscriptionOptions);
 
-                    mux.subscribe({
-                        filters: [FILTER_2],
-                        onEvent: (e: any) => {
-                            console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
-                            const pks = getPubkeysFromEventTags(e[0].received.event);
-                            setPubkeys69ers((pubkeys) => uniq([
-                                ...pubkeys,
-                                ...pks
-                            ]));
-                            if (pks.some(pk => pubkeys69ers.includes(pk))) {
-                                return;
-                            }
-                            mux.subscribe({
-                                filters: [FILTER_3(pks)],
-                                onEvent: (e: any) => {
-                                    console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
-                                    const data = JSON.parse(e[0].received.event.content);
-                                    setNames69((names) => uniqBy([
-                                        ...names,
-                                        { name: data.name !== '' ? data.name : data.displayed_name, pubkey: e[0].received.event.pubkey }
-                                    ], 'pubkey'));
-                                },
-                                onEose: (subID) => {
-                                    mux.unSubscribe(subID);
-                                },
-                                onRecovered: (relay) => {
-                                    console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
-                                    return [FILTER_3(pks)]
-                                },
-                            } as SubscriptionOptions);
+                    },
+                    onEose: (subID) => {
+                        console.log(`subscription(id: ${subID}) EOSE`);
+                    },
+                    onRecovered: (relay) => {
+                        console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
+                        return [FILTER_2]
+                    },
+                } as SubscriptionOptions);
 
-                        },
-                        onEose: (subID) => {
-                            console.log(`subscription(id: ${subID}) EOSE`);
-                        },
-                        onRecovered: (relay) => {
-                            console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
-                            return [FILTER_2]
-                        },
-                    } as SubscriptionOptions)
+                // 420 gang badge owners
+                mux.subscribe({
+                    filters: [FILTER_5],
+                    onEvent: (e: any) => {
+                        console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
+                        const pks = getPubkeysFromEventTags(e[0].received.event);
+                        setPubkeys420Gang((pubkeys) => uniq([
+                            ...pubkeys,
+                            ...pks
+                        ]));
+                        if (pks.some(pk => pubkeys420Gang.includes(pk))) {
+                            return;
+                        }
+                        mux.subscribe({
+                            filters: [FILTER_3(pks)],
+                            onEvent: (e: any) => {
+                                console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
+                                const data = JSON.parse(e[0].received.event.content);
+                                setNames420((names) => uniqBy([
+                                    ...names,
+                                    { name: data.name !== '' ? data.name : data.displayed_name, pubkey: e[0].received.event.pubkey }
+                                ], 'pubkey'));
+                            },
+                            onEose: (subID) => {
+                                mux.unSubscribe(subID);
+                            },
+                            onRecovered: (relay) => {
+                                console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
+                                return [FILTER_3(pks)]
+                            },
+                        } as SubscriptionOptions);
+
+                    },
+                    onEose: (subID) => {
+                        console.log(`subscription(id: ${subID}) EOSE`);
+                    },
+                    onRecovered: (relay) => {
+                        console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
+                        return [FILTER_5]
+                    },
+                } as SubscriptionOptions);
+
+                // grand zappers badge owners
+                mux.subscribe({
+                    filters: [FILTER_6],
+                    onEvent: (e: any) => {
+                        console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
+                        const pks = getPubkeysFromEventTags(e[0].received.event);
+                        setPubkeysGrandZappers((pubkeys) => uniq([
+                            ...pubkeys,
+                            ...pks
+                        ]));
+                        if (pks.some(pk => pubkeysGrandZappers.includes(pk))) {
+                            return;
+                        }
+                        mux.subscribe({
+                            filters: [FILTER_3(pks)],
+                            onEvent: (e: any) => {
+                                console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
+                                const data = JSON.parse(e[0].received.event.content);
+                                setNames1000((names) => uniqBy([
+                                    ...names,
+                                    { name: data.name !== '' ? data.name : data.displayed_name, pubkey: e[0].received.event.pubkey }
+                                ], 'pubkey'));
+                            },
+                            onEose: (subID) => {
+                                mux.unSubscribe(subID);
+                            },
+                            onRecovered: (relay) => {
+                                console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
+                                return [FILTER_3(pks)]
+                            },
+                        } as SubscriptionOptions);
+
+                    },
+                    onEose: (subID) => {
+                        console.log(`subscription(id: ${subID}) EOSE`);
+                    },
+                    onRecovered: (relay) => {
+                        console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
+                        return [FILTER_6]
+                    },
+                } as SubscriptionOptions);
             });
     }, []);
 
@@ -260,6 +408,50 @@ export const Zaps = () => {
         }
     }, [zaps69ers]);
 
+    useEffect(() => {
+        const latestZap = last(zaps420Gang);
+        if (latestZap && !latestZap.counted && pubkeys420Gang.includes(latestZap.pubkey)) {
+            const zapper = names420.find((n: any) => n.pubkey === latestZap.pubkey);
+            if (zapper) {
+                setZaps420Gang([
+                    ...zaps420Gang.filter((z: any) => z.bolt11 !== latestZap.bolt11),
+                    {
+                        ...latestZap,
+                        counted: true
+                    }
+                ]);
+                setDisplay420GangLightning(true);
+                setSnackbarMessage(`420 gang: Zap ⚡️ from ${zapper.name}`);
+                setSnackbarOpen(true);
+                setTimeout(() => {
+                    setDisplay420GangLightning(false);
+                }, 1000);
+            }
+        }
+    }, [zaps420Gang]);
+
+    useEffect(() => {
+        const latestZap = last(zapsGrandZappers);
+        if (latestZap && !latestZap.counted && pubkeysGrandZappers.includes(latestZap.pubkey)) {
+            const zapper = names1000.find((n: any) => n.pubkey === latestZap.pubkey);
+            if (zapper) {
+                setZapsGrandZappers([
+                    ...zapsGrandZappers.filter((z: any) => z.bolt11 !== latestZap.bolt11),
+                    {
+                        ...latestZap,
+                        counted: true
+                    }
+                ]);
+                setDisplayGrandZappersLightning(true);
+                setSnackbarMessage(`Grand Zappers: Zap ⚡️ from ${zapper.name}`);
+                setSnackbarOpen(true);
+                setTimeout(() => {
+                    setDisplayGrandZappersLightning(false);
+                }, 1000);
+            }
+        }
+    }, [zapsGrandZappers]);
+
     return (
         <React.Fragment>
 
@@ -283,7 +475,7 @@ export const Zaps = () => {
             <Typography component="div" variant="h4" gutterBottom sx={{ background: 'transparent!important',fontSize: '28px', height: 'auto!important'  }}>
                 Today's stats
             </Typography>
-            <Stack direction="row" sx={{ justifyContent: 'center', display: 'flex' }}>
+            <Stack direction="row" sx={{ justifyContent: 'center', display: 'flex', marginBottom: '1em' }}>
                 <Card sx={{ maxWidth: 345 }}>
                     <CardActionArea>
                         <CardMedia
@@ -314,7 +506,7 @@ export const Zaps = () => {
                     </CardActionArea>
                 </Card>
                 <Typography component="div" sx={{ padding: '0 5px', alignItems: 'center', display: 'flex' }}>
-                    vs
+                    &nbsp;&nbsp;
                 </Typography>
                 <Card sx={{ maxWidth: 345 }}>
                     <CardActionArea>
@@ -341,6 +533,69 @@ export const Zaps = () => {
                             <Typography variant="body2" color="text.secondary">
                                 🫂 Members: {pubkeys69ers.length}<br/>
                                 ⚡️ Zaps: {zaps69ers.filter((z: any) => pubkeys69ers.includes(z.pubkey)).length}
+                            </Typography>
+                        </CardContent>
+                    </CardActionArea>
+                </Card>
+            </Stack>
+            <Stack direction="row" sx={{ justifyContent: 'center', display: 'flex' }}>
+                <Card sx={{ maxWidth: 345 }}>
+                    <CardActionArea>
+                        <CardMedia
+                            component="img"
+                            height="180"
+                            image="http://localhost:3000/images/420-gang-team-logo.png"
+                            alt="420 gang"
+                        />
+                        {
+                            display420GangLightning && <CardMedia
+                                sx={{ position: 'absolute', top: 0 }}
+                                component="img"
+                                height="180"
+                                image="https://uselessshit.co/images/lightning-right.png"
+                                alt="420 gang lightning"
+                                className="lightning"
+                            />
+                        }
+                        <CardContent>
+                            <Typography gutterBottom variant="h5" component="div">
+                                420 gang
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                🫂 Members: {pubkeys420Gang.length}<br/>
+                                ⚡️ Zaps: {zaps420Gang.filter((z: any) => pubkeys420Gang.includes(z.pubkey)).length}
+                            </Typography>
+                        </CardContent>
+                    </CardActionArea>
+                </Card>
+                <Typography component="div" sx={{ padding: '0 5px', alignItems: 'center', display: 'flex' }}>
+                    &nbsp;&nbsp;
+                </Typography>
+                <Card sx={{ maxWidth: 180 }}>
+                    <CardActionArea>
+                        <CardMedia
+                            component="img"
+                            height="180"
+                            image="http://localhost:3000/images/grand-zappers-team-logo.png"
+                            alt="Grand Zappers"
+                        />
+                        {
+                            displayGrandZappersLightning && <CardMedia
+                                sx={{ position: 'absolute', top: 0 }}
+                                component="img"
+                                height="180"
+                                image="https://uselessshit.co/images/lightning-left.png"
+                                alt="Grand Zappers lightning"
+                                className="lightning"
+                            />
+                        }
+                        <CardContent>
+                            <Typography gutterBottom variant="h5" component="div">
+                                Grand Zappers
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                🫂 Members: {pubkeysGrandZappers.length}<br/>
+                                ⚡️ Zaps: {zapsGrandZappers.filter((z: any) => pubkeysGrandZappers.includes(z.pubkey)).length}
                             </Typography>
                         </CardContent>
                     </CardActionArea>
