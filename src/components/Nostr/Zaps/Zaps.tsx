@@ -78,7 +78,8 @@ const DEFAULT_RELAYS = [
     'wss://nostr.wine',
     'wss://purplepag.es',
     'wss://nostr.mutinywallet.com',
-    'wss://blastr.f7z.xyz'
+    'wss://blastr.f7z.xyz',
+    'wss://relay.nostr.band'
 ];
 
 const mux = new Mux();
@@ -173,7 +174,7 @@ export const Zaps = () => {
                                 {bolt11, pubkey: description.pubkey}
                             ], 'bolt11'));
                         }
-                        if (bolt11.indexOf('10000') >= 0) {
+                        if (bolt11.indexOf('10u') >= 0|| bolt11.indexOf('20u') >= 0) {
                             setZapsGrandZappers((zaps) => uniqBy([
                                 ...zaps,
                                 {bolt11, pubkey: description.pubkey}
@@ -500,7 +501,8 @@ export const Zaps = () => {
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                                 🫂 Members: {pubkeysTeam21.length}<br/>
-                                ⚡️ Zaps: {zapsTeam21.filter((z: any) => pubkeysTeam21.includes(z.pubkey)).length}
+                                ⚡️ Zaps: {zapsTeam21.filter((z: any) => pubkeysTeam21.includes(z.pubkey)).length}<br/>
+                                <i className="fak fa-satoshisymbol-solidtilt" /> Total: {zapsTeam21.filter((z: any) => pubkeysTeam21.includes(z.pubkey)).length * 21}
                             </Typography>
                         </CardContent>
                     </CardActionArea>
@@ -532,7 +534,8 @@ export const Zaps = () => {
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                                 🫂 Members: {pubkeys69ers.length}<br/>
-                                ⚡️ Zaps: {zaps69ers.filter((z: any) => pubkeys69ers.includes(z.pubkey)).length}
+                                ⚡️ Zaps: {zaps69ers.filter((z: any) => pubkeys69ers.includes(z.pubkey)).length}<br/>
+                                <i className="fak fa-satoshisymbol-solidtilt" /> Total: {zaps69ers.filter((z: any) => pubkeys69ers.includes(z.pubkey)).length * 69}
                             </Typography>
                         </CardContent>
                     </CardActionArea>
@@ -563,7 +566,8 @@ export const Zaps = () => {
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                                 🫂 Members: {pubkeys420Gang.length}<br/>
-                                ⚡️ Zaps: {zaps420Gang.filter((z: any) => pubkeys420Gang.includes(z.pubkey)).length}
+                                ⚡️ Zaps: {zaps420Gang.filter((z: any) => pubkeys420Gang.includes(z.pubkey)).length}<br/>
+                                <i className="fak fa-satoshisymbol-solidtilt" /> Total: {zaps420Gang.filter((z: any) => pubkeys420Gang.includes(z.pubkey)).length * 420}
                             </Typography>
                         </CardContent>
                     </CardActionArea>
@@ -595,7 +599,8 @@ export const Zaps = () => {
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                                 🫂 Members: {pubkeysGrandZappers.length}<br/>
-                                ⚡️ Zaps: {zapsGrandZappers.filter((z: any) => pubkeysGrandZappers.includes(z.pubkey)).length}
+                                ⚡️ Zaps: {zapsGrandZappers.filter((z: any) => pubkeysGrandZappers.includes(z.pubkey)).length}<br/>
+                                <i className="fak fa-satoshisymbol-solidtilt" /> Total: {zapsGrandZappers.filter((z: any) => pubkeysGrandZappers.includes(z.pubkey)).length * 1000}
                             </Typography>
                         </CardContent>
                     </CardActionArea>
