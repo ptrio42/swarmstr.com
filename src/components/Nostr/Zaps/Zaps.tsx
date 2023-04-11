@@ -544,7 +544,7 @@ export const Zaps = () => {
                         <CardMedia
                             component="img"
                             height="180"
-                            image="http://localhost:3000/images/420-gang-team-logo.png"
+                            image="https://uselessshit.co/images/420-gang-team-logo.png"
                             alt="420 gang"
                         />
                         {
@@ -576,7 +576,7 @@ export const Zaps = () => {
                         <CardMedia
                             component="img"
                             height="180"
-                            image="http://localhost:3000/images/grand-zappers-team-logo.png"
+                            image="https://uselessshit.co/images/grand-zappers-team-logo.png"
                             alt="Grand Zappers"
                         />
                         {
