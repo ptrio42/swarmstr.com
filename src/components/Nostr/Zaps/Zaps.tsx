@@ -475,29 +475,30 @@ export const Zaps = () => {
 
     return (
         <React.Fragment>
+            <Helmet>
+                <title>Zappers Scoreboard - UseLessShit.co</title>
+                <meta property="description" content="Today's zaps from Team 21, 69ers, 420 gang and Grand Zappers." />
+                <meta property="keywords" content="nostr guide, nostr resources, nostr most common questions, getting started on nostr, what is nostr, zaps, zap competition" />
 
-            <title>Team 21 vs 69ers Scoreboard - UseLessShit.co</title>
-            <meta property="description" content="Today's zaps from Team 21 and 69ers." />
-            <meta property="keywords" content="nostr guide, nostr resources, nostr most common questions, getting started on nostr, what is nostr" />
+                <meta property="og:url" content="https://uselessshit.co/resources/nostr" />
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content="Zappers Scoreboard - UseLessShit.co" />
+                <meta property="og:image" content="https://uselessshit.co/images/zaps-cover.png" />
+                <meta property="og:description" content="Today's zaps from Team 21, 69ers, 420 gang and Grand Zappers." />
 
-            <meta property="og:url" content="https://uselessshit.co/resources/nostr" />
-            <meta property="og:type" content="website" />
-            <meta property="og:title" content="Team 21 vs 69ers Scoreboard - UseLessShit.co" />
-            <meta property="og:image" content="https://uselessshit.co/images/team21-vs-69ers.png" />
-            <meta property="og:description" content="Today's zaps from Team 21 and 69ers." />
+                <meta itemProp="name" content="Zappers Scoreboard - UseLessShit.co" />
+                <meta itemProp="image" content="https://uselessshit.co/images/zaps-cover.png" />
 
-            <meta itemProp="name" content="Team 21 vs 69ers Scoreboard - UseLessShit.co" />
-            <meta itemProp="image" content="https://uselessshit.co/images/team21-vs-69ers.png" />
-
-            <meta name="twitter:title" content="Team 21 vs 69ers Scoreboard - UseLessShit.co" />
-            <meta name="twitter:description" content="Today's zaps from Team 21 and 69ers." />
-            <meta name="twitter:image" content="https://uselessshit.co/images/team21-vs-69ers.png" />
+                <meta name="twitter:title" content="Zappers Scoreboard - UseLessShit.co" />
+                <meta name="twitter:description" content="Today's zaps from Team 21, 69ers, 420 gang and Grand Zappers." />
+                <meta name="twitter:image" content="https://uselessshit.co/images/zaps-cover.png" />
+            </Helmet>
 
             <Typography component="div" variant="h4" gutterBottom sx={{ background: 'transparent!important',fontSize: '28px', height: 'auto!important'  }}>
                 Today's stats
             </Typography>
             <Stack direction="row" sx={{ justifyContent: 'center', display: 'flex', marginBottom: '1em' }}>
-                <Card sx={{ maxWidth: 345 }}>
+                <Card sx={{ maxWidth: 180 }}>
                     <CardActionArea>
                         <CardMedia
                             component="img"
@@ -522,7 +523,7 @@ export const Zaps = () => {
                             <Typography variant="body2" color="text.secondary">
                                 🫂 Members: {pubkeysTeam21.length}<br/>
                                 ⚡️ Zaps: {zapsTeam21.filter((z: any) => pubkeysTeam21.includes(z.pubkey)).length}<br/>
-                                <i className="fak fa-satoshisymbol-solidtilt" /> Total: {zapsTeam21.filter((z: any) => pubkeysTeam21.includes(z.pubkey)).length * 21}
+                                <i className="fak fa-satoshisymbol-solidtilt" /> Total: {(zapsTeam21.filter((z: any) => pubkeysTeam21.includes(z.pubkey)).length * 21).toLocaleString('en-US')}
                             </Typography>
                         </CardContent>
                     </CardActionArea>
@@ -530,7 +531,7 @@ export const Zaps = () => {
                 <Typography component="div" sx={{ padding: '0 5px', alignItems: 'center', display: 'flex' }}>
                     &nbsp;&nbsp;
                 </Typography>
-                <Card sx={{ maxWidth: 345 }}>
+                <Card sx={{ maxWidth: 180 }}>
                     <CardActionArea>
                         <CardMedia
                             component="img"
@@ -555,14 +556,14 @@ export const Zaps = () => {
                             <Typography variant="body2" color="text.secondary">
                                 🫂 Members: {pubkeys69ers.length}<br/>
                                 ⚡️ Zaps: {zaps69ers.filter((z: any) => pubkeys69ers.includes(z.pubkey)).length}<br/>
-                                <i className="fak fa-satoshisymbol-solidtilt" /> Total: {zaps69ers.filter((z: any) => pubkeys69ers.includes(z.pubkey)).length * 69}
+                                <i className="fak fa-satoshisymbol-solidtilt" /> Total: {(zaps69ers.filter((z: any) => pubkeys69ers.includes(z.pubkey)).length * 69).toLocaleString('en-US')}
                             </Typography>
                         </CardContent>
                     </CardActionArea>
                 </Card>
             </Stack>
             <Stack direction="row" sx={{ justifyContent: 'center', display: 'flex' }}>
-                <Card sx={{ maxWidth: 345 }}>
+                <Card sx={{ maxWidth: 180 }}>
                     <CardActionArea>
                         <CardMedia
                             component="img"
@@ -587,7 +588,7 @@ export const Zaps = () => {
                             <Typography variant="body2" color="text.secondary">
                                 🫂 Members: {pubkeys420Gang.length}<br/>
                                 ⚡️ Zaps: {zaps420Gang.filter((z: any) => pubkeys420Gang.includes(z.pubkey)).length}<br/>
-                                <i className="fak fa-satoshisymbol-solidtilt" /> Total: {zaps420Gang.filter((z: any) => pubkeys420Gang.includes(z.pubkey)).length * 420}
+                                <i className="fak fa-satoshisymbol-solidtilt" /> Total: {(zaps420Gang.filter((z: any) => pubkeys420Gang.includes(z.pubkey)).length * 420).toLocaleString('en-US')}
                             </Typography>
                         </CardContent>
                     </CardActionArea>
@@ -620,7 +621,7 @@ export const Zaps = () => {
                             <Typography variant="body2" color="text.secondary">
                                 🫂 Members: {pubkeysGrandZappers.length}<br/>
                                 ⚡️ Zaps: {zapsGrandZappers.filter((z: any) => pubkeysGrandZappers.includes(z.pubkey)).length}<br/>
-                                <i className="fak fa-satoshisymbol-solidtilt" /> Total: {zapsGrandZappers.filter((z: any) => pubkeysGrandZappers.includes(z.pubkey)).length * 1000}
+                                <i className="fak fa-satoshisymbol-solidtilt" /> Total: {(zapsGrandZappers.filter((z: any) => pubkeysGrandZappers.includes(z.pubkey)).length * 1000).toLocaleString('en-US')}
                             </Typography>
                         </CardContent>
                     </CardActionArea>
