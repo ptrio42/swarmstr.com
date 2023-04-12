@@ -18,6 +18,7 @@ import Stack from "@mui/material/Stack";
 import {Helmet} from "react-helmet";
 import './Zaps.css';
 import Snackbar from "@mui/material/Snackbar";
+import Box from "@mui/material/Box";
 
 const getPubkeysFromEventTags = (event: any): string[] => {
     return event.tags
@@ -494,150 +495,152 @@ export const Zaps = () => {
                 <meta name="twitter:image" content="https://uselessshit.co/images/zaps-cover.png" />
             </Helmet>
 
-            <Typography component="div" variant="h4" gutterBottom sx={{ background: 'transparent!important',fontSize: '28px', height: 'auto!important'  }}>
-                Today's stats
-            </Typography>
-            <Stack direction="row" sx={{ justifyContent: 'center', display: 'flex', marginBottom: '1em' }}>
-                <Card sx={{ maxWidth: 180 }}>
-                    <CardActionArea>
-                        <CardMedia
-                            component="img"
-                            height="180"
-                            image="https://uselessshit.co/images/team-21-logo.png"
-                            alt="team 21"
-                        />
-                        {
-                            displayTeam21Lightning && <CardMedia
-                                sx={{ position: 'absolute', top: 0 }}
-                                component="img"
-                                height="180"
-                                image="https://uselessshit.co/images/lightning-left.png"
-                                alt="team 21 lightning"
-                                className="lightning"
-                            />
-                        }
-                        <CardContent>
-                            <Typography gutterBottom variant="h5" component="div">
-                                Team 21
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                🫂 Members: {pubkeysTeam21.length}<br/>
-                                ⚡️ Zaps: {zapsTeam21.filter((z: any) => pubkeysTeam21.includes(z.pubkey)).length}<br/>
-                                <i className="fak fa-satoshisymbol-solidtilt" /> Total: {(zapsTeam21.filter((z: any) => pubkeysTeam21.includes(z.pubkey)).length * 21).toLocaleString('en-US')}
-                            </Typography>
-                        </CardContent>
-                    </CardActionArea>
-                </Card>
-                <Typography component="div" sx={{ padding: '0 5px', alignItems: 'center', display: 'flex' }}>
-                    &nbsp;&nbsp;
+            <Box>
+                <Typography component="div" variant="h4" gutterBottom sx={{ background: 'transparent!important',fontSize: '28px', height: 'auto!important'  }}>
+                    Today's stats
                 </Typography>
-                <Card sx={{ maxWidth: 180 }}>
-                    <CardActionArea>
-                        <CardMedia
-                            component="img"
-                            height="180"
-                            image="https://uselessshit.co/images/69ers-team-logo.png"
-                            alt="69ers"
-                        />
-                        {
-                            display69ersLightning && <CardMedia
-                                sx={{ position: 'absolute', top: 0 }}
+                <Stack direction="row" sx={{ justifyContent: 'center', display: 'flex', marginBottom: '1em' }}>
+                    <Card sx={{ maxWidth: 180 }}>
+                        <CardActionArea>
+                            <CardMedia
                                 component="img"
                                 height="180"
-                                image="https://uselessshit.co/images/lightning-right.png"
-                                alt="69ers lightning"
-                                className="lightning"
+                                image="https://uselessshit.co/images/team-21-logo.png"
+                                alt="team 21"
                             />
-                        }
-                        <CardContent>
-                            <Typography gutterBottom variant="h5" component="div">
-                                69ers
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                🫂 Members: {pubkeys69ers.length}<br/>
-                                ⚡️ Zaps: {zaps69ers.filter((z: any) => pubkeys69ers.includes(z.pubkey)).length}<br/>
-                                <i className="fak fa-satoshisymbol-solidtilt" /> Total: {(zaps69ers.filter((z: any) => pubkeys69ers.includes(z.pubkey)).length * 69).toLocaleString('en-US')}
-                            </Typography>
-                        </CardContent>
-                    </CardActionArea>
-                </Card>
-            </Stack>
-            <Stack direction="row" sx={{ justifyContent: 'center', display: 'flex' }}>
-                <Card sx={{ maxWidth: 180 }}>
-                    <CardActionArea>
-                        <CardMedia
-                            component="img"
-                            height="180"
-                            image="https://uselessshit.co/images/420-gang-team-logo.png"
-                            alt="420 gang"
-                        />
-                        {
-                            display420GangLightning && <CardMedia
-                                sx={{ position: 'absolute', top: 0 }}
+                            {
+                                displayTeam21Lightning && <CardMedia
+                                    sx={{ position: 'absolute', top: 0 }}
+                                    component="img"
+                                    height="180"
+                                    image="https://uselessshit.co/images/lightning-left.png"
+                                    alt="team 21 lightning"
+                                    className="lightning"
+                                />
+                            }
+                            <CardContent>
+                                <Typography gutterBottom variant="h5" component="div">
+                                    Team 21
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    🫂 Members: {pubkeysTeam21.length}<br/>
+                                    ⚡️ Zaps: {zapsTeam21.filter((z: any) => pubkeysTeam21.includes(z.pubkey)).length}<br/>
+                                    <i className="fak fa-satoshisymbol-solidtilt" /> Total: {(zapsTeam21.filter((z: any) => pubkeysTeam21.includes(z.pubkey)).length * 21).toLocaleString('en-US')}
+                                </Typography>
+                            </CardContent>
+                        </CardActionArea>
+                    </Card>
+                    <Typography component="div" sx={{ padding: '0 5px', alignItems: 'center', display: 'flex' }}>
+                        &nbsp;&nbsp;
+                    </Typography>
+                    <Card sx={{ maxWidth: 180 }}>
+                        <CardActionArea>
+                            <CardMedia
                                 component="img"
                                 height="180"
-                                image="https://uselessshit.co/images/lightning-right.png"
-                                alt="420 gang lightning"
-                                className="lightning"
+                                image="https://uselessshit.co/images/69ers-team-logo.png"
+                                alt="69ers"
                             />
-                        }
-                        <CardContent>
-                            <Typography gutterBottom variant="h5" component="div">
-                                420 gang
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                🫂 Members: {pubkeys420Gang.length}<br/>
-                                ⚡️ Zaps: {zaps420Gang.filter((z: any) => pubkeys420Gang.includes(z.pubkey)).length}<br/>
-                                <i className="fak fa-satoshisymbol-solidtilt" /> Total: {(zaps420Gang.filter((z: any) => pubkeys420Gang.includes(z.pubkey)).length * 420).toLocaleString('en-US')}
-                            </Typography>
-                        </CardContent>
-                    </CardActionArea>
-                </Card>
-                <Typography component="div" sx={{ padding: '0 5px', alignItems: 'center', display: 'flex' }}>
-                    &nbsp;&nbsp;
+                            {
+                                display69ersLightning && <CardMedia
+                                    sx={{ position: 'absolute', top: 0 }}
+                                    component="img"
+                                    height="180"
+                                    image="https://uselessshit.co/images/lightning-right.png"
+                                    alt="69ers lightning"
+                                    className="lightning"
+                                />
+                            }
+                            <CardContent>
+                                <Typography gutterBottom variant="h5" component="div">
+                                    69ers
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    🫂 Members: {pubkeys69ers.length}<br/>
+                                    ⚡️ Zaps: {zaps69ers.filter((z: any) => pubkeys69ers.includes(z.pubkey)).length}<br/>
+                                    <i className="fak fa-satoshisymbol-solidtilt" /> Total: {(zaps69ers.filter((z: any) => pubkeys69ers.includes(z.pubkey)).length * 69).toLocaleString('en-US')}
+                                </Typography>
+                            </CardContent>
+                        </CardActionArea>
+                    </Card>
+                </Stack>
+                <Stack direction="row" sx={{ justifyContent: 'center', display: 'flex' }}>
+                    <Card sx={{ maxWidth: 180 }}>
+                        <CardActionArea>
+                            <CardMedia
+                                component="img"
+                                height="180"
+                                image="https://uselessshit.co/images/420-gang-team-logo.png"
+                                alt="420 gang"
+                            />
+                            {
+                                display420GangLightning && <CardMedia
+                                    sx={{ position: 'absolute', top: 0 }}
+                                    component="img"
+                                    height="180"
+                                    image="https://uselessshit.co/images/lightning-right.png"
+                                    alt="420 gang lightning"
+                                    className="lightning"
+                                />
+                            }
+                            <CardContent>
+                                <Typography gutterBottom variant="h5" component="div">
+                                    420 gang
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    🫂 Members: {pubkeys420Gang.length}<br/>
+                                    ⚡️ Zaps: {zaps420Gang.filter((z: any) => pubkeys420Gang.includes(z.pubkey)).length}<br/>
+                                    <i className="fak fa-satoshisymbol-solidtilt" /> Total: {(zaps420Gang.filter((z: any) => pubkeys420Gang.includes(z.pubkey)).length * 420).toLocaleString('en-US')}
+                                </Typography>
+                            </CardContent>
+                        </CardActionArea>
+                    </Card>
+                    <Typography component="div" sx={{ padding: '0 5px', alignItems: 'center', display: 'flex' }}>
+                        &nbsp;&nbsp;
+                    </Typography>
+                    <Card sx={{ maxWidth: 180 }}>
+                        <CardActionArea>
+                            <CardMedia
+                                component="img"
+                                height="180"
+                                image="https://uselessshit.co/images/grand-zappers-team-logo.png"
+                                alt="Grand Zappers"
+                            />
+                            {
+                                displayGrandZappersLightning && <CardMedia
+                                    sx={{ position: 'absolute', top: 0 }}
+                                    component="img"
+                                    height="180"
+                                    image="https://uselessshit.co/images/lightning-left.png"
+                                    alt="Grand Zappers lightning"
+                                    className="lightning"
+                                />
+                            }
+                            <CardContent>
+                                <Typography gutterBottom variant="h5" component="div">
+                                    Grand Zappers
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    🫂 Members: {pubkeysGrandZappers.length}<br/>
+                                    ⚡️ Zaps: {zapsGrandZappers.filter((z: any) => pubkeysGrandZappers.includes(z.pubkey)).length}<br/>
+                                    <i className="fak fa-satoshisymbol-solidtilt" /> Total: {(zapsGrandZappers.filter((z: any) => pubkeysGrandZappers.includes(z.pubkey)).length * 1000).toLocaleString('en-US')}
+                                </Typography>
+                            </CardContent>
+                        </CardActionArea>
+                    </Card>
+                </Stack>
+                <Typography component="div" sx={{ width: '100%' }}>
+                    <Snackbar
+                        open={snackbarOpen}
+                        autoHideDuration={3000}
+                        onClose={() => setSnackbarOpen(false)}
+                        message={snackbarMessage}
+                    />
                 </Typography>
-                <Card sx={{ maxWidth: 180 }}>
-                    <CardActionArea>
-                        <CardMedia
-                            component="img"
-                            height="180"
-                            image="https://uselessshit.co/images/grand-zappers-team-logo.png"
-                            alt="Grand Zappers"
-                        />
-                        {
-                            displayGrandZappersLightning && <CardMedia
-                                sx={{ position: 'absolute', top: 0 }}
-                                component="img"
-                                height="180"
-                                image="https://uselessshit.co/images/lightning-left.png"
-                                alt="Grand Zappers lightning"
-                                className="lightning"
-                            />
-                        }
-                        <CardContent>
-                            <Typography gutterBottom variant="h5" component="div">
-                                Grand Zappers
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                🫂 Members: {pubkeysGrandZappers.length}<br/>
-                                ⚡️ Zaps: {zapsGrandZappers.filter((z: any) => pubkeysGrandZappers.includes(z.pubkey)).length}<br/>
-                                <i className="fak fa-satoshisymbol-solidtilt" /> Total: {(zapsGrandZappers.filter((z: any) => pubkeysGrandZappers.includes(z.pubkey)).length * 1000).toLocaleString('en-US')}
-                            </Typography>
-                        </CardContent>
-                    </CardActionArea>
-                </Card>
-            </Stack>
-            <Typography component="div" sx={{ width: '100%' }}>
-                <Snackbar
-                    open={snackbarOpen}
-                    autoHideDuration={3000}
-                    onClose={() => setSnackbarOpen(false)}
-                    message={snackbarMessage}
-                />
-            </Typography>
-            <Typography component="div" sx={{ padding: '16px', marginBottom: '230px' }}>
-                Want to join a team? Check <a href="https://snort.social/e/note16r4p7hvuvjv2uag2lg4v779vywu3kc5a4ugex5j7vspeusdrj4sqynfmav" target="_blank">this note</a>.
-            </Typography>
+                <Typography component="div" sx={{ padding: '16px', marginBottom: '230px' }}>
+                    Want to join a team? Check <a href="https://snort.social/e/note16r4p7hvuvjv2uag2lg4v779vywu3kc5a4ugex5j7vspeusdrj4sqynfmav" target="_blank">this note</a>.
+                </Typography>
+            </Box>
         </React.Fragment>
     );
 };
