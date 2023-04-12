@@ -627,15 +627,17 @@ export const Zaps = () => {
                     </CardActionArea>
                 </Card>
             </Stack>
+            <Typography component="div" sx={{ width: '100%' }}>
+                <Snackbar
+                    open={snackbarOpen}
+                    autoHideDuration={3000}
+                    onClose={() => setSnackbarOpen(false)}
+                    message={snackbarMessage}
+                />
+            </Typography>
             <Typography component="div" sx={{ padding: '16px', marginBottom: '230px' }}>
                 Want to join a team? Check <a href="https://snort.social/e/note16r4p7hvuvjv2uag2lg4v779vywu3kc5a4ugex5j7vspeusdrj4sqynfmav" target="_blank">this note</a>.
             </Typography>
-            <Snackbar
-                open={snackbarOpen}
-                autoHideDuration={3000}
-                onClose={() => setSnackbarOpen(false)}
-                message={snackbarMessage}
-            />
         </React.Fragment>
     );
 };
