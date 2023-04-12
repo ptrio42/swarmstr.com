@@ -96,7 +96,7 @@ export const PageContent = () => {
                 </Box>
 
                 <Box sx={{ marginBottom: '3em' }} component="div">
-                    <Link color='secondary' to='nostr/zaps'>Team 21 vs 69ers Scoreboard</Link>
+                    <Link color='secondary' to='nostr/zaps/'>Zappers Scoreboard</Link>
                 </Box>
 
                 <Box sx={{ marginBottom: '3em' }} component="div">
