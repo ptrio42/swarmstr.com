@@ -155,30 +155,34 @@ export const Zaps = () => {
                     onEvent: (e: any) => {
                         // console.log(`received zap receipt event(from: ${e[0].relay.url})`, e[0].received.event.kind);
                         const bolt11: string = e[0].received.event.tags.find((t: string[]) => t[0] === 'bolt11')[1];
-                        const description = JSON.parse(e[0].received.event.tags.find((t: string) => t[0] === 'description')[1]);
-                        if (bolt11.indexOf('210') >= 0) {
-                            setZapsTeam21((zaps) => uniqBy([
-                                ...zaps,
-                                {bolt11, pubkey: description.pubkey}
-                            ], 'bolt11'));
-                        }
-                        if (bolt11.indexOf('690') >= 0) {
-                            setZaps69ers((zaps) => uniqBy([
-                                ...zaps,
-                                {bolt11, pubkey: description.pubkey}
-                            ], 'bolt11'));
-                        }
-                        if (bolt11.indexOf('4200') >= 0) {
-                            setZaps420Gang((zaps) => uniqBy([
-                                ...zaps,
-                                {bolt11, pubkey: description.pubkey}
-                            ], 'bolt11'));
-                        }
-                        if (bolt11.indexOf('10u') >= 0|| bolt11.indexOf('20u') >= 0) {
-                            setZapsGrandZappers((zaps) => uniqBy([
-                                ...zaps,
-                                {bolt11, pubkey: description.pubkey}
-                            ], 'bolt11'));
+                        try {
+                            const description = JSON.parse(e[0].received.event.tags.find((t: string) => t[0] === 'description')[1]);
+                            if (bolt11.indexOf('210') >= 0) {
+                                setZapsTeam21((zaps) => uniqBy([
+                                    ...zaps,
+                                    {bolt11, pubkey: description.pubkey}
+                                ], 'bolt11'));
+                            }
+                            if (bolt11.indexOf('690') >= 0) {
+                                setZaps69ers((zaps) => uniqBy([
+                                    ...zaps,
+                                    {bolt11, pubkey: description.pubkey}
+                                ], 'bolt11'));
+                            }
+                            if (bolt11.indexOf('4200') >= 0) {
+                                setZaps420Gang((zaps) => uniqBy([
+                                    ...zaps,
+                                    {bolt11, pubkey: description.pubkey}
+                                ], 'bolt11'));
+                            }
+                            if (bolt11.indexOf('10u') >= 0|| bolt11.indexOf('20u') >= 0) {
+                                setZapsGrandZappers((zaps) => uniqBy([
+                                    ...zaps,
+                                    {bolt11, pubkey: description.pubkey}
+                                ], 'bolt11'));
+                            }
+                        } catch (error) {
+                            console.error('Unable to parse zap receipt description.');
                         }
 
                     },
@@ -210,11 +214,15 @@ export const Zaps = () => {
                             filters: [FILTER_3(pks)],
                             onEvent: (e: any) => {
                                 console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
-                                const data = JSON.parse(e[0].received.event.content);
-                                setNames21((names) => uniqBy([
-                                    ...names,
-                                    { name: data.name, pubkey: e[0].received.event.pubkey }
-                                ], 'pubkey'));
+                                try {
+                                    const data = JSON.parse(e[0].received.event.content);
+                                    setNames21((names) => uniqBy([
+                                        ...names,
+                                        { name: data.name, pubkey: e[0].received.event.pubkey }
+                                    ], 'pubkey'));
+                                } catch (error) {
+                                    console.error('Unable to parse profile content.');
+                                }
 
                             },
                             onEose: (subID) => {
@@ -254,11 +262,15 @@ export const Zaps = () => {
                             filters: [FILTER_3(pks)],
                             onEvent: (e: any) => {
                                 console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
-                                const data = JSON.parse(e[0].received.event.content);
-                                setNames69((names) => uniqBy([
-                                    ...names,
-                                    { name: data.name !== '' ? data.name : data.displayed_name, pubkey: e[0].received.event.pubkey }
-                                ], 'pubkey'));
+                                try {
+                                    const data = JSON.parse(e[0].received.event.content);
+                                    setNames69((names) => uniqBy([
+                                        ...names,
+                                        { name: data.name !== '' ? data.name : data.displayed_name, pubkey: e[0].received.event.pubkey }
+                                    ], 'pubkey'));
+                                } catch (error) {
+                                    console.error('Unable to parse profile content.');
+                                }
                             },
                             onEose: (subID) => {
                                 mux.unSubscribe(subID);
@@ -296,11 +308,15 @@ export const Zaps = () => {
                             filters: [FILTER_3(pks)],
                             onEvent: (e: any) => {
                                 console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
-                                const data = JSON.parse(e[0].received.event.content);
-                                setNames420((names) => uniqBy([
-                                    ...names,
-                                    { name: data.name !== '' ? data.name : data.displayed_name, pubkey: e[0].received.event.pubkey }
-                                ], 'pubkey'));
+                                try {
+                                    const data = JSON.parse(e[0].received.event.content);
+                                    setNames420((names) => uniqBy([
+                                        ...names,
+                                        { name: data.name !== '' ? data.name : data.displayed_name, pubkey: e[0].received.event.pubkey }
+                                    ], 'pubkey'));
+                                } catch (error) {
+                                    console.error('Unable to parse profile content.');
+                                }
                             },
                             onEose: (subID) => {
                                 mux.unSubscribe(subID);
@@ -338,11 +354,15 @@ export const Zaps = () => {
                             filters: [FILTER_3(pks)],
                             onEvent: (e: any) => {
                                 console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
-                                const data = JSON.parse(e[0].received.event.content);
-                                setNames1000((names) => uniqBy([
-                                    ...names,
-                                    { name: data.name !== '' ? data.name : data.displayed_name, pubkey: e[0].received.event.pubkey }
-                                ], 'pubkey'));
+                                try {
+                                    const data = JSON.parse(e[0].received.event.content);
+                                    setNames1000((names) => uniqBy([
+                                        ...names,
+                                        { name: data.name !== '' ? data.name : data.displayed_name, pubkey: e[0].received.event.pubkey }
+                                    ], 'pubkey'));
+                                } catch (error) {
+                                    console.error('Unable to parse profile content.');
+                                }
                             },
                             onEose: (subID) => {
                                 mux.unSubscribe(subID);
