@@ -475,7 +475,7 @@ export const Zaps = () => {
 
     return (
         <React.Fragment>
-            <Helmet>
+            {/*<Helmet>*/}
                 <title>Zappers Scoreboard - UseLessShit.co</title>
                 <meta property="description" content="Today's zaps from Team 21, 69ers, 420 gang and Grand Zappers." />
                 <meta property="keywords" content="nostr guide, nostr resources, nostr most common questions, getting started on nostr, what is nostr, zaps, zap competition" />
@@ -492,7 +492,7 @@ export const Zaps = () => {
                 <meta name="twitter:title" content="Zappers Scoreboard - UseLessShit.co" />
                 <meta name="twitter:description" content="Today's zaps from Team 21, 69ers, 420 gang and Grand Zappers." />
                 <meta name="twitter:image" content="https://uselessshit.co/images/zaps-cover.png" />
-            </Helmet>
+            {/*</Helmet>*/}
 
             <Typography component="div" variant="h4" gutterBottom sx={{ background: 'transparent!important',fontSize: '28px', height: 'auto!important'  }}>
                 Today's stats
