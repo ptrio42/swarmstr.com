@@ -20,6 +20,7 @@ import {Helmet} from "react-helmet";
 import './Zaps.css';
 import Snackbar from "@mui/material/Snackbar";
 import Box from "@mui/material/Box";
+import {getRelays} from "../../../services/nostr";
 
 const getPubkeysFromEventTags = (event: any): string[] => {
     return event.tags
@@ -60,36 +61,31 @@ const FILTER_6 = {
     '#a': ['30009:000003a2c8076423148fe15e3ff5f182e0304cff6de499a3f54f5adfe3b014e6:grand-zappers']
 };
 
-const DEFAULT_RELAYS = [
-    'wss://eden.nostr.land',
-    'wss://nostr.fmt.wiz.biz',
-    'wss://relay.damus.io',
-    'wss://nostr-pub.wellorder.net',
-    'wss://relay.nostr.info',
-    'wss://offchain.pub',
-    'wss://nos.lol',
-    'wss://brb.io',
-    'wss://relay.snort.social',
-    'wss://relay.current.fyi',
-    'wss://nostr.relayer.se',
-    'wss://nostr.uselessshit.co',
-    'wss://nostr.bitcoiner.social',
-    'wss://nostr.milou.lol',
-    'wss://nostr.zebedee.cloud',
-    'wss://relay.nostr.bg',
-    'wss://nostr.wine',
-    'wss://purplepag.es',
-    'wss://nostr.mutinywallet.com',
-    'wss://blastr.f7z.xyz',
-    'wss://relay.nostr.band'
-];
+// const DEFAULT_RELAYS = [
+//     'wss://eden.nostr.land',
+//     'wss://nostr.fmt.wiz.biz',
+//     'wss://relay.damus.io',
+//     'wss://nostr-pub.wellorder.net',
+//     'wss://relay.nostr.info',
+//     'wss://offchain.pub',
+//     'wss://nos.lol',
+//     'wss://brb.io',
+//     'wss://relay.snort.social',
+//     'wss://relay.current.fyi',
+//     'wss://nostr.relayer.se',
+//     'wss://nostr.uselessshit.co',
+//     'wss://nostr.bitcoiner.social',
+//     'wss://nostr.milou.lol',
+//     'wss://nostr.zebedee.cloud',
+//     'wss://relay.nostr.bg',
+//     'wss://nostr.wine',
+//     'wss://purplepag.es',
+//     'wss://nostr.mutinywallet.com',
+//     'wss://blastr.f7z.xyz',
+//     'wss://relay.nostr.band'
+// ];
 
 const mux = new Mux();
-
-// Multiplexe them.
-DEFAULT_RELAYS.forEach((url: string) => {
-    mux.addRelay(new Relay(url));
-});
 
 const BADGES = [
     {
@@ -143,248 +139,257 @@ export const Zaps = () => {
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
     const [snackbarMessage, setSnackbarMessage] = useState<string>('');
 
+    // const [relays, setRelays] = useState<string[]>([]);
+
     useEffect(() => {
-        // Subscribe
-        mux.waitRelayBecomesHealthy(1, 5000)
-            .then(ok => {
-                if (!ok) {
-                    console.error('no healthy relays');
-                    return;
-                }
-
-                mux.subscribe({
-                    filters: [FILTER_4],
-                    onEvent: (e: any) => {
-                        // console.log(`received zap receipt event(from: ${e[0].relay.url})`, e[0].received.event.kind);
-                        const bolt11: string = e[0].received.event.tags.find((t: string[]) => t[0] === 'bolt11')[1];
-                        try {
-                            const description = JSON.parse(e[0].received.event.tags.find((t: string) => t[0] === 'description')[1]);
-                            if (bolt11.indexOf('210') >= 0) {
-                                setZapsTeam21((zaps) => uniqBy([
-                                    ...zaps,
-                                    {bolt11, pubkey: description.pubkey}
-                                ], 'bolt11'));
-                            }
-                            if (bolt11.indexOf('690') >= 0) {
-                                setZaps69ers((zaps) => uniqBy([
-                                    ...zaps,
-                                    {bolt11, pubkey: description.pubkey}
-                                ], 'bolt11'));
-                            }
-                            if (bolt11.indexOf('4200') >= 0) {
-                                setZaps420Gang((zaps) => uniqBy([
-                                    ...zaps,
-                                    {bolt11, pubkey: description.pubkey}
-                                ], 'bolt11'));
-                            }
-                            if (bolt11.indexOf('10u') >= 0|| bolt11.indexOf('20u') >= 0) {
-                                setZapsGrandZappers((zaps) => uniqBy([
-                                    ...zaps,
-                                    {bolt11, pubkey: description.pubkey}
-                                ], 'bolt11'));
-                            }
-                        } catch (error) {
-                            console.error('Unable to parse zap receipt description.');
-                        }
-
-                    },
-                    onEose: (subID) => {
-                        console.log(`subscription(id: ${subID}) EOSE`);
-                    },
-                    onRecovered: (relay) => {
-                        console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
-                        return [FILTER_4]
-                    },
-                } as SubscriptionOptions);
-
-                // Team 21 badge owners
-                mux.subscribe({
-                    filters: [FILTER_1],
-                    onEvent: (e: any) => {
-                        console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
-                        const pks = getPubkeysFromEventTags(e[0].received.event);
-                        setPubkeysTeam21((pubkeys) => uniq([
-                            ...pubkeys,
-                            ...pks
-                        ]));
-
-                        if (pks.some(pk => pubkeysTeam21.includes(pk))) {
+        getRelays()
+            .then((relays: string[]) => {
+                // Multiplexe relays.
+                relays.forEach((url: string) => {
+                    mux.addRelay(new Relay(url));
+                });
+                // Subscribe
+                mux.waitRelayBecomesHealthy(1, 5000)
+                    .then(ok => {
+                        if (!ok) {
+                            console.error('no healthy relays');
                             return;
                         }
 
                         mux.subscribe({
-                            filters: [FILTER_3(pks)],
+                            filters: [FILTER_4],
                             onEvent: (e: any) => {
-                                console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
+                                // console.log(`received zap receipt event(from: ${e[0].relay.url})`, e[0].received.event.kind);
+                                const bolt11: string = e[0].received.event.tags.find((t: string[]) => t[0] === 'bolt11')[1];
                                 try {
-                                    const data = JSON.parse(e[0].received.event.content);
-                                    setNames21((names) => uniqBy([
-                                        ...names,
-                                        { name: data.name, pubkey: e[0].received.event.pubkey }
-                                    ], 'pubkey'));
+                                    const description = JSON.parse(e[0].received.event.tags.find((t: string) => t[0] === 'description')[1]);
+                                    if (bolt11.indexOf('210') >= 0) {
+                                        setZapsTeam21((zaps) => uniqBy([
+                                            ...zaps,
+                                            {bolt11, pubkey: description.pubkey}
+                                        ], 'bolt11'));
+                                    }
+                                    if (bolt11.indexOf('690') >= 0) {
+                                        setZaps69ers((zaps) => uniqBy([
+                                            ...zaps,
+                                            {bolt11, pubkey: description.pubkey}
+                                        ], 'bolt11'));
+                                    }
+                                    if (bolt11.indexOf('4200') >= 0) {
+                                        setZaps420Gang((zaps) => uniqBy([
+                                            ...zaps,
+                                            {bolt11, pubkey: description.pubkey}
+                                        ], 'bolt11'));
+                                    }
+                                    if (bolt11.indexOf('10u') >= 0|| bolt11.indexOf('20u') >= 0) {
+                                        setZapsGrandZappers((zaps) => uniqBy([
+                                            ...zaps,
+                                            {bolt11, pubkey: description.pubkey}
+                                        ], 'bolt11'));
+                                    }
                                 } catch (error) {
-                                    console.error('Unable to parse profile content.');
+                                    console.error('Unable to parse zap receipt description.');
                                 }
 
                             },
                             onEose: (subID) => {
                                 console.log(`subscription(id: ${subID}) EOSE`);
-                                mux.unSubscribe(subID);
                             },
                             onRecovered: (relay) => {
                                 console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
-                                return [FILTER_3(pks)]
+                                return [FILTER_4]
                             },
                         } as SubscriptionOptions);
 
-                    },
-                    onEose: (subID) => {
-                        console.log(`subscription(id: ${subID}) EOSE`);
-                    },
-                    onRecovered: (relay) => {
-                        console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
-                        return [FILTER_1]
-                    },
-                } as SubscriptionOptions);
-
-                // 69ers badge owners
-                mux.subscribe({
-                    filters: [FILTER_2],
-                    onEvent: (e: any) => {
-                        console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
-                        const pks = getPubkeysFromEventTags(e[0].received.event);
-                        setPubkeys69ers((pubkeys) => uniq([
-                            ...pubkeys,
-                            ...pks
-                        ]));
-                        if (pks.some(pk => pubkeys69ers.includes(pk))) {
-                            return;
-                        }
+                        // Team 21 badge owners
                         mux.subscribe({
-                            filters: [FILTER_3(pks)],
+                            filters: [FILTER_1],
                             onEvent: (e: any) => {
                                 console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
-                                try {
-                                    const data = JSON.parse(e[0].received.event.content);
-                                    setNames69((names) => uniqBy([
-                                        ...names,
-                                        { name: data.name !== '' ? data.name : data.displayed_name, pubkey: e[0].received.event.pubkey }
-                                    ], 'pubkey'));
-                                } catch (error) {
-                                    console.error('Unable to parse profile content.');
+                                const pks = getPubkeysFromEventTags(e[0].received.event);
+                                setPubkeysTeam21((pubkeys) => uniq([
+                                    ...pubkeys,
+                                    ...pks
+                                ]));
+
+                                if (pks.some(pk => pubkeysTeam21.includes(pk))) {
+                                    return;
                                 }
+
+                                mux.subscribe({
+                                    filters: [FILTER_3(pks)],
+                                    onEvent: (e: any) => {
+                                        console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
+                                        try {
+                                            const data = JSON.parse(e[0].received.event.content);
+                                            setNames21((names) => uniqBy([
+                                                ...names,
+                                                { name: data.name, pubkey: e[0].received.event.pubkey }
+                                            ], 'pubkey'));
+                                        } catch (error) {
+                                            console.error('Unable to parse profile content.');
+                                        }
+
+                                    },
+                                    onEose: (subID) => {
+                                        console.log(`subscription(id: ${subID}) EOSE`);
+                                        mux.unSubscribe(subID);
+                                    },
+                                    onRecovered: (relay) => {
+                                        console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
+                                        return [FILTER_3(pks)]
+                                    },
+                                } as SubscriptionOptions);
+
                             },
                             onEose: (subID) => {
-                                mux.unSubscribe(subID);
+                                console.log(`subscription(id: ${subID}) EOSE`);
                             },
                             onRecovered: (relay) => {
                                 console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
-                                return [FILTER_3(pks)]
+                                return [FILTER_1]
                             },
                         } as SubscriptionOptions);
 
-                    },
-                    onEose: (subID) => {
-                        console.log(`subscription(id: ${subID}) EOSE`);
-                    },
-                    onRecovered: (relay) => {
-                        console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
-                        return [FILTER_2]
-                    },
-                } as SubscriptionOptions);
-
-                // 420 gang badge owners
-                mux.subscribe({
-                    filters: [FILTER_5],
-                    onEvent: (e: any) => {
-                        console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
-                        const pks = getPubkeysFromEventTags(e[0].received.event);
-                        setPubkeys420Gang((pubkeys) => uniq([
-                            ...pubkeys,
-                            ...pks
-                        ]));
-                        if (pks.some(pk => pubkeys420Gang.includes(pk))) {
-                            return;
-                        }
+                        // 69ers badge owners
                         mux.subscribe({
-                            filters: [FILTER_3(pks)],
+                            filters: [FILTER_2],
                             onEvent: (e: any) => {
                                 console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
-                                try {
-                                    const data = JSON.parse(e[0].received.event.content);
-                                    setNames420((names) => uniqBy([
-                                        ...names,
-                                        { name: data.name !== '' ? data.name : data.displayed_name, pubkey: e[0].received.event.pubkey }
-                                    ], 'pubkey'));
-                                } catch (error) {
-                                    console.error('Unable to parse profile content.');
+                                const pks = getPubkeysFromEventTags(e[0].received.event);
+                                setPubkeys69ers((pubkeys) => uniq([
+                                    ...pubkeys,
+                                    ...pks
+                                ]));
+                                if (pks.some(pk => pubkeys69ers.includes(pk))) {
+                                    return;
                                 }
+                                mux.subscribe({
+                                    filters: [FILTER_3(pks)],
+                                    onEvent: (e: any) => {
+                                        console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
+                                        try {
+                                            const data = JSON.parse(e[0].received.event.content);
+                                            setNames69((names) => uniqBy([
+                                                ...names,
+                                                { name: data.name !== '' ? data.name : data.displayed_name, pubkey: e[0].received.event.pubkey }
+                                            ], 'pubkey'));
+                                        } catch (error) {
+                                            console.error('Unable to parse profile content.');
+                                        }
+                                    },
+                                    onEose: (subID) => {
+                                        mux.unSubscribe(subID);
+                                    },
+                                    onRecovered: (relay) => {
+                                        console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
+                                        return [FILTER_3(pks)]
+                                    },
+                                } as SubscriptionOptions);
+
                             },
                             onEose: (subID) => {
-                                mux.unSubscribe(subID);
+                                console.log(`subscription(id: ${subID}) EOSE`);
                             },
                             onRecovered: (relay) => {
                                 console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
-                                return [FILTER_3(pks)]
+                                return [FILTER_2]
                             },
                         } as SubscriptionOptions);
 
-                    },
-                    onEose: (subID) => {
-                        console.log(`subscription(id: ${subID}) EOSE`);
-                    },
-                    onRecovered: (relay) => {
-                        console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
-                        return [FILTER_5]
-                    },
-                } as SubscriptionOptions);
-
-                // grand zappers badge owners
-                mux.subscribe({
-                    filters: [FILTER_6],
-                    onEvent: (e: any) => {
-                        console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
-                        const pks = getPubkeysFromEventTags(e[0].received.event);
-                        setPubkeysGrandZappers((pubkeys) => uniq([
-                            ...pubkeys,
-                            ...pks
-                        ]));
-                        if (pks.some(pk => pubkeysGrandZappers.includes(pk))) {
-                            return;
-                        }
+                        // 420 gang badge owners
                         mux.subscribe({
-                            filters: [FILTER_3(pks)],
+                            filters: [FILTER_5],
                             onEvent: (e: any) => {
                                 console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
-                                try {
-                                    const data = JSON.parse(e[0].received.event.content);
-                                    setNames1000((names) => uniqBy([
-                                        ...names,
-                                        { name: data.name !== '' ? data.name : data.displayed_name, pubkey: e[0].received.event.pubkey }
-                                    ], 'pubkey'));
-                                } catch (error) {
-                                    console.error('Unable to parse profile content.');
+                                const pks = getPubkeysFromEventTags(e[0].received.event);
+                                setPubkeys420Gang((pubkeys) => uniq([
+                                    ...pubkeys,
+                                    ...pks
+                                ]));
+                                if (pks.some(pk => pubkeys420Gang.includes(pk))) {
+                                    return;
                                 }
+                                mux.subscribe({
+                                    filters: [FILTER_3(pks)],
+                                    onEvent: (e: any) => {
+                                        console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
+                                        try {
+                                            const data = JSON.parse(e[0].received.event.content);
+                                            setNames420((names) => uniqBy([
+                                                ...names,
+                                                { name: data.name !== '' ? data.name : data.displayed_name, pubkey: e[0].received.event.pubkey }
+                                            ], 'pubkey'));
+                                        } catch (error) {
+                                            console.error('Unable to parse profile content.');
+                                        }
+                                    },
+                                    onEose: (subID) => {
+                                        mux.unSubscribe(subID);
+                                    },
+                                    onRecovered: (relay) => {
+                                        console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
+                                        return [FILTER_3(pks)]
+                                    },
+                                } as SubscriptionOptions);
+
                             },
                             onEose: (subID) => {
-                                mux.unSubscribe(subID);
+                                console.log(`subscription(id: ${subID}) EOSE`);
                             },
                             onRecovered: (relay) => {
                                 console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
-                                return [FILTER_3(pks)]
+                                return [FILTER_5]
                             },
                         } as SubscriptionOptions);
 
-                    },
-                    onEose: (subID) => {
-                        console.log(`subscription(id: ${subID}) EOSE`);
-                    },
-                    onRecovered: (relay) => {
-                        console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
-                        return [FILTER_6]
-                    },
-                } as SubscriptionOptions);
-            });
+                        // grand zappers badge owners
+                        mux.subscribe({
+                            filters: [FILTER_6],
+                            onEvent: (e: any) => {
+                                console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
+                                const pks = getPubkeysFromEventTags(e[0].received.event);
+                                setPubkeysGrandZappers((pubkeys) => uniq([
+                                    ...pubkeys,
+                                    ...pks
+                                ]));
+                                if (pks.some(pk => pubkeysGrandZappers.includes(pk))) {
+                                    return;
+                                }
+                                mux.subscribe({
+                                    filters: [FILTER_3(pks)],
+                                    onEvent: (e: any) => {
+                                        console.log(`received event(from: ${e[0].relay.url})`, e[0].received.event.kind);
+                                        try {
+                                            const data = JSON.parse(e[0].received.event.content);
+                                            setNames1000((names) => uniqBy([
+                                                ...names,
+                                                { name: data.name !== '' ? data.name : data.displayed_name, pubkey: e[0].received.event.pubkey }
+                                            ], 'pubkey'));
+                                        } catch (error) {
+                                            console.error('Unable to parse profile content.');
+                                        }
+                                    },
+                                    onEose: (subID) => {
+                                        mux.unSubscribe(subID);
+                                    },
+                                    onRecovered: (relay) => {
+                                        console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
+                                        return [FILTER_3(pks)]
+                                    },
+                                } as SubscriptionOptions);
+
+                            },
+                            onEose: (subID) => {
+                                console.log(`subscription(id: ${subID}) EOSE`);
+                            },
+                            onRecovered: (relay) => {
+                                console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
+                                return [FILTER_6]
+                            },
+                        } as SubscriptionOptions);
+                    });
+        })
     }, []);
 
     useEffect(() => {
