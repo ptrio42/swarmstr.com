@@ -25,7 +25,6 @@ import {
     getNostrKeyPair,
     getNotesReactionsSub,
     getNotesWithRelatedNotesByIdsSub,
-    getBadgesSub,
     getStream,
     handleSub,
     NostrEvent,

@@ -1,5 +1,6 @@
 import {getEventHash, Relay, relayInit, signEvent, Sub, getPublicKey, generatePrivateKey} from 'nostr-tools';
 import { uniqBy } from 'lodash';
+import {request} from "./request";
 
 export interface NostrEvent {
     id: string;
@@ -13,10 +14,10 @@ export interface NostrEvent {
 
 export const RELAYS = [
     'wss://brb.io',
+    'wss://nostr.uselessshit.co',
     'wss://relay.damus.io',
     'wss://nostr-pub.wellorder.net',
     'wss://nostr.v0l.io',
-    'wss://nostr.uselessshit.co',
     'wss://nostr.milou.lol',
 ];
 
@@ -190,4 +191,12 @@ export const getNostrKeyPair = (): string[] => {
 
 export const saveNostrKeyPair = (privkey: string, pubkey: string) => {
     localStorage.setItem('guest_KeyPair', [privkey, pubkey].join(','));
+};
+
+export const getRelays = async () => {
+    const response = await request({
+        url: 'https://nostrich.love/relays',
+        method: 'GET'
+    });
+    return response.data;
 };
