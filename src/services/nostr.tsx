@@ -13,10 +13,10 @@ export interface NostrEvent {
 }
 
 export const RELAYS = [
-    'wss://brb.io',
     'wss://nostr.uselessshit.co',
-    'wss://relay.damus.io',
     'wss://nostr-pub.wellorder.net',
+    'wss://relay.damus.io',
+    'wss://brb.io',
     'wss://nostr.v0l.io',
     'wss://nostr.milou.lol',
 ];

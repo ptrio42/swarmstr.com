@@ -33,8 +33,6 @@ export const Nip05 = () => {
     }, [pubkey]);
 
     useEffect(() => {
-        const p = nip19.npubEncode('ce2fb8588e047b61e738bee312bf63e03f9c1fd849ab67ab4c5f9b39643d5ffd');
-        console.log({p})
         if (name && new RegExp(/(^[a-zA-Z0-9_.]+$)/).test(name) === false) {
             setNameAvailable(false);
             setNameAvailableMessage('Name not available (used characters not allowed).');
