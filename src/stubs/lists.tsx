@@ -228,6 +228,18 @@ export const LISTS = [
         'nostr.guru': [
             ['fiatjaf', 'npub180cvv07tjdrrgpa0j7j7tmnyl2yr6yr7l8j4s3evf6u64th6gkwsyjh6w6', 'https://github.com/fiatjaf/nostr-gateway']
         ],
+        'nostrfiles.dev': [
+            ['Tobias Masiak', '', 'https://nostrfiles.dev']
+        ],
+        'nostrapps.com': [
+            ['Karnage', 'npub1r0rs5q2gk0e3dk3nlc7gnu378ec6cnlenqp8a3cjhyzu6f8k5sgs4sq9ac', 'https://nostrapps.com']
+        ],
+        'nostrbadges.com': [
+            ['jason@paperlight.studio', 'npub1avar8zfzwswhq9xh3t0gc5l38pf5kesrkqe2s2ymrnymv3ddl2ps38t7kg', 'https://nostrbadges.com']
+        ],
+        'satprism.com': [
+            ['dergigi', 'npub1dergggklka99wwrs92yz8wdjs952h2ux2ha2ed598ngwu9w7a6fsh9xzpc', 'https://satprism.com']
+        ],
         'Notable individuals': [
             ['jack', 'npub1sg6plzptd64u62a878hep2kev88swjh3tw00gjsfl8f237lmu63q0uf63m'],
             ['Snowden', 'npub1sn0wdenkukak0d9dfczzeacvhkrgz92ak56egt7vdgzn8pv2wfqqhrjdv9'],

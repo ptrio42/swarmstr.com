@@ -53,7 +53,7 @@ export const PUBKEYS = [
 
 ];
 
-export const GUIDES_LAST_UPDATE = '2023-04-06';
+export const GUIDES_LAST_UPDATE = '2023-04-17';
 
 export const GUIDES: Guide[] = [
     {
@@ -149,7 +149,7 @@ export const GUIDES: Guide[] = [
     {
         id: 'the-list',
         issue: 'People involved in NOSTR',
-        updatedAt: '2023-03-24',
+        updatedAt: '2023-04-17',
         fix: 'You can open each person\'s profile in a client of your choice by tapping on the copy icon ' +
             'next to their name and selecting <i>Open in client</i>' +
             '<br/><br/>' +
@@ -175,7 +175,8 @@ export const GUIDES: Guide[] = [
             '<i>Daisy</i>',
             'https://www.neb.lol/nostr',
             '<i>Iris.to</i>',
-            'https://testflight.apple.com/join/5xdoDCmG',
+            'https://apps.apple.com/app/iris-the-nostr-client/id1665849007',
+            'https://docs.iris.to',
             '<i>Current</i>',
             'https://testflight.apple.com/join/mB0EwMiV',
             '<i>Nostur</i>',
@@ -208,6 +209,8 @@ export const GUIDES: Guide[] = [
             'https://github.com/plasma-social/plasma',
             '<i>Iris.to</i>',
             'https://play.google.com/store/apps/details?id=to.iris.twa',
+            'https://github.com/irislib/iris-messenger/releases',
+            'https://docs.iris.to',
             '<i>Current</i>',
             'https://play.google.com/apps/testing/io.getcurrent.current',
             '<i>Plebstr</i>',
@@ -218,9 +221,12 @@ export const GUIDES: Guide[] = [
             '<i>Gossip</i>',
             'https://github.com/mikedilger/gossip',
             '<i>Monstr</i>',
-            'https://github.com/alemmens/monstr'
+            'https://github.com/alemmens/monstr',
+            '<i>Iris.to</i>',
+            'https://github.com/irislib/iris-messenger',
+            'https://docs.iris.to'
         ],
-        updatedAt: '2023-03-24',
+        updatedAt: '2023-04-17',
         tags: ['Lists', 'Clients'],
         attachedNoteId: NOTES[15]
     },
@@ -1273,10 +1279,13 @@ export const GUIDES: Guide[] = [
             'https://verified-nostr.com',
             '#### NostrCheck.me',
             'https://nostrcheck.me',
+            '#### Iris.to',
+            'https://iris.to',
+            'https://user-images.githubusercontent.com/52623440/226199682-d32d345e-9d3f-424e-abd6-76d2897c740e.mp4',
             '#### uselessshit.co',
             'npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4:f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8:pitiunited'
         ],
-        updatedAt: '2023-03-24',
+        updatedAt: '2023-04-17',
         attachedNoteId: NOTES[28],
         tags: ['Lists']
     },
