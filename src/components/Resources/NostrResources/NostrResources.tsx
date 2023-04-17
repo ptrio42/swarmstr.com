@@ -25,6 +25,7 @@ import {
     getNostrKeyPair,
     getNotesReactionsSub,
     getNotesWithRelatedNotesByIdsSub,
+    getBadgesSub,
     getStream,
     handleSub,
     NostrEvent,
@@ -451,9 +452,9 @@ export const NostrResources = () => {
                 <meta name="twitter:image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />
 
             </Helmet>
-            <Box sx={{ width: '100%', height: '10px' }}>
+            <Box sx={{ width: '100%', height: '69px', backgroundColor: '#00001b' }}>
                 {
-                    loading && <LinearProgress />
+                    loading && <img height="69" src="https://nostr.build/p/nb3103.gif" />
                 }
             </Box>
             <List className="list-container">
