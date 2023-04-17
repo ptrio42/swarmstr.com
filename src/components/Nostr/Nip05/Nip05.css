@@ -1,0 +1,9 @@
+.theme--dark .MuiCard-root {
+    background: transparent;
+}
+
+.theme--dark input, .theme--dark fieldset {
+    border: 1px solid rgba(255, 255, 255, .3);
+    color: #fff;
+    background: transparent;
+}
