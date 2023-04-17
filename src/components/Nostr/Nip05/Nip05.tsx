@@ -10,6 +10,7 @@ import {checkName, createInvoice, getInvoiceStatus} from '../../../services/invo
 import Button from "@mui/material/Button";
 import {QrCodeDialog} from "../../Resources/Metadata/Metadata";
 import {Helmet} from "react-helmet";
+import './Nip05.css';
 
 export const Nip05 = () => {
     const [pubkey, setPubkey] = useState<string>();
@@ -32,6 +33,8 @@ export const Nip05 = () => {
     }, [pubkey]);
 
     useEffect(() => {
+        const p = nip19.npubEncode('ce2fb8588e047b61e738bee312bf63e03f9c1fd849ab67ab4c5f9b39643d5ffd');
+        console.log({p})
         if (name && new RegExp(/(^[a-zA-Z0-9_.]+$)/).test(name) === false) {
             setNameAvailable(false);
             setNameAvailableMessage('Name not available (used characters not allowed).');
@@ -169,24 +172,26 @@ export const Nip05 = () => {
                                 setPubkey(event.target.value);
                             }}
                         />
-                            <Button
-                                color="secondary"
-                                disabled={!pubkey || !pubkeyValid || !name || !nameAvailable || (invoiceStatus && invoiceStatus === 'completed')}
-                                onClick={() => {
-                                    if (pubkey && name) {
-                                        createInvoice(pubkey, name)
-                                            .then(data => {
-                                                setInvoice(data.invoice);
-                                                setInvoiceStatus(data.status);
-                                                setDialogOpen(true);
-                                                fallbackTimeout = setTimeout(handleInvoiceStatus, getBackoffTime());
-                                            })
-                                    }
-                                }}
-                            >
-                                Submit
-                            </Button>
                     </CardContent>
+                    <Button
+                        sx={{ width:'50%', alignSelf: 'center', marginBottom: '1em' }}
+                        variant="contained"
+                        color="secondary"
+                        disabled={!pubkey || !pubkeyValid || !name || !nameAvailable || (invoiceStatus && invoiceStatus === 'completed')}
+                        onClick={() => {
+                            if (pubkey && name) {
+                                createInvoice(pubkey, name)
+                                    .then(data => {
+                                        setInvoice(data.invoice);
+                                        setInvoiceStatus(data.status);
+                                        setDialogOpen(true);
+                                        fallbackTimeout = setTimeout(handleInvoiceStatus, getBackoffTime());
+                                    })
+                            }
+                        }}
+                    >
+                        Submit
+                    </Button>
                 </Card>
                 {
                     invoiceStatus && invoiceStatus === 'completed' && <Typography sx={{ marginTop: '0.33em' }} variant="h5">
