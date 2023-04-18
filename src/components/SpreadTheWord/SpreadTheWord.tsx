@@ -49,31 +49,31 @@ export const SpreadTheWord = () => {
           <List sx={{ marginBottom: '3em' }}>
               <ListItem>
                   <Bolt />
-                  <a className="link" href={ process.env.PUBLIC_URL + '/pdfs/new-uselessshit-card-front.pdf'} target="_blank">
+                  <a className="link" href={'../pdfs/new-uselessshit-card-front.pdf'} target="_blank">
                       <ListItemText primary="[ENG] Card Front" />
                   </a>
               </ListItem>
               <ListItem>
                   <Bolt />
-                  <a className="link" href={ process.env.PUBLIC_URL + '/pdfs/new-uselessshit-card-back.pdf'} target="_blank">
+                  <a className="link" href={'../pdfs/new-uselessshit-card-back.pdf'} target="_blank">
                       <ListItemText primary="[ENG] Card Back" />
                   </a>
               </ListItem>
               <ListItem>
                   <Bolt />
-                  <a className="link" href={ process.env.PUBLIC_URL + '/pdfs/uselessshit-card-front-1.pdf'} target="_blank">
+                  <a className="link" href={'../pdfs/uselessshit-card-front-1.pdf'} target="_blank">
                       <ListItemText primary="[ENG] Card Front #1" />
                   </a>
               </ListItem>
               <ListItem>
                   <Bolt />
-                  <a className="link" href={ process.env.PUBLIC_URL + '/pdfs/uselessshit-card-back-1.pdf'} target="_blank">
+                  <a className="link" href={'../pdfs/uselessshit-card-back-1.pdf'} target="_blank">
                       <ListItemText primary="[ENG] Card Back #1" />
                   </a>
               </ListItem>
               <ListItem>
                   <Bolt />
-                  <a className="link" href={ process.env.PUBLIC_URL + '/pdfs/uselessshit-card-back-2.pdf'} target="_blank">
+                  <a className="link" href={'../pdfs/uselessshit-card-back-2.pdf'} target="_blank">
                       <ListItemText primary="[ENG] Card Back #2" />
                   </a>
               </ListItem>
@@ -93,13 +93,13 @@ export const SpreadTheWord = () => {
                       <List>
                           <ListItem>
                               <Bolt />
-                              <a className="link" href={ process.env.PUBLIC_URL + '/sources/uselessshit-card-front-1.xcf'} target="_blank">
+                              <a className="link" href={'../sources/uselessshit-card-front-1.xcf'} target="_blank">
                                   <ListItemText primary="uselessshit-card-front-1.xcf" />
                               </a>
                           </ListItem>
                           <ListItem>
                               <Bolt />
-                              <a className="link" href={ process.env.PUBLIC_URL + '/sources/uselessshit-card-back-1.xcf'} target="_blank">
+                              <a className="link" href={'../sources/uselessshit-card-back-1.xcf'} target="_blank">
                                   <ListItemText primary="uselessshit-card-back-1.xcf" />
                               </a>
                           </ListItem>
@@ -145,13 +145,13 @@ export const SpreadTheWord = () => {
           <List sx={{ marginBottom: '3em' }}>
               <ListItem>
                   <Bolt />
-                  <a className="link" href={ process.env.PUBLIC_URL + '/pdfs/en-uselessshit-card-front.pdf'} target="_blank">
+                  <a className="link" href={'../pdfs/en-uselessshit-card-front.pdf'} target="_blank">
                       <ListItemText primary="[ENG] Useless Shit Card Front" />
                   </a>
               </ListItem>
               <ListItem>
                   <Bolt />
-                  <a className="link" href={ process.env.PUBLIC_URL + '/pdfs/en-uselessshit-card-back.pdf'} target="_blank">
+                  <a className="link" href={'../pdfs/en-uselessshit-card-back.pdf'} target="_blank">
                       <ListItemText primary="[ENG] Useless Shit Card Back" />
                   </a>
               </ListItem>

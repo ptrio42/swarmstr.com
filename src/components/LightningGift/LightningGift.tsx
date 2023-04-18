@@ -15,7 +15,7 @@ import Pagination from "@mui/material/Pagination";
 import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack";
 import Paper from "@mui/material/Paper";
-import styled from "@mui/material/styles/styled";
+import { styled } from "@mui/material";
 import Snackbar from "@mui/material/Snackbar";
 import './LightningGift.css';
 import makeStyles from "@mui/material/styles/makeStyles";

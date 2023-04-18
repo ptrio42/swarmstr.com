@@ -138,7 +138,7 @@ export const Nip05 = () => {
                 <Typography component="div" sx={{ margin: '0.33em' }}>
                     Having issues? Reach out on Nostr or Telegram @pitiunited
                 </Typography>
-                <Card>
+                <Card className="form-container">
                     <CardContent>
                         <Typography
                             sx={{ fontSize: 14 }}

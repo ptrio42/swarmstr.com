@@ -1,11 +1,9 @@
 import {List} from "@mui/material";
-import ReactHtmlParser from "react-html-parser";
+import parse, {DOMNode, HTMLReactParserOptions} from 'html-react-parser';
 import React, {useEffect, useState} from "react";
 import {
-    ChatBubble,
     CopyAll,
     DoneOutline,
-    Expand,
     IosShare, Launch, MoreHoriz,
     QrCodeScanner,
     UnfoldLess,
@@ -28,11 +26,12 @@ import {nip19} from 'nostr-tools';
 import {Reaction, Reactions, REACTIONS, ReactionType} from "../Reactions/Reactions";
 import {getNostrKeyPair} from "../../../services/nostr";
 import Button from "@mui/material/Button";
-import pink from "@mui/material/colors/pink";
+import { pink } from "@mui/material/colors";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import {getPeopleInvolvedInNostr, listToNote} from "../../../utils/utils";
 import './Note.css';
+import { isTag } from 'domhandler/lib/node';
+import { Element } from 'domhandler/lib/node';
 
 interface NoteProps {
     id: string;
@@ -104,7 +103,7 @@ export const Note = ({
             // @ts-ignore
             // .replace(/(#\[[0-9]\]*)/, pubkeys && pubkeys.length > 0 && nip19.npubEncode(pubkeys[+('$1'.slice(2, '$1'.length - 2))]) + ':' + pubkeys[+('$1'.slice(2, '$1'.length - 2))] + ':pitiunited')
             .replace(/([0123456789abcdef]{64})/, '$1')
-            .replace(/(npub[a-z0-9A-Z.:_]{59,}$)/, '<button>$1</button>')
+            .replace(/(npub[a-z0-9A-Z.:_]{59,}$)/, '<button class="metadata-btn">$1</button>')
             // .replace(/(https?:\/\/.*\.(?!:png|jpg|jpeg|gif|svg))/i, '<a href="$1" target="_blank">$1</a>')
             .replace(/(https?:\/\/.*\.(?:png|jpg|jpeg|gif|svg))/i, '<img width="100%" src="$1" style="max-width:512px;" />')
             .replace(new RegExp(/^(?!\=")(https?:\/\/[^]*)/, 'g'), '<a href="$1" target="_blank">$1</a>')
@@ -118,27 +117,33 @@ export const Note = ({
     };
 
     const parseHtml = (text: string) => {
-        return ReactHtmlParser(
+        // TODO: Clean up after react-html-parser
+        return parse(
             getProcessedText(text),
             {
-                transform: (node) => {
-                    if (node.type === 'tag' && node.name === 'button') {
-                        const data = node.children[0].data;
-                        const splitData = data.split(':');
-                        const profile = metadata && metadata.find(m => m.pubkey === splitData[1]);
-                        return <Metadata
-                            { ...profile }
-                            npub={splitData[0] || data}
-                            supposedName={splitData[1] && splitData.length !== 64 ? splitData[2] || undefined : splitData[1]}
-                            handleCopyNpub={(npub: string) => {
-                                setSnackBarMessage(npub);
-                                setSnackbarOpen(true);
-                            }}
-                        />
+                replace: (domNode) => {
+                    const domElement: Element = domNode as Element;
+                    if (isTag(domElement)) {
+                        // @ts-ignore
+                        const { attribs, children, name } = domNode;
+                        if (name === 'button') {
+                            const data = children.length > 0 && children[0].data;
+                            const splitData = data.split(':');
+                            const profile = metadata && metadata.find(m => m.pubkey === splitData[1]);
+                            return <Metadata
+                                { ...profile }
+                                npub={splitData[0] || data}
+                                supposedName={splitData[1] && splitData.length !== 64 ? splitData[2] || undefined : splitData[1]}
+                                handleCopyNpub={(npub: string) => {
+                                    setSnackBarMessage(npub);
+                                    setSnackbarOpen(true);
+                                }}
+                            />
+                        }
                     }
                 }
             }
-        )
+        );
     };
 
     const getUpReactions = (): Reaction[] => {

@@ -2,10 +2,10 @@ import React, {useEffect, useState} from 'react';
 import {Route, Routes, useLocation} from 'react-router-dom';
 import './App.css';
 import {BitcoinResources, Footer, CardGenerator, NavBar, PageContent, SpreadTheWord} from "./components";
-import createTheme from "@mui/material/styles/createTheme";
-import ThemeProvider from "@mui/material/styles/ThemeProvider";
+import { createTheme } from "@mui/material";
+import { ThemeProvider } from "@mui/material";
 import {Box} from "@mui/material";
-import styled from "@mui/material/styles/styled";
+import {styled} from "@mui/material";
 import Switch from "@mui/material/Switch";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -16,6 +16,7 @@ import {TipJar} from "./components/TipJar/TipJar";
 import {Nostr} from "./components/Nostr/Nostr";
 import {Nip05} from "./components/Nostr/Nip05/Nip05";
 import {Zaps} from "./components/Nostr/Zaps/Zaps";
+import {ThemeContextWrapper} from "./theme/ThemeContextWrapper";
 
 const theme = createTheme({
     typography: {
@@ -103,6 +104,8 @@ function App() {
   }, [pathname, hash, key]);
 
   return (
+      <React.Fragment>
+      <ThemeContextWrapper>
     <div className="App">
         <ThemeProvider theme={theme}>
             <NavBar />
@@ -126,23 +129,25 @@ function App() {
                     }
                 </ThemeContext.Consumer>
             </Box>
-            <Routes>
-                <Route path="/" element={<PageContent />} />
-                <Route path="/spread-the-word" element={<SpreadTheWord />} />
-                <Route path="resources" element={<Resources />}>
-                    <Route path="bitcoin" element={<BitcoinResources />} />
-                    <Route path="nostr" element={<NostrResources/>} />
-                </Route>
-                <Route path="/card-generator" element={<CardGenerator />} />
-                <Route path="/tip-jar/:username" element={<TipJar />} />
-                <Route path="/nostr" element={<Nostr/>}>
-                    <Route path="nip-05" element={<Nip05/>} />
-                    <Route path="zaps" element={<Zaps/>} />
-                </Route>
-            </Routes>
+             <Routes>
+                 <Route path="/" element={<PageContent />} />
+                 <Route path="/spread-the-word" element={<SpreadTheWord />} />
+                 <Route path="resources" element={<Resources />}>
+                     <Route path="bitcoin" element={<BitcoinResources />} />
+                     <Route path="nostr" element={<NostrResources/>} />
+                 </Route>
+                 {/*<Route path="/card-generator" element={<CardGenerator />} />*/}
+                 <Route path="/tip-jar/:username" element={<TipJar />} />
+                 <Route path="/nostr" element={<Nostr/>}>
+                     <Route path="nip-05" element={<Nip05/>} />
+                     <Route path="zaps" element={<Zaps/>} />
+                 </Route>
+             </Routes>
             <Footer />
-        </ThemeProvider>
+         </ThemeProvider>
     </div>
+    </ThemeContextWrapper>
+      </React.Fragment>
   );
 }
 

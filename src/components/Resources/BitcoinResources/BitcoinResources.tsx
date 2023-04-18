@@ -247,7 +247,7 @@ export const BitcoinResources = () => {
                 <meta name="twitter:description" content="See for yourself how deep the bitcoin rabbit hole goes." />
                 <meta name="twitter:image" content="https://uselessshit.co/images/bitcoin-resources-cover.png" />
             </Helmet>
-            <img height="128" src={process.env.PUBLIC_URL + '/images/white-rabbit.png'} />
+            <img height="128" src={process.env.BASE_URL + '/images/white-rabbit.png'} />
             <Typography id="were-handed-a-card" variant="h3" component="div" gutterBottom>
                 Bitcoin Resources
             </Typography>

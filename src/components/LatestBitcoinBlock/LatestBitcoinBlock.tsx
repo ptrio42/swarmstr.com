@@ -2,6 +2,7 @@ import {useEffect, useState} from "react";
 import {getBitcoinLatestBlock} from "../../services/bitcoinLatestBlock";
 import {AccessTime} from "@mui/icons-material";
 import {Box} from "@mui/material";
+import React from 'react';
 
 interface LatestBitcoinBlockProps {
     handleBlock?: (value: number) => void

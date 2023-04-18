@@ -506,7 +506,7 @@ export const Zaps = () => {
                     Today's stats
                 </Typography>
                 <Stack direction="row" sx={{ justifyContent: 'center', display: 'flex', marginBottom: '1em' }}>
-                    <Card sx={{ maxWidth: 180 }}>
+                    <Card className="zapper-badge" sx={{ maxWidth: 180 }}>
                         <CardActionArea>
                             <CardMedia
                                 component="img"

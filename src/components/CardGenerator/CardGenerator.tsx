@@ -26,12 +26,13 @@ import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
 import RadioGroup from "@mui/material/RadioGroup";
 import Radio from "@mui/material/Radio";
-import { SketchPicker } from 'react-color';
+// TODO: clean up after react-color
+// import { SketchPicker } from 'react-color';
 import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
 import {Info} from "@mui/icons-material";
 import Slider from "@mui/material/Slider";
-import '../../fonts/Merriweather-Regular-normal';
+// import '../../fonts/Merriweather-Regular-normal';
 import Badge from "@mui/material/Badge";
 import ReactCrop, {Crop} from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
@@ -776,12 +777,13 @@ export const CardGenerator = () => {
                                 </FormLabel>
                             </Item>
                             <Item>
-                                <SketchPicker className="color-picker" color={cardProps.sloganColor} onChangeComplete={(color: any) => {
-                                    setCardProps({
-                                        ...cardProps,
-                                        sloganColor: color.hex
-                                    })
-                                }} />
+                                // TODO: clean up after react-color
+                                {/*<SketchPicker className="color-picker" color={cardProps.sloganColor} onChangeComplete={(color: any) => {*/}
+                                    {/*setCardProps({*/}
+                                        {/*...cardProps,*/}
+                                        {/*sloganColor: color.hex*/}
+                                    {/*})*/}
+                                {/*}} />*/}
                             </Item>
                             <Item>
                                 <FormControlLabel
@@ -818,12 +820,13 @@ export const CardGenerator = () => {
                                     </FormLabel>
                                 </Item>
                                 <Item>
-                                    <SketchPicker className="color-picker" color={cardProps.sloganTextShadowColor} onChangeComplete={(color: any) => {
-                                        setCardProps({
-                                            ...cardProps,
-                                            sloganTextShadowColor: color.hex
-                                        })
-                                    }} />
+                                    // TODO: clean up after react-color
+                                    {/*<SketchPicker className="color-picker" color={cardProps.sloganTextShadowColor} onChangeComplete={(color: any) => {*/}
+                                        {/*setCardProps({*/}
+                                            {/*...cardProps,*/}
+                                            {/*sloganTextShadowColor: color.hex*/}
+                                        {/*})*/}
+                                    {/*}} />*/}
                                 </Item>
                             </React.Fragment>
 
@@ -866,12 +869,13 @@ export const CardGenerator = () => {
                                 </FormLabel>
                             </Item>
                             <Item>
-                                <SketchPicker className="color-picker" color={cardProps.footerColor} onChangeComplete={(color: any) => {
-                                    setCardProps({
-                                        ...cardProps,
-                                        footerColor: color.hex
-                                    })
-                                }} />
+                                // TODO: clean up after react-color
+                                {/*<SketchPicker className="color-picker" color={cardProps.footerColor} onChangeComplete={(color: any) => {*/}
+                                    {/*setCardProps({*/}
+                                        {/*...cardProps,*/}
+                                        {/*footerColor: color.hex*/}
+                                    {/*})*/}
+                                {/*}} />*/}
                             </Item>
                             <Item>
                                 <FormLabel sx={{ paddingRight: '0.5em' }} id="imageLabel">

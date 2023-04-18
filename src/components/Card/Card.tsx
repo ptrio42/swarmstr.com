@@ -8,11 +8,10 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import CardActions from "@mui/material/CardActions";
 import Card from "@mui/material/Card";
-import Backdrop from "@mui/material/Backdrop";
 import Snackbar from "@mui/material/Snackbar";
 import Chip from "@mui/material/Chip";
 import {ElectricBolt} from "@mui/icons-material";
-import yellow from "@mui/material/colors/yellow";
+import { yellow } from "@mui/material/colors";
 
 export enum CardType {
     BusinessCard = 'business-card',

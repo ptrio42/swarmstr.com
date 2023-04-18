@@ -1,7 +1,7 @@
 import Grid from '@mui/material/Grid';
 import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
-import styled from "@mui/material/styles/styled";
+import { styled } from "@mui/material";
 import Favorite from '@mui/icons-material/Favorite';
 import Twitter from '@mui/icons-material/Twitter';
 import GitHub from '@mui/icons-material/GitHub';
@@ -25,7 +25,7 @@ export const Footer = () => {
             justifyContent="center"
             alignContent="center" sx={{ color: '#C0C0C0' }}>
             <Item>
-                &copy; 2022 UselessShit.co |&nbsp; <a className="link1" href="https://opensource.org/licenses/MIT" target="_blank">License</a>
+                &copy; 2023 UselessShit.co |&nbsp; <a className="link1" href="https://opensource.org/licenses/MIT" target="_blank">License</a>
             </Item>
             <Grid item>
                 <Item sx={{ display: 'inline-flex' }}>

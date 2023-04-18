@@ -27,7 +27,6 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import SwapVerticalCircleIcon from '@mui/icons-material/SwapVerticalCircle';
-import pink from "@mui/material/colors/pink";
 import './NavBar.css';
 
 export const NavBar = () => {
@@ -62,14 +61,14 @@ export const NavBar = () => {
             onKeyDown={toggleDrawer(false)}
         >
             <List>
-                <ListItem disablePadding component={Link} to="/card-generator"  sx={{ color: '#000' }}>
-                    <ListItemButton>
-                        <ListItemIcon>
-                            <CurrencyBitcoin />
-                        </ListItemIcon>
-                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Bitcoin Artwork" />
-                    </ListItemButton>
-                </ListItem>
+                {/*<ListItem disablePadding component={Link} to="/card-generator"  sx={{ color: '#000' }}>*/}
+                    {/*<ListItemButton>*/}
+                        {/*<ListItemIcon>*/}
+                            {/*<CurrencyBitcoin />*/}
+                        {/*</ListItemIcon>*/}
+                        {/*<ListItemText sx={{ textTransform: 'uppercase' }} primary="Bitcoin Artwork" />*/}
+                    {/*</ListItemButton>*/}
+                {/*</ListItem>*/}
                 <ListItem disablePadding component={Link} to="/#converter" sx={{ color: '#000' }}>
                     <ListItemButton>
                         <ListItemIcon>
@@ -125,12 +124,12 @@ export const NavBar = () => {
                         <img
                             width="40px"
                             alt="Use Less Shit"
-                            src={process.env.PUBLIC_URL + '/images/new-uselessshit-logo.png'}
+                            src={process.env.BASE_URL + '/images/new-uselessshit-logo.png'}
                         />
                         <img className="logo-text"
                              height="40px"
                              alt="Use Less Shit"
-                             src={process.env.PUBLIC_URL + '/images/new-uselessshit-logo-text.png'}
+                             src={process.env.BASE_URL + '/images/new-uselessshit-logo-text.png'}
                         />
                     </Link>
                     <Grid
@@ -151,16 +150,16 @@ export const NavBar = () => {
                         )} />
                         <Media query={{ minWidth: '1061px' }} render={() => (
                             <React.Fragment>
-                                <Button
-                                    sx={{ fontWeight: 'bold' }}
-                                    variant="text"
-                                    color="inherit"
-                                    component={Link}
-                                    to="/card-generator"
-                                    startIcon={<CurrencyBitcoin color="warning" />}
-                                >
-                                    BITCOIN ARTWORK
-                                </Button>
+                                {/*<Button*/}
+                                    {/*sx={{ fontWeight: 'bold' }}*/}
+                                    {/*variant="text"*/}
+                                    {/*color="inherit"*/}
+                                    {/*component={Link}*/}
+                                    {/*to="/card-generator"*/}
+                                    {/*startIcon={<CurrencyBitcoin color="warning" />}*/}
+                                {/*>*/}
+                                    {/*BITCOIN ARTWORK*/}
+                                {/*</Button>*/}
                                 <Button
                                     sx={{ fontWeight: 'bold' }}
                                     variant="text"

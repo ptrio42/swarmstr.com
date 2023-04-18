@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name=”robots” content=”index,follow”>
+    <link rel="icon" href="<%= baseUrl %>/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="<%= baseUrl %>/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="<%= baseUrl %>/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="<%= baseUrl %>/favicon-16x16.png">
+    <link rel="manifest" href="<%= baseUrl %>/site.webmanifest">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<%= baseUrl %>/<%= assets["client.css"] %>"">
+    <%- helmet.title.toString() %>
+    <%- helmet.meta.toString() %>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="lightning" content="lnurlp:LNURL1DP68GURN8GHJ7AMPD3KX2AR0VEEKZAR0WD5XJTNRDAKJ7TNHV4KXCTTTDEHHWM30D3H82UNVWQHKVATJD9HH2UMRDP5KUCFJXYKXPQQQ"/>
+    <script src="https://kit.fontawesome.com/090ca49637.js" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"><%- component %></div>
+    <script defer="defer" src="<%= baseUrl %>/<%= assets["client.js"] %>"></script>
+  </body>
+</html>

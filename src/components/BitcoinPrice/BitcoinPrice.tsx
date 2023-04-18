@@ -1,5 +1,6 @@
 import {useEffect, useState} from "react";
 import {getBitcoinPrice} from "../../services/bitcoinPrice";
+import React from 'react';
 
 interface BitcoinPriceProps {
     handlePrice?: (value: number) => void,

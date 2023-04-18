@@ -3,7 +3,7 @@ import * as React from "react";
 import Stack from '@mui/material/Stack';
 import Paper from '@mui/material/Paper';
 import './Carousel.css';
-import {styled} from "@mui/material/styles";
+import {styled} from "@mui/material";
 
 interface SlidesProps {
     slides: any[]

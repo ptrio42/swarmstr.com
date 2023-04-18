@@ -12,11 +12,12 @@ import './PageContent.css';
 import {FiatToSatsCalculator, SpreadTheWord, Testimonials} from "../";
 import {Link} from "react-router-dom";
 import {Button} from "@mui/material";
-import {Calculate, CurrencyBitcoin, DesignServices, LocalFireDepartment, School} from "@mui/icons-material";
+import {Calculate, CurrencyBitcoin, LocalFireDepartment, School} from "@mui/icons-material";
 import Paper from "@mui/material/Paper";
 import CardContent from "@mui/material/CardContent";
 import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
+import {Helmet} from "react-helmet";
 
 export const PageContent = () => {
     const converterEmbeddableCode = `
@@ -29,6 +30,24 @@ export const PageContent = () => {
 
     return (
         <React.Fragment>
+            <Helmet>
+                <title>Consume less & stack sats instead - UseLessShit.co</title>
+                <meta name="description" content="Spread the good vibes with bitcoin memes, gift cards, bookmarks and stickers, while diving deeper down the rabbit hole."/>
+                <meta name="keywords" content="Bitcoin, lightning, sats, bitcoin memes, stacking sats, bitcoin gift cards, fiat to sats converter, bitcoin business cards, bitcoin bookmarks, bitcoin stickers, use less shit cards"/>
+                <meta itemProp="image" content="%PUBLIC_URL%/images/UseLessShit-splash.png"/>
+                <meta itemProp="name" content="Consume less & stack sats instead - UseLessShit.co"/>
+                <meta itemProp="description" content="Spread the good vibes with bitcoin memes, gift cards, bookmarks and stickers, while diving deeper down the rabbit hole."/>
+
+                <meta property="og:url" content="https://uselessshit.co"/>
+                <meta property="og:title" content="Consume less & stack sats instead - UseLessShit.co"/>
+                <meta property="og:site_name" content="UseLessShit.co"/>
+                <meta property="og:description" content="Spread the good vibes with bitcoin memes, gift cards, bookmarks and stickers, while diving deeper down the rabbit hole."/>
+                <meta property="og:image" content="%PUBLIC_URL%/images/UseLessShit-splash.png"/>
+                <meta name="twitter:card" content="summary_large_image"/>
+                <meta name="twitter:title" content="Consume less & stack sats instead - UseLessShit.co"/>
+                <meta name="twitter:description" content="Spread the good vibes with bitcoin memes, gift cards, bookmarks and stickers, while diving deeper down the rabbit hole."/>
+                <meta name="twitter:image" content="%PUBLIC_URL%/images/UseLessShit-splash.png"/>
+            </Helmet>
             <Box className="splash">
                 <Typography variant="h3" component="div" gutterBottom>
                     Help Bitcoin adoption wherever you are!
@@ -53,18 +72,18 @@ export const PageContent = () => {
                             </Typography>
                         </CardContent>
                     </Card>
-                    <Card className="splash__card">
-                        <CardContent>
-                            <DesignServices sx={{ fontSize: '80px' }} />
-                            <Typography variant="h4" component="div" gutterBottom>
-                                Bitcoin Artwork
-                            </Typography>
-                            <Typography variant="body1" component="div" gutterBottom>
-                                Create beautiful bitcoin cards, bookmarks & stickers with <Link color='secondary' to='card-generator'>a dedicated panel</Link>.
-                                Turn your cards into gifts with Lightning.
-                            </Typography>
-                        </CardContent>
-                    </Card>
+                    {/*<Card className="splash__card">*/}
+                        {/*<CardContent>*/}
+                            {/*<DesignServices sx={{ fontSize: '80px' }} />*/}
+                            {/*<Typography variant="h4" component="div" gutterBottom>*/}
+                                {/*Bitcoin Artwork*/}
+                            {/*</Typography>*/}
+                            {/*<Typography variant="body1" component="div" gutterBottom>*/}
+                                {/*Create beautiful bitcoin cards, bookmarks & stickers with <Link color='secondary' to='card-generator'>a dedicated panel</Link>.*/}
+                                {/*Turn your cards into gifts with Lightning.*/}
+                            {/*</Typography>*/}
+                        {/*</CardContent>*/}
+                    {/*</Card>*/}
 
                     <Card className="splash__card">
                         <CardContent>
@@ -100,7 +119,7 @@ export const PageContent = () => {
                 </Box>
 
                 <Box sx={{ marginBottom: '3em' }} component="div">
-                    <img width="100%" src={process.env.PUBLIC_URL + '/images/uselessshit-splashscreen-updated.jpeg'} />
+                    <img width="100%" src={'../images/uselessshit-splashscreen-updated.jpeg'} />
                 </Box>
 
                 <CardGiftcard sx={{ fontSize: '80px' }} />

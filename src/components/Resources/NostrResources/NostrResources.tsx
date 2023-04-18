@@ -11,7 +11,6 @@ import Snackbar from "@mui/material/Snackbar";
 import Input from "@mui/material/Input";
 import {matchString} from "../../../utils/utils";
 import {GUIDES, GUIDES_LAST_UPDATE, NOTES, PUBKEYS} from "../../../stubs/nostrResources";
-import Divider from "@mui/material/Divider";
 import {nip05, nip19} from 'nostr-tools';
 import {NoteThread} from "../Thread/Thread";
 import {

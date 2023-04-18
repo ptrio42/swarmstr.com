@@ -9,12 +9,13 @@ import Stack from '@mui/material/Stack';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import { styled } from "@mui/material/styles";
+import { styled } from "@mui/material";
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import {currencies, Currency} from "../BitcoinPrice/BitcoinPrice";
 import ReactDOM from 'react-dom';
 import {PriceReceipt} from "../PriceReceipt/PriceReceipt";
+import React from 'react';
 
 const Item = styled(Paper)(({ theme }) => ({
     background: 'transparent',
