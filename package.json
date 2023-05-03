@@ -38,7 +38,8 @@
     "react-scripts": "5.0.1",
     "react-snap": "^1.23.0",
     "rewire": "^6.0.0",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "ws": "^8.13.0"
   },
   "scripts": {
     "start": "node ./dist/server.js",

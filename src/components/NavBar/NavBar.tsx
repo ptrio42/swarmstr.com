@@ -14,8 +14,8 @@ import {
     ElectricBolt,
     Menu as MenuIcon,
     Payments,
+    Link as LinkIcon,
     School,
-    Verified
 } from '@mui/icons-material';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
@@ -88,7 +88,9 @@ export const NavBar = () => {
                 <ListItem disablePadding component={Link} to="/resources/nostr/" sx={{ color: '#000' }}>
                     <ListItemButton>
                         <ListItemIcon>
-                            <ElectricBolt />
+                            <Box className="nostr-icon" sx={{ width: '20px', height: '20px' }}>
+                                <img src={`${process.env.BASE_URL}/images/nostr-icon.png`} height={30}/>
+                            </Box>
                         </ListItemIcon>
                         <ListItemText sx={{ textTransform: 'uppercase' }} primary="Nostr" />
                     </ListItemButton>
@@ -104,9 +106,17 @@ export const NavBar = () => {
                 <ListItem disablePadding component={Link} to="/nostr/nip-05" sx={{ color: '#000' }}>
                     <ListItemButton>
                         <ListItemIcon>
-                            <Verified />
+                            <LinkIcon />
                         </ListItemIcon>
                         <ListItemText sx={{ textTransform: 'uppercase' }} primary="Nip-05" />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem disablePadding component={Link} to="/nostr/zaps" sx={{ color: '#000' }}>
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <ElectricBolt />
+                        </ListItemIcon>
+                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Zaps" />
                     </ListItemButton>
                 </ListItem>
             </List>
@@ -186,7 +196,9 @@ export const NavBar = () => {
                                     color="inherit"
                                     component={Link}
                                     to="/resources/nostr/"
-                                    startIcon={<ElectricBolt />}
+                                    startIcon={<Box className="nostr-icon" sx={{ width: '20px', height: '20px' }}>
+                                        <img src={`${process.env.BASE_URL}/images/nostr-icon.png`} height={30}/>
+                                    </Box>}
                                 >
                                     NOSTR
                                 </Button>
@@ -207,9 +219,19 @@ export const NavBar = () => {
                                     color="inherit"
                                     component={Link}
                                     to="/nostr/nip-05"
-                                    startIcon={<Verified />}
+                                    startIcon={<LinkIcon />}
                                 >
                                     NIP-05
+                                </Button>
+                                <Button
+                                    sx={{ fontWeight: 'bold' }}
+                                    variant="text"
+                                    color="inherit"
+                                    component={Link}
+                                    to="/nostr/zaps"
+                                    startIcon={<ElectricBolt />}
+                                >
+                                    ZAPS
                                 </Button>
                                 <Menu
                                     id="tools-menu"

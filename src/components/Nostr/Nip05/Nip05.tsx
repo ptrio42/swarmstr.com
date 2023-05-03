@@ -101,18 +101,18 @@ export const Nip05 = () => {
         <React.Fragment>
             <Helmet>
                 <title>Human readable identifier for your public key - UseLessShit.co</title>
-                <meta property="description" content="Get verified on Nostr @nostrich.love" />
-                <meta property="keywords" content="nostr, nostr nip05, nip-05, getting verified" />
+                <meta property="description" content="Get a Nostr address at @nostrich.love" />
+                <meta property="keywords" content="nostr, nip05, nostr handle, nostr address" />
 
                 <meta property="og:url" content="https://uselessshit.co/resources/nostr" />
                 <meta property="og:type" content="website" />
                 <meta property="og:title" content="Human readable identifier for your public key - UseLessShit.co" />
-                <meta property="og:description" content="Get verified on Nostr @nostrich.love" />
+                <meta property="og:description" content="Get a Nostr address at @nostrich.love" />
 
                 <meta itemProp="name" content="Human readable identifier for your public key - UseLessShit.co" />
 
                 <meta name="twitter:title" content="Human readable identifier for your public key - UseLessShit.co" />
-                <meta name="twitter:description" content="Get verified on Nostr @nostrich.love" />
+                <meta name="twitter:description" content="Get a Nostr address at @nostrich.love" />
 
             </Helmet>
             <Box sx={{ flexDirection: 'column' }}>

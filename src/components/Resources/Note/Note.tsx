@@ -1,13 +1,15 @@
 import {List} from "@mui/material";
 import parse, {DOMNode, HTMLReactParserOptions} from 'html-react-parser';
-import React, {useEffect, useState} from "react";
+import React, {FC, useEffect, useState} from "react";
 import {
     CopyAll,
     DoneOutline,
     IosShare, Launch, MoreHoriz,
     QrCodeScanner,
     UnfoldLess,
-    UnfoldMore
+    UnfoldMore,
+    Note as NoteIcon,
+    List as ListIcon
 } from "@mui/icons-material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -23,8 +25,8 @@ import Snackbar from "@mui/material/Snackbar";
 import IconButton from "@mui/material/IconButton";
 import Badge from "@mui/material/Badge";
 import {nip19} from 'nostr-tools';
-import {Reaction, Reactions, REACTIONS, ReactionType} from "../Reactions/Reactions";
-import {getNostrKeyPair} from "../../../services/nostr";
+import {Reaction, ReactionEvent, Reactions, REACTIONS, ReactionType} from "../Reactions/Reactions";
+import {createEvent, getEventsByKind, getNostrKeyPair, getSubscriptionOptions} from "../../../services/nostr";
 import Button from "@mui/material/Button";
 import { pink } from "@mui/material/colors";
 import Menu from "@mui/material/Menu";
@@ -32,6 +34,12 @@ import MenuItem from "@mui/material/MenuItem";
 import './Note.css';
 import { isTag } from 'domhandler/lib/node';
 import { Element } from 'domhandler/lib/node';
+import {Mux, Event as NostrEvent, Filter, SubscriptionOptions, Relay} from "nostr-mux";
+import {DEFAULT_RELAYS} from "../NostrResources/NostrResources";
+import Tooltip from "@mui/material/Tooltip";
+import {Link} from "react-router-dom";
+import {isGuideRead} from '../../../services/guides';
+import {processText} from "../../../services/util";
 
 interface NoteProps {
     id: string;
@@ -40,14 +48,14 @@ interface NoteProps {
 
     title: string;
     bulletPoints?: string[];
-    metadata?: Metadata[];
+    // metadata?: Metadata[];
     imageUrls?: string[];
     guideTags?: string[];
     urls?: string[];
     updatedAt: string;
-    reactions?: Reaction[];
+    // reactions?: ReactionEvent[];
     pubkeys?: string[];
-    comments?: any[];
+    // comments?: any[];
     author?: string;
     pinned?: boolean;
     handleThreadToggle?: (expanded: boolean) => any;
@@ -59,12 +67,20 @@ interface NoteProps {
     handleDownReaction?: (noteId: string, reaction?: string) => void;
     guideId?: string;
     isRead?: boolean;
+
+    event: any;
+    // reactionEvents?: NostrEvent[];
+    // commentEvents?: NostrEvent[];
+    metadataEvents?: any[];
 }
 
+const mux = new Mux();
+
 export const Note = ({
-     id, title, content, bulletPoints, metadata, imageUrls, guideTags, urls, updatedAt, reactions,
-     pubkeys, comments, author, pinned, handleNoteToggle, handleThreadToggle, isExpanded, isCollapsable, handleUpReaction,
-     handleDownReaction, tags, isThreadExpanded, guideId, isRead }: NoteProps
+     id, title, content, bulletPoints, imageUrls, guideTags, urls, updatedAt,
+     pubkeys, author, pinned, handleNoteToggle, handleThreadToggle, isExpanded, isCollapsable, handleUpReaction,
+     handleDownReaction, tags, isThreadExpanded, guideId, isRead, event,
+                         metadataEvents = [] }: NoteProps
 ) => {
 
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
@@ -76,8 +92,71 @@ export const Note = ({
     const menuOpen = Boolean(menuAnchorEl);
     const [dialogOpen, setDialogOpen] = useState<boolean>(false);
 
+    const [events, setEvents] = useState<NostrEvent[]>([]);
+
     useEffect(() => {
+        if (!id) {
+            return;
+        }
+        // Subscription filters
+        const filters = [
+            // related notes (comments)
+            {
+                kinds: [1],
+                '#e': [id]
+            },
+            // reactions
+            {
+                kinds: [7],
+                '#e': [id]
+            }
+        ] as Filter[];
+
+        console.log(`Opening comments & reactions subscription...`);
+
+        // if this was a new mux instance, add relays
+        if (mux.allRelays.length < DEFAULT_RELAYS.length) {
+            DEFAULT_RELAYS.forEach((url: string) => {
+                mux.addRelay(new Relay(url));
+            });
+        }
+
+        // Get subscription options
+        const options: SubscriptionOptions = getSubscriptionOptions(
+            mux,
+            filters,
+            (event: any) => {
+                console.log('received an event');
+                setEvents((state) => ([
+                    ...state
+                        .filter((e: NostrEvent) => e.id !== event.id),
+                    { ...event }
+                ]));
+            },
+            (subId: string) => {
+                console.log(`Closing ${subId} subscription...`);
+            },
+            true
+        );
+
+        // Subscribe
+        mux
+            .waitRelayBecomesHealthy(1, 5000)
+            .then((ok: any) => {
+                if (!ok) {
+                    console.error('no healthy relays');
+                    return;
+                }
+                mux.subscribe(options);
+            });
+
         setExpanded(!!isExpanded);
+    }, []);
+
+    useEffect(() => () => {
+        DEFAULT_RELAYS.forEach(relay => {
+            mux.removeRelay(relay);
+        });
     }, []);
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -95,24 +174,22 @@ export const Note = ({
         setSnackbarOpen(true);
     };
 
+    const handleReaction = (reaction: string) => {
+        const [privkey, pubkey] = getNostrKeyPair();
+        const event = createEvent(privkey, pubkey, 7, reaction, [['e', id]]) as NostrEvent;
+        mux.publish(event, {
+            onResult: (results) => {
+                // const accepted = results && results.filter((r: any) => r.received.accepted)?.length;
+                // console.log(`event published and accepted on ${accepted}/${results.length} relays`);
+            }
+        });
+    };
+
     const getProcessedText = (text: string) => {
         if (!text) {
             text = '';
         }
-        return text
-            // @ts-ignore
-            // .replace(/(#\[[0-9]\]*)/, pubkeys && pubkeys.length > 0 && nip19.npubEncode(pubkeys[+('$1'.slice(2, '$1'.length - 2))]) + ':' + pubkeys[+('$1'.slice(2, '$1'.length - 2))] + ':pitiunited')
-            .replace(/([0123456789abcdef]{64})/, '$1')
-            .replace(/(npub[a-z0-9A-Z.:_]{59,}$)/, '<button class="metadata-btn">$1</button>')
-            // .replace(/(https?:\/\/.*\.(?!:png|jpg|jpeg|gif|svg))/i, '<a href="$1" target="_blank">$1</a>')
-            .replace(/(https?:\/\/.*\.(?:png|jpg|jpeg|gif|svg))/i, '<img width="100%" src="$1" style="max-width:512px;" />')
-            .replace(new RegExp(/^(?!\=")(https?:\/\/[^]*)/, 'g'), '<a href="$1" target="_blank">$1</a>')
-            .replace(/(#### [a-zA-Z0-9\/.,&\'’?\-`@ ]*)/, '<h4>$1</h4>')
-            .replace(/(#{4})/, '')
-            .replace(/(\n+)/, '$1<br/>')
-            .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
-            .replace(/~~(.*?)~~/g, "<i>$1</i>")
-            .replace(/__(.*?)__/g, "<u>$1</u>")
+        return processText(text);
 
     };
 
@@ -129,9 +206,7 @@ export const Note = ({
                         if (name === 'button') {
                             const data = children.length > 0 && children[0].data;
                             const splitData = data.split(':');
-                            const profile = metadata && metadata.find(m => m.pubkey === splitData[1]);
                             return <Metadata
-                                { ...profile }
                                 npub={splitData[0] || data}
                                 supposedName={splitData[1] && splitData.length !== 64 ? splitData[2] || undefined : splitData[1]}
                                 handleCopyNpub={(npub: string) => {
@@ -147,28 +222,38 @@ export const Note = ({
     };
 
     const getUpReactions = (): Reaction[] => {
-        return reactions && reactions
+        return getReactionEvents() && getReactionEvents()
             .filter(r => REACTIONS
                 .filter(r1 => r1.type === ReactionType.UP)
                 .map(r2 => r2.content)
                 .includes(r.content)
-            ) || [];
+            )
+            .map(r3 => ({ type: ReactionType.UP, event: r3 }))|| [];
     };
 
     const getDownReactions = (): Reaction[] => {
-        return reactions && reactions
+        return getReactionEvents() && getReactionEvents()
             .filter(r => REACTIONS
                 .filter(r1 => r1.type === ReactionType.DOWN)
                 .map(r2 => r2.content)
                 .includes(r.content)
-            ) || [];
+            )
+            .map(r3 => ({ type: ReactionType.DOWN, event: r3 })) || [];
     };
 
     const reacted = (type: ReactionType) => {
        const [_, pubkey] = getNostrKeyPair();
-       return reactions && !!reactions
+       return getReactionEvents() && !!getReactionEvents()
            .filter(r => REACTIONS.filter(r3 => r3.type === type).map(r2 => r2.content).includes(r.content))
            .find(r1 => r1.pubkey && r1.pubkey === pubkey);
+    };
+
+    const getCommentEvents = () => {
+        return getEventsByKind(events, 1);
+    };
+
+    const getReactionEvents = () => {
+        return getEventsByKind(events, 7);
     };
 
     return (<React.Fragment>
@@ -208,18 +293,20 @@ export const Note = ({
                         variant="body1"
                         color="text.primary"
                     >
-                        { isRead ?
-                            <React.Fragment>
-                                { parseHtml(title) }
-                            </React.Fragment> :
-                            <Badge sx={{
-                                maxWidth: '100%',
-                                '& .MuiBadge-badge': {
-                                    backgroundColor: pink[300],
-                                }}} badgeContent="" variant="dot">
-                                { parseHtml(title) }
-                            </Badge>
-                        }
+                        <Tooltip title={event && event.id || '?'}>
+                            { guideId && isGuideRead(guideId) ?
+                                <React.Fragment>
+                                    { parseHtml(title + '') }
+                                </React.Fragment> :
+                                <Badge sx={{
+                                    maxWidth: '100%',
+                                    '& .MuiBadge-badge': {
+                                        backgroundColor: pink[300],
+                                    }}} badgeContent="" variant="dot">
+                                    { parseHtml(title) }
+                                </Badge>
+                            }
+                        </Tooltip>
                     </Typography>
                     <Typography sx={{ textAlign: 'end' }}>
                         {
@@ -284,6 +371,16 @@ export const Note = ({
                                 }
                             </IconButton>
                         }
+                        {
+                            isCollapsable && id && <IconButton component={Link} to={'/resources/nostr/' + nip19.noteEncode(id)}>
+                                <NoteIcon sx={{ fontSize: 18 }}/>
+                            </IconButton>
+                        }
+                        {
+                            !isCollapsable && guideId && <IconButton component={Link} to={'/resources/nostr#' + guideId}>
+                                <ListIcon sx={{ fontSize: 18 }}/>
+                            </IconButton>
+                        }
                     </Typography>
                 </React.Fragment>
             </Typography>
@@ -295,7 +392,6 @@ export const Note = ({
                                 author &&
                                 <Metadata
                                     variant="simplified"
-                                    { ...(metadata && metadata.find(m => m.pubkey === author))  }
                                     npub={author && nip19.npubEncode(author)}
                                     handleCopyNpub={(npub: string) => {
                                         setSnackBarMessage(npub);
@@ -347,72 +443,72 @@ export const Note = ({
             }
         </CardContent>
         <CardActions>
-            {
-                expanded && <Typography sx={{ width: '100%' }} variant="body2">
-                    <Divider sx={{ margin: '0.4em' }} component="div" />
-                    <Stack sx={{ justifyContent: 'flex-start', alignItems: 'center' }} direction="row" spacing={1}>
-                        <Typography sx={{ fontSize: '14px' }}>
-                            {updatedAt}
-                        </Typography>
-                    </Stack>
-                    <Divider sx={{ margin: '0.4em' }} component="div" />
-                    <Stack sx={{ justifyContent: 'space-between', alignItems: 'center' }} direction="row" spacing={1}>
-                        <Typography sx={{ fontSize: 14, display: 'flex', alignItems: 'center' }}>
-                            { comments &&
-                                <React.Fragment>
-                                    <Button
-                                        color="secondary"
-                                        sx={{ textTransform: 'none' }}
-                                        startIcon={isThreadExpanded ? <UnfoldLess sx={{ fontSize: 18 }} /> : <UnfoldMore sx={{ fontSize: 18 }} /> }
-                                        onClick={() => {
-                                            handleThreadToggle && handleThreadToggle(!isThreadExpanded);
-                                        }}
-                                    >
-                                        <Badge
-                                            badgeContent={comments.length}
-                                            color="primary"
-                                            className="comments-count"
-                                        >
-                                            Discussion
-                                        </Badge>
-                                    </Button>
-                                </React.Fragment>
-                            }
-                        </Typography>
-                        <Typography sx={{ fontSize: 14, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-                            { pinned &&
-                            <DoneOutline color="success" />
-                            }
-
-                            {
-                                reactions &&
-                                <React.Fragment>
-                                    <Reactions
-                                        reactions={getUpReactions()}
-                                        type={ReactionType.UP}
-                                        handleReaction={(reaction: string) => {
-                                            handleUpReaction && handleUpReaction(id, reaction);
-                                        }}
-                                        placeholder={REACTIONS[0].content}
-                                        reacted={reacted(ReactionType.UP)}
-                                    />
-                                    <Reactions reactions={getDownReactions()} type={ReactionType.DOWN} handleReaction={(reaction: string) => {
-                                        handleDownReaction && handleDownReaction(id, reaction);
-                                    }} placeholder={REACTIONS[4].content.replace('-', '👎')} reacted={reacted(ReactionType.DOWN)} />
-                                </React.Fragment>
-                            }
-                            <IconButton
-                                sx={{ marginLeft: '0.5em' }}
-                                onClick={(event) => {
-                                    handleShareAnswer(event);
+            <Typography sx={{ width: '100%' }} variant="body2">
+                <Divider sx={{ margin: '0.4em' }} component="div" />
+                <Stack sx={{ justifyContent: 'flex-start', alignItems: 'center' }} direction="row" spacing={1}>
+                    <Typography sx={{ fontSize: '14px' }}>
+                        Last update: {updatedAt}
+                    </Typography>
+                </Stack>
+                <Divider sx={{ margin: '0.4em' }} component="div" />
+                <Stack sx={{ justifyContent: 'space-between', alignItems: 'center' }} direction="row" spacing={1}>
+                    <Typography sx={{ fontSize: 14, display: 'flex', alignItems: 'center' }}>
+                        { getCommentEvents() &&
+                        <React.Fragment>
+                            <Button
+                                color="secondary"
+                                sx={{ textTransform: 'none' }}
+                                startIcon={isThreadExpanded ? <UnfoldLess sx={{ fontSize: 18 }} /> : <UnfoldMore sx={{ fontSize: 18 }} /> }
+                                onClick={() => {
+                                    handleThreadToggle && handleThreadToggle(!isThreadExpanded);
                                 }}
                             >
-                                <IosShare sx={{ fontSize: 18 }} />
-                            </IconButton>
-                        </Typography>
-                    </Stack>
-                </Typography>
-            }
+                                <Badge
+                                    badgeContent={getCommentEvents().length}
+                                    color="primary"
+                                    className="comments-count"
+                                >
+                                    Discussion
+                                </Badge>
+                            </Button>
+                        </React.Fragment>
+                        }
+                    </Typography>
+                    <Typography sx={{ fontSize: 14, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                        { pinned &&
+                        <DoneOutline color="success" />
+                        }
+
+                        {
+                            getReactionEvents() &&
+                            <React.Fragment>
+                                <Reactions
+                                    reactions={getUpReactions()}
+                                    type={ReactionType.UP}
+                                    handleReaction={(reaction: string) => {
+                                        handleReaction(reaction);
+                                        handleUpReaction && handleUpReaction(id, reaction);
+                                    }}
+                                    placeholder={REACTIONS[0].content}
+                                    reacted={reacted(ReactionType.UP)}
+                                />
+                                <Reactions reactions={getDownReactions()} type={ReactionType.DOWN} handleReaction={(reaction: string) => {
+                                    handleReaction(reaction);
+                                    handleDownReaction && handleDownReaction(id, reaction);
+                                }} placeholder={REACTIONS[4].content.replace('-', '👎')} reacted={reacted(ReactionType.DOWN)} />
+                            </React.Fragment>
+                        }
+                        <IconButton
+                            sx={{ marginLeft: '0.5em' }}
+                            onClick={(event) => {
+                                handleShareAnswer(event);
+                            }}
+                        >
+                            <IosShare sx={{ fontSize: 18 }} />
+                        </IconButton>
+                    </Typography>
+                </Stack>
+            </Typography>
         </CardActions>
     </Card>
         <Snackbar

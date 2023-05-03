@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Bolt, CopyAll, Launch, QrCodeScanner} from "@mui/icons-material";
 import {ListItemAvatar} from "@mui/material";
 import Avatar from "@mui/material/Avatar";
@@ -12,6 +12,10 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Dialog from "@mui/material/Dialog";
 import CloseIcon from '@mui/icons-material/Close';
 import CircularProgress from "@mui/material/CircularProgress";
+import {Event as NostrEvent, Filter, Mux, Relay, SubscriptionOptions} from "nostr-mux";
+import {DEFAULT_RELAYS} from "../NostrResources/NostrResources";
+import {getSubscriptionOptions} from "../../../services/nostr";
+import {nip19} from 'nostr-tools';
 
 interface QrCodeDialogProps {
     dialogOpen: boolean;
@@ -109,14 +113,95 @@ interface MetadataProps {
     supposedName?: string;
     about?: string;
     handleCopyNpub?: (value: string) => any;
-    variant?: 'full' | 'simplified'
+    variant?: 'full' | 'simplified';
 }
 
-export const Metadata = ({ picture, lud06, lud16, nip05, name, npub, about, handleCopyNpub, supposedName, variant = 'full' }: MetadataProps) => {
+const mux = new Mux();
+
+export const Metadata = ({ npub, handleCopyNpub, supposedName, variant = 'full' }: MetadataProps) => {
     const [menuAnchorEl, setMenuAnchorEl] = React.useState<null | HTMLElement>(null);
 
     const menuOpen = Boolean(menuAnchorEl);
     const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+
+    const [events, setEvents] = useState<NostrEvent[]>([]);
+    const [metadata, setMetadata] = useState<Metadata | undefined>();
+
+    useEffect(() => {
+        if (!npub) {
+            return;
+        }
+        const hex = nip19.decode(npub);
+        if (!hex.data)
+        {
+            return;
+        }
+        // Subscription filters
+        const filters = [
+            // metadata
+            {
+                kinds: [0],
+                authors: [hex.data]
+            }
+        ] as Filter[];
+
+        console.log(`Opening metadata subscription...`);
+
+        // if this was a new mux instance, add relays
+        if (mux.allRelays.length < DEFAULT_RELAYS.length) {
+            DEFAULT_RELAYS.forEach((url: string) => {
+                mux.addRelay(new Relay(url));
+            });
+        }
+
+        // Get subscription options
+        const options: SubscriptionOptions = getSubscriptionOptions(
+            mux,
+            filters,
+            (event: any) => {
+                console.log('received an event');
+                setEvents((state) => ([
+                    ...state
+                        .filter((e: NostrEvent) => e.id !== event.id),
+                    { ...event }
+                ]));
+            },
+            (subId: string) => {
+                console.log(`Closing ${subId} subscription...`);
+            },
+            true
+        );
+
+        // Subscribe
+        mux
+            .waitRelayBecomesHealthy(1, 5000)
+            .then((ok: any) => {
+                if (!ok) {
+                    console.error('no healthy relays');
+                    return;
+                }
+                mux.subscribe(options);
+            });
+
+    }, []);
+
+    useEffect(() => () => {
+        DEFAULT_RELAYS.forEach(relay => {
+            mux.removeRelay(relay);
+        });
+    }, []);
+
+    useEffect(() => {
+        try {
+            const event = events && events.length > 0 && events[0];
+            if (event) {
+                const content = JSON.parse(event.content);
+                setMetadata(content);
+            }
+        } catch (e) {
+
+        }
+    }, [events]);
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         setMenuAnchorEl(event.currentTarget);
@@ -127,14 +212,14 @@ export const Metadata = ({ picture, lud06, lud16, nip05, name, npub, about, hand
     };
 
     const getProfileDisplayedName = () => {
-        return nip05 || name || supposedName || (npub && npub.slice(4, 12) + ':' + npub.slice(npub.length - 8));
+        return metadata ? (metadata.nip05 || metadata.name) : supposedName || (npub && npub.slice(4, 12) + ':' + npub.slice(npub.length - 8));
     };
 
     return (
         <React.Fragment>
             <Typography sx={{ display: 'flex' }} component="div">
                 <ListItemAvatar>
-                    <Avatar alt="" src={picture} />
+                    <Avatar alt="" src={metadata && metadata.picture} />
                 </ListItemAvatar>
                 <ListItemText
                     primary={
@@ -142,9 +227,9 @@ export const Metadata = ({ picture, lud06, lud16, nip05, name, npub, about, hand
                             <Typography sx={{ fontSize: '14px', fontWeight: 'bold' }}>
                                 {getProfileDisplayedName()}
                                 {
-                                    (lud06 || lud16) &&
+                                    metadata && (metadata.lud06 || metadata.lud16) &&
                                     <React.Fragment>
-                                        <a href={'lightning:' + lud06 || lud16}>
+                                        <a href={'lightning:' + metadata.lud06 || metadata.lud16}>
                                             <IconButton>
                                                 <Bolt sx={{ fontSize: 18 }} color="secondary"/>
                                             </IconButton>
@@ -194,7 +279,7 @@ export const Metadata = ({ picture, lud06, lud16, nip05, name, npub, about, hand
                                     variant="body2"
                                     color="text.primary"
                                 >
-                                    { about }
+                                    { metadata && metadata.about }
                                 </Typography>
                             </React.Fragment>
                     }) }

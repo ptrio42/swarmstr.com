@@ -1,6 +1,7 @@
 import {getEventHash, Relay, relayInit, signEvent, Sub, getPublicKey, generatePrivateKey} from 'nostr-tools';
 import { uniqBy } from 'lodash';
 import {request} from "./request";
+import {Filter, Mux, SubscriptionOptions} from "nostr-mux";
 
 export interface NostrEvent {
     id: string;
@@ -116,7 +117,6 @@ export const getNotesReactionsSub = (relay: Relay, ids: string[]) => {
 };
 
 export const createEvent = (
-    relay: Relay,
     privkey: string,
     pubkey: string,
     kind: number,
@@ -124,7 +124,7 @@ export const createEvent = (
     tags?: string[][]
 ): NostrEvent => {
     const event = {
-        kind: 7,
+        kind,
         created_at: Math.floor(Date.now() / 1000),
             ...({tags: tags || [] }),
         content,
@@ -200,3 +200,46 @@ export const getRelays = async () => {
     });
     return response.data;
 };
+
+// new
+
+export const getSubscriptionOptions = (
+    mux: Mux,
+    filters: Filter[],
+    onEvent: (event: any) => any,
+    onEose: (subId: string) => any,
+    keepOpen?: boolean
+): SubscriptionOptions => {
+    return {
+        // @ts-ignore
+        filters: [filters[0], ...filters.slice(1)],
+        onEvent: (event: any) => {
+            // console.log(`received event(from: ${event[0].relay.url}, kind: ${event[0].received.event.kind})`);
+            onEvent && onEvent(event[0].received.event);
+        },
+        onEose: (subId) => {
+            // console.log(`subscription(id: ${subId}) EOSE`);
+            if (!keepOpen) {
+                mux.unSubscribe(subId);
+            }
+            onEose && onEose(subId);
+        },
+        onRecovered: (relay) => {
+            // console.log(`relay(${relay.url}) was added or recovered. It joins subscription`);
+            return filters;
+        },
+    } as SubscriptionOptions;
+};
+
+export const getEventById = (events: any[], id: string) => {
+    return events.find(e => e.id === id);
+};
+
+export const getRelatedEventsByEventId = (events: any[], id: string) => {
+    return events.filter(e => !!e.tags.find((t: any) => t.length >= 2 && t[0] === 'e' && t[1] === id));
+};
+
+export const getEventsByKind = (events: any[], kind: number) => {
+    return events.filter(e => e.kind === kind);
+};
+

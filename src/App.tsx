@@ -17,6 +17,7 @@ import {Nostr} from "./components/Nostr/Nostr";
 import {Nip05} from "./components/Nostr/Nip05/Nip05";
 import {Zaps} from "./components/Nostr/Zaps/Zaps";
 import {ThemeContextWrapper} from "./theme/ThemeContextWrapper";
+import {NoteThread} from "./components/Resources/Thread/Thread";
 
 const theme = createTheme({
     typography: {
@@ -135,6 +136,7 @@ function App() {
                  <Route path="resources" element={<Resources />}>
                      <Route path="bitcoin" element={<BitcoinResources />} />
                      <Route path="nostr" element={<NostrResources/>} />
+                     <Route path="nostr/:noteId" element={<NoteThread/>} />
                  </Route>
                  {/*<Route path="/card-generator" element={<CardGenerator />} />*/}
                  <Route path="/tip-jar/:username" element={<TipJar />} />

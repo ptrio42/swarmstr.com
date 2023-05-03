@@ -13,3 +13,8 @@
 .logo-text {
   margin-left: 5px;
 }
+
+.nostr-icon img {
+  margin-left: -14px;
+  margin-top: -4px;
+}

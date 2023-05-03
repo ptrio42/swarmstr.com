@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import {List} from "@mui/material";
 import ListItem from "@mui/material/ListItem";
 import {useLocation, useSearchParams} from "react-router-dom";
@@ -14,18 +14,13 @@ import {GUIDES, GUIDES_LAST_UPDATE, NOTES, PUBKEYS} from "../../../stubs/nostrRe
 import {nip05, nip19} from 'nostr-tools';
 import {NoteThread} from "../Thread/Thread";
 import {
-    connectToRelay,
     createEvent,
     findAllMetadata,
     findNotesByIds,
     findReactionsByNoteId,
-    findRelatedNotesByNoteId,
-    getMetadataSub,
-    getNostrKeyPair,
-    getNotesReactionsSub,
-    getNotesWithRelatedNotesByIdsSub,
-    getStream,
-    handleSub,
+    findRelatedNotesByNoteId, getEventById,
+    getNostrKeyPair, getRelatedEventsByEventId,
+    getStream, getSubscriptionOptions,
     NostrEvent,
     RELAYS,
     Stream,
@@ -37,6 +32,12 @@ import LinearProgress from "@mui/material/LinearProgress";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import {uniq, groupBy, forOwn} from "lodash";
+import {
+    Filter,
+    Mux,
+    Relay,
+    SubscriptionOptions,
+} from 'nostr-mux';
 
 export interface Guide {
     id: string;
@@ -52,6 +53,32 @@ export interface Guide {
     attachedNoteId?: string;
 }
 
+export const DEFAULT_RELAYS = [
+    'wss://relay.damus.io',
+    // 'wss://nostr.fmt.wiz.biz',
+    'wss://nostr-pub.wellorder.net',
+    'wss://relay.snort.social',
+    'wss://eden.nostr.land',
+    // 'wss://relay.nostr.info',
+    // 'wss://offchain.pub',
+    // 'wss://nos.lol',
+    // 'wss://brb.io',
+    // 'wss://relay.current.fyi',
+    // 'wss://nostr.relayer.se',
+    'wss://nostr.uselessshit.co',
+    // 'wss://nostr.bitcoiner.social',
+    'wss://nostr.milou.lol',
+    'wss://nostr.zebedee.cloud',
+    // 'wss://relay.nostr.bg',
+    'wss://nostr.wine',
+    // 'wss://purplepag.es',
+    // 'wss://nostr.mutinywallet.com',
+    // 'wss://blastr.f7z.xyz',
+    // 'wss://relay.nostr.band'
+];
+
+const mux = new Mux();
+
 export const NostrResources = () => {
 
     const [guides, setGuides] = useState<Guide[]>([]);
@@ -62,14 +89,12 @@ export const NostrResources = () => {
     const [searchQuery, setSearchQuery] = useState<string|undefined>();
     const [profiles, setProfiles] = useState<any[]>([]);
 
-    const [socketUrl, setSocketUrl] = useState<string>(RELAYS[0]);
-    const [relay, setRelay] = useState<any>();
-
     const [notes, setNotes] = useState<any[]>([]);
 
     const { hash } = useLocation();
 
     const [events, setEvents] = useState<NostrEvent[]>([]);
+    const previousEventsCountRef = useRef();
     const [pendingEvents, setPendingEvents] = useState<NostrEvent[]>([]);
     const [streams, setStreams] = useState<Stream[]>(STREAMS);
 
@@ -131,7 +156,6 @@ export const NostrResources = () => {
         if (searchQueryParams && searchQueryParams !== '') {
             setSearchQuery(searchQueryParams);
         }
-        const tableOfContents = getTableOfContents();
     }, [guides]);
 
     useEffect(() => {
@@ -141,133 +165,62 @@ export const NostrResources = () => {
     }, [searchQuery]);
 
     useEffect(() => {
-        streams.forEach(s => {
-            switch (s.status) {
-                case StreamStatus.OPEN: {
-                    setLoading(true);
-                    return;
-                }
-                case StreamStatus.EOSE: {
-                    setLoading(false);
-                    switch (s.name) {
-                        case 'notes': {
-                            const isReactionsStreamClosed = streams &&
-                                (streams.find(s => s.name === 'reactions') || { status: StreamStatus.CLOSED })
-                                    .status === StreamStatus.CLOSED;
-                            if (isReactionsStreamClosed) {
-                                const ids = events
-                                    .filter(n => n.kind === 1)
-                                    .map(n => n.id);
-                                const sub = getNotesReactionsSub(relay, ids);
-                                openSub(sub, 'reactions');
-                            }
-                            return;
-                        }
-                        case 'reactions': {
-                            if (events && events.length > 0) {
-                                const result = getNotesFromEvents(NOTES);
-                                setNotes(result);
-                            }
-                            const isMetadataStreamClosed = streams &&
-                                (streams.find(s => s.name === 'metadata') || { status: StreamStatus.CLOSED })
-                                    .status === StreamStatus.CLOSED;
-                            if (isMetadataStreamClosed) {
-                                const pubkeys = getPubkeysFromGuidesBulletPoints();
-                                const sub = getMetadataSub(relay, pubkeys);
-                                openSub(sub, 'metadata');
-                            }
-                            return;
-                        }
-                        case 'metadata': {
-                            const metadata = findAllMetadata(events);
-                            setProfiles(metadata.map(m => ({
-                                ...m,
-                                ...(JSON.parse(m.content || ''))
-                            })));
-                            return;
-                        }
-                    }
-                    return;
-                }
-                case StreamStatus.CLOSED: {
-                    return;
-                }
-            }
+        // Set guides
+        setGuides([getTableOfContents(), ...getInitialGuides()]);
+
+        // Multiplexe relays
+        DEFAULT_RELAYS.forEach((url: string) => {
+            mux.addRelay(new Relay(url));
         });
-    }, [streams]);
 
-    useEffect(() => {
-        if (relay && (relay.url === socketUrl || relay.status === 1)) {
-            console.log(`[${socketUrl}] No need to connect! Already connecting/connected to ${relay.url}`);
-            publishPendingEvents();
-            return;
-        }
-        initRelayConnection();
-    }, [socketUrl]);
-
-    useEffect(() => {
-        if (relay) {
-            const { status } = getStream(streams, 'notes');
-            if (status === StreamStatus.CLOSED && (!notes || notes.length === 0)) {
-                const sub = getNotesWithRelatedNotesByIdsSub(relay, NOTES);
-                openSub(sub, 'notes');
-            } else {
-                console.log(`[${relay.url}] notes stream already closed. Total of ${notes.length} notes`);
+        // Subscription filters
+        const filters = [
+            {
+                kinds: [1],
+                ids: NOTES
             }
+        ] as Filter[];
 
-            if (relay.status === 1) {
-                console.log(`[${relay.url}] Will publish all pending events`);
-                // setTimeout(() => {
-                    publishPendingEvents();
-                // });
-            }
-        }
-    }, [relay]);
+        // Get subscription options
+        const options: SubscriptionOptions = getSubscriptionOptions(
+            mux,
+            filters,
+            (event: any) => {
+                setEvents((state) => ([
+                    ...state
+                        .filter((e: NostrEvent) => e.id !== event.id),
+                    { ...event }
+                ]));
+            },
+            (subId: string) => {
+                console.log(`Closing ${subId} stream...`);
+            },
+            true
+        );
 
-    useEffect(() => {
-        const refreshNotes = streams
-            .filter(s1 => s1.name !== 'metadata')
-            .map(s => s.status === StreamStatus.EOSE)
-            .reduce((prev, curr) => prev && curr);
-        if (refreshNotes) {
-            console.log(`Refreshing notes from total ${events.length} events`);
-            const result = getNotesFromEvents(NOTES);
-            setNotes(result);
-        }
-    }, [events]);
+        // Subscribe
+        mux
+            .waitRelayBecomesHealthy(1, 5000)
+            .then(ok => {
+                if (!ok) {
+                    console.error('no healthy relays');
+                    return;
+                }
+                mux.subscribe(options);
+            });
+    }, []);
+
+    useEffect(() => () => {
+        DEFAULT_RELAYS.forEach(relay => {
+            mux.removeRelay(relay);
+        });
+    }, []);
 
     useEffect(() => {
         console.log(`Total pending events: ${pendingEvents && pendingEvents.length}`);
     }, [pendingEvents]);
 
-    const initRelayConnection = () => {
-        console.log(`[${socketUrl}] Connecting...`);
-        socketUrl && connectToRelay(socketUrl)
-            .then((newRelay) => {
-                console.log(`[${socketUrl}] Connected! Relay status: ${newRelay && newRelay.status}`);
-
-                setRelay(newRelay);
-                setGuides([getTableOfContents(), ...getInitialGuides()]);
-            })
-            .catch(error => {
-                console.error(`[${socketUrl}] Cannot connect!`, error);
-                console.log('Trying different relay...');
-                setSocketUrl((previousSocketUrl) => RELAYS.filter(r => r !== previousSocketUrl)[0])
-            });
-    };
-
-    const getNotesFromEvents = (ids: string[]) => {
-        return findNotesByIds(events, ids).map(n => ({
-            ...n,
-            comments: findRelatedNotesByNoteId(events, n.id).map(n1 => ({
-                ...n1,
-                reactions: findReactionsByNoteId(events, n1.id)
-            })),
-            reactions: findReactionsByNoteId(events, n.id)
-        }));
-    };
-
-    const openSub = (sub: any, streamName: string) => {
+    const openSub = (filters: Filter[], streamName: string) => {
         // update streams
         setStreams(([
             ...streams.map(s => s.name === streamName ? ({
@@ -276,10 +229,14 @@ export const NostrResources = () => {
             }): { ...s })
         ]));
 
-        console.log(`[${relay.url}] Opening ${streamName} stream...`);
+        console.log(`Opening ${streamName} stream...`);
 
-        handleSub(sub, (event: NostrEvent) => {
-                //update events
+        // get subscription options
+        const options: SubscriptionOptions = getSubscriptionOptions(
+            mux,
+            filters,
+            (event: any) => {
+                console.log('received an event');
                 setEvents((state) => ([
                     ...state
                         .filter((e: NostrEvent) => e.id !== event.id),
@@ -287,7 +244,7 @@ export const NostrResources = () => {
                 ]));
             },
             () => {
-                console.log(`[${relay.url}] Closing ${streamName} stream...`);
+                console.log(`Closing ${streamName} subscription...`);
                 // update streams
                 setStreams(([
                     ...streams.map(s => s.name === streamName ? ({
@@ -295,7 +252,18 @@ export const NostrResources = () => {
                         status: StreamStatus.EOSE
                     }): { ...s })
                 ]));
-            }, streamName === 'reactions')
+            },
+            streamName === 'reactions' || streamName === 'notes'
+        );
+
+        mux.waitRelayBecomesHealthy(1, 5000)
+            .then(ok => {
+                if (!ok) {
+                    console.error('no healthy relays');
+                    return;
+                }
+                mux.subscribe(options);
+            });
     };
 
     const getPubkeysFromGuidesBulletPoints = (): string[] => {
@@ -335,69 +303,6 @@ export const NostrResources = () => {
         return guides
             .filter(guide => !searchQuery || searchQuery === '' || (searchQuery && matchString(searchQuery, guide.issue)))
             .length;
-    };
-
-    const getKeyPair = () => {
-        return getNostrKeyPair();
-    };
-
-    const addEvent = (kind: number, content: string, tags?: string[][]) => {
-        const [privkey, pubkey] = getKeyPair();
-        const event = createEvent(relay, privkey, pubkey, kind, content, tags);
-        publishEvent(event);
-    };
-
-    const publishEvent = (event: NostrEvent) => {
-        console.log(`[${relay.url}] An attempt to publish event. Relay status: ${relay.status}`);
-        if (relay.status === 3) {
-            console.log(`[${relay.url}] Connection closing/closed. Attempting to reconnect.`);
-            console.log(`Adding #${event.id} to pending events`);
-            setPendingEvents([
-                ...pendingEvents.filter(e => e.id !== event.id),
-                event
-            ]);
-            initRelayConnection();
-            return;
-        }
-        if (events && (events.findIndex(e => e.id === event.id) === -1)) {
-            try {
-                const pub = relay.publish(event);
-
-                pub.on('ok', () => {
-                    console.log('ok');
-                });
-                pub.on('seen', () => {
-                    console.log(`[${relay.url}] Event #${event.id} seen!`);
-                    setEvents([
-                        ...events.filter(e => e.id !== event.id),
-                        event
-                    ]);
-                });
-                pub.on('failed', (reason: any) => {
-                    console.log(`failed to publish to ${relay.url}: ${reason}`);
-                    console.log(`[${relay.url}] Status: ${relay.status}`);
-                    console.log(`Adding #${event.id} to pending events.`);
-                    setPendingEvents([
-                        ...pendingEvents.filter(e => e.id !== event.id),
-                        event
-                    ]);
-                    setSocketUrl((previousSocketUrl) => {
-                        return RELAYS.filter(r => r !== previousSocketUrl)[0]
-                    });
-                });
-            } catch (error) {
-                console.error(`[${relay.url}] Closed or closing state! Relay status: ${relay.status}`);
-            }
-        }
-    };
-
-    const publishPendingEvents = () => {
-        console.log(`There are ${pendingEvents && pendingEvents.length} pending events`);
-        pendingEvents && pendingEvents.forEach(event => {
-            console.log(`[${relay.url}] Publishing pending event #${event.id}`);
-           publishEvent(event);
-        });
-        setPendingEvents([]);
     };
 
     const goToGuide = (id: string) => {
@@ -555,27 +460,22 @@ export const NostrResources = () => {
                         <React.Fragment>
                             <NoteThread
                                 key={guide.id}
-                                note={{
-                                    id: guide.attachedNoteId,
-                                    guideId: guide.id,
-                                    title: guide.issue,
-                                    content: guide.fix,
-                                    bulletPoints: guide.bulletPoints,
-                                    imageUrls: guide.imageUrls,
-                                    urls: guide.urls,
-                                    updatedAt: guide.updatedAt,
-                                    guideTags: guide.tags,
-                                    isRead: guide.isRead
+                                data={{
+                                    note: {
+                                        id: guide.attachedNoteId,
+                                        guideId: guide.id,
+                                        title: guide.issue,
+                                        content: guide.fix,
+                                        bulletPoints: guide.bulletPoints,
+                                        imageUrls: guide.imageUrls,
+                                        urls: guide.urls,
+                                        updatedAt: guide.updatedAt,
+                                        guideTags: guide.tags,
+                                        isRead: guide.isRead
+                                    },
+                                    parentEvent: guide.attachedNoteId && getEventById(events, guide.attachedNoteId) || {}
                                 }}
-                                reactions={guide.attachedNoteId && (notes.find(n => n.id === guide.attachedNoteId) || { reactions: [] }).reactions}
-                                comments={guide.attachedNoteId && (notes.find(n => n.id === guide.attachedNoteId) || { comments: [] }).comments}
                                 metadata={profiles}
-                                handleUpReaction={(noteId: string, reaction?: string) => {
-                                    addEvent(7, reaction || REACTIONS[1].content, [['e', noteId]]);
-                                }}
-                                handleDownReaction={(noteId: string, reaction?: string) => {
-                                    addEvent(7, reaction || REACTIONS[4].content, [['e', noteId]]);
-                                }}
                                 handleNoteToggle={(exp: boolean, guideId?: string) => {
                                     if (!guide.isRead) {
                                         markGuideAsRead(guide.id);

@@ -3,10 +3,7 @@ import React, {useEffect, useState} from "react";
 import {
     Mux,
     Relay,
-    Personalizer,
-    AutoProfileSubscriber,
-    GenericProfile,
-    parseGenericProfile, SubscriptionOptions,
+    SubscriptionOptions,
 } from 'nostr-mux';
 import { nip19 } from 'nostr-tools';
 import { uniq, uniqBy, last } from 'lodash';
@@ -21,6 +18,7 @@ import './Zaps.css';
 import Snackbar from "@mui/material/Snackbar";
 import Box from "@mui/material/Box";
 import {getRelays} from "../../../services/nostr";
+import {Team} from "./Team/Team";
 
 const getPubkeysFromEventTags = (event: any): string[] => {
     return event.tags
@@ -128,10 +126,6 @@ export const Zaps = () => {
     const [zaps420Gang, setZaps420Gang] = useState<{bolt11: string, pubkey: string, counted?: boolean}[]>([]);
     const [pubkeysGrandZappers, setPubkeysGrandZappers] = useState<string[]>([]);
     const [zapsGrandZappers, setZapsGrandZappers] = useState<{bolt11: string, pubkey: string, counted?: boolean}[]>([]);
-    const [displayTeam21Lightning, setDisplayTeam21Lightning] = useState<boolean>(false);
-    const [display69ersLightning, setDisplay69ersLightning] = useState<boolean>(false);
-    const [display420GangLightning, setDisplay420GangLightning] = useState<boolean>(false);
-    const [displayGrandZappersLightning, setDisplayGrandZappersLightning] = useState<boolean>(false);
     const [names21, setNames21] = useState<{name: string, pubkey: string}[]>([]);
     const [names69, setNames69] = useState<{name: string, pubkey: string}[]>([]);
     const [names420, setNames420] = useState<{name: string, pubkey: string}[]>([]);
@@ -139,7 +133,6 @@ export const Zaps = () => {
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
     const [snackbarMessage, setSnackbarMessage] = useState<string>('');
 
-    // const [relays, setRelays] = useState<string[]>([]);
 
     useEffect(() => {
         getRelays()
@@ -392,93 +385,21 @@ export const Zaps = () => {
         })
     }, []);
 
-    useEffect(() => {
-        const latestZap = last(zapsTeam21);
-        if (latestZap && !latestZap.counted && pubkeysTeam21.includes(latestZap.pubkey)) {
-            const zapper = names21.find((n: any) => n.pubkey === latestZap.pubkey);
-            if (zapper) {
-                setZapsTeam21([
-                    ...zapsTeam21.filter((z: any) => z.bolt11 !== latestZap.bolt11),
-                    {
-                        ...latestZap,
-                        counted: true
-                    }
-                ]);
-                setDisplayTeam21Lightning(true);
-                setSnackbarMessage(`Team 21: Zap ⚡️ from ${zapper.name}`);
-                setSnackbarOpen(true);
-                setTimeout(() => {
-                    setDisplayTeam21Lightning(false);
-                }, 1000);
-            }
-        }
-    }, [zapsTeam21]);
+    useEffect(() => () => {
+        console.log('unmount');
+        getRelays()
+            .then(relays => {
+                relays.forEach(relay => {
+                    mux.removeRelay(relay);
+                    console.log(`removed relay ${relay}`);
+                });
 
-    useEffect(() => {
-        const latestZap = last(zaps69ers);
-        if (latestZap && !latestZap.counted && pubkeys69ers.includes(latestZap.pubkey)) {
-            const zapper = names69.find((n: any) => n.pubkey === latestZap.pubkey);
-            if (zapper) {
-                setZaps69ers([
-                    ...zaps69ers.filter((z: any) => z.bolt11 !== latestZap.bolt11),
-                    {
-                        ...latestZap,
-                        counted: true
-                    }
-                ]);
-                setDisplay69ersLightning(true);
-                setSnackbarMessage(`69ers: Zap ⚡️ from ${zapper.name}`);
-                setSnackbarOpen(true);
-                setTimeout(() => {
-                    setDisplay69ersLightning(false);
-                }, 1000);
-            }
-        }
-    }, [zaps69ers]);
+            })
+    }, []);
 
-    useEffect(() => {
-        const latestZap = last(zaps420Gang);
-        if (latestZap && !latestZap.counted && pubkeys420Gang.includes(latestZap.pubkey)) {
-            const zapper = names420.find((n: any) => n.pubkey === latestZap.pubkey);
-            if (zapper) {
-                setZaps420Gang([
-                    ...zaps420Gang.filter((z: any) => z.bolt11 !== latestZap.bolt11),
-                    {
-                        ...latestZap,
-                        counted: true
-                    }
-                ]);
-                setDisplay420GangLightning(true);
-                setSnackbarMessage(`420 gang: Zap ⚡️ from ${zapper.name}`);
-                setSnackbarOpen(true);
-                setTimeout(() => {
-                    setDisplay420GangLightning(false);
-                }, 1000);
-            }
-        }
-    }, [zaps420Gang]);
+    const handleNewZap = (zap: any, team: string, member: string) => {
 
-    useEffect(() => {
-        const latestZap = last(zapsGrandZappers);
-        if (latestZap && !latestZap.counted && pubkeysGrandZappers.includes(latestZap.pubkey)) {
-            const zapper = names1000.find((n: any) => n.pubkey === latestZap.pubkey);
-            if (zapper) {
-                setZapsGrandZappers([
-                    ...zapsGrandZappers.filter((z: any) => z.bolt11 !== latestZap.bolt11),
-                    {
-                        ...latestZap,
-                        counted: true
-                    }
-                ]);
-                setDisplayGrandZappersLightning(true);
-                setSnackbarMessage(`Grand Zappers: Zap ⚡️ from ${zapper.name}`);
-                setSnackbarOpen(true);
-                setTimeout(() => {
-                    setDisplayGrandZappersLightning(false);
-                }, 1000);
-            }
-        }
-    }, [zapsGrandZappers]);
+    };
 
     return (
         <React.Fragment>
@@ -506,134 +427,78 @@ export const Zaps = () => {
                     Today's stats
                 </Typography>
                 <Stack direction="row" sx={{ justifyContent: 'center', display: 'flex', marginBottom: '1em' }}>
-                    <Card className="zapper-badge" sx={{ maxWidth: 180 }}>
-                        <CardActionArea>
-                            <CardMedia
-                                component="img"
-                                height="180"
-                                image="https://uselessshit.co/images/team-21-logo.png"
-                                alt="team 21"
-                            />
-                            {
-                                displayTeam21Lightning && <CardMedia
-                                    sx={{ position: 'absolute', top: 0 }}
-                                    component="img"
-                                    height="180"
-                                    image="https://uselessshit.co/images/lightning-left.png"
-                                    alt="team 21 lightning"
-                                    className="lightning"
-                                />
-                            }
-                            <CardContent>
-                                <Typography gutterBottom variant="h5" component="div">
-                                    Team 21
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    🫂 Members: {pubkeysTeam21.length}<br/>
-                                    ⚡️ Zaps: {zapsTeam21.filter((z: any) => pubkeysTeam21.includes(z.pubkey)).length}<br/>
-                                    <i className="fak fa-satoshisymbol-solidtilt" /> Total: {(zapsTeam21.filter((z: any) => pubkeysTeam21.includes(z.pubkey)).length * 21).toLocaleString('en-US')}
-                                </Typography>
-                            </CardContent>
-                        </CardActionArea>
-                    </Card>
+                    <Team
+                        name="Team 21"
+                        signatureZap={21}
+                        badgeUrl="https://uselessshit.co/images/team-21-logo.png"
+                        pubkeys={pubkeysTeam21}
+                        members={names21}
+                        zaps={zapsTeam21}
+                        onZap={(zap: any, team: string, member: string) => {
+                            setZapsTeam21([
+                                ...zapsTeam21.filter((z: any) => z.bolt11 !== zap.bolt11),
+                                zap
+                            ]);
+                            setSnackbarMessage(`${team}: Zap ⚡️ from ${member}`);
+                            setSnackbarOpen(true);
+                        }}
+                    />
                     <Typography component="div" sx={{ padding: '0 5px', alignItems: 'center', display: 'flex' }}>
                         &nbsp;&nbsp;
                     </Typography>
-                    <Card sx={{ maxWidth: 180 }}>
-                        <CardActionArea>
-                            <CardMedia
-                                component="img"
-                                height="180"
-                                image="https://uselessshit.co/images/69ers-team-logo.png"
-                                alt="69ers"
-                            />
-                            {
-                                display69ersLightning && <CardMedia
-                                    sx={{ position: 'absolute', top: 0 }}
-                                    component="img"
-                                    height="180"
-                                    image="https://uselessshit.co/images/lightning-right.png"
-                                    alt="69ers lightning"
-                                    className="lightning"
-                                />
-                            }
-                            <CardContent>
-                                <Typography gutterBottom variant="h5" component="div">
-                                    69ers
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    🫂 Members: {pubkeys69ers.length}<br/>
-                                    ⚡️ Zaps: {zaps69ers.filter((z: any) => pubkeys69ers.includes(z.pubkey)).length}<br/>
-                                    <i className="fak fa-satoshisymbol-solidtilt" /> Total: {(zaps69ers.filter((z: any) => pubkeys69ers.includes(z.pubkey)).length * 69).toLocaleString('en-US')}
-                                </Typography>
-                            </CardContent>
-                        </CardActionArea>
-                    </Card>
+                    <Team
+                        name="69ers"
+                        signatureZap={69}
+                        badgeUrl="https://uselessshit.co/images/69ers-team-logo.png"
+                        pubkeys={pubkeys69ers}
+                        members={names69}
+                        zaps={zaps69ers}
+                        onZap={(zap: any, team: string, member: string) => {
+                            setZaps69ers([
+                                ...zaps69ers.filter((z: any) => z.bolt11 !== zap.bolt11),
+                                zap
+                            ]);
+                            setSnackbarMessage(`${team}: Zap ⚡️ from ${member}`);
+                            setSnackbarOpen(true);
+                        }}
+                    />
                 </Stack>
                 <Stack direction="row" sx={{ justifyContent: 'center', display: 'flex' }}>
-                    <Card sx={{ maxWidth: 180 }}>
-                        <CardActionArea>
-                            <CardMedia
-                                component="img"
-                                height="180"
-                                image="https://uselessshit.co/images/420-gang-team-logo.png"
-                                alt="420 gang"
-                            />
-                            {
-                                display420GangLightning && <CardMedia
-                                    sx={{ position: 'absolute', top: 0 }}
-                                    component="img"
-                                    height="180"
-                                    image="https://uselessshit.co/images/lightning-right.png"
-                                    alt="420 gang lightning"
-                                    className="lightning"
-                                />
-                            }
-                            <CardContent>
-                                <Typography gutterBottom variant="h5" component="div">
-                                    420 gang
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    🫂 Members: {pubkeys420Gang.length}<br/>
-                                    ⚡️ Zaps: {zaps420Gang.filter((z: any) => pubkeys420Gang.includes(z.pubkey)).length}<br/>
-                                    <i className="fak fa-satoshisymbol-solidtilt" /> Total: {(zaps420Gang.filter((z: any) => pubkeys420Gang.includes(z.pubkey)).length * 420).toLocaleString('en-US')}
-                                </Typography>
-                            </CardContent>
-                        </CardActionArea>
-                    </Card>
+                    <Team
+                        name="420 gang"
+                        signatureZap={420}
+                        badgeUrl="https://uselessshit.co/images/420-gang-team-logo.png"
+                        pubkeys={pubkeys420Gang}
+                        members={names420}
+                        zaps={zaps420Gang}
+                        onZap={(zap: any, team: string, member: string) => {
+                            setZaps420Gang([
+                                ...zaps420Gang.filter((z: any) => z.bolt11 !== zap.bolt11),
+                                zap
+                            ]);
+                            setSnackbarMessage(`${team}: Zap ⚡️ from ${member}`);
+                            setSnackbarOpen(true);
+                        }}
+                    />
                     <Typography component="div" sx={{ padding: '0 5px', alignItems: 'center', display: 'flex' }}>
                         &nbsp;&nbsp;
                     </Typography>
-                    <Card sx={{ maxWidth: 180 }}>
-                        <CardActionArea>
-                            <CardMedia
-                                component="img"
-                                height="180"
-                                image="https://uselessshit.co/images/grand-zappers-team-logo.png"
-                                alt="Grand Zappers"
-                            />
-                            {
-                                displayGrandZappersLightning && <CardMedia
-                                    sx={{ position: 'absolute', top: 0 }}
-                                    component="img"
-                                    height="180"
-                                    image="https://uselessshit.co/images/lightning-left.png"
-                                    alt="Grand Zappers lightning"
-                                    className="lightning"
-                                />
-                            }
-                            <CardContent>
-                                <Typography gutterBottom variant="h5" component="div">
-                                    Grand Zappers
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    🫂 Members: {pubkeysGrandZappers.length}<br/>
-                                    ⚡️ Zaps: {zapsGrandZappers.filter((z: any) => pubkeysGrandZappers.includes(z.pubkey)).length}<br/>
-                                    <i className="fak fa-satoshisymbol-solidtilt" /> Total: {(zapsGrandZappers.filter((z: any) => pubkeysGrandZappers.includes(z.pubkey)).length * 1000).toLocaleString('en-US')}
-                                </Typography>
-                            </CardContent>
-                        </CardActionArea>
-                    </Card>
+                    <Team
+                        name="Grand Zappers"
+                        signatureZap={1000}
+                        badgeUrl="https://uselessshit.co/images/grand-zappers-team-logo.png"
+                        pubkeys={pubkeysGrandZappers}
+                        members={names1000}
+                        zaps={zapsGrandZappers}
+                        onZap={(zap: any, team: string, member: string) => {
+                            setZapsGrandZappers([
+                                ...zapsGrandZappers.filter((z: any) => z.bolt11 !== zap.bolt11),
+                                zap
+                            ]);
+                            setSnackbarMessage(`${team}: Zap ⚡️ from ${member}`);
+                            setSnackbarOpen(true);
+                        }}
+                    />
                 </Stack>
                 <Typography component="div" sx={{ width: '100%' }}>
                     <Snackbar

@@ -111,7 +111,7 @@ export const PageContent = () => {
                 </Stack>
 
                 <Box sx={{ marginBottom: '3em' }} component="div">
-                    <Link color='secondary' to='nostr/nip-05'>Get NIP-05 verified on NOSTR</Link>
+                    <Link color='secondary' to='nostr/nip-05'>Get a NOSTR address</Link>
                 </Box>
 
                 <Box sx={{ marginBottom: '3em' }} component="div">

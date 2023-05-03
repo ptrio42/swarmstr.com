@@ -9,6 +9,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Badge from "@mui/material/Badge";
 import { uniqBy } from 'lodash';
 import './Reactions.css';
+import {Event as NostrEvent} from "nostr-mux";
 
 export enum ReactionType {
     UP = 'Up',
@@ -68,11 +69,16 @@ export const REACTIONS = [
     }
 ];
 
-export interface Reaction {
+export interface ReactionEvent {
     id: string;
     content: string;
     tags?: string[][];
     pubkey: string;
+}
+
+export interface Reaction {
+    event: NostrEvent;
+    type: ReactionType;
 }
 
 interface ReactionsProps {
@@ -102,9 +108,10 @@ export const Reactions = ({ reactions, handleReaction, type, placeholder, reacte
             color="primary" sx={{ opacity: reacted ? 1 : 0.5 }}
             className="reactions-count"
         >
-            { uniqBy(reactions, 'content')
-                .map(r =>
-                    r.content
+            { uniqBy(reactions.map(r => r.event), 'content')
+                .map((e: NostrEvent) =>
+                    e
+                        .content
                         .replace('-', '👎')
                         .replace('+', '💜')
                 )

@@ -6,6 +6,8 @@ import ReactDOMServer from 'react-dom/server'
 import App from "../src/App";
 import {StaticRouter} from "react-router-dom/server";
 import {Helmet} from "react-helmet";
+import {nip19} from 'nostr-tools';
+import {GUIDES} from "../src/stubs/nostrResources";
 
 const baseUrl = process.env.BASE_URL;
 const server = express();
@@ -25,8 +27,45 @@ const manifest = fs.readFileSync(
 const assets = JSON.parse(manifest);
 
 server.get('/*', (req, res) => {
+    let helmet = Helmet.renderStatic();
     const path = req.originalUrl;
-    const helmet = Helmet.renderStatic();
+    const pathArr = path.split('/');
+
+    // let subtitle;
+    const noteIdBech32 = pathArr && pathArr[pathArr.length - 1];
+    try {
+        const noteIdHex = nip19.decode(noteIdBech32);
+        const noteId = noteIdHex && noteIdHex.data;
+        if (noteId) {
+            const guide = GUIDES.find(g => g.attachedNoteId === noteId);
+            if (guide) {
+                // subtitle = guide.issue;
+                helmet = {
+                    ...helmet,
+                    title: {
+                        ...helmet.title,
+                        toString(): string {
+                            return `<title>${guide.issue} - UseLessShit.co</title>`
+                        }
+                    },
+                    meta: {
+                    ...helmet.meta,
+                        toString(): string {
+                            return `<meta property="og:title" content="${guide.issue} - UseLessShit.co" />` +
+                                `<meta itemProp="name" content="${guide.issue} - UseLessShit.co" />` +
+                                `<meta name="twitter:title" content="${guide.issue} - UseLessShit.co" />`;
+                        }
+                    }
+                };
+
+                console.log({meta: helmet.meta.toString()})
+            }
+        }
+        console.log({path, noteId})
+    } catch (error) {
+
+    }
+
     const component = ReactDOMServer.renderToString(
         <StaticRouter location={path}>
             <App/>

@@ -2,7 +2,7 @@
     background: rgba(255,255,255,.1);
 }
 
-.theme--dark .note div p span, .theme--dark .note div p p button, .theme--dark .note div p {
+.theme--dark .note div p span, .theme--dark .note div p p button, .theme--dark .note div p p a, .theme--dark .note div p {
     color: rgba(255,255,255,.77);
 }
 
