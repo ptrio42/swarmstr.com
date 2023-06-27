@@ -12,13 +12,11 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Dialog from "@mui/material/Dialog";
 import CloseIcon from '@mui/icons-material/Close';
 import CircularProgress from "@mui/material/CircularProgress";
-// import {Event as NostrEvent, Filter, Mux, Relay, SubscriptionOptions} from "nostr-mux";
 import {getSubscriptionOptions} from "../../../services/nostr";
-import {nip19} from 'nostr-tools';
+import {nip19, Event as NostrEvent} from 'nostr-tools';
 import {useSubscribe} from "nostr-hooks";
 import {Config} from "nostr-hooks/dist/types";
 import {DEFAULT_RELAYS} from "../../../resources/Config";
-import {Event as NostrEvent} from 'nostr-tools';
 
 interface QrCodeDialogProps {
     dialogOpen: boolean;

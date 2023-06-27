@@ -1,19 +1,16 @@
-import React, {useEffect, useState, useRef, useCallback} from "react";
+import React, {useEffect, useState} from "react";
 import {List} from "@mui/material";
 import ListItem from "@mui/material/ListItem";
-import {useLocation, useSearchParams} from "react-router-dom";
+import {useSearchParams} from "react-router-dom";
 import {Helmet} from "react-helmet";
-import Chip from "@mui/material/Chip";
-import {ArrowDownward, ArrowUpward, Circle, Clear, Search, ToggleOff} from "@mui/icons-material";
+import {Search} from "@mui/icons-material";
 import ListItemText from "@mui/material/ListItemText";
 import './NostrResources.css';
 import Snackbar from "@mui/material/Snackbar";
 import Input from "@mui/material/Input";
-import {DEFAULT_NOTES, GUIDES_LAST_UPDATE, NOTES} from "../../../stubs/nostrResources";
-import {nip05, nip19, Event as NostrEvent} from 'nostr-tools';
+import {nip05, nip19} from 'nostr-tools';
 import {NoteThread} from "../Thread/Thread";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import {uniq, groupBy, forOwn} from "lodash";
 import {useSubscribe} from "nostr-hooks";
 import {Config} from "nostr-hooks/dist/types";
@@ -128,16 +125,16 @@ export const NostrResources = () => {
     const getEvents = () => {
         return [...offlineEvents.slice(0,4), ...events]
             .filter(({tags}) => {
-                const hashtags = tags.filter((t) => t[0] === 't').map((t) => t[1]);
+                const hashtags = tags.filter((t: any) => t[0] === 't').map((t: any) => t[1]);
                 return (hashtags.includes('ask') && hashtags.includes('nostr')) || hashtags.includes('asknostr');
             })
-            .filter(({ content, tags }) =>
+            .filter(({ content, tags }: any) =>
                 !searchQuery ||
                 searchQuery === '' ||
                 (searchQuery && (matchString(searchQuery, content))) ||
                 (searchQuery && tags && tags
-                    .filter(t => t[0] === 't')
-                    .map(t1 => t1[1].toLowerCase())
+                    .filter((t: any) => t[0] === 't')
+                    .map((t1: any) => t1[1].toLowerCase())
                     .includes(searchQuery.toLowerCase())))
     };
 
