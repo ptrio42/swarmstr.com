@@ -25,12 +25,19 @@ const manifest = fs.readFileSync(
     'utf-8'
 );
 const assets = JSON.parse(manifest);
-const eventsFile = fs.readFileSync('public/events.json', 'utf-8');
+const eventsFile = fs.readFileSync(path.join(__dirname, '../public/events.json'), 'utf-8');
 const events = JSON.parse(eventsFile);
 
 server.get('/*', (req, res) => {
     let helmet = Helmet.renderStatic();
     const path = req.originalUrl;
+    console.log({path})
+    if (path === '/resources/nostr/') {
+        res.writeHead(301, {
+            Location: `/resources/nostr`
+            // Location: `https://uselessshit.co`
+        }).end();
+    }
     const pathArr = path.split('/');
 
     // let subtitle;
