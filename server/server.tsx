@@ -48,21 +48,21 @@ server.get('/*', (req, res) => {
         if (noteId) {
             const note = events.find((e: any) => e.id === noteId);
             if (note) {
-                // subtitle = guide.issue;
+                const title = note.content.replace(/#\[([0-9]+)\]/g, '');
                 helmet = {
                     ...helmet,
                     title: {
                         ...helmet.title,
                         toString(): string {
-                            return `<title>${note.content} - UseLessShit.co</title>`
+                            return `<title>${title} - UseLessShit.co</title>`
                         }
                     },
                     meta: {
                     ...helmet.meta,
                         toString(): string {
-                            return `<meta property="og:title" content="${note.content} - UseLessShit.co" />` +
-                                `<meta itemProp="name" content="${note.content} - UseLessShit.co" />` +
-                                `<meta name="twitter:title" content="${note.content} - UseLessShit.co" />`;
+                            return `<meta property="og:title" content="${title} - UseLessShit.co" />` +
+                                `<meta itemProp="name" content="${title} - UseLessShit.co" />` +
+                                `<meta name="twitter:title" content="${title} - UseLessShit.co" />`;
                         }
                     }
                 };
