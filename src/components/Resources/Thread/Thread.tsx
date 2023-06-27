@@ -40,11 +40,11 @@ export const NoteThread = ({ data = {} }: ThreadProps) => {
             ids: [getNoteId()]
         }],
         options: {
-            enabled: !data.event && noteId && noteId !== '',
+            enabled: (!data.event && noteId && noteId !== '') || (!data.event && !!data.noteId),
             closeAfterEose: true
         }
     } as Config);
-    const event = data.event || _event && _event[0] || DEFAULT_EVENTS.find((e: NostrEvent) => e.id === (noteId && nip19.decode(noteId)?.data));
+    const event = data.event || (_event && _event[0]) || DEFAULT_EVENTS.find((e: NostrEvent) => e.id === (noteId && nip19.decode(noteId)?.data));
 
     const { events: commentEvents } = useSubscribe({
         relays: [...DEFAULT_RELAYS],
@@ -82,7 +82,7 @@ export const NoteThread = ({ data = {} }: ThreadProps) => {
             });
 
         // expand the thread when viewing note details
-        const isExpanded = !(!noteId || noteId === '');
+        const isExpanded = !(!noteId || noteId === '') && !data.noteId;
         setExpanded(isExpanded);
     }, []);
 
@@ -111,7 +111,7 @@ export const NoteThread = ({ data = {} }: ThreadProps) => {
             <List>
 
                 {
-                    !(!noteId || noteId === '') && <ListItem>
+                    !(!noteId || noteId === '') && !data.noteId && <ListItem>
                         <Button variant="text" component={Link} to="/resources/nostr">
                             <ArrowBack sx={{ fontSize: 18, marginRight: 1 }} />
                             Nostr Resources
@@ -131,7 +131,7 @@ export const NoteThread = ({ data = {} }: ThreadProps) => {
                             // TODO: is read
                             isRead={true}
                             data={{ event }}
-                            threadView={(!noteId || noteId === '')}
+                            threadView={(!noteId || noteId === '' || !!noteId && !!data.noteId)}
                         />
                     }
                 </ListItem>

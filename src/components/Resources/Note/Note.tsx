@@ -34,6 +34,8 @@ import {DEFAULT_RELAYS} from "../../../resources/Config";
 // @ts-ignore
 import {useSubscribe} from "nostr-hooks";
 import {DEFAULT_EVENTS} from "../../../stubs/events";
+import {NoteThread} from "../Thread/Thread";
+import {Skeleton} from "@mui/material";
 
 interface NoteProps {
     noteId: string;
@@ -145,12 +147,25 @@ export const Note = ({ noteId, pinned, handleNoteToggle, handleThreadToggle, isC
                     if (isTag(domElement)) {
                         // @ts-ignore
                         const { attribs, children, name } = domNode;
-                        if (name === 'button') {
+                        if (name === 'button' && attribs.class === 'metadata-btn') {
                             const data = children.length > 0 && children[0].data;
                             return <Metadata
                                 variant={'link'}
                                 npub={data}
                             />
+                        }
+                        if (name === 'button' && attribs.class === 'thread-btn') {
+                            const data = children.length > 0 && children[0].data;
+                            const hex = nip19.decode(data);
+                            if (hex) {
+                                return <NoteThread
+                                    key={data}
+                                    data={{
+                                        // @ts-ignore
+                                        noteId: hex.data
+                                    }}
+                                />
+                            }
                         }
                     }
                 }
@@ -213,185 +228,194 @@ export const Note = ({ noteId, pinned, handleNoteToggle, handleThreadToggle, isC
             }}
             className="note"
         >
-        <CardContent sx={{ paddingBottom: 0 }}>
-            <Typography
-                sx={{
-                    fontSize: '16px',
-                    fontWeight: 'bold',
-                    color: '#000',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginBottom: 0
-                }}
-                color="text.secondary"
-                gutterBottom
-                component="div"
-            >
-                <React.Fragment>
-                    <Typography sx={{ position: 'absolute', top: '1em', right: '2em', textAlign: 'end' }}>
-                        {
-                            event && new RegExp(/([0123456789abcdef]{64})/).test(event.id) &&
-                            <React.Fragment>
-                                <IconButton
-                                    aria-controls={menuOpen ? 'account-menu' : undefined}
-                                    aria-haspopup="true"
-                                    aria-expanded={menuOpen ? 'true' : undefined}
-                                    onClick={(_event) => {
-                                        _event.stopPropagation();
-                                        handleMenuOpen(_event);
-                                    }}
-                                >
-                                    <MoreHoriz sx={{ fontSize: 18 }} />
-                                </IconButton>
-                                <Menu
-                                    anchorEl={menuAnchorEl}
-                                    id="account-menu"
-                                    open={menuOpen}
-                                    onClose={handleMenuClose}
-                                    onClick={handleMenuClose}
-                                >
-                                    <MenuItem onClick={(_event) => {
-                                        const noteEncoded = event && nip19.noteEncode(event.id);
-                                        navigator.clipboard.writeText(noteEncoded);
-                                        setSnackBarMessage(noteEncoded);
-                                        setSnackbarOpen(true);
-                                        _event.stopPropagation();
-                                    }}>
-                                        <CopyAll sx={{ fontSize: 18, marginRight: 1 }} /> Copy note ID
-                                    </MenuItem>
-                                    <MenuItem
-                                        onClick={(_) => {
-                                            setDialogOpen(true);
+            <CardContent sx={{ paddingBottom: 0 }}>
+                <Typography
+                    sx={{
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        color: '#000',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        marginBottom: 0
+                    }}
+                    color="text.secondary"
+                    gutterBottom
+                    component="div"
+                >
+                    <React.Fragment>
+                        <Typography sx={{ position: 'absolute', top: '1em', right: '2em', textAlign: 'end' }}>
+                            {
+                                event && new RegExp(/([0123456789abcdef]{64})/).test(event.id) &&
+                                <React.Fragment>
+                                    <IconButton
+                                        aria-controls={menuOpen ? 'account-menu' : undefined}
+                                        aria-haspopup="true"
+                                        aria-expanded={menuOpen ? 'true' : undefined}
+                                        onClick={(_event) => {
+                                            _event.stopPropagation();
+                                            handleMenuOpen(_event);
+                                        }}
+                                    >
+                                        <MoreHoriz sx={{ fontSize: 18 }} />
+                                    </IconButton>
+                                    <Menu
+                                        anchorEl={menuAnchorEl}
+                                        id="account-menu"
+                                        open={menuOpen}
+                                        onClose={handleMenuClose}
+                                        onClick={handleMenuClose}
+                                    >
+                                        <MenuItem onClick={(_event) => {
+                                            const noteEncoded = event && nip19.noteEncode(event.id);
+                                            navigator.clipboard.writeText(noteEncoded);
+                                            setSnackBarMessage(noteEncoded);
+                                            setSnackbarOpen(true);
+                                            _event.stopPropagation();
                                         }}>
-                                        <QrCodeScanner sx={{ fontSize: 18, marginRight: 1 }} /> Show QR
-                                    </MenuItem>
-                                    <MenuItem onClick={(_) => {
-                                        const npub = event && nip19.noteEncode(event.id);
-                                        const a = document.createElement('a');
-                                        a.href = 'nostr:' + npub;
-                                        a.click();
-                                    }}>
-                                        <Launch sx={{ fontSize: 18, marginRight: 1 }}/> Open in client
-                                    </MenuItem>
-                                </Menu>
-                            </React.Fragment>
-                        }
-                    </Typography>
-                </React.Fragment>
-            </Typography>
-            {
-                event && event.pubkey && metadataEvents && metadataEvents.find(e => e.pubkey === event.pubkey) && <Typography sx={{ display: 'flex' }} component="div">
-                    <Metadata
-                        variant="simplified"
-                        data={{
-                            event: metadataEvents && metadataEvents.find(e => e.pubkey === event.pubkey)
-                        }}
-                        handleCopyNpub={(npub: string) => {
-                            setSnackBarMessage(npub);
-                            setSnackbarOpen(true);
-                        }}
-                    />
+                                            <CopyAll sx={{ fontSize: 18, marginRight: 1 }} /> Copy note ID
+                                        </MenuItem>
+                                        <MenuItem
+                                            onClick={(_) => {
+                                                setDialogOpen(true);
+                                            }}>
+                                            <QrCodeScanner sx={{ fontSize: 18, marginRight: 1 }} /> Show QR
+                                        </MenuItem>
+                                        <MenuItem onClick={(_) => {
+                                            const npub = event && nip19.noteEncode(event.id);
+                                            const a = document.createElement('a');
+                                            a.href = 'nostr:' + npub;
+                                            a.click();
+                                        }}>
+                                            <Launch sx={{ fontSize: 18, marginRight: 1 }}/> Open in client
+                                        </MenuItem>
+                                    </Menu>
+                                </React.Fragment>
+                            }
+                        </Typography>
+                    </React.Fragment>
                 </Typography>
-            }
-
-            {
-                event && event.pubkey && (!metadataEvents || !metadataEvents.find(e => e.pubkey === event.pubkey)) && <Typography sx={{ display: 'flex' }} component="div">
-                    <Metadata
-                        variant="simplified"
-                        isSkeleton={true}
-                        npub={nip19.npubEncode(event.pubkey)}
-                        handleCopyNpub={(npub: string) => {
-                            setSnackBarMessage(npub);
-                            setSnackbarOpen(true);
-                        }}
-                    />
-                </Typography>
-            }
-
-            <Typography
-                sx={{ textAlign: 'justify', marginTop: '1em!important', ...(threadView && { cursor: 'pointer' }) }}
-                gutterBottom
-                variant="body2"
-                component="div"
-                {...(threadView ? { onClick: () => {
-                        const a = document.createElement('a');
-                        a.href = `${process.env.BASE_URL}/resources/nostr/${nip19.noteEncode(event.id)}`;
-                        a.click();
-                } } : {}) }
-            >
-                { event && event.content && parseHtml(event.content) }
-            </Typography>
-        </CardContent>
-        <CardActions>
-            <Typography sx={{ width: '100%' }} variant="body2" component="div">
-                <Divider sx={{ margin: '0.4em' }} component="div" />
-                <Stack sx={{ justifyContent: 'flex-start', alignItems: 'center' }} direction="row" spacing={1}>
-                    <Typography sx={{ fontSize: '14px' }}>
-                        Posted on {event && new Date(event.created_at*1000).toDateString()}
-                    </Typography>
-                </Stack>
-                <Divider sx={{ margin: '0.4em' }} component="div" />
-                <Stack sx={{ justifyContent: 'space-between', alignItems: 'center' }} direction="row" spacing={1}>
-                    <Typography sx={{ fontSize: 14, display: 'flex', alignItems: 'center' }}>
-                        { getCommentEvents() &&
-                        <React.Fragment>
-                            <Button
-                                color="secondary"
-                                sx={{ textTransform: 'none' }}
-                                startIcon={isThreadExpanded ? <UnfoldLess sx={{ fontSize: 18 }} /> : <UnfoldMore sx={{ fontSize: 18 }} /> }
-                                onClick={() => {
-                                    handleThreadToggle && handleThreadToggle(!isThreadExpanded);
-                                }}
-                            >
-                                <Badge
-                                    badgeContent={getCommentEvents()?.length}
-                                    color="primary"
-                                    className="comments-count"
-                                >
-                                    Answers
-                                </Badge>
-                            </Button>
-                        </React.Fragment>
-                        }
-                    </Typography>
-                    <Typography sx={{ fontSize: 14, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-                        { pinned &&
-                        <DoneOutline color="success" />
-                        }
-
-                        {
-                            getReactionEvents() &&
-                            <React.Fragment>
-                                <Reactions
-                                    reactions={getUpReactions()}
-                                    type={ReactionType.UP}
-                                    handleReaction={(reaction: string) => {
-                                        handleReaction(reaction);
-                                        handleUpReaction && event && handleUpReaction(event && event.id, reaction);
-                                    }}
-                                    placeholder={REACTIONS[0].content}
-                                    reacted={reacted(ReactionType.UP)}
-                                />
-                                <Reactions reactions={getDownReactions()} type={ReactionType.DOWN} handleReaction={(reaction: string) => {
-                                    handleReaction(reaction);
-                                    handleDownReaction && event && handleDownReaction(event && event.id, reaction);
-                                }} placeholder={REACTIONS[4].content.replace('-', '👎')} reacted={reacted(ReactionType.DOWN)} />
-                            </React.Fragment>
-                        }
-                        <IconButton
-                            sx={{ marginLeft: '0.5em' }}
-                            onClick={(event) => {
-                                handleShareAnswer(event);
+                {
+                    event && event.pubkey && metadataEvents && metadataEvents.find(e => e.pubkey === event.pubkey) && <Typography sx={{ display: 'flex' }} component="div">
+                        <Metadata
+                            variant="simplified"
+                            data={{
+                                event: metadataEvents && metadataEvents.find(e => e.pubkey === event.pubkey)
                             }}
-                        >
-                            <IosShare sx={{ fontSize: 18 }} />
-                        </IconButton>
+                            handleCopyNpub={(npub: string) => {
+                                setSnackBarMessage(npub);
+                                setSnackbarOpen(true);
+                            }}
+                        />
                     </Typography>
-                </Stack>
-            </Typography>
-        </CardActions>
-    </Card>
+                }
+
+                {
+                    event && event.pubkey && (!metadataEvents || !metadataEvents.find(e => e.pubkey === event.pubkey)) && <Typography sx={{ display: 'flex' }} component="div">
+                        <Metadata
+                            variant="simplified"
+                            isSkeleton={true}
+                            npub={nip19.npubEncode(event.pubkey)}
+                            handleCopyNpub={(npub: string) => {
+                                setSnackBarMessage(npub);
+                                setSnackbarOpen(true);
+                            }}
+                        />
+                    </Typography>
+                }
+
+                <Typography
+                    sx={{ textAlign: 'justify', marginTop: '1em!important', ...(threadView && { cursor: 'pointer' }) }}
+                    gutterBottom
+                    variant="body2"
+                    component="div"
+                    {...(threadView ? { onClick: () => {
+                            const a = document.createElement('a');
+                            a.href = `${process.env.BASE_URL}/resources/nostr/${nip19.noteEncode(event.id)}`;
+                            a.click();
+                        } } : {}) }
+                >
+                    { event && event.content && parseHtml(event.content) }
+                </Typography>
+                {
+                    !event && <React.Fragment>
+                        <Skeleton sx={{ width: '100%' }} animation="wave" />
+                        <Skeleton sx={{ width: '100%' }} animation="wave" />
+                        <Skeleton sx={{ width: '100%' }} animation="wave" />
+                    </React.Fragment>
+                }
+            </CardContent>
+            {
+                event && <CardActions>
+                    <Typography sx={{ width: '100%' }} variant="body2" component="div">
+                        <Divider sx={{ margin: '0.4em' }} component="div" />
+                        <Stack sx={{ justifyContent: 'flex-start', alignItems: 'center' }} direction="row" spacing={1}>
+                            <Typography sx={{ fontSize: '14px' }}>
+                                Posted on {event && new Date(event.created_at*1000).toDateString()}
+                            </Typography>
+                        </Stack>
+                        <Divider sx={{ margin: '0.4em' }} component="div" />
+                        <Stack sx={{ justifyContent: 'space-between', alignItems: 'center' }} direction="row" spacing={1}>
+                            <Typography sx={{ fontSize: 14, display: 'flex', alignItems: 'center' }}>
+                                { getCommentEvents() &&
+                                <React.Fragment>
+                                    <Button
+                                        color="secondary"
+                                        sx={{ textTransform: 'none' }}
+                                        startIcon={isThreadExpanded ? <UnfoldLess sx={{ fontSize: 18 }} /> : <UnfoldMore sx={{ fontSize: 18 }} /> }
+                                        onClick={() => {
+                                            handleThreadToggle && handleThreadToggle(!isThreadExpanded);
+                                        }}
+                                    >
+                                        <Badge
+                                            badgeContent={getCommentEvents()?.length}
+                                            color="primary"
+                                            className="comments-count"
+                                        >
+                                            Answers
+                                        </Badge>
+                                    </Button>
+                                </React.Fragment>
+                                }
+                            </Typography>
+                            <Typography sx={{ fontSize: 14, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                { pinned &&
+                                <DoneOutline color="success" />
+                                }
+
+                                {
+                                    getReactionEvents() &&
+                                    <React.Fragment>
+                                        <Reactions
+                                            reactions={getUpReactions()}
+                                            type={ReactionType.UP}
+                                            handleReaction={(reaction: string) => {
+                                                handleReaction(reaction);
+                                                handleUpReaction && event && handleUpReaction(event && event.id, reaction);
+                                            }}
+                                            placeholder={REACTIONS[0].content}
+                                            reacted={reacted(ReactionType.UP)}
+                                        />
+                                        <Reactions reactions={getDownReactions()} type={ReactionType.DOWN} handleReaction={(reaction: string) => {
+                                            handleReaction(reaction);
+                                            handleDownReaction && event && handleDownReaction(event && event.id, reaction);
+                                        }} placeholder={REACTIONS[4].content.replace('-', '👎')} reacted={reacted(ReactionType.DOWN)} />
+                                    </React.Fragment>
+                                }
+                                <IconButton
+                                    sx={{ marginLeft: '0.5em' }}
+                                    onClick={(event) => {
+                                        handleShareAnswer(event);
+                                    }}
+                                >
+                                    <IosShare sx={{ fontSize: 18 }} />
+                                </IconButton>
+                            </Typography>
+                        </Stack>
+                    </Typography>
+                </CardActions>
+            }
+        </Card>
         <Snackbar
             open={snackbarOpen}
             autoHideDuration={3000}

@@ -128,6 +128,9 @@ export const NostrResources = () => {
                 const hashtags = tags.filter((t: any) => t[0] === 't').map((t: any) => t[1]);
                 return (hashtags.includes('ask') && hashtags.includes('nostr')) || hashtags.includes('asknostr');
             })
+            .filter(({content}) => {
+                return !content.includes('https://dev.uselessshit.co/resources/nostr');
+            })
             .filter(({ content, tags }: any) =>
                 !searchQuery ||
                 searchQuery === '' ||
