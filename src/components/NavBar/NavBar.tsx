@@ -158,105 +158,105 @@ export const NavBar = () => {
                                 </Drawer>
                             </React.Fragment>
                         )} />
-                        <Media query={{ minWidth: '1061px' }} render={() => (
-                            <React.Fragment>
+                        {/*<Media query={{ minWidth: '1061px' }} render={() => (*/}
+                            {/*<React.Fragment>*/}
+                                {/*/!*<Button*!/*/}
+                                    {/*/!*sx={{ fontWeight: 'bold' }}*!/*/}
+                                    {/*/!*variant="text"*!/*/}
+                                    {/*/!*color="inherit"*!/*/}
+                                    {/*/!*component={Link}*!/*/}
+                                    {/*/!*to="/card-generator"*!/*/}
+                                    {/*/!*startIcon={<CurrencyBitcoin color="warning" />}*!/*/}
+                                {/*/!*>*!/*/}
+                                    {/*/!*BITCOIN ARTWORK*!/*/}
+                                {/*/!*</Button>*!/*/}
                                 {/*<Button*/}
                                     {/*sx={{ fontWeight: 'bold' }}*/}
                                     {/*variant="text"*/}
                                     {/*color="inherit"*/}
                                     {/*component={Link}*/}
-                                    {/*to="/card-generator"*/}
-                                    {/*startIcon={<CurrencyBitcoin color="warning" />}*/}
+                                    {/*to="/#converter"*/}
+                                    {/*startIcon={<SwapVerticalCircleIcon color="success" />}*/}
                                 {/*>*/}
-                                    {/*BITCOIN ARTWORK*/}
+                                    {/*SATOSHI CALCULATOR*/}
                                 {/*</Button>*/}
-                                <Button
-                                    sx={{ fontWeight: 'bold' }}
-                                    variant="text"
-                                    color="inherit"
-                                    component={Link}
-                                    to="/#converter"
-                                    startIcon={<SwapVerticalCircleIcon color="success" />}
-                                >
-                                    SATOSHI CALCULATOR
-                                </Button>
-                                <Button
-                                    sx={{ fontWeight: 'bold' }}
-                                    variant="text"
-                                    color="inherit"
-                                    component={Link}
-                                    to="/resources/bitcoin"
-                                    startIcon={<School />}
-                                >
-                                    BITCOIN RESOURCES
-                                </Button>
-                                <Button
-                                    sx={{ fontWeight: 'bold' }}
-                                    variant="text"
-                                    color="inherit"
-                                    component={Link}
-                                    to="/resources/nostr/"
-                                    startIcon={<Box className="nostr-icon" sx={{ width: '20px', height: '20px' }}>
-                                        <img src={`${process.env.BASE_URL}/images/nostr-icon.png`} height={30}/>
-                                    </Box>}
-                                >
-                                    NOSTR
-                                </Button>
-                                <Button
-                                    sx={{ fontWeight: 'bold' }}
-                                    variant="text"
-                                    color="inherit"
-                                    component="a"
-                                    href="https://nostr.uselessshit.co"
-                                    target="_blank"
-                                    startIcon={<Dns />}
-                                >
-                                    RELAY
-                                </Button>
-                                <Button
-                                    sx={{ fontWeight: 'bold' }}
-                                    variant="text"
-                                    color="inherit"
-                                    component={Link}
-                                    to="/nostr/nip-05"
-                                    startIcon={<LinkIcon />}
-                                >
-                                    NIP-05
-                                </Button>
-                                <Button
-                                    sx={{ fontWeight: 'bold' }}
-                                    variant="text"
-                                    color="inherit"
-                                    component={Link}
-                                    to="/nostr/zaps"
-                                    startIcon={<ElectricBolt />}
-                                >
-                                    ZAPS
-                                </Button>
-                                <Menu
-                                    id="tools-menu"
-                                    anchorEl={toolsMenuAnchorEl}
-                                    open={toolsMenuOpen}
-                                    onClose={handleToolsMenuClose}
-                                    MenuListProps={{
-                                        'aria-labelledby': 'tools-menu-button'
-                                    }}
-                                >
-                                    <MenuItem
-                                        onClick={handleToolsMenuClose}
-                                        component={Link}
-                                        to="/#converter"
-                                    >
-                                        <ListItemIcon>
-                                            <SwapVerticalCircleIcon color="success" />
-                                        </ListItemIcon>
-                                        <ListItemText>
-                                            FIAT TO SATS CONVERTER
-                                        </ListItemText>
-                                    </MenuItem>
-                                </Menu>
-                            </React.Fragment>
-                        )} />
+                                {/*<Button*/}
+                                    {/*sx={{ fontWeight: 'bold' }}*/}
+                                    {/*variant="text"*/}
+                                    {/*color="inherit"*/}
+                                    {/*component={Link}*/}
+                                    {/*to="/resources/bitcoin"*/}
+                                    {/*startIcon={<School />}*/}
+                                {/*>*/}
+                                    {/*BITCOIN RESOURCES*/}
+                                {/*</Button>*/}
+                                {/*<Button*/}
+                                    {/*sx={{ fontWeight: 'bold' }}*/}
+                                    {/*variant="text"*/}
+                                    {/*color="inherit"*/}
+                                    {/*component={Link}*/}
+                                    {/*to="/resources/nostr/"*/}
+                                    {/*startIcon={<Box className="nostr-icon" sx={{ width: '20px', height: '20px' }}>*/}
+                                        {/*<img src={`${process.env.BASE_URL}/images/nostr-icon.png`} height={30}/>*/}
+                                    {/*</Box>}*/}
+                                {/*>*/}
+                                    {/*NOSTR*/}
+                                {/*</Button>*/}
+                                {/*<Button*/}
+                                    {/*sx={{ fontWeight: 'bold' }}*/}
+                                    {/*variant="text"*/}
+                                    {/*color="inherit"*/}
+                                    {/*component="a"*/}
+                                    {/*href="https://nostr.uselessshit.co"*/}
+                                    {/*target="_blank"*/}
+                                    {/*startIcon={<Dns />}*/}
+                                {/*>*/}
+                                    {/*RELAY*/}
+                                {/*</Button>*/}
+                                {/*<Button*/}
+                                    {/*sx={{ fontWeight: 'bold' }}*/}
+                                    {/*variant="text"*/}
+                                    {/*color="inherit"*/}
+                                    {/*component={Link}*/}
+                                    {/*to="/nostr/nip-05"*/}
+                                    {/*startIcon={<LinkIcon />}*/}
+                                {/*>*/}
+                                    {/*NIP-05*/}
+                                {/*</Button>*/}
+                                {/*<Button*/}
+                                    {/*sx={{ fontWeight: 'bold' }}*/}
+                                    {/*variant="text"*/}
+                                    {/*color="inherit"*/}
+                                    {/*component={Link}*/}
+                                    {/*to="/nostr/zaps"*/}
+                                    {/*startIcon={<ElectricBolt />}*/}
+                                {/*>*/}
+                                    {/*ZAPS*/}
+                                {/*</Button>*/}
+                                {/*<Menu*/}
+                                    {/*id="tools-menu"*/}
+                                    {/*anchorEl={toolsMenuAnchorEl}*/}
+                                    {/*open={toolsMenuOpen}*/}
+                                    {/*onClose={handleToolsMenuClose}*/}
+                                    {/*MenuListProps={{*/}
+                                        {/*'aria-labelledby': 'tools-menu-button'*/}
+                                    {/*}}*/}
+                                {/*>*/}
+                                    {/*<MenuItem*/}
+                                        {/*onClick={handleToolsMenuClose}*/}
+                                        {/*component={Link}*/}
+                                        {/*to="/#converter"*/}
+                                    {/*>*/}
+                                        {/*<ListItemIcon>*/}
+                                            {/*<SwapVerticalCircleIcon color="success" />*/}
+                                        {/*</ListItemIcon>*/}
+                                        {/*<ListItemText>*/}
+                                            {/*FIAT TO SATS CONVERTER*/}
+                                        {/*</ListItemText>*/}
+                                    {/*</MenuItem>*/}
+                                {/*</Menu>*/}
+                            {/*</React.Fragment>*/}
+                        {/*)} />*/}
                     </Grid>
                 </Toolbar>
             </AppBar>

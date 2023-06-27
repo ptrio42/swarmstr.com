@@ -45,8 +45,19 @@ input {
 }
 
 .theme--dark input {
-    border: 1px solid rgba(255, 255, 255, .3);
+    /*border: 1px solid rgba(255, 255, 255, .3);*/
+    border: none !important;
     color: #fff;
+}
+
+.theme--dark .MuiInputAdornment-root svg {
+    color: rgba(255, 255, 255, .3);
+}
+
+.theme--dark .MuiInputBase-root {
+    border: 1px solid rgba(255, 255, 255, .3);
+    border-radius: 3px;
+    padding: 3px 7px;
 }
 
 .theme--dark .guide-sort div {

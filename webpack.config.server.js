@@ -15,10 +15,14 @@ module.exports = {
         filename: '[name].js',
     },
     resolve: {
-        extensions: ['.ts', '.tsx'],
+        extensions: ['.ts', '.tsx', '.js'],
+        alias: {
+            'nostr-hooks': path.resolve(__dirname, 'node_modules/nostr-hooks'),
+            'domhandler': path.resolve(__dirname, 'node_modules/domhandler'),
+        }
     },
     externals: [nodeExternals({
-        allowlist: [/\.css$/, 'nostr-mux']
+        allowlist: [/\.css$/, 'nostr-mux', 'domhandler', 'nostr-hooks']
     })],
     target: 'node',
     node: {

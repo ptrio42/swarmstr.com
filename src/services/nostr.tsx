@@ -180,13 +180,14 @@ export const createNostrKeyPair = () => {
 };
 
 export const getNostrKeyPair = (): string[] => {
-    const pair = localStorage.getItem('guest_KeyPair');
-    if (!pair) {
-        const [privkey, pubkey] = createNostrKeyPair();
-        saveNostrKeyPair(privkey, pubkey);
-        return [privkey, pubkey];
-    }
-    return pair.split(',');
+    return [];
+    // const pair = localStorage.getItem('guest_KeyPair');
+    // if (!pair) {
+    //     const [privkey, pubkey] = createNostrKeyPair();
+    //     saveNostrKeyPair(privkey, pubkey);
+    //     return [privkey, pubkey];
+    // }
+    // return pair.split(',');
 };
 
 export const saveNostrKeyPair = (privkey: string, pubkey: string) => {

@@ -2,7 +2,7 @@ import express from 'express'
 import fs from 'fs'
 import path from 'path'
 import React from 'react'
-import ReactDOMServer from 'react-dom/server'
+import { renderToString } from 'react-dom/server'
 import App from "../src/App";
 import {StaticRouter} from "react-router-dom/server";
 import {Helmet} from "react-helmet";
@@ -17,7 +17,7 @@ console.log({baseUrl});
 server.set('view engine', 'ejs');
 server.set('views', path.join(__dirname, 'views'));
 
-server.use('/', express.static(path.join(__dirname, 'static')))
+server.use('/', express.static(path.join(__dirname, 'static')));
 server.use(express.static('public'));
 
 const manifest = fs.readFileSync(
@@ -25,6 +25,8 @@ const manifest = fs.readFileSync(
     'utf-8'
 );
 const assets = JSON.parse(manifest);
+const eventsFile = fs.readFileSync('public/events.json', 'utf-8');
+const events = JSON.parse(eventsFile);
 
 server.get('/*', (req, res) => {
     let helmet = Helmet.renderStatic();
@@ -37,23 +39,23 @@ server.get('/*', (req, res) => {
         const noteIdHex = nip19.decode(noteIdBech32);
         const noteId = noteIdHex && noteIdHex.data;
         if (noteId) {
-            const guide = GUIDES.find(g => g.attachedNoteId === noteId);
-            if (guide) {
+            const note = events.find((e: any) => e.id === noteId);
+            if (note) {
                 // subtitle = guide.issue;
                 helmet = {
                     ...helmet,
                     title: {
                         ...helmet.title,
                         toString(): string {
-                            return `<title>${guide.issue} - UseLessShit.co</title>`
+                            return `<title>${note.content} - UseLessShit.co</title>`
                         }
                     },
                     meta: {
                     ...helmet.meta,
                         toString(): string {
-                            return `<meta property="og:title" content="${guide.issue} - UseLessShit.co" />` +
-                                `<meta itemProp="name" content="${guide.issue} - UseLessShit.co" />` +
-                                `<meta name="twitter:title" content="${guide.issue} - UseLessShit.co" />`;
+                            return `<meta property="og:title" content="${note.content} - UseLessShit.co" />` +
+                                `<meta itemProp="name" content="${note.content} - UseLessShit.co" />` +
+                                `<meta name="twitter:title" content="${note.content} - UseLessShit.co" />`;
                         }
                     }
                 };
@@ -66,7 +68,8 @@ server.get('/*', (req, res) => {
 
     }
 
-    const component = ReactDOMServer.renderToString(
+    const component =
+        renderToString(
         <StaticRouter location={path}>
             <App/>
         </StaticRouter>
