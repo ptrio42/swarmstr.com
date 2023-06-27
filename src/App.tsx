@@ -18,8 +18,6 @@ import {Nip05} from "./components/Nostr/Nip05/Nip05";
 import {Zaps} from "./components/Nostr/Zaps/Zaps";
 import {ThemeContextWrapper} from "./theme/ThemeContextWrapper";
 import {NoteThread} from "./components/Resources/Thread/Thread";
-import {NostrClientContext} from "./contexts/NostrClientContext";
-import {NostrClientProvider} from "./services/nostr-client";
 
 const theme = createTheme({
     typography: {
