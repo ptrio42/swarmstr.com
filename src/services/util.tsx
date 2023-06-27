@@ -46,5 +46,11 @@ export const processText = (text: string, tags?: string[][]): string => {
             const note = result.split(':')[1];
             return `<button class="thread-btn">${note}</button>`;
         })
+        .replace(/nostr:nevent1([a-z0-9]+)/g, (result) => {
+            const event = result.split(':')[1];
+            const hex = nip19.decode(event);
+            const { id } = hex.data as any;
+            return `<button class="thread-btn">${nip19.npubEncode(id)}</button>`;
+        })
         ;
 };
