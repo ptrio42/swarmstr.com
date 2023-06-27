@@ -123,7 +123,7 @@ export const NostrResources = () => {
     };
 
     const getEvents = () => {
-        return [...offlineEvents.slice(0,4), ...events]
+        return [...offlineEvents, ...events]
             .filter(({tags}) => {
                 const hashtags = tags.filter((t: any) => t[0] === 't').map((t: any) => t[1]);
                 return (hashtags.includes('ask') && hashtags.includes('nostr')) || hashtags.includes('asknostr');
