@@ -23,7 +23,7 @@ export const Config = {
       // 'wss://relay.nostr.info',
       'wss://offchain.pub',
       'wss://nos.lol',
-      // 'wss://brb.io',
+      'wss://brb.io',
       'wss://relay.current.fyi',
       'wss://nostr.relayer.se',
       'wss://nostr.bitcoiner.social',
@@ -32,7 +32,9 @@ export const Config = {
       'wss://purplepag.es',
       'wss://nostr.mutinywallet.com',
       'wss://blastr.f7z.xyz',
-      'wss://relay.nostr.band'
+      'wss://relay.nostr.band',
+      'wss://relay.plebstr.com',
+      'wss://relay.primal.net'
     ]
   }
 };
