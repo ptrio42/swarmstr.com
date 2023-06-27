@@ -36,7 +36,7 @@ export const NostrResources = () => {
         filters: [{
             kinds: [1],
             // ids: NOTES
-            '#t': ['ask', 'nostr']
+            '#t': ['ask', 'nostr', 'asknostr']
         }],
         options: {
             batchingInterval: 500,
@@ -129,7 +129,7 @@ export const NostrResources = () => {
         return [...offlineEvents.slice(0,4), ...events]
             .filter(({tags}) => {
                 const hashtags = tags.filter((t) => t[0] === 't').map((t) => t[1]);
-                return hashtags.includes('ask') && hashtags.includes('nostr');
+                return (hashtags.includes('ask') && hashtags.includes('nostr')) || hashtags.includes('asknostr');
             })
             .filter(({ content, tags }) =>
                 !searchQuery ||
