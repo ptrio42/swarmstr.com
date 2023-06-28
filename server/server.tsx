@@ -85,8 +85,9 @@ const connectToRelays = (ndk: NDK) => {
                 });
         })
         .catch((e: any) => {
-            console.error({e})
+            console.error({e});
             while (iterator <= 10) {
+                console.log(`reconnect attempt #${iterator}`);
                 connectToRelays(ndk);
                 iterator++;
             }

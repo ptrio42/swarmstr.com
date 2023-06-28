@@ -33,23 +33,7 @@ export const NostrResources = () => {
     const [events, setEvents] = useState<any[]>([]);
     const serverEvents = useRef<any[]>([]);
 
-    // const { sendMessage, lastMessage, readyState } = useWebSocket(WS_URL);
-
-    // const { events, eose } = useSubscribe({
-    //     relays: [...DEFAULT_RELAYS],
-    //     filters: [{
-    //         kinds: [1],
-    //         // ids: NOTES
-    //         '#t': ['ask', 'nostr', 'asknostr']
-    //     }],
-    //     options: {
-    //         batchingInterval: 500,
-    //         closeAfterEose: false,
-    //         enabled: true
-    //     }
-    // } as Config);
-
-    let loading = true;
+    const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
         let searchQuery = queryParams.get('s');
@@ -69,7 +53,7 @@ export const NostrResources = () => {
         axios
             .get('../api/events')
             .then((response) => {
-                loading = false;
+                setLoading(false);
                 serverEvents.current = response.data as any[];
 
                 ndk.current = new NDK({ explicitRelayUrls: DEFAULT_RELAYS});
