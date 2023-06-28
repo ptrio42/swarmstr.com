@@ -53,6 +53,9 @@ subscription.eoseReceived = (r: any) => {
     console.log('eose');
 };
 
+serverEvents.push(...events);
+let iterator = 0;
+
 const connectToRelays = (ndk: NDK) => {
     ndk.connect()
         .then(() => {
@@ -73,7 +76,7 @@ const connectToRelays = (ndk: NDK) => {
                         })
                         .map(({id, content, created_at, kind, tags, sig, pubkey}: any) => ({
                             id, content, created_at, kind, tags, sig, pubkey
-                        })), ...events);
+                        })));
 
                 });
             subscription.start()
@@ -83,7 +86,10 @@ const connectToRelays = (ndk: NDK) => {
         })
         .catch((e: any) => {
             console.error({e})
-            connectToRelays(ndk);
+            while (iterator <= 10) {
+                connectToRelays(ndk);
+                iterator++;
+            }
         })
 };
 connectToRelays(ndk);
