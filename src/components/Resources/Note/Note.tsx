@@ -168,7 +168,10 @@ export const Note = ({ noteId, pinned, handleNoteToggle, handleThreadToggle, isC
                             }
                         }
                         if (name === 'button' && attribs.class === 'video-btn') {
-                            const data = children.length > 0 && children[0].data;
+                            let data = children.length > 0 && children[0].data;
+                            if (!data.includes('https')) {
+                                data = `https://www.youtube.com/watch?v=${data}`
+                            }
                             return <ReactPlayer url={data} playing={true} volume={0} muted={true} loop={true} controls={true} />
                         }
                     }

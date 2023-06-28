@@ -37,8 +37,7 @@ const subscription = ndk.subscribe({
         kinds: [1],
         // ids: NOTES
         '#t': ['ask', 'nostr', 'asknostr']
-    }, { closeOnEose: false, cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST }, NDKRelaySet.fromRelayUrls(DEFAULT_RELAYS, ndk))
-;
+    }, { closeOnEose: false, cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST }, NDKRelaySet.fromRelayUrls(DEFAULT_RELAYS, ndk));
 
 subscription.eventReceived = (e: NDKEvent, r: any) => {
     e.toNostrEvent()
@@ -47,7 +46,7 @@ subscription.eventReceived = (e: NDKEvent, r: any) => {
             if ((hashtags.includes('ask') && hashtags.includes('nostr')) || hashtags.includes('asknostr') && !serverEvents.includes(e1)) {
                 serverEvents.push(e1);
             }
-        })
+        });
 };
 subscription.eoseReceived = (r: any) => {
     console.log('eose');
@@ -77,7 +76,6 @@ const connectToRelays = (ndk: NDK) => {
                         .map(({id, content, created_at, kind, tags, sig, pubkey}: any) => ({
                             id, content, created_at, kind, tags, sig, pubkey
                         })));
-
                 });
             subscription.start()
                 .then(() => {
@@ -102,16 +100,12 @@ server.get('/api/events', (req, res) => {
 server.get('/*', (req, res) => {
     let helmet = Helmet.renderStatic();
     const path = req.originalUrl;
-    console.log({path})
     if (path === '/resources/nostr/') {
         res.writeHead(301, {
             Location: `/resources/nostr`
-            // Location: `https://uselessshit.co`
         }).end();
     }
     const pathArr = path.split('/');
-
-    // let subtitle;
     const noteIdBech32 = pathArr && pathArr[pathArr.length - 1];
     try {
         const noteIdHex = nip19.decode(noteIdBech32);
@@ -138,7 +132,6 @@ server.get('/*', (req, res) => {
                     }
                 };
 
-                console.log({meta: helmet.meta.toString()})
             }
         }
         console.log({path, noteId})

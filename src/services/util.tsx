@@ -2,6 +2,7 @@ import { nip19 } from 'nostr-tools';
 
 export const processText = (text: string, tags?: string[][]): string => {
     return text
+        .replace(/https:\/\/youtu\.be\/([a-zA-Z0-9_-]+)/g, '<button class="video-btn">$1</button>')
         .replace(/(https?:\/\/(?![^" \n]*(?:jpg|jpeg|png|gif|svg|webp|mov|mp4))[^" \n]+)/g, '<a href="$1" target="_blank">$1</a>')
         .replace(/(http?:\/\/(?![^" \n]*(?:jpg|jpeg|png|gif|svg|webp|mov|mp4))[^" \n]+)/g, '<a href="$1" target="_blank">$1</a>')
         .replace(/(https?:\/\/.*\.(?:png|jpg|jpeg|gif|svg|webp))/g, '<img width="100%" src="$1" style="max-width:512px;" />')
