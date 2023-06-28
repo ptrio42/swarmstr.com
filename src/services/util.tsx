@@ -2,9 +2,10 @@ import { nip19 } from 'nostr-tools';
 
 export const processText = (text: string, tags?: string[][]): string => {
     return text
-        .replace(/(https?:\/\/(?![^" \n]*(?:jpg|jpeg|png|gif|svg|webp))[^" \n]+)/g, '<a href="$1" target="_blank">$1</a>')
-        .replace(/(http?:\/\/(?![^" \n]*(?:jpg|jpeg|png|gif|svg|webp))[^" \n]+)/g, '<a href="$1" target="_blank">$1</a>')
+        .replace(/(https?:\/\/(?![^" \n]*(?:jpg|jpeg|png|gif|svg|webp|mov|mp4))[^" \n]+)/g, '<a href="$1" target="_blank">$1</a>')
+        .replace(/(http?:\/\/(?![^" \n]*(?:jpg|jpeg|png|gif|svg|webp|mov|mp4))[^" \n]+)/g, '<a href="$1" target="_blank">$1</a>')
         .replace(/(https?:\/\/.*\.(?:png|jpg|jpeg|gif|svg|webp))/g, '<img width="100%" src="$1" style="max-width:512px;" />')
+        .replace(/(https?:\/\/.*\.(?:mov|mp4))/g, '<button class="video-btn">$1</button>')
         .replace(/(\n+)/, '$1<br/>')
         .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
         .replace(/~~(.*?)~~/g, "<i>$1</i>")

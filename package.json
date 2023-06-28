@@ -33,6 +33,7 @@
     "react-image-crop": "^10.0.8",
     "react-image-file-resizer": "^0.4.8",
     "react-media": "^1.10.0",
+    "react-player": "^2.12.0",
     "react-qr-code": "^2.0.11",
     "react-router-dom": "^6.3.0",
     "react-router-hash-link": "^2.4.3",

@@ -36,6 +36,7 @@ import {useSubscribe} from "nostr-hooks";
 import {DEFAULT_EVENTS} from "../../../stubs/events";
 import {NoteThread} from "../Thread/Thread";
 import {Skeleton} from "@mui/material";
+import ReactPlayer from 'react-player';
 
 interface NoteProps {
     noteId: string;
@@ -166,6 +167,11 @@ export const Note = ({ noteId, pinned, handleNoteToggle, handleThreadToggle, isC
                                     }}
                                 />
                             }
+                        }
+                        if (name === 'button' && attribs.class === 'video-btn') {
+                            const data = children.length > 0 && children[0].data;
+                            console.log({data})
+                            return <ReactPlayer url={data} playing={true} volume={0} muted={true} loop={true} controls={true} />
                         }
                     }
                 }
