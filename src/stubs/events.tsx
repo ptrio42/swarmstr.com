@@ -1,6 +1,4 @@
-import {Event as NostrEvent} from "nostr-tools";
-
-export const DEFAULT_EVENTS: NostrEvent[] = [
+export const DEFAULT_EVENTS = [
     {
         "kind": 1,
         "created_at": 1684167264,

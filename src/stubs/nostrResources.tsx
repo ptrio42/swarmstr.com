@@ -1,6 +1,5 @@
 import {getPeopleInvolvedInNostr, listToMarkup} from "../utils/utils";
 import {Guide} from "../services/guides";
-import { Event as NostrEvent } from 'nostr-tools';
 
 // These are the notes ids that are used as discussion notes for
 // most of the guides in the faq

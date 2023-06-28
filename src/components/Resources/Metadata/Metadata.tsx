@@ -11,12 +11,11 @@ import {CardType, SocialCard} from "../../Card/Card";
 import DialogTitle from "@mui/material/DialogTitle";
 import Dialog from "@mui/material/Dialog";
 import CloseIcon from '@mui/icons-material/Close';
-import CircularProgress from "@mui/material/CircularProgress";
-import {getSubscriptionOptions} from "../../../services/nostr";
-import {nip19, Event as NostrEvent} from 'nostr-tools';
+import {nip19} from 'nostr-tools';
 import {useSubscribe} from "nostr-hooks";
 import {Config} from "nostr-hooks/dist/types";
 import {DEFAULT_RELAYS} from "../../../resources/Config";
+import CircularProgress from "@mui/material/CircularProgress";
 
 interface QrCodeDialogProps {
     dialogOpen: boolean;
@@ -116,7 +115,7 @@ interface MetadataProps {
     handleCopyNpub?: (value: string) => any;
     variant?: 'full' | 'simplified' | 'link';
     data?: {
-        event?: NostrEvent
+        event?: any
     };
     isSkeleton?: boolean;
 }

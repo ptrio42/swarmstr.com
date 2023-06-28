@@ -2,7 +2,6 @@ import {Note} from "../Note/Note";
 import React, {useEffect, useState} from "react";
 import {ListItem} from "@mui/material";
 import List from "@mui/material/List";
-import {Event as NostrEvent} from 'nostr-tools';
 import {Link, useParams} from "react-router-dom";
 import { nip19 } from 'nostr-tools';
 import {Helmet} from "react-helmet";
@@ -18,8 +17,8 @@ import axios from "axios";
 interface ThreadProps {
     data?: {
         noteId?: string
-        events?: NostrEvent[];
-        event?: NostrEvent;
+        events?: any[];
+        event?: any;
     }
 }
 
@@ -44,7 +43,7 @@ export const NoteThread = ({ data = {} }: ThreadProps) => {
             closeAfterEose: true
         }
     } as Config);
-    const event = data.event || (_event && _event[0]) || DEFAULT_EVENTS.find((e: NostrEvent) => e.id === (noteId && nip19.decode(noteId)?.data));
+    const event = data.event || (_event && _event[0]) || DEFAULT_EVENTS.find((e: any) => e.id === (noteId && nip19.decode(noteId)?.data));
 
     const { events: commentEvents } = useSubscribe({
         relays: [...DEFAULT_RELAYS],
@@ -143,13 +142,13 @@ export const NoteThread = ({ data = {} }: ThreadProps) => {
                                 sortBy(
                                     // @ts-ignore
                                     [...offlineEvents, ...commentEvents]
-                                        .filter((e1: NostrEvent) =>
+                                        .filter((e1: any) =>
                                             e1.kind === 1 &&
                                             e1.tags.findIndex((t: string[]) => t[0] === 'e' && t[1] === getNoteId()) > -1
                                         ),
-                                    (e: NostrEvent) => {
+                                    (e: any) => {
                                     return [...offlineEvents, ...reactionEvents]
-                                        .filter((e2: NostrEvent) =>
+                                        .filter((e2: any) =>
                                             e2.kind === 7 &&
                                             e2.tags.findIndex((t: string[]) => t[0] === 'e' && t[1] === e.id) > -1)
                                         .length

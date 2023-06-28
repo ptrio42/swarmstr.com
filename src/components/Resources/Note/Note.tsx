@@ -19,9 +19,8 @@ import CardActions from "@mui/material/CardActions";
 import Snackbar from "@mui/material/Snackbar";
 import IconButton from "@mui/material/IconButton";
 import Badge from "@mui/material/Badge";
-import {nip19, Event as NostrEvent} from 'nostr-tools';
+import {nip19} from 'nostr-tools';
 import {Reaction, Reactions, REACTIONS, ReactionType} from "../Reactions/Reactions";
-import {createEvent, getEventsByKind, getNostrKeyPair, getSubscriptionOptions} from "../../../services/nostr";
 import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
@@ -49,7 +48,7 @@ interface NoteProps {
     handleDownReaction?: (noteId: string, reaction?: string) => void;
     isRead?: boolean;
     data?: {
-        event?: NostrEvent;
+        event?: any;
     };
     threadView?: boolean
 }
@@ -122,11 +121,11 @@ export const Note = ({ noteId, pinned, handleNoteToggle, handleThreadToggle, isC
     };
 
     const handleReaction = (reaction: string) => {
-        const [privkey, pubkey] = getNostrKeyPair();
-        const newEvent = event && createEvent(privkey, pubkey, 7, reaction, [['e', event.id]]) as NostrEvent;
-        if (newEvent) {
+        // const [privkey, pubkey] = getNostrKeyPair();
+        // const newEvent = event && createEvent(privkey, pubkey, 7, reaction, [['e', event.id]]) as any;
+        // if (newEvent) {
             // nostrClient.publish(newEvent);
-        }
+        // }
     };
 
     const getProcessedText = (text: string) => {
@@ -170,7 +169,6 @@ export const Note = ({ noteId, pinned, handleNoteToggle, handleThreadToggle, isC
                         }
                         if (name === 'button' && attribs.class === 'video-btn') {
                             const data = children.length > 0 && children[0].data;
-                            console.log({data})
                             return <ReactPlayer url={data} playing={true} volume={0} muted={true} loop={true} controls={true} />
                         }
                     }
@@ -203,25 +201,28 @@ export const Note = ({ noteId, pinned, handleNoteToggle, handleThreadToggle, isC
     };
 
     const reacted = (type: ReactionType) => {
-       const [_, pubkey] = getNostrKeyPair();
+        return false;
+       // const [_, pubkey] = getNostrKeyPair();
        // @ts-ignore
-       return getReactionEvents() && !!getReactionEvents()
-       // @ts-ignore
-           .filter(r => REACTIONS.filter(r3 => r3.type === type)
-           // @ts-ignore
-               .map(r2 => r2.content).includes(r.content))
-           .find((r1: any) => r1.pubkey && r1.pubkey === pubkey);
+       // return getReactionEvents() && !!getReactionEvents()
+       // // @ts-ignore
+       //     .filter(r => REACTIONS.filter(r3 => r3.type === type)
+       //     // @ts-ignore
+       //         .map(r2 => r2.content).includes(r.content))
+       //     .find((r1: any) => r1.pubkey && r1.pubkey === pubkey);
     };
 
     const getCommentEvents = () => {
         const allEvents = [...events, ...DEFAULT_EVENTS];
-        return event && allEvents && getEventsByKind(allEvents, 1)
-            .filter(e => e.tags && !!e.tags.find((t: string[]) => t[0] === 'e' && t[1] === event.id));
+        return event && allEvents
+            .filter((e: any) => e.kind === 1)
+            .filter((e: any) => e.tags && !!e.tags.find((t: string[]) => t[0] === 'e' && t[1] === event.id));
     };
 
     const getReactionEvents = () => {
-        return event && events && getEventsByKind(events, 7)
-            .filter(e => e.tags && !!e.tags.find((t: string[]) => t[0] === 'e' && t[1] === event.id));
+        return event && events
+            .filter((e: any) => e.kind === 7)
+            .filter((e: any) => e.tags && !!e.tags.find((t: string[]) => t[0] === 'e' && t[1] === event.id));
     };
 
     return (<React.Fragment>

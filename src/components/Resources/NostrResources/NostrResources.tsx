@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {List} from "@mui/material";
 import ListItem from "@mui/material/ListItem";
 import {useSearchParams} from "react-router-dom";
@@ -11,13 +11,13 @@ import Input from "@mui/material/Input";
 import {nip05, nip19} from 'nostr-tools';
 import {NoteThread} from "../Thread/Thread";
 import Box from "@mui/material/Box";
-import {uniq, groupBy, forOwn} from "lodash";
-import {useSubscribe} from "nostr-hooks";
-import {Config} from "nostr-hooks/dist/types";
+import {uniq, groupBy, forOwn, uniqBy} from "lodash";
 import {DEFAULT_RELAYS} from "../../../resources/Config";
 import {matchString} from "../../../utils/utils";
 import axios from "axios";
 import InputAdornment from "@mui/material/InputAdornment";
+import NDK, { NDKRelaySet } from '@nostr-dev-kit/ndk';
+
 
 export const NostrResources = () => {
 
@@ -28,24 +28,28 @@ export const NostrResources = () => {
 
     const [queryParams, setQueryParams] = useSearchParams();
 
-    const { events, eose } = useSubscribe({
-        relays: [...DEFAULT_RELAYS],
-        filters: [{
-            kinds: [1],
-            // ids: NOTES
-            '#t': ['ask', 'nostr', 'asknostr']
-        }],
-        options: {
-            batchingInterval: 500,
-            closeAfterEose: false,
-            enabled: true
-        }
-    } as Config);
+    const ndk = useRef<any>(null);
 
-    let loading = !eose;
+    const [events, setEvents] = useState<any[]>([]);
+    const serverEvents = useRef<any[]>([]);
 
-    // temporary solution
-    const [offlineEvents, setOfflineEvents] = useState([]);
+    // const { sendMessage, lastMessage, readyState } = useWebSocket(WS_URL);
+
+    // const { events, eose } = useSubscribe({
+    //     relays: [...DEFAULT_RELAYS],
+    //     filters: [{
+    //         kinds: [1],
+    //         // ids: NOTES
+    //         '#t': ['ask', 'nostr', 'asknostr']
+    //     }],
+    //     options: {
+    //         batchingInterval: 500,
+    //         closeAfterEose: false,
+    //         enabled: true
+    //     }
+    // } as Config);
+
+    let loading = true;
 
     useEffect(() => {
         let searchQuery = queryParams.get('s');
@@ -61,49 +65,45 @@ export const NostrResources = () => {
     }, [searchQuery]);
 
     useEffect(() => {
-        // fetch events stored in the json file (temporary solution)
-        console.log('Fetching events.json')
+        // fetch events from the server first
         axios
-            .get('../events.json')
+            .get('../api/events')
             .then((response) => {
-                setOfflineEvents(response.data);
+                loading = false;
+                serverEvents.current = response.data as any[];
+
+                ndk.current = new NDK({ explicitRelayUrls: DEFAULT_RELAYS});
+                const subscription = ndk.current.subscribe({
+                        kinds: [1],
+                        // ids: NOTES
+                        '#t': ['ask', 'nostr', 'asknostr']
+                    }, { closeOnEose: false }, NDKRelaySet.fromRelayUrls(DEFAULT_RELAYS, ndk.current))
+                ;
+
+                subscription.eventReceived = (e: any, r: any) => {
+                    setEvents((prevState: any[]) => [
+                        ...prevState.filter((e1: any) => e1.id !== e.id && !serverEvents.current.includes(e1)),
+                        e
+                    ])
+                };
+                subscription.eoseReceived = (r: any) => {
+                    console.log('eose');
+                };
+
+                ndk.current.connect()
+                    .then(() => {
+                        subscription.start();
+                    })
+                ;
             })
-
-        // const guideEvents: NostrEvent[] = [];
-        // const noteIds: string[] = [];
-        // const [privkey, pubkey] = getNostrKeyPair();
-
-        // getInitialGuides()
-        //     .forEach(g => {
-        //
-        //         const issueEvent = createEvent(privkey, pubkey, 1, g.issue) as NostrEvent;
-        //         noteIds.push(issueEvent.id);
-        //         const fixEvent = createEvent(privkey, pubkey, 1, g.fix + '\n' + (g.bulletPoints && g.bulletPoints.join('\n')), [['e', issueEvent.id]]) as NostrEvent;
-        //         guideEvents.push(issueEvent, fixEvent);
-        //     });
-        // console.log({guideEvents}, {noteIds})
-        // subscribe();
+            .catch((e) => {
+                console.log('api', {e})
+        });
     }, []);
 
     useEffect(() => () => {
         // unsubscribe?
     }, []);
-
-    // const getPubkeysFromGuidesBulletPoints = (): string[] => {
-        // const pubkeys = getInitialGuides()
-        //     .map(guide => guide.bulletPoints && guide.bulletPoints
-        //         .filter((point) => new RegExp(/(npub[^ ]{59,}$)/).test(point))
-        //         .map(key => key && key.split(':')[1])
-        //         .filter(key => key && key.length === 64)
-        //     )
-        //     .filter(entries => !!entries && entries.length > 0)
-        //     .flat(2);
-        // // @ts-ignore
-        // console.log(`${pubkeys.length} total pubkeys in guide entries`);
-        // console.log(`${PUBKEYS.length} total pubkeys in guide entries`);
-        // console.log(`${(uniq([...pubkeys, PUBKEYS])).length} total unique pubkeys altogether`);
-        // return uniq([...pubkeys, ...PUBKEYS]) as string[];
-    // };
 
     const getReadGuides = () => {
         return (localStorage.getItem('readGuides') || '')
@@ -114,22 +114,14 @@ export const NostrResources = () => {
         localStorage.setItem('readGuides', readGuides.join(','));
     };
 
-    const markGuideAsRead = (guideId: string) => {
-        // const readGuides = [
-        //     ...guides
-        //         .map(guide => guideId === guide.id ? ({ ...guide, isRead: true }) : ({ ...guide }))
-        // ];
-        // setGuides(readGuides);
-    };
-
     const getEvents = () => {
-        return [...offlineEvents, ...events]
-            .filter(({tags}) => {
+        return uniqBy([...serverEvents.current, ...events], (e: any) => [e.id, e.content].join())
+            .filter(({tags}: any) => {
                 const hashtags = tags.filter((t: any) => t[0] === 't').map((t: any) => t[1]);
                 return (hashtags.includes('ask') && hashtags.includes('nostr')) || hashtags.includes('asknostr');
             })
-            .filter(({content}) => {
-                return !content.includes('https://dev.uselessshit.co/resources/nostr');
+            .filter(({content}: any) => {
+                return content !== '' && !content.includes('https://dev.uselessshit.co/resources/nostr');
             })
             .filter(({ content, tags }: any) =>
                 !searchQuery ||
@@ -236,7 +228,7 @@ export const NostrResources = () => {
             </List>
             {
                 getEvents()
-                    .map((event) => (
+                    .map((event: any) => (
                         <React.Fragment>
                             <NoteThread
                                 key={event.id}
