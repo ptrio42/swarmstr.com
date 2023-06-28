@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {List} from "@mui/material";
 import ListItem from "@mui/material/ListItem";
 import {useSearchParams} from "react-router-dom";
@@ -11,7 +11,7 @@ import Input from "@mui/material/Input";
 import {nip05, nip19} from 'nostr-tools';
 import {NoteThread} from "../Thread/Thread";
 import Box from "@mui/material/Box";
-import {uniq, groupBy, forOwn, uniqBy} from "lodash";
+import {uniq, groupBy, forOwn, uniqBy, last, debounce} from "lodash";
 import {DEFAULT_RELAYS} from "../../../resources/Config";
 import {matchString} from "../../../utils/utils";
 import axios from "axios";
@@ -35,6 +35,8 @@ export const NostrResources = () => {
 
     const [loading, setLoading] = useState<boolean>(true);
 
+    const uniqEvents = useRef<any[]>([]);
+
     useEffect(() => {
         let searchQuery = queryParams.get('s');
         if (searchQuery && searchQuery.length > 0) {
@@ -55,6 +57,11 @@ export const NostrResources = () => {
             .then((response) => {
                 setLoading(false);
                 serverEvents.current = response.data as any[];
+                uniqEvents.current = (response.data as any[]).filter((e: any) => {
+                    const hashtags = e.tags.filter((t: any) => t[0] === 't').map((t: any) => t[1]);
+                    return ((hashtags.includes('ask') && hashtags.includes('nostr')) || hashtags.includes('asknostr')) &&
+                        e.content !== '' && !e.content.includes('https://dev.uselessshit.co/resources/nostr')
+                });
 
                 ndk.current = new NDK({ explicitRelayUrls: DEFAULT_RELAYS});
                 const subscription = ndk.current.subscribe({
@@ -65,10 +72,14 @@ export const NostrResources = () => {
                 ;
 
                 subscription.eventReceived = (e: any, r: any) => {
-                    setEvents((prevState: any[]) => [
-                        ...prevState.filter((e1: any) => e1.id !== e.id && !serverEvents.current.includes(e1)),
-                        e
-                    ])
+                    const hashtags = e.tags.filter((t: any) => t[0] === 't').map((t: any) => t[1]);
+                    if  (((hashtags.includes('ask') && hashtags.includes('nostr')) || hashtags.includes('asknostr')) &&
+                        e.content !== '' && !e.content.includes('https://dev.uselessshit.co/resources/nostr')) {
+                        setEvents((prevState: any[]) => [
+                            ...prevState.filter((e1: any) => e1.id !== e.id && !serverEvents.current.includes(e1)),
+                            e
+                        ]);
+                    }
                 };
                 subscription.eoseReceived = (r: any) => {
                     console.log('eose');
@@ -78,12 +89,22 @@ export const NostrResources = () => {
                     .then(() => {
                         subscription.start();
                     })
+                    .catch((e: any) => {
+                        console.error('start error', {e})
+                    })
                 ;
             })
             .catch((e) => {
                 console.log('api', {e})
         });
     }, []);
+
+    useEffect(() => {
+        const latestEvent: any = last(events);
+        if (uniqEvents.current.findIndex((e: any) => e.id === latestEvent.id) < 0) {
+            uniqEvents.current.push(latestEvent);
+        }
+    }, [events.length]);
 
     useEffect(() => () => {
         // unsubscribe?
@@ -99,23 +120,28 @@ export const NostrResources = () => {
     };
 
     const getEvents = () => {
-        return uniqBy([...serverEvents.current, ...events], (e: any) => [e.id, e.content].join())
-            .filter(({tags}: any) => {
-                const hashtags = tags.filter((t: any) => t[0] === 't').map((t: any) => t[1]);
-                return (hashtags.includes('ask') && hashtags.includes('nostr')) || hashtags.includes('asknostr');
-            })
-            .filter(({content}: any) => {
-                return content !== '' && !content.includes('https://dev.uselessshit.co/resources/nostr');
-            })
+        return uniqEvents.current
+            .filter((e: any) => !!e)
             .filter(({ content, tags }: any) =>
                 !searchQuery ||
                 searchQuery === '' ||
+                searchQuery?.length < 2 ||
                 (searchQuery && (matchString(searchQuery, content))) ||
                 (searchQuery && tags && tags
                     .filter((t: any) => t[0] === 't')
                     .map((t1: any) => t1[1].toLowerCase())
                     .includes(searchQuery.toLowerCase())))
     };
+
+    const searchQueryChangeHandler = (event: any) => {
+        console.log('setting search query...', event.target.value)
+        setSearchQuery(event.target.value);
+    };
+
+    const debouncedSearchQueryChangeHandler = useCallback((event: any) => {
+        console.log('debouncing...', {event});
+        debounce(() => { searchQueryChangeHandler(event) }, 500)
+    }, []);
 
     // const getTableOfContents = (): Guide => {
     //     const tableOfContents = groupBy(
@@ -194,8 +220,8 @@ export const NostrResources = () => {
                                 name="searchQuery"
                                 placeholder={'Search...'}
                                 value={searchQuery}
-                                onChange={(event) => {
-                                    setSearchQuery(event.target.value);
+                                onChange={(e: any) => {
+                                    setSearchQuery(e.target.value)
                                 }}
                                 startAdornment={
                                     <InputAdornment position="start">

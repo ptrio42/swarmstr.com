@@ -46,6 +46,9 @@ subscription.eventReceived = (e: NDKEvent, r: any) => {
             if ((hashtags.includes('ask') && hashtags.includes('nostr')) || hashtags.includes('asknostr') && !serverEvents.includes(e1)) {
                 serverEvents.push(e1);
             }
+        })
+        .catch((e: any) => {
+            console.log('eventReceived error', {e})
         });
 };
 subscription.eoseReceived = (r: any) => {
@@ -76,10 +79,16 @@ const connectToRelays = (ndk: NDK) => {
                         .map(({id, content, created_at, kind, tags, sig, pubkey}: any) => ({
                             id, content, created_at, kind, tags, sig, pubkey
                         })));
+                })
+                .catch((e: any) => {
+                    console.error('fetchEvents error', {e});
                 });
             subscription.start()
                 .then(() => {
                     console.log('sub started')
+                })
+                .catch((e: any) => {
+                    console.error('start error', {e});
                 });
         })
         .catch((e: any) => {

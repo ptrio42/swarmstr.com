@@ -1,5 +1,5 @@
 import parse, {DOMNode, HTMLReactParserOptions} from 'html-react-parser';
-import React, {FC, useCallback, useEffect, useState} from "react";
+import React, {FC, useCallback, useEffect, useRef, useState} from "react";
 import {
     CopyAll,
     DoneOutline,
@@ -66,6 +66,8 @@ export const Note = ({ noteId, pinned, handleNoteToggle, handleThreadToggle, isC
     const menuOpen = Boolean(menuAnchorEl);
     const [dialogOpen, setDialogOpen] = useState<boolean>(false);
 
+    const parsedContent = useRef<any>('');
+
     const { events } = useSubscribe({
         relays: [...DEFAULT_RELAYS],
         filters: [{
@@ -91,6 +93,12 @@ export const Note = ({ noteId, pinned, handleNoteToggle, handleThreadToggle, isC
     } as Config);
 
     const event = data.event || _event && _event[0];
+
+    useEffect(() => {
+        if (event && event.content) {
+            parsedContent.current = parseHtml(event.content);
+        }
+    }, [event]);
 
     const { events: metadataEvents } = useSubscribe({
         relays: [...DEFAULT_RELAYS],
@@ -345,7 +353,7 @@ export const Note = ({ noteId, pinned, handleNoteToggle, handleThreadToggle, isC
                             a.click();
                         } } : {}) }
                 >
-                    { event && event.content && parseHtml(event.content) }
+                    { parsedContent.current }
                 </Typography>
                 {
                     !event && <React.Fragment>
