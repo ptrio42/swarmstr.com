@@ -11,9 +11,13 @@ import {DEFAULT_RELAYS} from "../src/resources/Config";
 import NDK, {NDKEvent, NDKRelaySet, NDKSubscriptionCacheUsage, NostrEvent} from '@nostr-dev-kit/ndk';
 import RedisAdapter from '@nostr-dev-kit/ndk-cache-redis';
 import { uniqBy } from 'lodash';
-
 const baseUrl = process.env.BASE_URL;
 const server = express();
+
+process.on('unhandledRejection', (error: any, p) => {
+    console.log('=== UNHANDLED REJECTION ===');
+    console.dir(error.stack);
+});
 
 server.set('view engine', 'ejs');
 server.set('views', path.join(__dirname, 'views'));
@@ -160,3 +164,4 @@ server.get('/*', (req, res) => {
 server.listen(3000, () => {
     console.log(`Server running on http://localhost:3000`);
 });
+
