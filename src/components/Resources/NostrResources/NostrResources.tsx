@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {List} from "@mui/material";
 import ListItem from "@mui/material/ListItem";
 import {useSearchParams} from "react-router-dom";
@@ -13,98 +13,43 @@ import {NoteThread} from "../Thread/Thread";
 import Box from "@mui/material/Box";
 import {uniq, groupBy, forOwn, uniqBy, last, debounce} from "lodash";
 import {DEFAULT_RELAYS} from "../../../resources/Config";
-import {matchString} from "../../../utils/utils";
+import {matchString, useDebounce} from "../../../utils/utils";
 import axios from "axios";
 import InputAdornment from "@mui/material/InputAdornment";
 import NDK, { NDKRelaySet } from '@nostr-dev-kit/ndk';
+import {Note} from "../Note/Note";
+import {useNostrFeedContext} from "../../../providers/NostrFeedContextProvider";
 
+interface NostrResourcesProps {
+    children?: any;
+    resultsCount?: number;
+    // onSearchQueryChange: (searchQuery: string) => void
+}
 
-export const NostrResources = () => {
-
-    const [sort, setSort] = useState<string>('');
+export const NostrResources = ({ children, resultsCount }: NostrResourcesProps) => {
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
     const [snackbarMessage, setSnackBarMessage] = useState<string>('');
-    const [searchQuery, setSearchQuery] = useState<string|undefined>();
+    const [searchQuery, setSearchQuery] = useState<string>('');
 
     const [queryParams, setQueryParams] = useSearchParams();
+    const queryParamsMemo = useMemo(() => ({ queryParams }), []);
 
-    const ndk = useRef<any>(null);
-
-    const [events, setEvents] = useState<any[]>([]);
-    const serverEvents = useRef<any[]>([]);
-
-    const [loading, setLoading] = useState<boolean>(true);
-
-    const uniqEvents = useRef<any[]>([]);
+    const { loading, nevents } = useNostrFeedContext();
 
     useEffect(() => {
-        let searchQuery = queryParams.get('s');
-        if (searchQuery && searchQuery.length > 0) {
-            setSearchQuery(searchQuery);
+        const _searchQuery = queryParams.get('s');
+        if (_searchQuery || _searchQuery === '') {
+            setSearchQuery(_searchQuery);
+            // @ts-ignore
+            debouncedSearchQueryChangeHandler();
         }
-    }, [queryParams]);
+    }, [queryParamsMemo]);
 
     useEffect(() => {
         if (searchQuery || searchQuery === '') {
             setQueryParams({ s: searchQuery });
         }
     }, [searchQuery]);
-
-    useEffect(() => {
-        // fetch events from the server first
-        axios
-            .get('../api/events')
-            .then((response) => {
-                setLoading(false);
-                serverEvents.current = response.data as any[];
-                uniqEvents.current = (response.data as any[]).filter((e: any) => {
-                    const hashtags = e.tags.filter((t: any) => t[0] === 't').map((t: any) => t[1]);
-                    return ((hashtags.includes('ask') && hashtags.includes('nostr')) || hashtags.includes('asknostr')) &&
-                        e.content !== '' && !e.content.includes('https://dev.uselessshit.co/resources/nostr')
-                });
-
-                ndk.current = new NDK({ explicitRelayUrls: DEFAULT_RELAYS});
-                const subscription = ndk.current.subscribe({
-                        kinds: [1],
-                        // ids: NOTES
-                        '#t': ['ask', 'nostr', 'asknostr']
-                    }, { closeOnEose: false }, NDKRelaySet.fromRelayUrls(DEFAULT_RELAYS, ndk.current))
-                ;
-
-                subscription.eventReceived = (e: any, r: any) => {
-                    const hashtags = e.tags.filter((t: any) => t[0] === 't').map((t: any) => t[1]);
-                    if  (((hashtags.includes('ask') && hashtags.includes('nostr')) || hashtags.includes('asknostr')) &&
-                        e.content !== '' && !e.content.includes('https://dev.uselessshit.co/resources/nostr')) {
-                        setEvents((prevState: any[]) => [
-                            ...prevState.filter((e1: any) => e1.id !== e.id && !serverEvents.current.includes(e1)),
-                            e
-                        ]);
-                    }
-                };
-                subscription.eoseReceived = (r: any) => {
-                    console.log('eose');
-                };
-
-                ndk.current.connect()
-                    .then(() => {
-                        subscription.start();
-                    })
-                    .catch((e: any) => {
-                        console.error('start error', {e})
-                    })
-                ;
-            })
-            .catch((e) => {
-                console.log('api', {e})
-        });
-    }, []);
-
-    useEffect(() => {
-        const latestEvent: any = last(events);
-        if (uniqEvents.current.findIndex((e: any) => e.id === latestEvent.id) < 0) {
-            uniqEvents.current.push(latestEvent);
-        }
-    }, [events.length]);
 
     useEffect(() => () => {
         // unsubscribe?
@@ -119,29 +64,18 @@ export const NostrResources = () => {
         localStorage.setItem('readGuides', readGuides.join(','));
     };
 
-    const getEvents = () => {
-        return uniqEvents.current
-            .filter((e: any) => !!e)
-            .filter(({ content, tags }: any) =>
-                !searchQuery ||
-                searchQuery === '' ||
-                searchQuery?.length < 2 ||
-                (searchQuery && (matchString(searchQuery, content))) ||
-                (searchQuery && tags && tags
-                    .filter((t: any) => t[0] === 't')
-                    .map((t1: any) => t1[1].toLowerCase())
-                    .includes(searchQuery.toLowerCase())))
-    };
+    const debouncedSearchQueryChangeHandler = useDebounce(() => {
+        // onSearchQueryChange(searchQuery);
+    });
 
     const searchQueryChangeHandler = (event: any) => {
         console.log('setting search query...', event.target.value)
         setSearchQuery(event.target.value);
+        // @ts-ignore
+        debouncedSearchQueryChangeHandler();
     };
 
-    const debouncedSearchQueryChangeHandler = useCallback((event: any) => {
-        console.log('debouncing...', {event});
-        debounce(() => { searchQueryChangeHandler(event) }, 500)
-    }, []);
+
 
     // const getTableOfContents = (): Guide => {
     //     const tableOfContents = groupBy(
@@ -213,16 +147,14 @@ export const NostrResources = () => {
                     }}
                 >
                     <List sx={{ width: '100%' }}>
-                        <ListItem className="guide-search">
+                        <ListItem key={'search-box'} className="guide-search">
                             <Input
                                 sx={{ width: '80%' }}
                                 id="searchQuery"
                                 name="searchQuery"
                                 placeholder={'Search...'}
                                 value={searchQuery}
-                                onChange={(e: any) => {
-                                    setSearchQuery(e.target.value)
-                                }}
+                                onChange={searchQueryChangeHandler}
                                 startAdornment={
                                     <InputAdornment position="start">
                                         <Search />
@@ -230,26 +162,13 @@ export const NostrResources = () => {
                                 }
                             />
                         </ListItem>
-                        <ListItem>
-                            { getEvents()?.length } results
+                        <ListItem key={'results-count'}>
+                            { resultsCount || 0 } results
                         </ListItem>
                     </List>
                 </ListItem>
             </List>
-            {
-                getEvents()
-                    .map((event: any) => (
-                        <React.Fragment>
-                            <NoteThread
-                                key={event.id}
-                                data={{
-                                    noteId: event.id,
-                                    event
-                                }}
-                            />
-                        </React.Fragment>
-                    ))
-            }
+            { children }
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={3000}

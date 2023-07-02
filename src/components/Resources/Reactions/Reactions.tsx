@@ -82,14 +82,14 @@ export interface Reaction {
 }
 
 interface ReactionsProps {
-    reactions: Reaction[];
+    reactions?: Reaction[];
     type?: ReactionType;
     handleReaction?: (reaction: string) => void;
     placeholder?: any;
     reacted?: boolean;
 }
 
-export const Reactions = ({ reactions, handleReaction, type, placeholder, reacted }: ReactionsProps) => {
+export const Reactions = ({ reactions = [], handleReaction, type, placeholder, reacted }: ReactionsProps) => {
 
     const [open, setOpen] = React.useState(false);
 

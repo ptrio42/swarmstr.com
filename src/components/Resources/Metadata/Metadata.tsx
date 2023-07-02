@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {Bolt, CopyAll, Launch, QrCodeScanner} from "@mui/icons-material";
 import {ListItemAvatar} from "@mui/material";
 import Avatar from "@mui/material/Avatar";
@@ -16,6 +16,8 @@ import {useSubscribe} from "nostr-hooks";
 import {Config} from "nostr-hooks/dist/types";
 import {DEFAULT_RELAYS} from "../../../resources/Config";
 import CircularProgress from "@mui/material/CircularProgress";
+import {NDKFilter, NostrEvent} from "@nostr-dev-kit/ndk";
+import {useNostrNoteContext} from "../../../providers/NostrNoteContextProvider";
 
 interface QrCodeDialogProps {
     dialogOpen: boolean;
@@ -101,13 +103,14 @@ export interface Metadata {
     picture: string;
     pubkey: string;
     name: string;
+    displayName: string;
 }
 
 interface MetadataProps {
     picture?: string;
     lud06?: string;
     lud16?: string;
-    npub?: string;
+    // npub?: string;
     nip05?: string;
     name?: string;
     supposedName?: string;
@@ -118,60 +121,39 @@ interface MetadataProps {
         event?: any
     };
     isSkeleton?: boolean;
+    pubkey: string;
 }
 
-export const Metadata = ({ npub, handleCopyNpub, supposedName, variant = 'full', data = {}, isSkeleton }: MetadataProps) => {
+export const Metadata = ({ pubkey, handleCopyNpub, supposedName, variant = 'full', data = {}, isSkeleton }: MetadataProps) => {
     const [menuAnchorEl, setMenuAnchorEl] = React.useState<null | HTMLElement>(null);
 
     const menuOpen = Boolean(menuAnchorEl);
     const [dialogOpen, setDialogOpen] = useState<boolean>(false);
-    const [event, setEvent] = useState<any>(data.event);
 
     const [metadata, setMetadata] = useState<Metadata | undefined>(undefined);
 
-    const { events: metadataEvents } = useSubscribe({
-        relays: [...DEFAULT_RELAYS],
-        filters: [{
-            kinds: [0],
-            // @ts-ignore
-            authors: [npub && nip19.decode(npub).data]
-        }],
-        options: {
-            enabled: !isSkeleton && !!npub && !metadata,
-            closeAfterEose: false,
-            invalidate: true
-        }
-    } as Config);
+    const { subscribe, events } = useNostrNoteContext();
+
+    const filter: NDKFilter = { kinds: [0], authors: [pubkey] };
+
+    const event = events.find((e: NostrEvent) => e.pubkey === pubkey && e.kind === 0);
+    const npub = pubkey && nip19.npubEncode(pubkey);
 
     useEffect(() => {
-        if (!npub) {
-            return;
-        }
-        const hex = npub && nip19.decode(npub);
-        const metadataEvent = hex && metadataEvents.find((e) => e.pubkey === hex.data);
-        if (metadataEvent) {
-            setEvent(metadataEvent);
-        }
-    }, [metadataEvents]);
-
-    useEffect(() => {
-    }, []);
+        subscribe(filter);
+    }, [pubkey]);
 
     useEffect(() => () => {
     }, []);
 
     useEffect(() => {
-        if (!event) {
-            return;
-        }
-        try {
-            if (npub && nip19.npubEncode(event.pubkey) !== npub) {
-                console.warn('Npub mismatch!!!');
+        if (event && event.content) {
+            try {
+                const content = JSON.parse(event.content);
+                setMetadata(content);
+            } catch (error) {
+                console.error('error parsing metadata content', {error})
             }
-            const content = JSON.parse(event.content);
-            setMetadata(content);
-        } catch (e) {
-
         }
     }, [event]);
 
@@ -184,37 +166,38 @@ export const Metadata = ({ npub, handleCopyNpub, supposedName, variant = 'full',
     };
 
     const getProfileDisplayedName = () => {
-        return metadata ? (metadata.nip05 || metadata.name) : supposedName || (npub && npub.slice(5, 13) + ':' + npub.slice(npub.length - 8));
+        return metadata ? (metadata.nip05 || metadata.name || metadata.displayName) : (npub && npub.slice(5, 13) + ':' + npub.slice(npub.length - 8));
     };
 
     return (
         <React.Fragment>
-            <Typography sx={{ display: 'inline-flex', alignItems: 'center' }} component="div">
-                <ListItemAvatar sx={{minWidth: '0', marginRight: '2px'}}>
-                    <Avatar imgProps={{ height: '21' }} sx={{ width: '21px', height: '21px' }} alt="" src={metadata && metadata.picture} />
-                </ListItemAvatar>
-                <ListItemText
-                    primary={
-                        <React.Fragment>
-                            <Typography sx={{ fontSize: '14px', fontWeight: 'bold' }}>
+            {
+                pubkey && <Typography sx={{ display: 'inline-flex', alignItems: 'center' }} component="div">
+                    <ListItemAvatar sx={{minWidth: '0', marginRight: '2px'}}>
+                        <Avatar imgProps={{ height: '21' }} sx={{ width: '21px', height: '21px' }} alt="" src={metadata && metadata.picture} />
+                    </ListItemAvatar>
+                    <ListItemText
+                        primary={
+                            <React.Fragment>
+                                <Typography sx={{ fontSize: '14px', fontWeight: 'bold' }}>
 
-                                <a target="_blank" href={'https://snort.social/p/' + (npub || nip19.npubEncode(event.pubkey))}>
-                                    {getProfileDisplayedName()}
-                                </a>
+                                    <a target="_blank" href={'https://snort.social/p/' + nip19.npubEncode(pubkey)}>
+                                        {getProfileDisplayedName()}
+                                    </a>
 
-                                {/*{*/}
+                                    {/*{*/}
                                     {/*variant !== 'link' &&*/}
                                     {/*metadata && (metadata.lud06 || metadata.lud16) &&*/}
                                     {/*<React.Fragment>*/}
-                                        {/*<a href={'lightning:' + metadata.lud06 || metadata.lud16}>*/}
-                                            {/*<IconButton>*/}
-                                                {/*<Bolt sx={{ fontSize: 18 }} color="secondary"/>*/}
-                                            {/*</IconButton>*/}
-                                        {/*</a>*/}
+                                    {/*<a href={'lightning:' + metadata.lud06 || metadata.lud16}>*/}
+                                    {/*<IconButton>*/}
+                                    {/*<Bolt sx={{ fontSize: 18 }} color="secondary"/>*/}
+                                    {/*</IconButton>*/}
+                                    {/*</a>*/}
                                     {/*</React.Fragment>*/}
-                                {/*}*/}
-                                {
-                                    variant !== 'link' &&
+                                    {/*}*/}
+                                    {
+                                        variant !== 'link' &&
                                         <React.Fragment>
                                             <IconButton
                                                 aria-controls={menuOpen ? 'account-menu' : undefined}
@@ -250,25 +233,26 @@ export const Metadata = ({ npub, handleCopyNpub, supposedName, variant = 'full',
                                                 </MenuItem>
                                             </Menu>
                                         </React.Fragment>
-                                }
-                            </Typography>
-                        </React.Fragment>
-                    }
-                    { ...(variant === 'full' && {'secondary':
-                            <React.Fragment>
-                                <Typography
-                                    sx={{ display: 'inline' }}
-                                    component="span"
-                                    variant="body2"
-                                    color="text.primary"
-                                >
-                                    { metadata && metadata.about }
+                                    }
                                 </Typography>
                             </React.Fragment>
-                    }) }
-                />
-            </Typography>
-            <QrCodeDialog str={`nostr:${npub}` || ''} dialogOpen={dialogOpen} close={() => setDialogOpen(false)} />
+                        }
+                        { ...(variant === 'full' && {'secondary':
+                                <React.Fragment>
+                                    <Typography
+                                        sx={{ display: 'inline' }}
+                                        component="span"
+                                        variant="body2"
+                                        color="text.primary"
+                                    >
+                                        { metadata && metadata.about }
+                                    </Typography>
+                                </React.Fragment>
+                        }) }
+                    />
+                </Typography>
+            // <QrCodeDialog str={`nostr:${npub}` || ''} dialogOpen={dialogOpen} close={() => setDialogOpen(false)} />
+            }
         </React.Fragment>
     );
 };

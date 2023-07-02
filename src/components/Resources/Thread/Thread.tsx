@@ -1,20 +1,25 @@
 import {Note} from "../Note/Note";
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import {ListItem} from "@mui/material";
 import List from "@mui/material/List";
 import {Link, useParams} from "react-router-dom";
 import { nip19 } from 'nostr-tools';
 import {Helmet} from "react-helmet";
-import {sortBy} from 'lodash';
-import {useSubscribe} from "nostr-hooks";
-import {Config} from "nostr-hooks/dist/types";
 import Button from "@mui/material/Button";
-import {ArrowBack, CopyAll} from "@mui/icons-material";
-import {DEFAULT_EVENTS} from "../../../stubs/events";
-import {DEFAULT_RELAYS} from "../../../resources/Config";
-import axios from "axios";
+import {ArrowBack} from "@mui/icons-material";
+import {useNostrNoteThreadContext} from "../../../providers/NostrNoteThreadContextProvider";
+import {NDKFilter, NostrEvent} from "@nostr-dev-kit/ndk";
+import {NostrNoteContextProvider} from "../../../providers/NostrNoteContextProvider";
+import {useLiveQuery} from "dexie-react-hooks";
+import {db} from "../../../db";
+import {containsTag} from "../../../utils/utils";
 
 interface ThreadProps {
+    nevent?: string;
+    children?: any;
+    expanded?: boolean;
+    render?: boolean;
+
     data?: {
         noteId?: string
         events?: any[];
@@ -22,86 +27,42 @@ interface ThreadProps {
     }
 }
 
-export const NoteThread = ({ data = {} }: ThreadProps) => {
-    const { noteId } = useParams();
-    const [expanded, setExpanded] = useState(false);
+export const NoteThread = ({ nevent, data = {}, children, expanded }: ThreadProps) => {
+    const { id } = nevent && nip19.decode(nevent).data;
 
-    // gets note id in hex
-    const getNoteId = () => {
-        return data.noteId || noteId && nip19.decode(noteId)?.data;
-    };
+    const filter: NDKFilter = { kinds: [1], '#e': [id] };
 
-    const { events: _event } = useSubscribe({
-        relays: [...DEFAULT_RELAYS],
-        filters: [{
-            kinds: [1],
-            // @ts-ignore
-            ids: [getNoteId()]
-        }],
-        options: {
-            enabled: (!data.event && noteId && noteId !== '') || (!data.event && !!data.noteId),
-            closeAfterEose: true
-        }
-    } as Config);
-    const event = data.event || (_event && _event[0]) || DEFAULT_EVENTS.find((e: any) => e.id === (noteId && nip19.decode(noteId)?.data));
+    const { subscribe } = useNostrNoteThreadContext();
 
-    const { events: commentEvents } = useSubscribe({
-        relays: [...DEFAULT_RELAYS],
-        filters: [{
-            kinds: [1],
-            // @ts-ignore
-            '#e': [getNoteId()]
-        }],
-        options: {
-            enabled: true
-        }
-    } as Config);
-
-    const { events: reactionEvents } = useSubscribe({
-        relays: [...DEFAULT_RELAYS],
-        filters: [{
-            kinds: [7],
-            // @ts-ignore
-            '#e': [getNoteId()]
-        }],
-        options: {
-            enabled: true
-        }
-    } as Config);
-
-    const [offlineEvents, setOfflineEvents] = useState([]);
+    const events = useLiveQuery(async () => {
+       const events = await db.events
+           .where('kind').equals(1)
+           .filter(({ tags }) => containsTag(tags, ['e', id || '']))
+           .toArray();
+       return events;
+    }, [id]);
 
     useEffect(() => {
-        // fetch events from json
-        // temp solution
-        axios
-            .get('../../events.json')
-            .then((response) => {
-                setOfflineEvents(response.data);
-            });
-
-        // expand the thread when viewing note details
-        const isExpanded = !(!noteId || noteId === '') && !data.noteId;
-        setExpanded(isExpanded);
+        subscribe(filter);
     }, []);
 
     return (
         <React.Fragment>
             <Helmet>
-                <title>{`${ event && event.content } - UseLessShit.co`}</title>
+                <title>{`Thread ${ nevent } - UseLessShit.co`}</title>
                 <meta property="description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />
                 <meta property="keywords" content="nostr guide, nostr resources, nostr most common questions, getting started on nostr, what is nostr" />
 
-                <meta property="og:url" content={'https://uselessshit.co/resources/nostr/' + noteId } />
+                <meta property="og:url" content={process.env.BASE_URL + '/nostr/e/' + nevent } />
                 <meta property="og:type" content="website" />
-                <meta property="og:title" content={`${ event && event.content } - UseLessShit.co`} />
+                <meta property="og:title" content={`Thread ${ nevent } - UseLessShit.co`} />
                 <meta property="og:image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />
                 <meta property="og:description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />
 
-                <meta itemProp="name" content={`${ event && event.content } - UseLessShit.co`} />
+                <meta itemProp="name" content={`${ nevent } - UseLessShit.co`} />
                 <meta itemProp="image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />
 
-                <meta name="twitter:title" content={`${ event && event.content } - UseLessShit.co`} />
+                <meta name="twitter:title" content={`${ nevent } - UseLessShit.co`} />
                 <meta name="twitter:description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />
                 <meta name="twitter:image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />
 
@@ -110,67 +71,28 @@ export const NoteThread = ({ data = {} }: ThreadProps) => {
             <List>
 
                 {
-                    !(!noteId || noteId === '') && !data.noteId && <ListItem>
-                        <Button variant="text" component={Link} to="/resources/nostr">
+                    expanded && <ListItem key={'nostr-resources-nav-back'}>
+                        <Button variant="text" component={Link} to="/nostr/resources">
                             <ArrowBack sx={{ fontSize: 18, marginRight: 1 }} />
                             Nostr Resources
                         </Button>
                     </ListItem>
                 }
-                <ListItem sx={{ paddingTop: 0, paddingBottom: 0 }} id={event && event.id}>
-                    {
-                        <Note
-                            // @ts-ignore
-                            noteId={data.noteId || nip19.decode(noteId)?.data || ''}
-                            isCollapsable={!noteId}
-                            handleThreadToggle={(exp: boolean) => {
-                                setExpanded(exp);
-                            }}
-                            isThreadExpanded={expanded}
-                            // TODO: is read
-                            isRead={true}
-                            data={{ event }}
-                            threadView={(!noteId || noteId === '' || !!noteId && !!data.noteId)}
-                        />
-                    }
+                <ListItem key={`${id}-container`} sx={{ paddingTop: 0, paddingBottom: 0 }}>
+                    {children}
                 </ListItem>
                 {
-                    expanded &&
-                    <ListItem>
-                        <List sx={{ maxWidth: '100%' }}>
-                            {
-                                sortBy(
-                                    // @ts-ignore
-                                    [...offlineEvents, ...commentEvents]
-                                        .filter((e1: any) =>
-                                            e1.kind === 1 &&
-                                            e1.tags.findIndex((t: string[]) => t[0] === 'e' && t[1] === getNoteId()) > -1
-                                        ),
-                                    (e: any) => {
-                                    return [...offlineEvents, ...reactionEvents]
-                                        .filter((e2: any) =>
-                                            e2.kind === 7 &&
-                                            e2.tags.findIndex((t: string[]) => t[0] === 'e' && t[1] === e.id) > -1)
-                                        .length
-                                })
-                                .reverse()
-                                .map((n, i) =>
-                                    <ListItem>
-                                        <Note
-                                            // @ts-ignore
-                                            noteId={n.id}
-                                            pinned={i === 0}
-                                            isCollapsable={true}
-                                            isRead={true}
-                                            data={{
-                                                event: n
-                                            }}
-                                        />
-                                    </ListItem>
-                                )
-                            }
-                        </List>
-                    </ListItem>
+                    expanded && <List key={`${nevent}-answers`} sx={{ width: '90%', margin: 'auto' }}>
+                        {
+                            (events || [])
+                                .map(({ id, ..._ }: NostrEvent) => nip19.neventEncode({ id }))
+                                .map((_nevent: string) => (
+                                    <NostrNoteContextProvider thread={true}>
+                                        <Note key={`${_nevent}-content`} nevent={_nevent}/>
+                                    </NostrNoteContextProvider>
+                                ))
+                        }
+                    </List>
                 }
             </List>
         </React.Fragment>

@@ -8,15 +8,17 @@ import {StaticRouter} from "react-router-dom/server";
 import {Helmet} from "react-helmet";
 import {nip19} from 'nostr-tools';
 import {DEFAULT_RELAYS} from "../src/resources/Config";
-import NDK, {NDKEvent, NDKRelaySet, NDKSubscriptionCacheUsage, NostrEvent} from '@nostr-dev-kit/ndk';
+import NDK, {NDKEvent, NDKSubscriptionCacheUsage, NostrEvent} from '@nostr-dev-kit/ndk';
 import RedisAdapter from '@nostr-dev-kit/ndk-cache-redis';
-import { uniqBy } from 'lodash';
+import {uniqBy} from 'lodash';
+
 const baseUrl = process.env.BASE_URL;
 const server = express();
 
 process.on('unhandledRejection', (error: any, p) => {
     console.log('=== UNHANDLED REJECTION ===');
-    console.dir(error.stack);
+    console.dir(error);
+    console.dir(p);
 });
 
 server.set('view engine', 'ejs');
@@ -28,27 +30,56 @@ const manifest = fs.readFileSync(
     path.join(__dirname, 'static/manifest.json'),
     'utf-8'
 );
+
 const assets = JSON.parse(manifest);
-const eventsFile = fs.readFileSync(path.join(__dirname, '../public/events.json'), 'utf-8');
-const events = JSON.parse(eventsFile);
+// const eventsFile = fs.readFileSync(path.join(__dirname, '../public/events.json'), 'utf-8');
+// const events = JSON.parse(eventsFile);
 
 const redisAdapter = new RedisAdapter({ expirationTime: 60 * 60 * 24 });
 // @ts-ignore
 const ndk = new NDK({ explicitRelayUrls: DEFAULT_RELAYS, cacheAdapter: redisAdapter });
-let serverEvents: any[] = [];
+const events: NostrEvent[] = [];
+
+const nevents: string[] = [];
 
 const subscription = ndk.subscribe({
         kinds: [1],
         // ids: NOTES
         '#t': ['ask', 'nostr', 'asknostr']
-    }, { closeOnEose: false, cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST }, NDKRelaySet.fromRelayUrls(DEFAULT_RELAYS, ndk));
+    }, { closeOnEose: false, cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY });
+
 
 subscription.eventReceived = (e: NDKEvent, r: any) => {
+    // console.log('####### NDK event ######')
+    // console.log({e});
+    const {id, pubkey} = e;
     e.toNostrEvent()
         .then((e1: NostrEvent) => {
+            // console.log('######## event #######');
+            // console.log({e1});
             const hashtags = e1.tags.filter((t: any) => t[0] === 't').map((t: any) => t[1]);
-            if ((hashtags.includes('ask') && hashtags.includes('nostr')) || hashtags.includes('asknostr') && !serverEvents.includes(e1)) {
-                serverEvents.push(e1);
+            if (((hashtags.includes('ask') && hashtags.includes('nostr')) || hashtags.includes('asknostr')) && !events.includes(e1)) {
+
+                // const newEvent = { ...e1, id: e.id };
+                // if (newEvent.id === '76ccabf3f428359b0de9e8d988fe9633564cebba67f1468821da7c735d193e4a') {
+                //     console.log('got wrong id')
+                // }
+                // if (newEvent.id === 'cd87b9eb0192a2d4144324d83699881bba043fe1d4d21696e8f426579f6eb914') {
+                //     console.log('got correct id')
+                // }
+                const nevent = nip19.neventEncode({
+                    id,
+                    author: pubkey,
+                    relays: [r.url]
+                });
+
+                // console.log({nevent})
+
+                nevents.push(nevent);
+
+                events.push(
+                    e1
+                );
             }
         })
         .catch((e: any) => {
@@ -59,8 +90,11 @@ subscription.eoseReceived = (r: any) => {
     console.log('eose');
 };
 
-serverEvents.push(...events);
+// serverEvents.push(...events);
 let iterator = 0;
+
+
+
 
 const connectToRelays = (ndk: NDK) => {
     ndk.connect()
@@ -72,17 +106,17 @@ const connectToRelays = (ndk: NDK) => {
                 '#t': ['ask', 'nostr', 'asknostr']
             }, {skipCache: false})
                 .then((set: any) => {
-                    serverEvents.push(...Array.from(set)
-                        .filter(({tags}: any) => {
-                            const hashtags = tags.filter((t: any) => t[0] === 't').map((t: any) => t[1]);
-                            return (hashtags.includes('ask') && hashtags.includes('nostr')) || hashtags.includes('asknostr');
-                        })
-                        .filter(({content}: any) => {
-                            return !content.includes('https://dev.uselessshit.co/resources/nostr');
-                        })
-                        .map(({id, content, created_at, kind, tags, sig, pubkey}: any) => ({
-                            id, content, created_at, kind, tags, sig, pubkey
-                        })));
+                    // serverEvents.push(...Array.from(set)
+                    //     .filter(({tags}: any) => {
+                    //         const hashtags = tags.filter((t: any) => t[0] === 't').map((t: any) => t[1]);
+                    //         return (hashtags.includes('ask') && hashtags.includes('nostr')) || hashtags.includes('asknostr');
+                    //     })
+                    //     .filter(({content}: any) => {
+                    //         return !content.includes('https://dev.uselessshit.co/resources/nostr');
+                    //     })
+                    //     .map(({id, content, created_at, kind, tags, sig, pubkey}: any) => ({
+                    //         id, content, created_at, kind, tags, sig, pubkey
+                    //     })));
                 })
                 .catch((e: any) => {
                     console.error('fetchEvents error', {e});
@@ -106,16 +140,27 @@ const connectToRelays = (ndk: NDK) => {
 };
 connectToRelays(ndk);
 
+
+
+
 server.get('/api/events', (req, res) => {
-    res.json(uniqBy(serverEvents, 'id'));
+    res.json(uniqBy(events, 'id'));
+});
+
+server.get('/api/nevents', (req, res) => {
+    res.json(uniqBy(nevents, (nevent) => {
+        const data = nip19.decode(nevent);
+        console.log({data})
+        return data.data.id;
+    }));
 });
 
 server.get('/*', (req, res) => {
     let helmet = Helmet.renderStatic();
     const path = req.originalUrl;
-    if (path === '/resources/nostr/') {
+    if (path === '/resources/nostr/' || path === '/resources/nostr') {
         res.writeHead(301, {
-            Location: `/resources/nostr`
+            Location: `/nostr/resources`
         }).end();
     }
     const pathArr = path.split('/');

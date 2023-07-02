@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {Route, Routes, useLocation} from 'react-router-dom';
 import './App.css';
 import {BitcoinResources, Footer, CardGenerator, NavBar, PageContent, SpreadTheWord} from "./components";
@@ -18,6 +18,13 @@ import {Nip05} from "./components/Nostr/Nip05/Nip05";
 import {Zaps} from "./components/Nostr/Zaps/Zaps";
 import {ThemeContextWrapper} from "./theme/ThemeContextWrapper";
 import {NoteThread} from "./components/Resources/Thread/Thread";
+import {Feed} from "./components/Nostr/Feed/Feed";
+import {NostrFeedContextProvider} from "./providers/NostrFeedContextProvider";
+import {NostrNoteThreadContextProvider, useNostrNoteThreadContext} from "./providers/NostrNoteThreadContextProvider";
+import {NostrNoteContextProvider} from "./providers/NostrNoteContextProvider";
+import {Note} from "./components/Resources/Note/Note";
+import {NostrNoteThreadContext} from "./contexts/NostrNoteThreadContext";
+import {NostrContextProvider} from "./providers/NostrContextProvider";
 
 const theme = createTheme({
     typography: {
@@ -104,8 +111,13 @@ function App() {
     }
   }, [pathname, hash, key]);
 
+  const nostrResources = useMemo(() => {
+      return <NostrResources/>
+  }, []);
+
   return (
       <React.Fragment>
+          <NostrContextProvider>
       <ThemeContextWrapper>
     <div className="App">
         <ThemeProvider theme={theme}>
@@ -135,20 +147,41 @@ function App() {
                  <Route path="/spread-the-word" element={<SpreadTheWord />} />
                  <Route path="resources" element={<Resources/>}>
                      <Route path="bitcoin" element={<BitcoinResources />} />
-                     <Route path="nostr" element={<NostrResources/>} />
+                     <Route path="nostr" element={nostrResources} />
                      <Route path="nostr/:noteId" element={<NoteThread/>} />
                  </Route>
                  {/*<Route path="/card-generator" element={<CardGenerator />} />*/}
                  <Route path="/tip-jar/:username" element={<TipJar />} />
-                 <Route path="/nostr" element={<Nostr/>}>
-                     <Route path="nip-05" element={<Nip05/>} />
-                     <Route path="zaps" element={<Zaps/>} />
-                 </Route>
+                     <Route path="/nostr" element={<Nostr/>}>
+                         <Route path="nip-05" element={<Nip05/>} />
+                         <Route path="zaps" element={<Zaps/>} />
+                         <Route path="resources" element={<NostrFeedContextProvider><Feed/></NostrFeedContextProvider>} />
+                         <Route path="e/:nevent" element={
+                             <NostrNoteThreadContextProvider>
+                                 <NostrNoteThreadContext.Consumer>
+                                     {
+                                         ({ nevent }) => (
+                                             <NoteThread
+                                                 key={`${nevent}-thread`}
+                                                 nevent={nevent}
+                                                 expanded={true}
+                                             >
+                                                 <NostrNoteContextProvider thread={true}>
+                                                     <Note key={`${nevent}-content`} nevent={nevent}/>
+                                                 </NostrNoteContextProvider>
+                                             </NoteThread>
+                                         )
+                                     }
+                                 </NostrNoteThreadContext.Consumer>
+                             </NostrNoteThreadContextProvider>
+                         }/>
+                     </Route>
              </Routes>
             <Footer />
          </ThemeProvider>
     </div>
     </ThemeContextWrapper>
+          </NostrContextProvider>
       </React.Fragment>
   );
 }

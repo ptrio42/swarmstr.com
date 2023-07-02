@@ -1,5 +1,5 @@
 import parse, {DOMNode, HTMLReactParserOptions} from 'html-react-parser';
-import React, {FC, useCallback, useEffect, useRef, useState} from "react";
+import React, {FC, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {
     CopyAll,
     DoneOutline,
@@ -7,7 +7,7 @@ import {
     QrCodeScanner,
     UnfoldLess,
     UnfoldMore,
-    Note as NoteIcon
+    Note as NoteIcon, ChatBubbleOutline, ElectricBolt
 } from "@mui/icons-material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -26,7 +26,7 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import './Note.css';
 import { Element, isTag } from 'domhandler';
-import {Link} from "react-router-dom";
+import {Link, useSearchParams} from "react-router-dom";
 import {processText} from "../../../services/util";
 import {Config} from "nostr-hooks/dist/types";
 import {DEFAULT_RELAYS} from "../../../resources/Config";
@@ -36,9 +36,19 @@ import {DEFAULT_EVENTS} from "../../../stubs/events";
 import {NoteThread} from "../Thread/Thread";
 import {Skeleton} from "@mui/material";
 import ReactPlayer from 'react-player';
+import NDK, {NDKEvent, NDKFilter, NDKRelaySet, NDKTag, NostrEvent} from "@nostr-dev-kit/ndk";
+import {NostrNoteContextProvider, useNostrNoteContext} from "../../../providers/NostrNoteContextProvider";
+import { intersection } from 'lodash';
+import {containsTag, matchString, nFormatter} from "../../../utils/utils";
+import Box from "@mui/material/Box";
+import {useNostrContext} from "../../../providers/NostrContextProvider";
+// import { decode } from 'bolt11';
+import lightBolt11Decoder from 'light-bolt11-decoder';
+import {useLiveQuery} from "dexie-react-hooks";
+import {db} from "../../../db";
 
 interface NoteProps {
-    noteId: string;
+    noteId?: string;
     pinned?: boolean;
     handleThreadToggle?: (expanded: boolean) => any;
     handleNoteToggle?: (expanded: boolean) => any;
@@ -50,11 +60,17 @@ interface NoteProps {
     data?: {
         event?: any;
     };
-    threadView?: boolean
+    threadView?: boolean;
+    nevent: string;
+    context?: 'feed' | 'thread';
+
+    onSearchQuery?: (nevent: string, display: boolean) => void
 }
 
-export const Note = ({ noteId, pinned, handleNoteToggle, handleThreadToggle, isCollapsable, handleUpReaction,
-     handleDownReaction, isThreadExpanded, isRead, data = {}, threadView = false }: NoteProps
+const MetadataMemo = React.memo(Metadata);
+
+export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handleThreadToggle, isCollapsable, handleUpReaction,
+     handleDownReaction, isThreadExpanded, isRead, data = {}, threadView = false, onSearchQuery }: NoteProps
 ) => {
 
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
@@ -66,52 +82,64 @@ export const Note = ({ noteId, pinned, handleNoteToggle, handleThreadToggle, isC
     const menuOpen = Boolean(menuAnchorEl);
     const [dialogOpen, setDialogOpen] = useState<boolean>(false);
 
-    const parsedContent = useRef<any>('');
+    const [parsedContent, setParsedContent] = useState<any>();
 
-    const { events } = useSubscribe({
-        relays: [...DEFAULT_RELAYS],
-        filters: [{
-            kinds: [1, 7],
-            '#e': [noteId]
-        }],
-        options: {
-            enabled: !!noteId,
-            closeAfterEose: false
-        }
-    } as Config);
+    const { subscribe, addReaction, zap, subs } = useNostrNoteContext();
 
-    const { events: _event } = useSubscribe({
-        relays: [...DEFAULT_RELAYS],
-        filters: [{
-            kinds: [1],
-            ids: [noteId]
-        }],
-        options: {
-            enabled: !!noteId && !data.event,
-            closeAfterEose: true
-        }
-    } as Config);
+    const { id, author, relays } = nip19.decode(nevent).data;
+    const filter: NDKFilter = { kinds: [1], ids: [id]};
+    const filter1: NDKFilter = { kinds: [1, 7, 9735], '#e': [id]};
 
-    const event = data.event || _event && _event[0];
+    // const [event, setEvent] = useState<NostrEvent>();
+
+    const event = useLiveQuery(async () => {
+        const event = await db.events.get({ id });
+        return event;
+    }, [id]);
+
+    const zapEvents = useLiveQuery(async () => {
+        const zapEvents = await db.events
+            .where('kind').equals(9735)
+            .and(({tags}: NostrEvent) => containsTag(tags, ['e', id || '']))
+            .toArray();
+        return zapEvents;
+    }, [id]);
+
+    const reactionEvents = useLiveQuery(async () => {
+        const reactionEvents = await db.events
+            .where('kind').equals(7)
+            .and(({tags}: NostrEvent) => containsTag(tags, ['e', id || '']))
+            .toArray();
+        return reactionEvents;
+    }, [id]);
+
+    const commentEvents = useLiveQuery(async () => {
+        const commentEvents = await db.events
+            .where('kind').equals(1)
+            .and(({content, tags}: NostrEvent) => content !== '' && containsTag(tags, ['e', id || '']))
+            .toArray();
+        return commentEvents;
+    }, [id]);
+
+    const { user } = useNostrContext();
 
     useEffect(() => {
-        if (event && event.content) {
-            parsedContent.current = parseHtml(event.content);
+        const i = intersection(DEFAULT_RELAYS, relays);
+
+        if (!event) {
+            subscribe(filter);
+        }
+        subscribe(filter1);
+
+        return () => {
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!parsedContent && event && event.content) {
+            setParsedContent(parseHtml(event.content));
         }
     }, [event]);
-
-    const { events: metadataEvents } = useSubscribe({
-        relays: [...DEFAULT_RELAYS],
-        filters: [{
-            kinds: [0],
-            // @ts-ignore
-            authors: [event && event.pubkey]
-        }],
-        options: {
-            enabled: !!data.event || !!(_event && _event[0]),
-            closeAfterEose: false
-}
-} as Config);
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         setMenuAnchorEl(event.currentTarget);
@@ -121,12 +149,12 @@ export const Note = ({ noteId, pinned, handleNoteToggle, handleThreadToggle, isC
         setMenuAnchorEl(null);
     };
 
-    const handleShareAnswer = (e: any) => {
+    const handleShareAnswer = useCallback((e: any) => {
         e.stopPropagation();
-        event && navigator.clipboard.writeText(`https://uselessshit.co/resources/nostr/${nip19.npubEncode(event.id)}`);
+        event && navigator.clipboard.writeText(`${process.env.BASE_URL}/nostr/e/${nevent}`);
         setSnackBarMessage('Direct link to answer was copied to clipboard!');
         setSnackbarOpen(true);
-    };
+    }, []);
 
     const handleReaction = (reaction: string) => {
         // const [privkey, pubkey] = getNostrKeyPair();
@@ -144,7 +172,7 @@ export const Note = ({ noteId, pinned, handleNoteToggle, handleThreadToggle, isC
 
     };
 
-    const parseHtml = (text: string) => {
+    const parseHtml = useCallback((text: string) => {
         // TODO: Clean up after react-html-parser
         // return text;
         return parse(
@@ -159,21 +187,19 @@ export const Note = ({ noteId, pinned, handleNoteToggle, handleThreadToggle, isC
                             const data = children.length > 0 && children[0].data;
                             return <Metadata
                                 variant={'link'}
-                                npub={data}
+                                pubkey={nip19.decode(data).data}
                             />
                         }
                         if (name === 'button' && attribs.class === 'thread-btn') {
                             const data = children.length > 0 && children[0].data;
-                            const hex = nip19.decode(data);
-                            if (hex) {
-                                return <NoteThread
-                                    key={data}
-                                    data={{
-                                        // @ts-ignore
-                                        noteId: hex.data
-                                    }}
-                                />
-                            }
+                            return <NoteThread
+                                key={`${data}-thread`}
+                                nevent={data}
+                            >
+                                <NostrNoteContextProvider>
+                                    <Note key={`${data}-content`} nevent={data}/>
+                                </NostrNoteContextProvider>
+                            </NoteThread>
                         }
                         if (name === 'button' && attribs.class === 'video-btn') {
                             let data = children.length > 0 && children[0].data;
@@ -186,55 +212,82 @@ export const Note = ({ noteId, pinned, handleNoteToggle, handleThreadToggle, isC
                 }
             }
         );
-    };
+    }, []);
 
-    const getUpReactions = (): Reaction[] => {
+    // const getCommentEvents = useCallback(() => events
+    //         .filter(({ kind }) => kind === 1)
+    //         .filter(({ tags }) => tags && !!tags.find((t: string[]) => t[0] === 'e' && t[1] === id)) || []
+    // , [event, events]);
+
+    // const getReactionEvents = useCallback(() => events
+    //         .filter(({ kind }) => kind === 7)
+    //         .filter(({ tags }) => tags && !!tags.find((t: string[]) => t[0] === 'e' && t[1] === id)) || []
+    // , [event, events]);
+
+    // const getZapEvents = useCallback(() => events
+    //         .filter(({ kind }) => kind === 9735)
+    //         .filter(({ tags }) => tags && !!tags.find((t: string[]) => t[0] === 'e' && t[1] === id)) || []
+    //     , [id, events]);
+
+    const reacted = useCallback((type: ReactionType) => {
         // @ts-ignore
-        return getReactionEvents() && getReactionEvents()
+        return user && reactionEvents && !!reactionEvents
+        // @ts-ignore
+            .filter(r => REACTIONS.filter(r3 => r3.type === type)
+            // @ts-ignore
+                .map(r2 => r2.content).includes(r.content))
+            .find((r1: any) => r1.pubkey && r1.pubkey === nip19.decode(user.npub).data);
+    }, [user, reactionEvents]);
+
+    const userZapEvents = useCallback(() => {
+        return zapEvents?.filter(({ tags }) => containsTag(tags, ['p', author || '']))
+    }, [zapEvents]);
+
+    const zapped = useCallback(() => {
+        const zap = user && zapEvents && zapEvents
+        // @ts-ignore
+            .filter(({tags}) => !!tags
+                // @ts-ignore
+                .find((t: NDKTag) => {
+                    return t[0] === 'description' && (JSON.parse(t[1])?.pubkey === nip19.decode(user.npub).data);
+                })
+            ).length > 0;
+        return zap;
+    }, [user, userZapEvents()]);
+
+    const getUpReactions = useCallback(() => reactionEvents && reactionEvents
             .filter((r: any) => REACTIONS
                 .filter((r1: any) => r1.type === ReactionType.UP)
                 .map((r2: any) => r2.content)
                 .includes(r.content)
             )
-            .map((r3: any) => ({ type: ReactionType.UP, event: r3 }))|| [];
-    };
+            .map((r3: any) => ({ type: ReactionType.UP, event: r3 }))|| []
+        , [reactionEvents]);
 
-    const getDownReactions = (): Reaction[] => {
-        // @ts-ignore
-        return getReactionEvents() && getReactionEvents()
+    const getDownReactions = useCallback(() => reactionEvents && reactionEvents
             .filter((r: any) => REACTIONS
                 .filter((r1: any) => r1.type === ReactionType.DOWN)
                 .map((r2: any) => r2.content)
                 .includes(r.content)
             )
             // @ts-ignore
-            .map((r3: any) => ({ type: ReactionType.DOWN, event: r3 })) || [];
-    };
+            .map((r3: any) => ({ type: ReactionType.DOWN, event: r3 })) || []
+        , [reactionEvents]);
 
-    const reacted = (type: ReactionType) => {
-        return false;
-       // const [_, pubkey] = getNostrKeyPair();
-       // @ts-ignore
-       // return getReactionEvents() && !!getReactionEvents()
-       // // @ts-ignore
-       //     .filter(r => REACTIONS.filter(r3 => r3.type === type)
-       //     // @ts-ignore
-       //         .map(r2 => r2.content).includes(r.content))
-       //     .find((r1: any) => r1.pubkey && r1.pubkey === pubkey);
-    };
-
-    const getCommentEvents = () => {
-        const allEvents = [...events, ...DEFAULT_EVENTS];
-        return event && allEvents
-            .filter((e: any) => e.kind === 1)
-            .filter((e: any) => e.tags && !!e.tags.find((t: string[]) => t[0] === 'e' && t[1] === event.id));
-    };
-
-    const getReactionEvents = () => {
-        return event && events
-            .filter((e: any) => e.kind === 7)
-            .filter((e: any) => e.tags && !!e.tags.find((t: string[]) => t[0] === 'e' && t[1] === event.id));
-    };
+    const getTotalZaps = useCallback(() => {
+        const totalZaps = zapEvents && zapEvents
+            // @ts-ignore
+            .map(({ tags }) => tags && tags
+                .find((tag: NDKTag) => tag[0] === 'bolt11')
+            )
+            // @ts-ignore
+            .map((tag: NDKTag) => tag[1])
+            // @ts-ignore
+            .map((bolt11: string) => lightBolt11Decoder.decode(bolt11).sections
+                .find((section: any) => section.name === 'amount').value)
+            .reduce((total: number, current: string) => total + (+current) / 1000, 0);
+        return nFormatter(totalZaps, 1);
+    }, [zapEvents]);
 
     return (<React.Fragment>
         <Card
@@ -262,98 +315,91 @@ export const Note = ({ noteId, pinned, handleNoteToggle, handleThreadToggle, isC
                     component="div"
                 >
                     <React.Fragment>
-                        <Typography sx={{ position: 'absolute', top: '1em', right: '2em', textAlign: 'end' }}>
-                            {
-                                event && new RegExp(/([0123456789abcdef]{64})/).test(event.id) &&
-                                <React.Fragment>
-                                    <IconButton
-                                        aria-controls={menuOpen ? 'account-menu' : undefined}
-                                        aria-haspopup="true"
-                                        aria-expanded={menuOpen ? 'true' : undefined}
-                                        onClick={(_event) => {
-                                            _event.stopPropagation();
-                                            handleMenuOpen(_event);
-                                        }}
-                                    >
-                                        <MoreHoriz sx={{ fontSize: 18 }} />
-                                    </IconButton>
-                                    <Menu
-                                        anchorEl={menuAnchorEl}
-                                        id="account-menu"
-                                        open={menuOpen}
-                                        onClose={handleMenuClose}
-                                        onClick={handleMenuClose}
-                                    >
-                                        <MenuItem onClick={(_event) => {
-                                            const noteEncoded = event && nip19.noteEncode(event.id);
-                                            navigator.clipboard.writeText(noteEncoded);
-                                            setSnackBarMessage(noteEncoded);
-                                            setSnackbarOpen(true);
-                                            _event.stopPropagation();
+                        <Typography component="div" sx={{ position: 'absolute', top: '1em', right: '2em', textAlign: 'end' }}>
+                            <React.Fragment>
+                                <IconButton
+                                    color="secondary"
+                                    aria-controls={menuOpen ? 'account-menu' : undefined}
+                                    aria-haspopup="true"
+                                    aria-expanded={menuOpen ? 'true' : undefined}
+                                    onClick={(_event) => {
+                                        _event.stopPropagation();
+                                        handleMenuOpen(_event);
+                                    }}
+                                >
+                                    <MoreHoriz sx={{ fontSize: 18 }} />
+                                </IconButton>
+                                <Menu
+                                    anchorEl={menuAnchorEl}
+                                    id="account-menu"
+                                    open={menuOpen}
+                                    onClose={handleMenuClose}
+                                    onClick={handleMenuClose}
+                                >
+                                    <MenuItem onClick={(_event) => {
+                                        navigator.clipboard.writeText(nevent);
+                                        setSnackBarMessage(nevent);
+                                        setSnackbarOpen(true);
+                                        _event.stopPropagation();
+                                    }}>
+                                        <CopyAll sx={{ fontSize: 18, marginRight: 1 }} /> Copy note ID
+                                    </MenuItem>
+                                    <MenuItem
+                                        onClick={(_) => {
+                                            setDialogOpen(true);
                                         }}>
-                                            <CopyAll sx={{ fontSize: 18, marginRight: 1 }} /> Copy note ID
-                                        </MenuItem>
-                                        <MenuItem
-                                            onClick={(_) => {
-                                                setDialogOpen(true);
-                                            }}>
-                                            <QrCodeScanner sx={{ fontSize: 18, marginRight: 1 }} /> Show QR
-                                        </MenuItem>
-                                        <MenuItem onClick={(_) => {
-                                            const npub = event && nip19.noteEncode(event.id);
-                                            const a = document.createElement('a');
-                                            a.href = 'nostr:' + npub;
-                                            a.click();
-                                        }}>
-                                            <Launch sx={{ fontSize: 18, marginRight: 1 }}/> Open in client
-                                        </MenuItem>
-                                    </Menu>
-                                </React.Fragment>
-                            }
+                                        <QrCodeScanner sx={{ fontSize: 18, marginRight: 1 }} /> Show QR
+                                    </MenuItem>
+                                    <MenuItem onClick={(_) => {
+                                        const a = document.createElement('a');
+                                        a.href = 'nostr:' + nevent;
+                                        a.click();
+                                    }}>
+                                        <Launch sx={{ fontSize: 18, marginRight: 1 }}/> Open in client
+                                    </MenuItem>
+                                </Menu>
+                            </React.Fragment>
                         </Typography>
                     </React.Fragment>
                 </Typography>
-                {
-                    event && event.pubkey && metadataEvents && metadataEvents.find(e => e.pubkey === event.pubkey) && <Typography sx={{ display: 'flex' }} component="div">
-                        <Metadata
-                            variant="simplified"
-                            data={{
-                                event: metadataEvents && metadataEvents.find(e => e.pubkey === event.pubkey)
-                            }}
-                            handleCopyNpub={(npub: string) => {
-                                setSnackBarMessage(npub);
-                                setSnackbarOpen(true);
-                            }}
-                        />
-                    </Typography>
-                }
+                <Typography sx={{ display: 'flex' }} component="div">
+                    <MetadataMemo
+                        variant="simplified"
+                        pubkey={author || (event && event.pubkey)}
+                        handleCopyNpub={(npub: string) => {
+                            setSnackBarMessage(npub);
+                            setSnackbarOpen(true);
+                        }}
+                    />
+                </Typography>
 
-                {
-                    event && event.pubkey && (!metadataEvents || !metadataEvents.find(e => e.pubkey === event.pubkey)) && <Typography sx={{ display: 'flex' }} component="div">
-                        <Metadata
-                            variant="simplified"
-                            isSkeleton={true}
-                            npub={nip19.npubEncode(event.pubkey)}
-                            handleCopyNpub={(npub: string) => {
-                                setSnackBarMessage(npub);
-                                setSnackbarOpen(true);
-                            }}
-                        />
-                    </Typography>
-                }
+                {/*{*/}
+                    {/*event && event.pubkey && (!metadataEvents || !metadataEvents.find(e => e.pubkey === event.pubkey)) && <Typography sx={{ display: 'flex' }} component="div">*/}
+                        {/*<Metadata*/}
+                            {/*variant="simplified"*/}
+                            {/*isSkeleton={true}*/}
+                            {/*npub={nip19.npubEncode(event.pubkey)}*/}
+                            {/*handleCopyNpub={(npub: string) => {*/}
+                                {/*setSnackBarMessage(npub);*/}
+                                {/*setSnackbarOpen(true);*/}
+                            {/*}}*/}
+                        {/*/>*/}
+                    {/*</Typography>*/}
+                {/*}*/}
 
                 <Typography
-                    sx={{ textAlign: 'justify', marginTop: '1em!important', ...(threadView && { cursor: 'pointer' }) }}
+                    sx={{ textAlign: 'justify', marginTop: '1em!important', ...(!expanded && { cursor: 'pointer' }) }}
                     gutterBottom
                     variant="body2"
                     component="div"
-                    {...(threadView ? { onClick: () => {
+                    {...(!expanded ? { onClick: () => {
                             const a = document.createElement('a');
-                            a.href = `${process.env.BASE_URL}/resources/nostr/${nip19.noteEncode(event.id)}`;
+                            a.href = `${process.env.BASE_URL}/nostr/e/${nevent}`;
                             a.click();
                         } } : {}) }
                 >
-                    { parsedContent.current }
+                    { parsedContent || (event && event.content) }
+                    {/*{ event && event.content }*/}
                 </Typography>
                 {
                     !event && <React.Fragment>
@@ -374,53 +420,63 @@ export const Note = ({ noteId, pinned, handleNoteToggle, handleThreadToggle, isC
                         </Stack>
                         <Divider sx={{ margin: '0.4em' }} component="div" />
                         <Stack sx={{ justifyContent: 'space-between', alignItems: 'center' }} direction="row" spacing={1}>
-                            <Typography sx={{ fontSize: 14, display: 'flex', alignItems: 'center' }}>
-                                { getCommentEvents() &&
+                            <Typography component="div" sx={{ fontSize: 14, display: 'flex', alignItems: 'center' }}>
+                                {/*{ commentEvents &&*/}
                                 <React.Fragment>
                                     <Button
                                         color="secondary"
                                         sx={{ textTransform: 'none' }}
-                                        startIcon={isThreadExpanded ? <UnfoldLess sx={{ fontSize: 18 }} /> : <UnfoldMore sx={{ fontSize: 18 }} /> }
                                         onClick={() => {
-                                            handleThreadToggle && handleThreadToggle(!isThreadExpanded);
+                                            const a = document.createElement('a');
+                                            a.href = `${process.env.BASE_URL}/nostr/e/${nevent}`;
+                                            a.click();
                                         }}
                                     >
                                         <Badge
-                                            badgeContent={getCommentEvents()?.length}
+                                            badgeContent={commentEvents?.length}
                                             color="primary"
                                             className="comments-count"
                                         >
-                                            Answers
+                                            <ChatBubbleOutline sx={{ fontSize: 18 }} />
                                         </Badge>
                                     </Button>
                                 </React.Fragment>
-                                }
+                                {/*}*/}
                             </Typography>
-                            <Typography sx={{ fontSize: 14, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                            <Typography component="div" sx={{ fontSize: 14, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                                 { pinned &&
                                 <DoneOutline color="success" />
                                 }
-
-                                {
-                                    getReactionEvents() &&
+                                <Button
+                                    sx={{ ...(zapped() && { color: '#fbf722' }) }}
+                                    color="secondary"
+                                    onClick={() => {
+                                        console.log('zap', {event});
+                                        event && zap(event!, 21);
+                                    }}
+                                >
+                                    <ElectricBolt sx={{ fontSize: 18 }} />
+                                    { getTotalZaps() }
+                                </Button>
+                                {/*{*/}
+                                    {/*reactionEvents &&*/}
                                     <React.Fragment>
                                         <Reactions
                                             reactions={getUpReactions()}
                                             type={ReactionType.UP}
                                             handleReaction={(reaction: string) => {
-                                                handleReaction(reaction);
-                                                handleUpReaction && event && handleUpReaction(event && event.id, reaction);
+                                                addReaction(id, reaction);
                                             }}
                                             placeholder={REACTIONS[0].content}
                                             reacted={reacted(ReactionType.UP)}
                                         />
                                         <Reactions reactions={getDownReactions()} type={ReactionType.DOWN} handleReaction={(reaction: string) => {
-                                            handleReaction(reaction);
-                                            handleDownReaction && event && handleDownReaction(event && event.id, reaction);
+                                            addReaction(id, reaction);
                                         }} placeholder={REACTIONS[4].content.replace('-', '👎')} reacted={reacted(ReactionType.DOWN)} />
                                     </React.Fragment>
-                                }
+                                {/*}*/}
                                 <IconButton
+                                    color="secondary"
                                     sx={{ marginLeft: '0.5em' }}
                                     onClick={(event) => {
                                         handleShareAnswer(event);
@@ -440,6 +496,6 @@ export const Note = ({ noteId, pinned, handleNoteToggle, handleThreadToggle, isC
             onClose={() => setSnackbarOpen(false)}
             message={snackbarMessage}
         />
-        <QrCodeDialog str={event && new RegExp(/([0123456789abcdef]{64})/).test(event.id) && `nostr:${nip19.noteEncode(event.id)}` || ''} dialogOpen={dialogOpen} close={() => setDialogOpen(false)} />
+        {/*<QrCodeDialog str={event && new RegExp(/([0123456789abcdef]{64})/).test(event.id) && `nostr:${nip19.noteEncode(event.id)}` || ''} dialogOpen={dialogOpen} close={() => setDialogOpen(false)} />*/}
     </React.Fragment>);
 };

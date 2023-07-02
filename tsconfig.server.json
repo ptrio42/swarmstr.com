@@ -1,5 +1,5 @@
 {
-  "include": ["server"],
+  "include": ["server", "decs.d.ts"],
   "compilerOptions": {
     "module": "commonjs",
     "esModuleInterop": true,

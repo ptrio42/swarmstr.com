@@ -7,11 +7,11 @@ export const processText = (text: string, tags?: string[][]): string => {
         .replace(/(http?:\/\/(?![^" \n]*(?:jpg|jpeg|png|gif|svg|webp|mov|mp4))[^" \n]+)/g, '<a href="$1" target="_blank">$1</a>')
         .replace(/(https?:\/\/.*\.(?:png|jpg|jpeg|gif|svg|webp))/g, '<img width="100%" src="$1" style="max-width:512px;" />')
         .replace(/(https?:\/\/.*\.(?:mov|mp4))/g, '<button class="video-btn">$1</button>')
-        .replace(/(\n+)/, '$1<br/>')
+        // .replace(/(\n+)/, '$1<br/>')
+        .replace(/\n/g, '<br/>')
         .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
         .replace(/~~(.*?)~~/g, "<i>$1</i>")
         .replace(/__(.*?)__/g, "<u>$1</u>")
-        .replace(/\n/g, '<br/>')
         // @ts-ignore
         .replace(/#\[([0-9]+)\]/g, (placeholder) => {
             const match = placeholder.match(/(\d+)/);
@@ -33,7 +33,7 @@ export const processText = (text: string, tags?: string[][]): string => {
                     }
                 }
                 // @ts-ignore
-                return tags[+id];
+                return tags && tags[+id];
             }
         })
         .replace(/\B(\#[a-zA-Z]+\b)(?!;)/g, (result) => {
@@ -45,14 +45,14 @@ export const processText = (text: string, tags?: string[][]): string => {
             return `<button class="metadata-btn">${npub}</button>`;
         })
         .replace(/nostr:note1([a-z0-9]+)/g, (result) => {
-            const note = result.split(':')[1];
-            return `<button class="thread-btn">${note}</button>`;
+            const note1 = result.split(':')[1];
+            const id = nip19.decode(note1).data;
+            const nevent = nip19.neventEncode({ id });
+            return `<button class="thread-btn">${nevent}</button>`;
         })
         .replace(/nostr:nevent1([a-z0-9]+)/g, (result) => {
-            const event = result.split(':')[1];
-            const hex = nip19.decode(event);
-            const { id } = hex.data as any;
-            return `<button class="thread-btn">${nip19.npubEncode(id)}</button>`;
+            const nevent = result.split(':')[1];
+            return `<button class="thread-btn">${nevent}</button>`;
         })
         ;
 };
