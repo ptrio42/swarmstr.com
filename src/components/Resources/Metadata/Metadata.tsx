@@ -18,6 +18,8 @@ import {DEFAULT_RELAYS} from "../../../resources/Config";
 import CircularProgress from "@mui/material/CircularProgress";
 import {NDKFilter, NostrEvent} from "@nostr-dev-kit/ndk";
 import {useNostrNoteContext} from "../../../providers/NostrNoteContextProvider";
+import {useLiveQuery} from "dexie-react-hooks";
+import {db} from "../../../db";
 
 interface QrCodeDialogProps {
     dialogOpen: boolean;
@@ -132,11 +134,18 @@ export const Metadata = ({ pubkey, handleCopyNpub, supposedName, variant = 'full
 
     const [metadata, setMetadata] = useState<Metadata | undefined>(undefined);
 
-    const { subscribe, events } = useNostrNoteContext();
+    const { subscribe } = useNostrNoteContext();
 
     const filter: NDKFilter = { kinds: [0], authors: [pubkey] };
 
-    const event = events.find((e: NostrEvent) => e.pubkey === pubkey && e.kind === 0);
+    // const event = events.find((e: NostrEvent) => e.pubkey === pubkey && e.kind === 0);
+    const event = useLiveQuery(async () =>
+        await db.events
+            .where('kind').equals(0)
+            .and((nostrEvent: NostrEvent) => nostrEvent.pubkey === pubkey)
+            .first()
+    );
+
     const npub = pubkey && nip19.npubEncode(pubkey);
 
     useEffect(() => {

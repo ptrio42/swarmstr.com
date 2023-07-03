@@ -13,7 +13,7 @@ export const NostrContextProvider = ({ children }: any) => {
 
     const events = useLiveQuery(
         () => db.events.toArray()
-    ) || [];
+    );
 
     const setEvents = useCallback((events: NostrEvent[]) => {
         db.events.bulkAdd(events)
@@ -41,14 +41,16 @@ export const NostrContextProvider = ({ children }: any) => {
                 const user: NDKUser = await ndk.current.signer!.user();
                 if (user) {
                     setUser(user);
+                    const profile = await user.fetchProfile();
+                    console.log({profile});
                 }
                 console.log(`logged in as ${user.npub}`, {user});
             } catch (error) {
                 console.error('no browser extension available for signing in...');
             }
 
-            fetchEvents();
         };
+            fetchEvents();
 
         setTimeout(() => {
             signIn();

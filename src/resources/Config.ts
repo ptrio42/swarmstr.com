@@ -12,7 +12,7 @@ export const Config = {
     MIN_RELAYS: 3,
     RELAY_TIMEOUT: 10000,
     DEFAULT_RELAYS: [
-      'wss://purplepag.es',
+      // 'wss://purplepag.es',
       'wss://nos.lol',
       'wss://relay.f7z.io',
       'wss://relay.damus.io',

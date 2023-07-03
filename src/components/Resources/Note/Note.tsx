@@ -46,6 +46,7 @@ import {useNostrContext} from "../../../providers/NostrContextProvider";
 import lightBolt11Decoder from 'light-bolt11-decoder';
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
+import CircularProgress from "@mui/material/CircularProgress";
 
 interface NoteProps {
     noteId?: string;
@@ -88,7 +89,9 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
 
     const { id, author, relays } = nip19.decode(nevent).data;
     const filter: NDKFilter = { kinds: [1], ids: [id]};
-    const filter1: NDKFilter = { kinds: [1, 7, 9735], '#e': [id]};
+    const filter1: NDKFilter = { kinds: [1], '#e': [id]};
+    const filter2: NDKFilter = { kinds: [7], '#e': [id]};
+    const filter3: NDKFilter = { kinds: [9735], '#e': [id]};
 
     // const [event, setEvent] = useState<NostrEvent>();
 
@@ -130,6 +133,8 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
             subscribe(filter);
         }
         subscribe(filter1);
+        subscribe(filter2);
+        subscribe(filter3);
 
         return () => {
         }
@@ -455,12 +460,18 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                                         event && zap(event!, 21);
                                     }}
                                 >
-                                    <ElectricBolt sx={{ fontSize: 18 }} />
-                                    { getTotalZaps() }
+                                    {
+                                        !zapEvents && <CircularProgress sx={{ width: '18px!important', height: '18px!important' }} />
+                                    }
+                                    {
+                                        zapEvents && <React.Fragment>
+                                            <ElectricBolt sx={{ fontSize: 18 }} />
+                                            { getTotalZaps() }
+                                        </React.Fragment>
+                                    }
                                 </Button>
-                                {/*{*/}
-                                    {/*reactionEvents &&*/}
-                                    <React.Fragment>
+                                {
+                                    reactionEvents && <React.Fragment>
                                         <Reactions
                                             reactions={getUpReactions()}
                                             type={ReactionType.UP}
@@ -474,7 +485,10 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                                             addReaction(id, reaction);
                                         }} placeholder={REACTIONS[4].content.replace('-', '👎')} reacted={reacted(ReactionType.DOWN)} />
                                     </React.Fragment>
-                                {/*}*/}
+                                }
+                                {
+                                    !reactionEvents && <CircularProgress sx={{ width: '18px!important', height: '18px!important' }} />
+                                }
                                 <IconButton
                                     color="secondary"
                                     sx={{ marginLeft: '0.5em' }}

@@ -136,7 +136,7 @@ export const NostrNoteContextProvider = ({ children, thread }: NostrNoteContextP
     }, []);
 
     return (
-        <NostrNoteContext.Provider value={{ events, subscribe, addReaction, zap, subs: subs.current }}>
+        <NostrNoteContext.Provider value={{ subscribe, addReaction, zap, subs: subs.current }}>
             {children}
         </NostrNoteContext.Provider>
     );

@@ -4,10 +4,9 @@ import React, {createContext} from "react";
 type NostrContextType = {
     ndk: NDK,
     user?: NDKUser,
-    events: NostrEvent[],
+    events?: NostrEvent[],
 }
 
 export const NostrContext = createContext<NostrContextType>({
-    ndk: new NDK(),
-    events: []
+    ndk: new NDK()
 });

@@ -60,7 +60,7 @@ export const Feed = () => {
     return (
         <React.Fragment>
             {
-                false && ndk && <Box>
+                ndk && <Box>
                     Relays: {ndk.pool.stats().connected}/{ndk.pool.stats().total}<br/>
                     Events: {nevents.length}<br/>
                     User: {user?.npub}
@@ -86,7 +86,7 @@ export const Feed = () => {
                         ))
                 }
             </NostrResources>
-            <LoadingAnimation isLoading={loading}/>
+            <LoadingAnimation isLoading={!events}/>
         </React.Fragment>
     )
 };
