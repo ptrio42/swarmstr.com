@@ -60,7 +60,7 @@ export const Feed = () => {
     return (
         <React.Fragment>
             {
-                ndk && <Box>
+                false && ndk && <Box>
                     Relays: {ndk.pool.stats().connected}/{ndk.pool.stats().total}<br/>
                     Events: {nevents.length}<br/>
                     User: {user?.npub}
