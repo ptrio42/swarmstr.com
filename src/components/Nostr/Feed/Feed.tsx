@@ -6,11 +6,11 @@ import {Box} from "@mui/material";
 import {NostrNoteContextProvider} from "../../../providers/NostrNoteContextProvider";
 import {useNostrFeedContext} from "../../../providers/NostrFeedContextProvider";
 import {LoadingAnimation} from "../../LoadingAnimation/LoadingAnimation";
-import {NDKFilter, NostrEvent} from "@nostr-dev-kit/ndk";
+import {NDKFilter, NDKTag, NostrEvent} from "@nostr-dev-kit/ndk";
 import {useNostrContext} from "../../../providers/NostrContextProvider";
 import {nip19} from "nostr-tools";
 import {useSearchParams} from "react-router-dom";
-import {containsTag, matchString} from "../../../utils/utils";
+import {addHighlightAt, containsTag, matchString} from "../../../utils/utils";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
 
@@ -31,12 +31,38 @@ export const Feed = () => {
         const events = await db.events.where('kind').equals(1)
             .and(({tags}) => containsTag(tags, ['t', 'asknostr']))
             .toArray();
-        return events;
+        // let events1 = events.and(({tags}) => containsTag(tags, ['t', 'asknostr'])).toArray();
+        // const events2 = events.and(({ id }) => events1.findIndex(({ tags }) => containsTag(tags, ['e', id])) > -1)
+        // const events2 = events.and(({  }))
+        return await Promise.all(events.map (async (event: NostrEvent): Promise<NostrEvent> => {
+                    // @ts-ignore
+                    const id =  event.tags!.filter((t) => t[0] === 'e')?.map((t) => t[1])[0];
+                    if (id) {
+                        const referencedEvent = await db.events.get({ id });
+                        return referencedEvent || event;
+                    }
+                    return event;
+            }));
+        // await Promise.all(events, (async event => containsTag(event.tags, [])))
+        //     .and(({tags, id}) => containsTag(tags, ['t', 'asknostr']))
+        //     .and(({tags, id}) => !id || containsTag(tags, ['e', id])
+        //         // (!id || containsTag(tags, ['e', id]))
+        //         // containsTag(tags, ) ||
+        //         // !!(searchString && searchString !== '' && !!matchString(searchString, content)))
+        //     // .and(({content}) => )
+        //     // .or('content')
+        //     )
+        //     .toArray();
+        // return events;
     }, []);
 
     useEffect(() => {
         subscribe(filter);
     }, []);
+
+    const matchContent = () => {
+        return true;
+    }
 
     const handleSearchQueryChange = (nevent: string, display: boolean) => {
         if (!display) {
@@ -49,8 +75,72 @@ export const Feed = () => {
         }
     };
 
+    const [searchResults, setSearchResults] = useState<any[]>([]);
+
+    const sortByMatchScore = (res: any) => {
+        return res.sort((a: any, b: any) => {
+            return b.metadata.matchScore - a.metadata.matchScore
+        })
+    }
+
+
+    useEffect(() => {
+        if (searchString) {
+            const words = searchString.toLowerCase().trim().split(' ');
+            let results: any[] = [];
+            // Sort items
+            events && events!.forEach((item) => {
+                let isIn = false
+
+                // For each attribute
+                // attrs.forEach((attr) => {
+                const attrValue = item.content.toLowerCase()
+
+                // For each word in search input
+                words.forEach((word) => {
+
+                    // Check if word is in item
+                    const index = attrValue.indexOf(word)
+
+                    // If the word is in the item
+                    if (index != -1) {
+
+                        // Insert strong tag
+                        let strongValue = addHighlightAt(item.content, word, index)
+
+                        // If item is already in the result
+                        if (isIn) {
+                            // Increase matchScore
+                            results[results.length - 1].metadata.matchScore += word.length
+                            results[results.length - 1].data['content'] = strongValue
+
+                        } else {
+                            // Set score and attribute
+                            results.push({
+                                data: {
+                                    ...item,
+                                    content: strongValue
+                                },
+                                metadata: { matchScore: word.length }
+                            })
+                            isIn = true
+                        }
+                    }
+                })
+                // })
+            })
+
+            // Sort res by matchScore DESC
+            results = sortByMatchScore(results)
+
+            setSearchResults(results)
+        } else {
+            setSearchResults([]);
+        }
+    }, [events, searchString]);
+
     const eventsMemo = useMemo(() => events && events
-            .filter(({content, tags}) => !searchString || searchString === '' || (matchString(searchString, content) ||
+            .filter(({content, tags}) => searchString && (matchString(searchString, content) ||
         (tags
             .filter((t: any) => t[0] === 't')
             .map((t1: any) => t1[1].toLowerCase())
@@ -66,9 +156,10 @@ export const Feed = () => {
                     User: {user?.npub}
                 </Box>
             }
-            <NostrResources resultsCount={eventsMemo?.length}>
+            <NostrResources resultsCount={searchResults?.length}>
                 {
-                    (eventsMemo || [])
+                    (searchResults || [])
+                        .map((result: { data: NostrEvent }) => result.data)
                         .map((nostrEvent: NostrEvent) => nip19.neventEncode({
                     id: nostrEvent.id,
                     author: nostrEvent.pubkey,

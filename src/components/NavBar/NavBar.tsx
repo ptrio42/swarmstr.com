@@ -28,11 +28,14 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import SwapVerticalCircleIcon from '@mui/icons-material/SwapVerticalCircle';
 import './NavBar.css';
+import {useNostrContext} from "../../providers/NostrContextProvider";
 
 export const NavBar = () => {
     const [state, setState] = React.useState(false);
     const [toolsMenuAnchorEl, setToolsMenuAnchorEl] = React.useState<null | HTMLElement>(null);
     const toolsMenuOpen = Boolean(toolsMenuAnchorEl);
+
+    const { user } = useNostrContext();
 
     const handleToolsMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setToolsMenuAnchorEl(event.currentTarget);
@@ -146,6 +149,21 @@ export const NavBar = () => {
                         container
                         justifyContent="flex-end"
                         className="navbar-actions">
+                        {
+                            false && <Button
+                                sx={{ fontWeight: 'bold' }}
+                                variant="text"
+                                color="inherit"
+                                // component={Link}
+                                onClick={() => {
+                                    console.log(`login request`);
+                                }}
+                                // to="/card-generator"
+                                // startIcon={<CurrencyBitcoin color="warning" />}
+                            >
+                                Login
+                            </Button>
+                        }
                         {/*<Media query={{ maxWidth: '1060px' }} render={() => (*/}
                             {/*<React.Fragment>*/}
                                 {/*<IconButton onClick={toggleDrawer(true)}><MenuIcon /></IconButton>*/}

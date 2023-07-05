@@ -6,10 +6,12 @@ import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../db";
 import axios from "axios";
 import {nip19} from "nostr-tools";
+import {intersection, difference} from 'lodash';
 
 export const NostrContextProvider = ({ children }: any) => {
     const ndk = useRef<NDK>(new NDK({ explicitRelayUrls: DEFAULT_RELAYS }));
     const [user, setUser] = useState<NDKUser>();
+    const [eventsFetched, setEventsFetched] = useState<boolean>(false);
 
     const events = useLiveQuery(
         () => db.events.toArray()
@@ -22,17 +24,22 @@ export const NostrContextProvider = ({ children }: any) => {
             });
     }, []);
 
-    const fetchEvents = useCallback(() => {
-        axios
-            .get('../api/events')
-            .then((response: { data: NostrEvent[] }) => {
-                // setLoading(false);
-                setEvents(response.data);
-            })
-            .catch((error) => {
-                console.log('error fetching events...');
-            });
-    }, []);
+    useEffect(() => {
+        if (events && !eventsFetched) {
+            axios
+                .get('../api/events')
+                .then((response: { data: NostrEvent[] }) => {
+                    // setLoading(false);
+                    // const eventsToAdd: NostrEvent[] = response.data.filter((nostrEvent: NostrEvent) => events?.findIndex(({ id }) => ))
+                    const eventsToAdd = difference(intersection(events, response.data), events);
+                    setEvents(eventsToAdd);
+                    setEventsFetched(true);
+                })
+                .catch((error) => {
+                    console.log('error fetching events...');
+                });
+        }
+    }, [events]);
 
     useEffect(() => {
         const signIn = async () => {
@@ -41,20 +48,21 @@ export const NostrContextProvider = ({ children }: any) => {
                 const user: NDKUser = await ndk.current.signer!.user();
                 if (user) {
                     setUser(user);
+                    user.ndk = ndk.current;
                     const profile = await user.fetchProfile();
-                    console.log({profile});
+                    // console.log({profile});
                 }
                 console.log(`logged in as ${user.npub}`, {user});
             } catch (error) {
-                console.error('no browser extension available for signing in...');
+                console.error('no browser extension available for signing in...', {error});
             }
 
         };
-            fetchEvents();
 
-        setTimeout(() => {
-            signIn();
-        }, 500);
+        signIn()
+            .then(() => {
+                console.log('sign in');
+            })
     }, []);
 
     return (

@@ -36,10 +36,10 @@ import {DEFAULT_EVENTS} from "../../../stubs/events";
 import {NoteThread} from "../Thread/Thread";
 import {Skeleton} from "@mui/material";
 import ReactPlayer from 'react-player';
-import NDK, {NDKEvent, NDKFilter, NDKRelaySet, NDKTag, NostrEvent} from "@nostr-dev-kit/ndk";
+import NDK, {NDKEvent, NDKFilter, NDKRelaySet, NDKSubscription, NDKTag, NostrEvent} from "@nostr-dev-kit/ndk";
 import {NostrNoteContextProvider, useNostrNoteContext} from "../../../providers/NostrNoteContextProvider";
 import { intersection } from 'lodash';
-import {containsTag, matchString, nFormatter} from "../../../utils/utils";
+import {containsTag, matchString, nFormatter, noteIsVisible} from "../../../utils/utils";
 import Box from "@mui/material/Box";
 import {useNostrContext} from "../../../providers/NostrContextProvider";
 // import { decode } from 'bolt11';
@@ -89,9 +89,14 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
 
     const { id, author, relays } = nip19.decode(nevent).data;
     const filter: NDKFilter = { kinds: [1], ids: [id]};
-    const filter1: NDKFilter = { kinds: [1], '#e': [id]};
-    const filter2: NDKFilter = { kinds: [7], '#e': [id]};
-    const filter3: NDKFilter = { kinds: [9735], '#e': [id]};
+    const filter1: NDKFilter = { kinds: [1, 7, 9735], '#e': [id]};
+    // const filter2: NDKFilter = ;
+    // const filter3: NDKFilter = ;
+    // const filters: NDKFilter[] = [
+    //     ,
+    //     { kinds: [7], '#e': [id]},
+    //     { kinds: [9735], '#e': [id]}
+    // ];
 
     // const [event, setEvent] = useState<NostrEvent>();
 
@@ -124,19 +129,24 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
         return commentEvents;
     }, [id]);
 
+
+    const noteRef = useRef(null);
+    const noteVisible = noteIsVisible(noteRef);
+
     const { user } = useNostrContext();
 
     useEffect(() => {
         const i = intersection(DEFAULT_RELAYS, relays);
 
-        if (!event) {
-            subscribe(filter);
-        }
-        subscribe(filter1);
-        subscribe(filter2);
-        subscribe(filter3);
+        // if (!event) {
+        //     subscribe(filter);
+        // }
 
         return () => {
+            subs && subs
+                .forEach((sub: NDKSubscription) => {
+                    sub.stop();
+                })
         }
     }, []);
 
@@ -145,6 +155,24 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
             setParsedContent(parseHtml(event.content));
         }
     }, [event]);
+
+    useEffect(() => {
+        if (noteVisible) {
+            subscribe(filter);
+            subscribe(filter1);
+            // subscribe(filters[1]);
+            // subscribe(filters[2]);
+        } else {
+                subs && subs.length > 0 && subs
+                    .forEach((sub: NDKSubscription) => {
+                        sub.stop();
+                    })
+        }
+
+        // if (!noteVisible) {
+
+        // }
+    }, [noteVisible]);
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         setMenuAnchorEl(event.currentTarget);
@@ -169,13 +197,13 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
         // }
     };
 
-    const getProcessedText = (text: string) => {
+    const getProcessedText = useCallback((text: string) => {
         if (!text) {
             text = '';
         }
         return processText(text, event && event.tags);
 
-    };
+    }, [event]);
 
     const parseHtml = useCallback((text: string) => {
         // TODO: Clean up after react-html-parser
@@ -190,10 +218,13 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                         const { attribs, children, name } = domNode;
                         if (name === 'button' && attribs.class === 'metadata-btn') {
                             const data = children.length > 0 && children[0].data;
-                            return <Metadata
-                                variant={'link'}
-                                pubkey={nip19.decode(data).data}
-                            />
+                            const userPubkey = nip19.decode(data)?.data || data;
+                            if (userPubkey) {
+                                return  <Metadata
+                                    variant={'link'}
+                                    pubkey={userPubkey}
+                                />
+                            }
                         }
                         if (name === 'button' && attribs.class === 'thread-btn') {
                             const data = children.length > 0 && children[0].data;
@@ -217,22 +248,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                 }
             }
         );
-    }, []);
-
-    // const getCommentEvents = useCallback(() => events
-    //         .filter(({ kind }) => kind === 1)
-    //         .filter(({ tags }) => tags && !!tags.find((t: string[]) => t[0] === 'e' && t[1] === id)) || []
-    // , [event, events]);
-
-    // const getReactionEvents = useCallback(() => events
-    //         .filter(({ kind }) => kind === 7)
-    //         .filter(({ tags }) => tags && !!tags.find((t: string[]) => t[0] === 'e' && t[1] === id)) || []
-    // , [event, events]);
-
-    // const getZapEvents = useCallback(() => events
-    //         .filter(({ kind }) => kind === 9735)
-    //         .filter(({ tags }) => tags && !!tags.find((t: string[]) => t[0] === 'e' && t[1] === id)) || []
-    //     , [id, events]);
+    }, [event]);
 
     const reacted = useCallback((type: ReactionType) => {
         // @ts-ignore
@@ -294,8 +310,22 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
         return nFormatter(totalZaps, 1);
     }, [zapEvents]);
 
+    // if (!noteVisible) {
+    //     return <Card className="note" sx={{
+    //         minWidth: 275,
+    //         marginBottom: '0.5em',
+    //         width: '100%',
+    //         ...(pinned && { backgroundColor: '#f1f1f1' })
+    //     }}>
+    //         <CardContent>
+    //             <CircularProgress/>
+    //         </CardContent>
+    //     </Card>
+    // }
+
     return (<React.Fragment>
         <Card
+            ref={noteRef}
             sx={{
                 minWidth: 275,
                 marginBottom: '0.5em',
@@ -377,21 +407,6 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                         }}
                     />
                 </Typography>
-
-                {/*{*/}
-                    {/*event && event.pubkey && (!metadataEvents || !metadataEvents.find(e => e.pubkey === event.pubkey)) && <Typography sx={{ display: 'flex' }} component="div">*/}
-                        {/*<Metadata*/}
-                            {/*variant="simplified"*/}
-                            {/*isSkeleton={true}*/}
-                            {/*npub={nip19.npubEncode(event.pubkey)}*/}
-                            {/*handleCopyNpub={(npub: string) => {*/}
-                                {/*setSnackBarMessage(npub);*/}
-                                {/*setSnackbarOpen(true);*/}
-                            {/*}}*/}
-                        {/*/>*/}
-                    {/*</Typography>*/}
-                {/*}*/}
-
                 <Typography
                     sx={{ textAlign: 'justify', marginTop: '1em!important', ...(!expanded && { cursor: 'pointer' }) }}
                     gutterBottom
@@ -403,8 +418,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                             a.click();
                         } } : {}) }
                 >
-                    { parsedContent || (event && event.content) }
-                    {/*{ event && event.content }*/}
+                    { event && parseHtml(event.content) }
                 </Typography>
                 {
                     !event && <React.Fragment>
@@ -461,9 +475,6 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                                     }}
                                 >
                                     {
-                                        !zapEvents && <CircularProgress sx={{ width: '18px!important', height: '18px!important' }} />
-                                    }
-                                    {
                                         zapEvents && <React.Fragment>
                                             <ElectricBolt sx={{ fontSize: 18 }} />
                                             { getTotalZaps() }
@@ -487,7 +498,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                                     </React.Fragment>
                                 }
                                 {
-                                    !reactionEvents && <CircularProgress sx={{ width: '18px!important', height: '18px!important' }} />
+                                    (!reactionEvents || !zapEvents) && <CircularProgress sx={{ width: '18px!important', height: '18px!important' }} />
                                 }
                                 <IconButton
                                     color="secondary"

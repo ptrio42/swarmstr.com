@@ -17,7 +17,6 @@ export const processText = (text: string, tags?: string[][]): string => {
             const match = placeholder.match(/(\d+)/);
             if (match) {
                 const id = match[0];
-                // console.log({id, tag: tags && tags[+id]})
                 const tag = tags && tags[+id];
                 if (tag) {
                     switch (tag[0]) {

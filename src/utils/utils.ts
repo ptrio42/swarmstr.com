@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useRef, useState} from "react";
+import {MutableRefObject, Ref, useEffect, useMemo, useRef, useState} from "react";
 import {nip19} from "nostr-tools";
 import {List, LISTS} from "../stubs/lists";
 import {uniq} from "lodash";
@@ -100,3 +100,36 @@ export const nFormatter = (num: number, digits: number) => {
 export const containsTag = (tags: NDKTag[], tag: NDKTag): boolean => {
   return tags && tags.findIndex((t: string[]) => t[0] === tag[0] && t[1] === tag[1]) > -1
 };
+
+export const noteIsVisible = (ref: any) => {
+  const [isIntersecting, setIntersecting] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) =>
+        setIntersecting(entry.isIntersecting)
+    );
+
+    // @ts-ignore
+    observer.observe(ref.current);
+    return () => {
+      observer.disconnect();
+    };
+  }, [ref]);
+
+  return isIntersecting;
+};
+
+export const addHighlightAt = (text: string, word: string, index: number) => {
+  text = [
+    text.slice(0, index),
+    "<strong>", text.slice(index)
+  ].join('');
+
+  text = [
+    text.slice(0, index + word.length + 8),
+    "</strong>", text.slice(index + word.length + 8)
+  ].join('');
+
+  return text;
+}
+

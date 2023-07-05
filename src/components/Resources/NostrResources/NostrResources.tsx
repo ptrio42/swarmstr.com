@@ -69,7 +69,6 @@ export const NostrResources = ({ children, resultsCount }: NostrResourcesProps) 
     });
 
     const searchQueryChangeHandler = (event: any) => {
-        console.log('setting search query...', event.target.value)
         setSearchQuery(event.target.value);
         // @ts-ignore
         debouncedSearchQueryChangeHandler();
@@ -129,7 +128,7 @@ export const NostrResources = ({ children, resultsCount }: NostrResourcesProps) 
                 <ListItem key="nostr-resources">
                     <ListItemText
                         sx={{ textTransform: 'uppercase', lineHeight: '1' }}
-                        primary="Nostr Guide"
+                        primary="#ASKNOSTR"
                         primaryTypographyProps={{
                             style: {
                                 fontWeight: 'bold', fontSize: '48px', textAlign: 'center', textShadow: '1px 1px #000', marginTop: '-10px'
@@ -162,9 +161,11 @@ export const NostrResources = ({ children, resultsCount }: NostrResourcesProps) 
                                 }
                             />
                         </ListItem>
-                        <ListItem key={'results-count'}>
-                            { resultsCount || 0 } results
-                        </ListItem>
+                        {
+                            searchQuery && <ListItem key={'results-count'}>
+                                { resultsCount || 0 } results
+                            </ListItem>
+                        }
                     </List>
                 </ListItem>
             </List>

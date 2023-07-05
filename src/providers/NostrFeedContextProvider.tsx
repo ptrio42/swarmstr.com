@@ -35,7 +35,7 @@ export const NostrFeedContextProvider = ({ children }: any) => {
     }, []);
 
     const subscribe = useCallback((filter: NDKFilter, relaySet?: NDKRelaySet) => {
-        const sub = ndk.subscribe(filter, {closeOnEose: false, groupableDelay: 500}, relaySet);
+        const sub = ndk.subscribe(filter, {closeOnEose: false, groupableDelay: 1000}, relaySet);
         sub.on('event', onEvent);
         subs.push(sub);
     }, []);
@@ -90,8 +90,13 @@ export const NostrFeedContextProvider = ({ children }: any) => {
 
         ndk.pool.on('relay:disconnect', async (data) => {
             // console.log('relay has disconnected', {data})
-            const reconnected = await connectToRelays();
-            console.log(`reconnected`, {reconnected})
+            console.log({data});
+            try {
+                const reconnected = await connectToRelays();
+                console.log(`reconnected`, {reconnected})
+            } catch (error) {
+                console.error(`reconnect error`);
+            }
         });
 
         // fetch nevents

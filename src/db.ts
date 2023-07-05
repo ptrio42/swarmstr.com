@@ -6,8 +6,8 @@ export class NostrStore extends Dexie {
 
     constructor() {
         super('eventsDB');
-        this.version(4).stores({
-            events: '++id, tags, pubkey, kind' // Primary key and indexed props
+        this.version(5).stores({
+            events: '++id, tags, pubkey, kind, content' // Primary key and indexed props
         });
     }
 }
@@ -15,5 +15,5 @@ export class NostrStore extends Dexie {
 export const db = new NostrStore();
 
 db.open().catch(function (err) {
-    console.error (err.stack || err);
+    console.error (`db error`, err.stack || err);
 });

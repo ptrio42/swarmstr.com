@@ -127,6 +127,10 @@ interface MetadataProps {
 }
 
 export const Metadata = ({ pubkey, handleCopyNpub, supposedName, variant = 'full', data = {}, isSkeleton }: MetadataProps) => {
+    if (!pubkey) {
+        return <CircularProgress sx={{ width: '18px!important', height: '18px!important' }} />
+    }
+
     const [menuAnchorEl, setMenuAnchorEl] = React.useState<null | HTMLElement>(null);
 
     const menuOpen = Boolean(menuAnchorEl);
@@ -152,8 +156,8 @@ export const Metadata = ({ pubkey, handleCopyNpub, supposedName, variant = 'full
         subscribe(filter);
     }, [pubkey]);
 
-    useEffect(() => () => {
-    }, []);
+    // useEffect(() => () => {
+    // }, []);
 
     useEffect(() => {
         if (event && event.content) {
