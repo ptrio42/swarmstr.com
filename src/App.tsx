@@ -122,26 +122,6 @@ function App() {
     <div className="App">
         <ThemeProvider theme={theme}>
             <NavBar />
-            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                <ThemeContext.Consumer>
-                    {
-                        ({ toggleTheme, theme }) => (
-                            <FormGroup>
-                                <FormControlLabel
-                                    control={<MaterialUISwitch sx={{ m: 1 }} checked={theme === themes.dark} />}
-                                    label="Toggle dark mode"
-                                    onChange={
-                                        () => {
-                                            setDarkMode(!darkMode);
-                                            toggleTheme(darkMode ? themes.light : themes.dark);
-                                        }
-                                    }
-                                />
-                            </FormGroup>
-                        )
-                    }
-                </ThemeContext.Consumer>
-            </Box>
              <Routes>
                  <Route path="/" element={<PageContent />} />
                  <Route path="/spread-the-word" element={<SpreadTheWord />} />
@@ -167,7 +147,7 @@ function App() {
                                                  expanded={true}
                                              >
                                                  <NostrNoteContextProvider thread={true}>
-                                                     <Note key={`${nevent}-content`} nevent={nevent}/>
+                                                     <Note key={`${nevent}-content`} nevent={nevent} expanded={true}/>
                                                  </NostrNoteContextProvider>
                                              </NoteThread>
                                          )
@@ -177,6 +157,26 @@ function App() {
                          }/>
                      </Route>
              </Routes>
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                <ThemeContext.Consumer>
+                    {
+                        ({ toggleTheme, theme }) => (
+                            <FormGroup>
+                                <FormControlLabel
+                                    control={<MaterialUISwitch sx={{ m: 1 }} checked={theme === themes.dark} />}
+                                    label="Dark mode"
+                                    onChange={
+                                        () => {
+                                            setDarkMode(!darkMode);
+                                            toggleTheme(darkMode ? themes.light : themes.dark);
+                                        }
+                                    }
+                                />
+                            </FormGroup>
+                        )
+                    }
+                </ThemeContext.Consumer>
+            </Box>
             <Footer />
          </ThemeProvider>
     </div>

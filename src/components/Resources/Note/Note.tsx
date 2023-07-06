@@ -64,6 +64,7 @@ interface NoteProps {
     threadView?: boolean;
     nevent: string;
     context?: 'feed' | 'thread';
+    expanded?: boolean;
 
     onSearchQuery?: (nevent: string, display: boolean) => void
 }
@@ -71,12 +72,12 @@ interface NoteProps {
 const MetadataMemo = React.memo(Metadata);
 
 export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handleThreadToggle, isCollapsable, handleUpReaction,
-     handleDownReaction, isThreadExpanded, isRead, data = {}, threadView = false, onSearchQuery }: NoteProps
+     handleDownReaction, isThreadExpanded, isRead, data = {}, threadView = false, onSearchQuery, expanded }: NoteProps
 ) => {
 
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
     const [snackbarMessage, setSnackBarMessage] = useState<string>('');
-    const [expanded, setExpanded] = useState<boolean>(false);
+    // const [expanded, setExpanded] = useState<boolean>(false);
 
     const [menuAnchorEl, setMenuAnchorEl] = React.useState<null | HTMLElement>(null);
 

@@ -33,13 +33,14 @@ export const NewNoteDialog = ({ open, onClose }: NewNoteDialogProps) => {
     };
 
     return <Dialog open={open} onClose={() => { console.log('close') }}>
-            <DialogTitle sx={{ color: 'rgba(255,255,255,.77)' }}>Post to: #asknostr</DialogTitle>
-            <Box>
+            <DialogTitle sx={{ color: 'rgba(255,255,255,.77)', paddingLeft: '8px' }}>Post to: #asknostr</DialogTitle>
+            <Box className="newNote-form">
                 <form onSubmit={formik.handleSubmit}>
                     <TextField
+                        sx={{ minWidth: '272px' }}
                         id="content"
                         name="content"
-                        label="Question"
+                        label="What's your question?"
                         multiline
                         rows={10}
                         value={formik.values.content}
@@ -54,7 +55,7 @@ export const NewNoteDialog = ({ open, onClose }: NewNoteDialogProps) => {
                 <Button autoFocus onClick={handleClose}>
                     Cancel
                 </Button>
-                <Button onClick={() => {
+                <Button variant="contained" onClick={() => {
                     post(formik.values.content, [['t', 'asknostr']])
                         .then(() => {
                             onClose && onClose();

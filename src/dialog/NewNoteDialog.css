@@ -2,5 +2,13 @@
     background: #000!important;
     min-height: 333px;
     border: 1px rgba(255,255,255,.33) solid;
-    padding: 1em 2em;
+    padding: 0.33em 2em;
+}
+
+.theme--dark .newNote-form .MuiInputBase-root, .theme--dark .newNote-form fieldset {
+    border: none!important;
+}
+
+.theme--dark .newNote-form label {
+    color: rgba(255,255,255,.55)!important;
 }
