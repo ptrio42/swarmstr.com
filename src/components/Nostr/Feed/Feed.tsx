@@ -13,6 +13,9 @@ import {useSearchParams} from "react-router-dom";
 import {addHighlightAt, containsTag, matchString} from "../../../utils/utils";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
+import Fab from "@mui/material/Fab";
+import AddIcon from '@mui/icons-material/Add';
+import {NewNoteDialog} from "../../../dialog/NewNoteDialog";
 
 const filter: NDKFilter = {
     kinds: [1],
@@ -26,6 +29,8 @@ export const Feed = () => {
 
     const [searchParams] = useSearchParams();
     const searchString = searchParams.get('s');
+
+    const [newNoteDialogOpen, setNewNoteDialogOpen] = useState<boolean>(false);
 
     const events = useLiveQuery(async () => {
         const events = await db.events.where('kind').equals(1)
@@ -160,6 +165,7 @@ export const Feed = () => {
                 {
                     (searchResults || [])
                         .map((result: { data: NostrEvent }) => result.data)
+                        .filter(({id}) => !!id)
                         .map((nostrEvent: NostrEvent) => nip19.neventEncode({
                     id: nostrEvent.id,
                     author: nostrEvent.pubkey,
@@ -178,6 +184,19 @@ export const Feed = () => {
                 }
             </NostrResources>
             <LoadingAnimation isLoading={!events}/>
+            {
+                user && <Fab
+                    sx={{ position: 'fixed', bottom: '21px', right: '21px' }}
+                    color="primary"
+                    aria-label="add new note"
+                    onClick={() => {
+                        setNewNoteDialogOpen(true);
+                    }}
+                >
+                    <AddIcon/>
+                </Fab>
+            }
+            <NewNoteDialog open={newNoteDialogOpen} onClose={() => setNewNoteDialogOpen(false)} />
         </React.Fragment>
     )
 };

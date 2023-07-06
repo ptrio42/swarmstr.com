@@ -2,7 +2,7 @@ import {Note} from "../Note/Note";
 import React, {useEffect} from "react";
 import {ListItem} from "@mui/material";
 import List from "@mui/material/List";
-import {Link, useParams} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import { nip19 } from 'nostr-tools';
 import {Helmet} from "react-helmet";
 import Button from "@mui/material/Button";
@@ -33,6 +33,8 @@ export const NoteThread = ({ nevent, data = {}, children, expanded }: ThreadProp
     const filter: NDKFilter = { kinds: [1], '#e': [id] };
 
     const { subscribe } = useNostrNoteThreadContext();
+
+    const navigate = useNavigate();
 
     const events = useLiveQuery(async () => {
        const events = await db.events
@@ -72,9 +74,12 @@ export const NoteThread = ({ nevent, data = {}, children, expanded }: ThreadProp
 
                 {
                     expanded && <ListItem key={'nostr-resources-nav-back'}>
-                        <Button variant="text" component={Link} to="/nostr/resources">
+                        <Button variant="text" onClick={() =>
+                            // @ts-ignore
+                            navigate(-1, { replace: false })
+                        }>
                             <ArrowBack sx={{ fontSize: 18, marginRight: 1 }} />
-                            Nostr Resources
+                            Back
                         </Button>
                     </ListItem>
                 }

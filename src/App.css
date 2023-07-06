@@ -22,3 +22,7 @@ code {
   color: #FFFFFF;
 }
 
+.theme--dark textarea {
+  color: rgba(255,255,255,.77);
+}
+

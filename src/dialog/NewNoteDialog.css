@@ -1,0 +1,6 @@
+.theme--dark .MuiDialog-paper {
+    background: #000!important;
+    min-height: 333px;
+    border: 1px rgba(255,255,255,.33) solid;
+    padding: 1em 2em;
+}

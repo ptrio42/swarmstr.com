@@ -66,6 +66,16 @@ export const REACTIONS = [
         name: 'star_struck',
         content: '🤩',
         type: ReactionType.UP
+    },
+    {
+        name: 'people_hugging',
+        content: '🫂',
+        type: ReactionType.UP
+    },
+    {
+        name: 'triangular_flag_on_post',
+        content: '🚩',
+        type: ReactionType.DOWN
     }
 ];
 

@@ -29,13 +29,14 @@ import MenuItem from '@mui/material/MenuItem';
 import SwapVerticalCircleIcon from '@mui/icons-material/SwapVerticalCircle';
 import './NavBar.css';
 import {useNostrContext} from "../../providers/NostrContextProvider";
+import {Metadata} from "../Resources/Metadata/Metadata";
 
 export const NavBar = () => {
     const [state, setState] = React.useState(false);
     const [toolsMenuAnchorEl, setToolsMenuAnchorEl] = React.useState<null | HTMLElement>(null);
     const toolsMenuOpen = Boolean(toolsMenuAnchorEl);
 
-    const { user } = useNostrContext();
+    const { user, signIn } = useNostrContext();
 
     const handleToolsMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setToolsMenuAnchorEl(event.currentTarget);
@@ -150,19 +151,28 @@ export const NavBar = () => {
                         justifyContent="flex-end"
                         className="navbar-actions">
                         {
-                            false && <Button
+                            !user && <Button
                                 sx={{ fontWeight: 'bold' }}
                                 variant="text"
                                 color="inherit"
                                 // component={Link}
                                 onClick={() => {
                                     console.log(`login request`);
+                                    signIn()
+                                        .then(() => console.log(`signed in`))
+                                        .catch((error) => console.error(`login error`, {error}))
                                 }}
                                 // to="/card-generator"
                                 // startIcon={<CurrencyBitcoin color="warning" />}
                             >
                                 Login
                             </Button>
+                        }
+                        {
+                            user && <Metadata
+                                variant={'avatar'}
+                                pubkey={user.hexpubkey()}
+                            />
                         }
                         {/*<Media query={{ maxWidth: '1060px' }} render={() => (*/}
                             {/*<React.Fragment>*/}

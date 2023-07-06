@@ -124,7 +124,7 @@ export const NostrResources = ({ children, resultsCount }: NostrResourcesProps) 
                     loading && <img height="69" src="https://nostr.build/p/nb3103.gif" />
                 }
             </Box>
-            <List className="list-container">
+            <List className="list-container" sx={{ minHeight: '322px' }}>
                 <ListItem key="nostr-resources">
                     <ListItemText
                         sx={{ textTransform: 'uppercase', lineHeight: '1' }}

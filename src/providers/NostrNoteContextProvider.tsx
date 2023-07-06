@@ -80,6 +80,7 @@ export const NostrNoteContextProvider = ({ children, thread }: NostrNoteContextP
         ];
         ndk.assertSigner()
             .then(() => {
+                console.log('reaction', {event})
                 event.sign(ndk.signer!)
                     .then(() => {
                         ndk.publish(event)

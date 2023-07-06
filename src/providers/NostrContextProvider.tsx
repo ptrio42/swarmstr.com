@@ -1,5 +1,14 @@
 import React, {useCallback, useContext, useEffect, useRef, useState} from "react";
-import NDK, {NDKEvent, NDKNip07Signer, NDKRelay, NDKUser, NostrEvent} from "@nostr-dev-kit/ndk";
+import NDK, {
+    NDKEvent,
+    NDKFilter,
+    NDKNip07Signer,
+    NDKRelay,
+    NDKRelaySet,
+    NDKSubscription, NDKTag,
+    NDKUser,
+    NostrEvent
+} from "@nostr-dev-kit/ndk";
 import {DEFAULT_RELAYS} from "../resources/Config";
 import {NostrContext} from "../contexts/NostrContext";
 import {useLiveQuery} from "dexie-react-hooks";
@@ -13,6 +22,8 @@ export const NostrContextProvider = ({ children }: any) => {
     const [user, setUser] = useState<NDKUser>();
     const [eventsFetched, setEventsFetched] = useState<boolean>(false);
 
+    const subs = useRef<NDKSubscription[]>([]);
+
     const events = useLiveQuery(
         () => db.events.toArray()
     );
@@ -24,13 +35,97 @@ export const NostrContextProvider = ({ children }: any) => {
             });
     }, []);
 
+    const signIn = useCallback(async () => {
+        if (user) {
+            return user!.hexpubkey();
+        }
+        try {
+            ndk.current.signer = new NDKNip07Signer();
+            await ndk.current.assertSigner();
+
+            const signedInUser: NDKUser = await ndk.current.signer!.user();
+            if (signedInUser) {
+                !user && setUser(signedInUser);
+                signedInUser.ndk = ndk.current;
+                const profile = await signedInUser.fetchProfile();
+                console.log(`logged in as ${signedInUser.npub}`, {signedInUser});
+                console.log({profile});
+                return signedInUser.hexpubkey();
+            }
+        } catch (error) {
+            console.error('no browser extension available for signing in...', {error});
+        }
+
+    }, []);
+
+    const subscribe = useCallback((filter: NDKFilter) => {
+        const sub = ndk.current.subscribe(filter, {closeOnEose: false, groupableDelay: 3000});
+        sub.on('event', async (event: NDKEvent) => {
+            const exists = await db.events.get({ id: event.id });
+            if (!exists) {
+                try {
+                    const nostrEvent = await event.toNostrEvent();
+                    const added = await db.events.add(nostrEvent);
+                    console.log(`new event added`, {added});
+                } catch (error) {
+                    console.error(`error adding new event`)
+                }
+            }
+
+        });
+        subs.current.push(sub);
+    }, []);
+
+    const post = useCallback(async (content: string, tags?: NDKTag[]) => {
+        try {
+            const pubkey = await signIn();
+            const event = new NDKEvent(ndk.current);
+            event.kind = 1;
+            event.content = content;
+            event.tags = [
+                ...event.tags,
+                ['t', 'asknostr']
+            ];
+            event.pubkey = pubkey!;
+            // event.created_at = Date.now();
+            console.log(`signing & publishing new event`, {event})
+            // ndk.current.assertSigner()
+            //     .then(() => {
+            // event.sign(ndk.current.signer!)
+            //     .then(() => {
+            try {
+                return await event.publish();
+                console.log('question published!');
+                // return new Promise.resolve();
+            } catch (error) {
+
+            }
+        } catch (error) {
+
+        }
+        //     console.log({event})
+        //
+        //         .then(() => {
+        //
+        //         })
+        //         .catch((e) => console.error(`error publishing`, {e}))
+        // } catch (err) {
+        //
+        // }
+                            // })
+                            // .catch((e) => console.error(`error signing`, {e}))
+
+            //         .catch((e) => console.error(`error assigning signer`, {e}))
+            // });
+
+
+    }, []);
+
     useEffect(() => {
         if (events && !eventsFetched) {
             axios
                 .get('../api/events')
                 .then((response: { data: NostrEvent[] }) => {
-                    // setLoading(false);
-                    // const eventsToAdd: NostrEvent[] = response.data.filter((nostrEvent: NostrEvent) => events?.findIndex(({ id }) => ))
                     const eventsToAdd = difference(intersection(events, response.data), events);
                     setEvents(eventsToAdd);
                     setEventsFetched(true);
@@ -42,22 +137,6 @@ export const NostrContextProvider = ({ children }: any) => {
     }, [events]);
 
     useEffect(() => {
-        const signIn = async () => {
-            try {
-                ndk.current.signer = new NDKNip07Signer();
-                const user: NDKUser = await ndk.current.signer!.user();
-                if (user) {
-                    setUser(user);
-                    user.ndk = ndk.current;
-                    const profile = await user.fetchProfile();
-                    // console.log({profile});
-                }
-                console.log(`logged in as ${user.npub}`, {user});
-            } catch (error) {
-                console.error('no browser extension available for signing in...', {error});
-            }
-
-        };
 
         signIn()
             .then(() => {
@@ -66,7 +145,7 @@ export const NostrContextProvider = ({ children }: any) => {
     }, []);
 
     return (
-        <NostrContext.Provider value={{ ndk: ndk.current, user, events }}>
+        <NostrContext.Provider value={{ ndk: ndk.current, user, events, subscribe, signIn, post }}>
             {children}
         </NostrContext.Provider>
     );
