@@ -32,13 +32,13 @@ export const NostrResources = ({ children, resultsCount }: NostrResourcesProps) 
     const [searchQuery, setSearchQuery] = useState<string>('');
 
     const [queryParams, setQueryParams] = useSearchParams();
-    const queryParamsMemo = useMemo(() => ({ queryParams }), []);
+    const queryParamsMemo = useMemo(() => ({ queryParams }), [queryParams]);
 
     const { loading, nevents } = useNostrFeedContext();
 
     useEffect(() => {
         const _searchQuery = queryParams.get('s');
-        if (_searchQuery || _searchQuery === '') {
+        if (_searchQuery && _searchQuery !== '' && _searchQuery.length > 2) {
             setSearchQuery(_searchQuery);
             // @ts-ignore
             debouncedSearchQueryChangeHandler();
@@ -46,8 +46,10 @@ export const NostrResources = ({ children, resultsCount }: NostrResourcesProps) 
     }, [queryParamsMemo]);
 
     useEffect(() => {
-        if (searchQuery || searchQuery === '') {
+        if (searchQuery && searchQuery !== '' && searchQuery.length > 2) {
             setQueryParams({ s: searchQuery });
+        } else {
+            setQueryParams({ s: '' });
         }
     }, [searchQuery]);
 

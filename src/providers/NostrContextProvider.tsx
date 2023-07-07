@@ -66,7 +66,7 @@ export const NostrContextProvider = ({ children }: any) => {
                 try {
                     const nostrEvent = await event.toNostrEvent();
                     const added = await db.events.add(nostrEvent);
-                    console.log(`new event added`, {added});
+                    // console.log(`new event added`, {added});
                 } catch (error) {
                     console.error(`error adding new event`)
                 }
@@ -76,16 +76,13 @@ export const NostrContextProvider = ({ children }: any) => {
         subs.current.push(sub);
     }, []);
 
-    const post = useCallback(async (content: string, tags?: NDKTag[]) => {
+    const post = useCallback(async (content: string, tags: NDKTag[]) => {
         try {
             const pubkey = await signIn();
             const event = new NDKEvent(ndk.current);
             event.kind = 1;
             event.content = content;
-            event.tags = [
-                ...event.tags,
-                ['t', 'asknostr']
-            ];
+            event.tags = tags;
             event.pubkey = pubkey!;
             // event.created_at = Date.now();
             console.log(`signing & publishing new event`, {event})

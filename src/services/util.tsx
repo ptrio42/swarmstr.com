@@ -35,7 +35,7 @@ export const processText = (text: string, tags?: string[][]): string => {
                 return tags && tags[+id];
             }
         })
-        .replace(/\B(\#[a-zA-Z]+\b)(?!;)/g, (result) => {
+        .replace(/\B(\#[a-zA-Z0-9]+\b)(?!;)/g, (result) => {
             const hashtag = result.replace('#', '');
             return `<a href="${process.env.BASE_URL}/resources/nostr?s=${hashtag}">#${hashtag}</a>`
         })

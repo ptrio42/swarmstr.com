@@ -47,6 +47,7 @@ import lightBolt11Decoder from 'light-bolt11-decoder';
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
 import CircularProgress from "@mui/material/CircularProgress";
+import {NewNoteDialog} from "../../../dialog/NewNoteDialog";
 
 interface NoteProps {
     noteId?: string;
@@ -135,6 +136,8 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
     const noteVisible = noteIsVisible(noteRef);
 
     const { user } = useNostrContext();
+
+    const [newReplyDialogOpen, setNewReplyDialogOpen] = useState<boolean>(false);
 
     useEffect(() => {
         const i = intersection(DEFAULT_RELAYS, relays);
@@ -447,9 +450,12 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                                         color="secondary"
                                         sx={{ textTransform: 'none' }}
                                         onClick={() => {
-                                            const a = document.createElement('a');
-                                            a.href = `${process.env.BASE_URL}/nostr/e/${nevent}`;
-                                            a.click();
+                                            // const a = document.createElement('a');
+                                            // a.href = `${process.env.BASE_URL}/nostr/e/${nevent}`;
+                                            // a.click();
+                                            if (user) {
+                                                setNewReplyDialogOpen(true);
+                                            }
                                         }}
                                     >
                                         <Badge
@@ -522,6 +528,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
             onClose={() => setSnackbarOpen(false)}
             message={snackbarMessage}
         />
+        <NewNoteDialog open={newReplyDialogOpen} onClose={() => setNewReplyDialogOpen(false)} replyTo={id} label="Your reply..." />
         {/*<QrCodeDialog str={event && new RegExp(/([0123456789abcdef]{64})/).test(event.id) && `nostr:${nip19.noteEncode(event.id)}` || ''} dialogOpen={dialogOpen} close={() => setDialogOpen(false)} />*/}
     </React.Fragment>);
 };

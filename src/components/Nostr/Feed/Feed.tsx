@@ -16,6 +16,9 @@ import {db} from "../../../db";
 import Fab from "@mui/material/Fab";
 import AddIcon from '@mui/icons-material/Add';
 import {NewNoteDialog} from "../../../dialog/NewNoteDialog";
+import {groupBy, uniqBy, sortBy} from 'lodash'
+import Typography from "@mui/material/Typography";
+import Chip from "@mui/material/Chip";
 
 const filter: NDKFilter = {
     kinds: [1],
@@ -27,7 +30,7 @@ export const Feed = () => {
     const { nevents, loading, subscribe } = useNostrFeedContext();
     const [filteredNevents, setFilteredNevents] = useState<string[]>([]);
 
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const searchString = searchParams.get('s');
 
     const [newNoteDialogOpen, setNewNoteDialogOpen] = useState<boolean>(false);
@@ -61,6 +64,27 @@ export const Feed = () => {
         // return events;
     }, []);
 
+    const tags = useLiveQuery(async () => {
+       const allEvents = await db.events.toArray();
+       const tags = sortBy(
+           groupBy(allEvents
+                   .filter(({tags}) => containsTag(tags, ['t', 'asknostr']))
+                   .map(({tags}) => tags.filter((tag: NDKTag) => tag[0] === 't' && tag[1] !== 'asknostr').map(([_, tag]) => tag))
+                   .flat(2),
+                   // .filter((tag: string) => tag !== 'asknostr'),
+               (tag: string) => tag
+           ),
+           'length'
+       ).reverse()
+           .slice(0, 21)
+           .map((tags: string[]) => tags[0]);
+       return tags;
+    });
+
+    useEffect(() => {
+        // console.log({tags})
+    }, [tags]);
+
     useEffect(() => {
         subscribe(filter);
     }, []);
@@ -83,35 +107,40 @@ export const Feed = () => {
     const [searchResults, setSearchResults] = useState<any[]>([]);
 
     const sortByMatchScore = (res: any) => {
-        return res.sort((a: any, b: any) => {
+        return uniqBy(res, 'data.id')
+            .sort((a: any, b: any) => {
             return b.metadata.matchScore - a.metadata.matchScore
         })
     }
 
 
     useEffect(() => {
-        if (searchString) {
-            const words = searchString.toLowerCase().trim().split(' ');
+        if (searchString && searchString.length > 2) {
+            const words = searchString.toLowerCase().trim()
+                .replace(/([-_']+)/gm, ' ').split(' ').filter((word) => word.length > 1);
             let results: any[] = [];
             // Sort items
-            events && events!.forEach((item) => {
+            events && events!.forEach((event: NostrEvent) => {
                 let isIn = false
 
                 // For each attribute
                 // attrs.forEach((attr) => {
-                const attrValue = item.content.toLowerCase()
+                const attrValue = event.content.toLowerCase().replace(/([-_']+)/gm, ' ');
 
                 // For each word in search input
                 words.forEach((word) => {
 
+                    const tags = event.tags
+                        .filter((tag: NDKTag) => tag[0] === 't').map((tag: NDKTag) => tag[1]);
+
                     // Check if word is in item
-                    const index = attrValue.indexOf(word)
+                    const index = attrValue.indexOf(word) || tags?.indexOf(word);
 
                     // If the word is in the item
                     if (index != -1) {
 
                         // Insert strong tag
-                        let strongValue = addHighlightAt(item.content, word, index)
+                        let strongValue = addHighlightAt(event.content, word, index)
 
                         // If item is already in the result
                         if (isIn) {
@@ -123,7 +152,7 @@ export const Feed = () => {
                             // Set score and attribute
                             results.push({
                                 data: {
-                                    ...item,
+                                    ...event,
                                     content: strongValue
                                 },
                                 metadata: { matchScore: word.length }
@@ -163,6 +192,24 @@ export const Feed = () => {
             }
             <NostrResources resultsCount={searchResults?.length}>
                 {
+                    (!searchString || searchString === '' || searchString.length < 2) && tags &&
+                        <React.Fragment>
+                            <Typography component="div" variant="h6">
+                                Popular keywords
+                            </Typography>
+                            {
+                                tags.map((tag: string) => <Chip
+                                    sx={{ color: '#fff' }}
+                                    label={tag}
+                                    variant="outlined"
+                                    onClick={() => {
+                                        setSearchParams({ s: tag })
+                                    }}
+                                />)
+                            }
+                        </React.Fragment>
+                }
+                {
                     (searchResults || [])
                         .map((result: { data: NostrEvent }) => result.data)
                         .filter(({id}) => !!id)
@@ -196,7 +243,7 @@ export const Feed = () => {
                     <AddIcon/>
                 </Fab>
             }
-            <NewNoteDialog open={newNoteDialogOpen} onClose={() => setNewNoteDialogOpen(false)} />
+            <NewNoteDialog open={newNoteDialogOpen} onClose={() => setNewNoteDialogOpen(false)} label="What's your question?" explicitTags={[['t', 'asknostr']]} />
         </React.Fragment>
     )
 };
