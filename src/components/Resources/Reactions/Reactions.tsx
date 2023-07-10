@@ -161,7 +161,7 @@ export const Reactions = ({ reactions = [], handleReaction, type, placeholder, r
 
                             setOpen(false);
                         }}>
-                            <MenuList id="split-button-menu" autoFocusItem>
+                            <MenuList id="reactions-menu" autoFocusItem>
                                 <MenuItem
                                     onClick={() => {}}
                                 >
