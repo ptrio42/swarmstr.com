@@ -40,6 +40,8 @@ export const NoteThread = ({ nevent, data = {}, children, expanded }: ThreadProp
        const events = await db.events
            .where('kind').equals(1)
            .filter(({ tags }) => containsTag(tags, ['e', id || '']))
+           // filter spam notes
+           .filter(({ content }) => !content.toLowerCase().includes('airdrop is live'))
            .toArray();
        return events;
     }, [id]);

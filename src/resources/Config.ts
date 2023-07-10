@@ -27,7 +27,7 @@ export const Config = {
       // 'wss://relay.snort.social',
       'wss://nostr-pub.wellorder.net',
       // 'wss://blastr.f7z.xyz',
-      // 'wss://nostr.wine',
+      'wss://nostr.wine',
       // 'wss://eden.nostr.land',
       // 'wss://nostr.milou.lol',
       // 'wss://nostr.fmt.wiz.biz',

@@ -4,7 +4,7 @@ import NDK, {NDKFilter, NDKRelaySet, NDKSubscription, NostrEvent} from "@nostr-d
 type NostrNoteContextType = {
     subscribe: (filter: NDKFilter, relaySet?: NDKRelaySet) => void,
     addReaction: (id: string, content: string) => void,
-    zap: (nostrEvent: NostrEvent, amount: number) => void,
+    zap: (nostrEvent: NostrEvent, amount: number, callback?: () => void) => void,
     subs?: NDKSubscription[]
 }
 

@@ -35,22 +35,26 @@ export const NostrFeedContextProvider = ({ children }: any) => {
     }, []);
 
     const subscribe = useCallback((filter: NDKFilter, relaySet?: NDKRelaySet) => {
-        const sub = ndk.subscribe(filter, {closeOnEose: false, groupableDelay: 1000}, relaySet);
+        const sub = ndk.subscribe(filter, {closeOnEose: false, groupable: false}, relaySet);
         sub.on('event', onEvent);
         subs.push(sub);
     }, []);
 
     const onEvent = async (event: NDKEvent, relay: NDKRelay) => {
-        const { tags, id, pubkey } = event;
-        if (containsTag(tags, ['t', 'asknostr'])) {
-            // console.log(`new event ${event.id}`)
-            const exists = await db.events.get({ id: event.id});
-            if (!exists) {
-                const nostrEvent = await event.toNostrEvent();
-                // console.log(`adding sub event to db ${event.id}`);
-                db.events.add(nostrEvent);
+        await new Promise(async (resolve: any, reject: any) => {
+            const nostrEvent = await event.toNostrEvent();
+            const { tags, id, pubkey } = nostrEvent;
+            if (containsTag(tags, ['t', 'asknostr'])) {
+                // console.log(`new event ${event.id}`, event.content, {event})
+                // const exists = events!.findIndex((e: NostrEvent) => e.id === nostrEvent.id) > -1;
+                // if (!exists) {
+                    // const nostrEvent = await event.toNostrEvent();
+                    // console.log(`adding sub event to db ${nostrEvent.id}`, {nostrEvent});
+                    await db.events.put(nostrEvent);
+                    resolve();
+                // }
             }
-        }
+        });
         // if (!events!
         //     .map((event: NostrEvent) => event.id)
         //     .includes(id)) {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Box from '@mui/material/Box';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -30,11 +30,14 @@ import SwapVerticalCircleIcon from '@mui/icons-material/SwapVerticalCircle';
 import './NavBar.css';
 import {useNostrContext} from "../../providers/NostrContextProvider";
 import {Metadata} from "../Resources/Metadata/Metadata";
+import {LoginDialog} from "../../dialog/LoginDialog";
 
 export const NavBar = () => {
     const [state, setState] = React.useState(false);
     const [toolsMenuAnchorEl, setToolsMenuAnchorEl] = React.useState<null | HTMLElement>(null);
     const toolsMenuOpen = Boolean(toolsMenuAnchorEl);
+
+    const [loginDialogOpen, setLoginDialogOpen] = useState<boolean>(false);
 
     const { user, signIn } = useNostrContext();
 
@@ -158,12 +161,8 @@ export const NavBar = () => {
                                 // component={Link}
                                 onClick={() => {
                                     console.log(`login request`);
-                                    signIn()
-                                        .then(() => console.log(`signed in`))
-                                        .catch((error) => console.error(`login error`, {error}))
+                                    setLoginDialogOpen(true);
                                 }}
-                                // to="/card-generator"
-                                // startIcon={<CurrencyBitcoin color="warning" />}
                             >
                                 Login
                             </Button>
@@ -288,6 +287,10 @@ export const NavBar = () => {
                     </Grid>
                 </Toolbar>
             </AppBar>
+            <LoginDialog open={loginDialogOpen}
+                         onClose={() => {
+                setLoginDialogOpen(false)
+            }} />
         </Box>
     );
 };

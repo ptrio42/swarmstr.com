@@ -48,6 +48,7 @@ import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
 import CircularProgress from "@mui/material/CircularProgress";
 import {NewNoteDialog} from "../../../dialog/NewNoteDialog";
+import {ZapDialog} from "../../../dialog/ZapDialog";
 
 interface NoteProps {
     noteId?: string;
@@ -92,6 +93,8 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
     const { id, author, relays } = nip19.decode(nevent).data;
     const filter: NDKFilter = { kinds: [1], ids: [id]};
     const filter1: NDKFilter = { kinds: [1, 7, 9735], '#e': [id]};
+
+    const [subscribed, setSubscribed] = useState<boolean>(false);
     // const filter2: NDKFilter = ;
     // const filter3: NDKFilter = ;
     // const filters: NDKFilter[] = [
@@ -138,6 +141,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
     const { user } = useNostrContext();
 
     const [newReplyDialogOpen, setNewReplyDialogOpen] = useState<boolean>(false);
+    const [zapDialogOpen, setZapDialogOpen] = useState<boolean>(false);
 
     useEffect(() => {
         const i = intersection(DEFAULT_RELAYS, relays);
@@ -161,22 +165,14 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
     }, [event]);
 
     useEffect(() => {
-        if (noteVisible) {
+        if (noteVisible && !subscribed) {
             subscribe(filter);
             subscribe(filter1);
+            setSubscribed(true);
             // subscribe(filters[1]);
             // subscribe(filters[2]);
-        } else {
-                subs && subs.length > 0 && subs
-                    .forEach((sub: NDKSubscription) => {
-                        sub.stop();
-                    })
         }
-
-        // if (!noteVisible) {
-
-        // }
-    }, [noteVisible]);
+    }, [noteVisible, subscribed]);
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         setMenuAnchorEl(event.currentTarget);
@@ -444,15 +440,11 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                         <Divider sx={{ margin: '0.4em' }} component="div" />
                         <Stack sx={{ justifyContent: 'space-between', alignItems: 'center' }} direction="row" spacing={1}>
                             <Typography component="div" sx={{ fontSize: 14, display: 'flex', alignItems: 'center' }}>
-                                {/*{ commentEvents &&*/}
                                 <React.Fragment>
                                     <Button
                                         color="secondary"
                                         sx={{ textTransform: 'none' }}
                                         onClick={() => {
-                                            // const a = document.createElement('a');
-                                            // a.href = `${process.env.BASE_URL}/nostr/e/${nevent}`;
-                                            // a.click();
                                             if (user) {
                                                 setNewReplyDialogOpen(true);
                                             }
@@ -467,7 +459,6 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                                         </Badge>
                                     </Button>
                                 </React.Fragment>
-                                {/*}*/}
                             </Typography>
                             <Typography component="div" sx={{ fontSize: 14, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                                 { pinned &&
@@ -478,7 +469,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                                     color="secondary"
                                     onClick={() => {
                                         console.log('zap', {event});
-                                        event && zap(event!, 21);
+                                        setZapDialogOpen(true);
                                     }}
                                 >
                                     {
@@ -529,6 +520,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
             message={snackbarMessage}
         />
         <NewNoteDialog open={newReplyDialogOpen} onClose={() => setNewReplyDialogOpen(false)} replyTo={id} label="Your reply..." />
+        <ZapDialog open={zapDialogOpen} event={event} onClose={() => setZapDialogOpen(false)} npub={author && nip19.npubEncode(author)} />
         {/*<QrCodeDialog str={event && new RegExp(/([0123456789abcdef]{64})/).test(event.id) && `nostr:${nip19.noteEncode(event.id)}` || ''} dialogOpen={dialogOpen} close={() => setDialogOpen(false)} />*/}
     </React.Fragment>);
 };

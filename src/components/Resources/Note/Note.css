@@ -13,3 +13,12 @@
 .theme--dark .MuiSkeleton-wave {
     background-color: rgba(255,255,255,.22);
 }
+
+.theme--dark .MuiSkeleton-wave:after {
+    background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(0, 0, 0, 0.33),
+            transparent
+    )!important;
+}

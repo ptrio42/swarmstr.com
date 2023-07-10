@@ -23,58 +23,20 @@ import {useNostrFeedContext} from "../../../providers/NostrFeedContextProvider";
 interface NostrResourcesProps {
     children?: any;
     resultsCount?: number;
+    search?: any;
     // onSearchQueryChange: (searchQuery: string) => void
 }
 
-export const NostrResources = ({ children, resultsCount }: NostrResourcesProps) => {
+export const NostrResources = ({ children, search }: NostrResourcesProps) => {
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
     const [snackbarMessage, setSnackBarMessage] = useState<string>('');
-    const [searchQuery, setSearchQuery] = useState<string>('');
 
-    const [queryParams, setQueryParams] = useSearchParams();
-    const queryParamsMemo = useMemo(() => ({ queryParams }), [queryParams]);
-
-    const { loading, nevents } = useNostrFeedContext();
-
-    useEffect(() => {
-        const _searchQuery = queryParams.get('s');
-        if (_searchQuery && _searchQuery !== '' && _searchQuery.length > 2) {
-            setSearchQuery(_searchQuery);
-            // @ts-ignore
-            debouncedSearchQueryChangeHandler();
-        }
-    }, [queryParamsMemo]);
-
-    useEffect(() => {
-        if (searchQuery && searchQuery !== '' && searchQuery.length > 2) {
-            setQueryParams({ s: searchQuery });
-        } else {
-            setQueryParams({ s: '' });
-        }
-    }, [searchQuery]);
+    const { loading } = useNostrFeedContext();
 
     useEffect(() => () => {
         // unsubscribe?
     }, []);
 
-    const getReadGuides = () => {
-        return (localStorage.getItem('readGuides') || '')
-            .split(',');
-    };
-
-    const saveReadGuides = (readGuides: string[]) => {
-        localStorage.setItem('readGuides', readGuides.join(','));
-    };
-
-    const debouncedSearchQueryChangeHandler = useDebounce(() => {
-        // onSearchQueryChange(searchQuery);
-    });
-
-    const searchQueryChangeHandler = (event: any) => {
-        setSearchQuery(event.target.value);
-        // @ts-ignore
-        debouncedSearchQueryChangeHandler();
-    };
 
 
 
@@ -147,28 +109,7 @@ export const NostrResources = ({ children, resultsCount }: NostrResourcesProps) 
                         justifyContent: 'center'
                     }}
                 >
-                    <List sx={{ width: '100%' }}>
-                        <ListItem key={'search-box'} className="guide-search">
-                            <Input
-                                sx={{ width: '80%' }}
-                                id="searchQuery"
-                                name="searchQuery"
-                                placeholder={'Search...'}
-                                value={searchQuery}
-                                onChange={searchQueryChangeHandler}
-                                startAdornment={
-                                    <InputAdornment position="start">
-                                        <Search />
-                                    </InputAdornment>
-                                }
-                            />
-                        </ListItem>
-                        {
-                            searchQuery && <ListItem key={'results-count'}>
-                                { resultsCount || 0 } results
-                            </ListItem>
-                        }
-                    </List>
+                    { search }
                 </ListItem>
             </List>
             { children }

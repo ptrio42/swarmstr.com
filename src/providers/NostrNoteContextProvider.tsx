@@ -49,14 +49,14 @@ export const NostrNoteContextProvider = ({ children, thread }: NostrNoteContextP
         // }
         const sub = ndk.subscribe(filter, {closeOnEose: false, groupableDelay: 3000}, relaySet);
         sub.on('event', async (event: NDKEvent) => {
-            const exists = await db.events.get({ id: event.id });
-            if (!exists) {
+            // const exists = await db.events.get({ id: event.id });
+            // if (!exists) {
                 // console.log({event});
                 try {
                     const nostrEvent = await event.toNostrEvent();
                     // console.log({nostrEvent});
                     // const newEvent = { ...nostrEvent, id: (filter.ids && filter.ids[0]) || event.id };
-                    const added = await db.events.add(nostrEvent);
+                    const added = await db.events.put(nostrEvent);
                     // console.log(`new event added`, {added});
                     // setEvents([
                     //     ...eventsRef.current,
@@ -65,7 +65,7 @@ export const NostrNoteContextProvider = ({ children, thread }: NostrNoteContextP
                 } catch (error) {
 
                 }
-            }
+            // }
 
         });
         subs.current.push(sub);
@@ -93,7 +93,7 @@ export const NostrNoteContextProvider = ({ children, thread }: NostrNoteContextP
             .catch((e) => {})
     }, []);
 
-    const zap = useCallback((nostrEvent: NostrEvent, amount: number) => {
+    const zap = useCallback((nostrEvent: NostrEvent, amount: number, callback?: () => void) => {
         const event = new NDKEvent(ndk, nostrEvent);
 
         ndk.assertSigner()
@@ -110,6 +110,7 @@ export const NostrNoteContextProvider = ({ children, thread }: NostrNoteContextP
                                 webln.sendPayment(paymentRequest)
                                     .then(() => {
                                         console.log('zapped');
+                                        callback && callback();
                                     })
                                     .catch((error) => {
                                         console.error(`unable to zap`)

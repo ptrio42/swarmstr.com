@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, {AxiosRequestHeaders} from "axios";
 
 type ApiRequest = {
     method?: 'GET' | 'POST',
@@ -7,14 +7,14 @@ type ApiRequest = {
     body?: any;
 }
 
-export const request = async (request: ApiRequest) => {
+export const request = async (request: ApiRequest, headers?: AxiosRequestHeaders) => {
     try {
         const { method = 'GET', endpoint, url, body } = request;
 
         const axiosRequest = {
             timeout: 30000,
             ...(body ? { data: body } : {}),
-            headers: {},
+            ...(headers ? { headers } : {}),
             method,
             url
         };

@@ -1,9 +1,9 @@
 import {MutableRefObject, Ref, useEffect, useMemo, useRef, useState} from "react";
 import {nip19} from "nostr-tools";
 import {List, LISTS} from "../stubs/lists";
-import {uniq} from "lodash";
+import {uniq, uniqBy} from "lodash";
 import {debounce} from "lodash";
-import {NDKTag} from "@nostr-dev-kit/ndk";
+import {NDKTag, NostrEvent} from "@nostr-dev-kit/ndk";
 
 export const matchString = (searchString: string, phrase: string) => {
   const regEx = new RegExp(searchString.toLowerCase(), 'g');
@@ -131,5 +131,72 @@ export const addHighlightAt = (text: string, word: string, index: number) => {
   ].join('');
 
   return text;
+};
+
+const sortByMatchScore = (res: { data: NostrEvent, metadata: any }[]) => {
+  return uniqBy(res, 'data.id')
+      .sort((a: any, b: any) => {
+        return b.metadata.matchScore - a.metadata.matchScore
+      })
 }
+
+const wordInString = (s: string, word: string) => new RegExp('\\b' + word + '\\b', 'i').test(s);
+
+// dummy search algorithm for now
+// migrate to something bit more sophisticated
+export const searchText = (searchString: string, events: NostrEvent[]) => {
+  const words = searchString.toLowerCase().trim()
+      .replace(/([-_']+)/gm, ' ').split(' ').filter((word) => word.length > 1);
+  // console.log({words})
+  let results: { data: NostrEvent, metadata: any }[] = [];
+  // Sort items
+  events && events!.forEach((event: NostrEvent) => {
+    let isIn = false
+
+    // For each attribute
+    // attrs.forEach((attr) => {
+    const attrValue = event.content.toLowerCase().replace(/([-_']+)/gm, ' ');
+    // console.log({attrValue})
+
+    // For each word in search input
+    words.forEach((word) => {
+
+      const tags = event.tags
+          .filter((tag: NDKTag) => tag[0] === 't').map((tag: NDKTag) => tag[1]);
+
+      // Check if word is in item
+      const match = attrValue.includes(word) || (tags?.indexOf(word) > -1);
+
+      // If the word is in the item
+      if (match) {
+
+        // Insert strong tag
+        // let strongValue = addHighlightAt(event.content, word, index)
+
+        // If item is already in the result
+        if (isIn) {
+          // Increase matchScore
+          results[results.length - 1].metadata.matchScore += word.length
+          // results[results.length - 1].data['content'] = strongValue
+
+        } else {
+          // Set score and attribute
+          results.push({
+            data: {
+              ...event,
+              // content: strongValue
+            },
+            metadata: { matchScore: word.length }
+          })
+          isIn = true
+        }
+      }
+    })
+    // })
+  })
+
+  // Sort res by matchScore DESC
+  return sortByMatchScore(results)
+      .map(({ data }) => ({...data}))
+};
 

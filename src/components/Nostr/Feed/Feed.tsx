@@ -10,15 +10,16 @@ import {NDKFilter, NDKTag, NostrEvent} from "@nostr-dev-kit/ndk";
 import {useNostrContext} from "../../../providers/NostrContextProvider";
 import {nip19} from "nostr-tools";
 import {useSearchParams} from "react-router-dom";
-import {addHighlightAt, containsTag, matchString} from "../../../utils/utils";
+import {addHighlightAt, containsTag, matchString, searchText} from "../../../utils/utils";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
 import Fab from "@mui/material/Fab";
 import AddIcon from '@mui/icons-material/Add';
 import {NewNoteDialog} from "../../../dialog/NewNoteDialog";
-import {groupBy, uniqBy, sortBy} from 'lodash'
+import {groupBy, uniqBy, sortBy, uniq} from 'lodash'
 import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
+import {Search} from "../../Search/Search";
 
 const filter: NDKFilter = {
     kinds: [1],
@@ -26,43 +27,38 @@ const filter: NDKFilter = {
 };
 
 export const Feed = () => {
-    const { ndk, user } = useNostrContext();
+    const { ndk, user, subscribeToRelaySet } = useNostrContext();
     const { nevents, loading, subscribe } = useNostrFeedContext();
     const [filteredNevents, setFilteredNevents] = useState<string[]>([]);
 
     const [searchParams, setSearchParams] = useSearchParams();
     const searchString = searchParams.get('s');
+    const [searchResults, setSearchResults] = useState<NostrEvent[]>([]);
 
     const [newNoteDialogOpen, setNewNoteDialogOpen] = useState<boolean>(false);
 
+    const [subscribed, setSubscribed] = useState<boolean>(false);
+
     const events = useLiveQuery(async () => {
-        const events = await db.events.where('kind').equals(1)
+        const events: NostrEvent[] = await db.events.where('kind').equals(1)
             .and(({tags}) => containsTag(tags, ['t', 'asknostr']))
-            .toArray();
-        // let events1 = events.and(({tags}) => containsTag(tags, ['t', 'asknostr'])).toArray();
-        // const events2 = events.and(({ id }) => events1.findIndex(({ tags }) => containsTag(tags, ['e', id])) > -1)
-        // const events2 = events.and(({  }))
-        return await Promise.all(events.map (async (event: NostrEvent): Promise<NostrEvent> => {
+            .toArray()
+
+        return await Promise.all(events.map (async (event: NostrEvent) => {
                     // @ts-ignore
                     const id =  event.tags!.filter((t) => t[0] === 'e')?.map((t) => t[1])[0];
                     if (id) {
-                        const referencedEvent = await db.events.get({ id });
+                        // console.log(`quote event ${id}, content: ${event.content}`)
+                        const referencedEvent: NostrEvent|undefined = await db.events.get({ id });
+                        // console.log({referencedEvent})
+                        // console.log({refContent: referencedEvent?.content})
                         return referencedEvent || event;
                     }
                     return event;
             }));
-        // await Promise.all(events, (async event => containsTag(event.tags, [])))
-        //     .and(({tags, id}) => containsTag(tags, ['t', 'asknostr']))
-        //     .and(({tags, id}) => !id || containsTag(tags, ['e', id])
-        //         // (!id || containsTag(tags, ['e', id]))
-        //         // containsTag(tags, ) ||
-        //         // !!(searchString && searchString !== '' && !!matchString(searchString, content)))
-        //     // .and(({content}) => )
-        //     // .or('content')
-        //     )
-        //     .toArray();
-        // return events;
     }, []);
+
+    // if (!events) return <div>yyyy</div>;
 
     const tags = useLiveQuery(async () => {
        const allEvents = await db.events.toArray();
@@ -81,116 +77,62 @@ export const Feed = () => {
        return tags;
     });
 
-    useEffect(() => {
-        // console.log({tags})
-    }, [tags]);
+    const explicitTags = ['relays', 'nips'];
 
-    useEffect(() => {
-        subscribe(filter);
-    }, []);
-
-    const matchContent = () => {
-        return true;
-    }
-
-    const handleSearchQueryChange = (nevent: string, display: boolean) => {
-        if (!display) {
-            setFilteredNevents([
-                ...filteredNevents,
-                nevent
-            ])
-        } else {
-            setFilteredNevents(filteredNevents.filter((_nevent: string) => _nevent !== nevent))
-        }
+    const filter1: NDKFilter = {
+        kinds: [1],
+        search: searchString
     };
 
-    const [searchResults, setSearchResults] = useState<any[]>([]);
+    useEffect(() => {
+        // console.log({tags})
+        // console.log(`searchString change ${searchString}`);
+        if (searchString && searchString !== '' && searchString.length > 2) {
+            // console.log(`subscribe to relaySet`);
+            // subscribeToRelaySet(filter1, ['wss://relay.nostr.band', 'wss://search.nos.today']);
+        }
+    }, [searchString]);
 
-    const sortByMatchScore = (res: any) => {
-        return uniqBy(res, 'data.id')
-            .sort((a: any, b: any) => {
-            return b.metadata.matchScore - a.metadata.matchScore
-        })
-    }
+    useEffect(() => {
+        if (!!events && !subscribed) {
+            subscribe(filter);
+            setSubscribed(true);
+        }
+    }, [events, subscribed]);
+
 
 
     useEffect(() => {
-        if (searchString && searchString.length > 2) {
-            const words = searchString.toLowerCase().trim()
-                .replace(/([-_']+)/gm, ' ').split(' ').filter((word) => word.length > 1);
-            let results: any[] = [];
-            // Sort items
-            events && events!.forEach((event: NostrEvent) => {
-                let isIn = false
-
-                // For each attribute
-                // attrs.forEach((attr) => {
-                const attrValue = event.content.toLowerCase().replace(/([-_']+)/gm, ' ');
-
-                // For each word in search input
-                words.forEach((word) => {
-
-                    const tags = event.tags
-                        .filter((tag: NDKTag) => tag[0] === 't').map((tag: NDKTag) => tag[1]);
-
-                    // Check if word is in item
-                    const index = attrValue.indexOf(word) || tags?.indexOf(word);
-
-                    // If the word is in the item
-                    if (index != -1) {
-
-                        // Insert strong tag
-                        let strongValue = addHighlightAt(event.content, word, index)
-
-                        // If item is already in the result
-                        if (isIn) {
-                            // Increase matchScore
-                            results[results.length - 1].metadata.matchScore += word.length
-                            results[results.length - 1].data['content'] = strongValue
-
-                        } else {
-                            // Set score and attribute
-                            results.push({
-                                data: {
-                                    ...event,
-                                    content: strongValue
-                                },
-                                metadata: { matchScore: word.length }
-                            })
-                            isIn = true
-                        }
-                    }
-                })
-                // })
-            })
-
-            // Sort res by matchScore DESC
-            results = sortByMatchScore(results)
-
+        if (events && searchString && searchString.length > 2) {
+            const results = searchText(searchString, events)
+            // ignore notes with uselessshit.co dev links
+                .filter(({content}) => !content.includes('https://beta.uselessshit.co') &&
+                    !content.includes('https://dev.uselessshit.co')
+                );
             setSearchResults(results)
         } else {
             setSearchResults([]);
         }
     }, [events, searchString]);
 
-    const eventsMemo = useMemo(() => events && events
-            .filter(({content, tags}) => searchString && (matchString(searchString, content) ||
-        (tags
-            .filter((t: any) => t[0] === 't')
-            .map((t1: any) => t1[1].toLowerCase())
-            .includes(searchString.toLowerCase()))))
-        , [events, searchString]);
-
     return (
         <React.Fragment>
             {
-                false && ndk && <Box>
+                false && ndk && <Box sx={{ wordWrap: 'break-word' }}>
                     Relays: {ndk.pool.stats().connected}/{ndk.pool.stats().total}<br/>
-                    Events: {nevents.length}<br/>
+                    {/*Events: {nevents.length}<br/>*/}
                     User: {user?.npub}
                 </Box>
             }
-            <NostrResources resultsCount={searchResults?.length}>
+
+            <NostrResources
+                search={<Search
+                    query={searchString || ''}
+                    resultsCount={searchResults?.length}
+                    onQueryChange={(event: any) => {
+                        setSearchParams({ s: event.target.value});
+                    }}
+                />}>
                 {
                     (!searchString || searchString === '' || searchString.length < 2) && tags &&
                         <React.Fragment>
@@ -198,7 +140,7 @@ export const Feed = () => {
                                 Popular keywords
                             </Typography>
                             {
-                                tags.map((tag: string) => <Chip
+                                uniq([...tags, ...explicitTags]).map((tag: string) => <Chip
                                     sx={{ color: '#fff' }}
                                     label={tag}
                                     variant="outlined"
@@ -210,8 +152,7 @@ export const Feed = () => {
                         </React.Fragment>
                 }
                 {
-                    (searchResults || [])
-                        .map((result: { data: NostrEvent }) => result.data)
+                    (sortBy(searchResults, 'created_at').reverse() || [])
                         .filter(({id}) => !!id)
                         .map((nostrEvent: NostrEvent) => nip19.neventEncode({
                     id: nostrEvent.id,
