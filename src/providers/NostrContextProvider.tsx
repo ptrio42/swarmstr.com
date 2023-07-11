@@ -58,9 +58,9 @@ export const NostrContextProvider = ({ children }: any) => {
                     try {
                         const relayUrls = Object.keys(JSON.parse(nostrEvent.content));
                         // console.log({relayUrls});
-                        ndk.current = new NDK({ explicitRelayUrls: relayUrls })
+                        // ndk.current = new NDK({ explicitRelayUrls: relayUrls })
                         // ndk.current.pool.relays =
-                        await ndk.current.connect();
+                        // await ndk.current.connect();
                     } catch (error) {
                         console.error(`unable to parse relay list`);
                     }

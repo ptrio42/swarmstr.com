@@ -72,8 +72,8 @@ export const Feed = () => {
            ),
            'length'
        ).reverse()
-           .slice(0, 21)
-           .map((tags: string[]) => tags[0]);
+           .map((tags: string[]) => tags[0].toLowerCase())
+           .slice(0, 21);
        return tags;
     });
 

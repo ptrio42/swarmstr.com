@@ -11,6 +11,9 @@ import {useNostrContext} from "../providers/NostrContextProvider";
 import {NDKTag} from "@nostr-dev-kit/ndk";
 import {nip19} from 'nostr-tools';
 import {differenceWith} from 'lodash';
+import Input from "@mui/material/Input";
+import { Image as ImageIcon } from '@mui/icons-material';
+import {uploadToNostrCheckMe} from "../services/uploadImage";
 
 interface NewNoteDialogProps {
     open: boolean;
@@ -25,6 +28,8 @@ export const NewNoteDialog = ({ open, onClose, replyTo, label, explicitTags }: N
     const { post } = useNostrContext();
 
     const tags = useRef<NDKTag[]>([]);
+
+    const fileInputRef = useRef<HTMLInputElement|null>(null);
 
     const formik = useFormik({
         initialValues: {
@@ -78,6 +83,31 @@ export const NewNoteDialog = ({ open, onClose, replyTo, label, explicitTags }: N
                 </form>
             </Box>
             <DialogActions>
+                <form>
+                    <input
+                        style={{ display: 'none' }}
+                        id="upload-image"
+                        name="upload-image"
+                        key="upload-image"
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={(event: any) => {
+                            const files = (event.currentTarget as HTMLInputElement).files;
+                            if (files && files.length > 0) {
+                                uploadToNostrCheckMe(files[0])
+                                    .then((url: string) => {
+                                        console.log('uploaded')
+                                        formik.setFieldValue('content', formik.values.content + `\n${url}`);
+                                    });
+                            }
+                        }} />
+                        <Button onClick={() => {
+                            console.log({fileInpuRef: fileInputRef.current})
+                            fileInputRef.current?.click();
+                        }}>
+                            <ImageIcon/>
+                        </Button>
+                </form>
                 <Button autoFocus onClick={handleClose}>
                     Cancel
                 </Button>
@@ -93,6 +123,7 @@ export const NewNoteDialog = ({ open, onClose, replyTo, label, explicitTags }: N
                     // console.log({tags: tags.current})
                     post(formik.values.content, tags.current)
                         .then(() => {
+                            formik.setFieldValue('content', '');
                             onClose && onClose();
                         })
                 }} autoFocus>

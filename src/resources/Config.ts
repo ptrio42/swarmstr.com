@@ -25,7 +25,7 @@ export const Config = {
       // 'wss://relay.plebstr.com',
       // 'wss://relay.primal.net',
       // 'wss://relay.snort.social',
-      'wss://nostr-pub.wellorder.net',
+      // 'wss://nostr-pub.wellorder.net',
       // 'wss://blastr.f7z.xyz',
       'wss://nostr.wine',
       // 'wss://eden.nostr.land',
