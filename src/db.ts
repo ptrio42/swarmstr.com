@@ -6,7 +6,7 @@ export class NostrStore extends Dexie {
 
     constructor() {
         super('eventsDB');
-        this.version(5).stores({
+        this.version(6).stores({
             events: '++id, tags, pubkey, kind, content' // Primary key and indexed props
         });
     }

@@ -130,6 +130,26 @@ function App() {
                      <Route path="nostr" element={nostrResources} />
                      <Route path="nostr/:noteId" element={<NoteThread/>} />
                  </Route>
+                 <Route path="swarmstr" element={<NostrFeedContextProvider><Feed/></NostrFeedContextProvider>} />
+                 <Route path="swarmstr/e/:nevent" element={
+                     <NostrNoteThreadContextProvider>
+                         <NostrNoteThreadContext.Consumer>
+                             {
+                                 ({ nevent }) => (
+                                     <NoteThread
+                                         key={`${nevent}-thread`}
+                                         nevent={nevent}
+                                         expanded={true}
+                                     >
+                                         <NostrNoteContextProvider thread={true}>
+                                             <Note key={`${nevent}-content`} nevent={nevent} expanded={true}/>
+                                         </NostrNoteContextProvider>
+                                     </NoteThread>
+                                 )
+                             }
+                         </NostrNoteThreadContext.Consumer>
+                     </NostrNoteThreadContextProvider>
+                 } />
                  {/*<Route path="/card-generator" element={<CardGenerator />} />*/}
                  <Route path="/tip-jar/:username" element={<TipJar />} />
                      <Route path="/nostr" element={<Nostr/>}>

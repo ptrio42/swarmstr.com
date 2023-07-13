@@ -57,7 +57,7 @@ export const NoteThread = ({ nevent, data = {}, children, expanded }: ThreadProp
                 <meta property="description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />
                 <meta property="keywords" content="nostr guide, nostr resources, nostr most common questions, getting started on nostr, what is nostr" />
 
-                <meta property="og:url" content={process.env.BASE_URL + '/nostr/e/' + nevent } />
+                <meta property="og:url" content={process.env.BASE_URL + '/swarmstr/e/' + nevent } />
                 <meta property="og:type" content="website" />
                 <meta property="og:title" content={`Thread ${ nevent } - UseLessShit.co`} />
                 <meta property="og:image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />

@@ -65,22 +65,22 @@ export const NostrResources = ({ children, search }: NostrResourcesProps) => {
     return (
         <React.Fragment>
             <Helmet>
-                <title>Your guide to the world of Nostr - UseLessShit.co</title>
-                <meta property="description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />
-                <meta property="keywords" content="nostr guide, nostr resources, nostr most common questions, getting started on nostr, what is nostr" />
+                <title>Swarmstr: Your knowledge hub for curious minds - UseLessShit.co</title>
+                {/*<meta property="description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />*/}
+                {/*<meta property="keywords" content="nostr guide, nostr resources, nostr most common questions, getting started on nostr, what is nostr" />*/}
 
-                <meta property="og:url" content="https://uselessshit.co/resources/nostr" />
+                {/*<meta property="og:url" content="https://uselessshit.co/resources/nostr" />*/}
                 <meta property="og:type" content="website" />
-                <meta property="og:title" content="Your guide to the world of Nostr - UseLessShit.co" />
-                <meta property="og:image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />
-                <meta property="og:description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />
+                <meta property="og:title" content="Swarmstr: Your knowledge hub for curious minds - UseLessShit.co" />
+                <meta property="og:image" content="https://beta.uselessshit.co/images/swarmstr-cover.png" />
+                {/*<meta property="og:description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />*/}
 
-                <meta itemProp="name" content="Your guide to the world of Nostr - UseLessShit.co" />
-                <meta itemProp="image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />
+                <meta itemProp="name" content="Swarmstr: Your knowledge hub for curious minds - UseLessShit.co" />
+                <meta itemProp="image" content="https://beta.uselessshit.co/images/swarmstr-cover.png" />
 
-                <meta name="twitter:title" content="Your guide to the world of Nostr - UseLessShit.co" />
-                <meta name="twitter:description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />
-                <meta name="twitter:image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />
+                <meta name="twitter:title" content="Swarmstr: Your knowledge hub for curious minds - UseLessShit.co" />
+                {/*<meta name="twitter:description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />*/}
+                <meta name="twitter:image" content="https://beta.uselessshit.co/images/swarmstr-cover.png" />
 
             </Helmet>
             <Box sx={{ width: '100%', height: '69px', backgroundColor: '#00001b' }}>
@@ -92,7 +92,7 @@ export const NostrResources = ({ children, search }: NostrResourcesProps) => {
                 <ListItem key="nostr-resources">
                     <ListItemText
                         sx={{ textTransform: 'uppercase', lineHeight: '1' }}
-                        primary="#ASKNOSTR"
+                        primary="SWARMSTR"
                         primaryTypographyProps={{
                             style: {
                                 fontWeight: 'bold', fontSize: '48px', textAlign: 'center', textShadow: '1px 1px #000', marginTop: '-10px'

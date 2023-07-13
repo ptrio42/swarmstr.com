@@ -18,12 +18,13 @@ import {uploadToNostrCheckMe} from "../services/uploadImage";
 interface NewNoteDialogProps {
     open: boolean;
     onClose?: () => void;
-    replyTo?: string;
+    noteId?: string;
+    replyTo?: string[];
     label?: string;
-    explicitTags?: NDKTag[]
+    explicitTags?: NDKTag[];
 }
 
-export const NewNoteDialog = ({ open, onClose, replyTo, label, explicitTags }: NewNoteDialogProps) => {
+export const NewNoteDialog = ({ open, onClose, noteId, replyTo, label, explicitTags }: NewNoteDialogProps) => {
 
     const { post } = useNostrContext();
 
@@ -41,13 +42,19 @@ export const NewNoteDialog = ({ open, onClose, replyTo, label, explicitTags }: N
     });
 
     useEffect(() => {
+        // console.log('didMount')
         if (explicitTags) {
             tags.current.push(...explicitTags);
         }
     }, []);
 
     useEffect(() => {
-        replyTo && tags.current.push(['e', replyTo])
+        noteId && tags.current.push(['e', noteId])
+    }, [noteId]);
+
+    useEffect(() => {
+        const diff = replyTo && differenceWith(replyTo.map((pubkey: string) => (['p', pubkey])), tags.current, (t1, t2) => t1[0] === t2[0] && t1[1] === t2[1]);
+        diff && diff.length > 0 && tags.current.push(...(diff));
     }, [replyTo]);
 
     const handleClose = () => {
@@ -58,12 +65,12 @@ export const NewNoteDialog = ({ open, onClose, replyTo, label, explicitTags }: N
     return <Dialog open={open} onClose={() => { console.log('close') }}>
             <DialogTitle sx={{ color: 'rgba(255,255,255,.77)', paddingLeft: '8px' }}>
                 {
-                    replyTo && <React.Fragment>
-                        Reply to: { nip19.noteEncode(replyTo).slice(0, 12) }...
+                    noteId && <React.Fragment>
+                        Reply to: { nip19.noteEncode(noteId).slice(0, 12) }...
                     </React.Fragment>
                 }
                 {
-                    !replyTo && <React.Fragment>Post to: #asknostr</React.Fragment>
+                    !noteId && <React.Fragment>Post to: #asknostr</React.Fragment>
                 }
             </DialogTitle>
             <Box className="newNote-form">

@@ -17,11 +17,15 @@ import axios from "axios";
 import {nip19} from "nostr-tools";
 import {intersection, difference} from 'lodash';
 import {getRelayInformationDocument} from "../services/nostr";
+import DexieAdapter from "../caches/dexie";
+
+const cacheAdapter = new DexieAdapter();
 
 export const NostrContextProvider = ({ children }: any) => {
-    const ndk = useRef<NDK>(new NDK({ explicitRelayUrls: DEFAULT_RELAYS }));
+    const ndk = useRef<NDK>(new NDK({ explicitRelayUrls: DEFAULT_RELAYS, cacheAdapter }));
+    
     const [user, setUser] = useState<NDKUser>();
-    const [eventsFetched, setEventsFetched] = useState<boolean>(false);
+    const [eventsFetched, addEventsFetched] = useState<boolean>(false);
 
     const subs = useRef<NDKSubscription[]>([]);
 
@@ -29,7 +33,8 @@ export const NostrContextProvider = ({ children }: any) => {
         () => db.events.toArray()
     );
 
-    const setEvents = useCallback((events: NostrEvent[]) => {
+    // buld add events to indexedDB
+    const addEvents = useCallback((events: NostrEvent[]) => {
         db.events.bulkAdd(events)
             .then(() => {
                 // console.log('events added to db');
@@ -151,8 +156,8 @@ export const NostrContextProvider = ({ children }: any) => {
                 .get('../api/events')
                 .then((response: { data: NostrEvent[] }) => {
                     const eventsToAdd = difference(intersection(events, response.data), events);
-                    setEvents(eventsToAdd);
-                    setEventsFetched(true);
+                    addEvents(eventsToAdd);
+                    addEventsFetched(true);
                 })
                 .catch((error) => {
                     console.log('error fetching events...');

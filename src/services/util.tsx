@@ -39,6 +39,11 @@ export const processText = (text: string, tags?: string[][]): string => {
             const hashtag = result.replace('#', '');
             return `<a href="${process.env.BASE_URL}/resources/nostr?s=${hashtag}">#${hashtag}</a>`
         })
+        .replace(/(#<a?:.+?:\d{18}>|#\p{Extended_Pictographic})/gu, (result) => {
+            const hashtag = result.replace('#', '');
+            console.log({hashtag})
+            return `<a href="${process.env.BASE_URL}/resources/nostr?s=${hashtag}">#${hashtag}</a>`
+        })
         .replace(/nostr:npub1([a-z0-9]+)/g, (result) => {
             const npub = result.split(':')[1];
             return `<button class="metadata-btn">${npub}</button>`;

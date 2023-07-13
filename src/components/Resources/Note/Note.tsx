@@ -153,6 +153,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
         return () => {
             subs && subs
                 .forEach((sub: NDKSubscription) => {
+                    // console.log('stopping sub...', {sub})
                     sub.stop();
                 })
         }
@@ -166,11 +167,23 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
 
     useEffect(() => {
         if (noteVisible && !subscribed) {
+            // console.log(`starting subs for note ${id}`)
             subscribe(filter);
             subscribe(filter1);
             setSubscribed(true);
             // subscribe(filters[1]);
             // subscribe(filters[2]);
+        }
+        if (!noteVisible && subscribed) {
+            // console.log(`will stop subs for note ${id} in 3 seconds...`);
+            setTimeout(() => {
+                // console.log(`stopping subs for ${id}`)
+                subs && subs
+                    .forEach((sub: NDKSubscription) => {
+                        sub.stop();
+                    });
+                setSubscribed(false);
+            }, 3000);
         }
     }, [noteVisible, subscribed]);
 
@@ -184,7 +197,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
 
     const handleShareAnswer = useCallback((e: any) => {
         e.stopPropagation();
-        event && navigator.clipboard.writeText(`${process.env.BASE_URL}/nostr/e/${nevent}`);
+        event && navigator.clipboard.writeText(`${process.env.BASE_URL}/swarmstr/e/${nevent}`);
         setSnackBarMessage('Direct link to answer was copied to clipboard!');
         setSnackbarOpen(true);
     }, []);
@@ -414,7 +427,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                     component="div"
                     {...(!expanded ? { onClick: () => {
                             const a = document.createElement('a');
-                            a.href = `${process.env.BASE_URL}/nostr/e/${nevent}`;
+                            a.href = `${process.env.BASE_URL}/swarmstr/e/${nevent}`;
                             a.click();
                         } } : {}) }
                 >
@@ -519,7 +532,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
             onClose={() => setSnackbarOpen(false)}
             message={snackbarMessage}
         />
-        <NewNoteDialog open={newReplyDialogOpen} onClose={() => setNewReplyDialogOpen(false)} replyTo={id} label="Your reply..." />
+        <NewNoteDialog open={newReplyDialogOpen} onClose={() => setNewReplyDialogOpen(false)} noteId={id} replyTo={event && [event.pubkey]} label="Your reply..." />
         <ZapDialog open={zapDialogOpen} event={event} onClose={() => setZapDialogOpen(false)} npub={author && nip19.npubEncode(author)} />
         {/*<QrCodeDialog str={event && new RegExp(/([0123456789abcdef]{64})/).test(event.id) && `nostr:${nip19.noteEncode(event.id)}` || ''} dialogOpen={dialogOpen} close={() => setDialogOpen(false)} />*/}
     </React.Fragment>);

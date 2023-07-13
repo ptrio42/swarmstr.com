@@ -158,9 +158,9 @@ server.get('/api/nevents', (req, res) => {
 server.get('/*', (req, res) => {
     let helmet = Helmet.renderStatic();
     const path = req.originalUrl;
-    if (path === '/resources/nostr/' || path === '/resources/nostr') {
+    if (path === '/resources/nostr/' || path === '/resources/nostr' || path === '/nostr/resources') {
         res.writeHead(301, {
-            Location: `/nostr/resources`
+            Location: `/swarmstr`
         }).end();
     }
     const pathArr = path.split('/');

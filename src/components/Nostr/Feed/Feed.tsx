@@ -56,7 +56,7 @@ export const Feed = () => {
                     }
                     return event;
             }));
-    }, []);
+    }, [searchString]);
 
     // if (!events) return <div>yyyy</div>;
 
@@ -77,7 +77,7 @@ export const Feed = () => {
        return tags;
     });
 
-    const explicitTags = ['relays', 'nips'];
+    const explicitTags = ['relays', 'nips', 'badges'];
 
     const filter1: NDKFilter = {
         kinds: [1],
