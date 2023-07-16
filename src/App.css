@@ -26,3 +26,7 @@ code {
   color: rgba(255,255,255,.77);
 }
 
+strong {
+  background: rgba(244, 153, 33, 0.3);
+}
+

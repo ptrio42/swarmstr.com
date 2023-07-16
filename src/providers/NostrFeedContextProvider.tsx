@@ -1,5 +1,14 @@
 import React, {useCallback, useContext, useEffect, useMemo, useRef, useState} from "react";
-import NDK, {NDKEvent, NDKFilter, NDKNip07Signer, NDKRelay, NDKRelaySet, NDKTag, NostrEvent} from "@nostr-dev-kit/ndk";
+import NDK, {
+    NDKEvent,
+    NDKFilter,
+    NDKNip07Signer,
+    NDKRelay,
+    NDKRelaySet,
+    NDKSubscriptionOptions,
+    NDKTag,
+    NostrEvent
+} from "@nostr-dev-kit/ndk";
 import {NostrFeedContext} from '../contexts/NostrFeedContext';
 import axios from "axios";
 import {DEFAULT_RELAYS} from "../resources/Config";
@@ -35,8 +44,11 @@ export const NostrFeedContextProvider = ({ children }: any) => {
             });
     }, []);
 
-    const subscribe = useCallback((filter: NDKFilter, relaySet?: NDKRelaySet) => {
-        const sub = ndk.subscribe(filter, {closeOnEose: false, groupable: false}, relaySet);
+    const subscribe = useCallback((
+        filter: NDKFilter,
+        opts: NDKSubscriptionOptions = {closeOnEose: false, groupable: false}
+    ) => {
+        const sub = ndk.subscribe(filter, opts);
         sub.on('event', onEvent);
         subs.push(sub);
     }, []);
@@ -54,15 +66,32 @@ export const NostrFeedContextProvider = ({ children }: any) => {
                 };
                 // if event contains referenced event tag, it serves at question hint
                 // thus gotta fetch the referenced event
-                if (tags.map((tag: NDKTag) => tag[0]).includes('e')) {
+                if (!!referencedEventId) {
                     noteEvent.type = NOTE_TYPE.HINT;
+                    // console.log(`got hint event from ${nostrEvent.pubkey}`);
+                    db.notes.put(noteEvent)
+                        .then(() => {
+                            subscribe({ ids: [referencedEventId] }, { closeOnEose: true, groupable: true, groupableDelay: 2000 });
+                        });
                 } else {
                     // event is a question
                     noteEvent.type = NOTE_TYPE.QUESTION;
+                    await db.notes.put(noteEvent);
                 }
-                await db.notes.put(noteEvent);
-                resolve();
+
+            } else {
+                // event doesn't contain the asknostr tag
+                // check if we have a question hint for this event already in the db
+                // if so, the received event is a question as well
+                const hintEvent = await db.notes.get({ referencedEventId: nostrEvent.id });
+                if (hintEvent && hintEvent.type === NOTE_TYPE.HINT) {
+                    await db.notes.put({
+                        ...nostrEvent,
+                        type: NOTE_TYPE.QUESTION
+                    })
+                }
             }
+            resolve();
         });
         // if (!events!
         //     .map((event: NostrEvent) => event.id)

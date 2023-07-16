@@ -97,7 +97,8 @@ export const NostrResources = ({ children, search }: NostrResourcesProps) => {
                     sx={{
                         paddingLeft: '0!important',
                         paddingRight: '0!important',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        paddingBottom: 0
                     }}
                 >
                     { search }

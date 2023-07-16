@@ -80,7 +80,6 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
 
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
     const [snackbarMessage, setSnackBarMessage] = useState<string>('');
-    // const [expanded, setExpanded] = useState<boolean>(false);
 
     const [menuAnchorEl, setMenuAnchorEl] = React.useState<null | HTMLElement>(null);
 
@@ -91,20 +90,14 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
 
     const { subscribe, addReaction, zap, subs } = useNostrNoteContext();
 
-    const { id, author, relays } = nip19.decode(nevent).data;
+    const { id, author } = nip19.decode(nevent).data;
     const filter: NDKFilter = { kinds: [1], ids: [id]};
     const filter1: NDKFilter = { kinds: [1, 7, 9735], '#e': [id]};
 
     const [subscribed, setSubscribed] = useState<boolean>(false);
-    // const filter2: NDKFilter = ;
-    // const filter3: NDKFilter = ;
-    // const filters: NDKFilter[] = [
-    //     ,
-    //     { kinds: [7], '#e': [id]},
-    //     { kinds: [9735], '#e': [id]}
-    // ];
 
-    // const [event, setEvent] = useState<NostrEvent>();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const searchString = searchParams.get('s');
 
     const event = useLiveQuery(async () => {
         const event = await db.notes.get({ id });
@@ -206,7 +199,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
         if (!text) {
             text = '';
         }
-        return processText(text, event && event.tags);
+        return processText(text, event && event.tags, searchString || undefined);
 
     }, [event]);
 

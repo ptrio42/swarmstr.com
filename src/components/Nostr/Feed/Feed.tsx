@@ -27,7 +27,10 @@ const filter: NDKFilter = {
     '#t': ['asknostr']
 };
 
-
+export const keywordsFromString = (s: string) => {
+    return s.toLowerCase().trim()
+        .replace(/([-_']+)/gm, ' ').split(' ').filter((word) => word.length > 1);
+};
 
 export const Feed = () => {
     const { ndk, user } = useNostrContext();
@@ -41,21 +44,26 @@ export const Feed = () => {
 
     const [subscribed, setSubscribed] = useState<boolean>(false);
 
+    const [isQuerying, setIsQuerying] = useState<boolean>(false);
+
     const questions = useLiveQuery(async () => {
         if (!searchString || searchString.length < 3) return [];
+        // console.log(`querying results...`);
+        setIsQuerying(true);
 
         const questions: NostrEvent[] = await db.notes.where({ type: NOTE_TYPE.QUESTION })
             .filter((event: NostrEvent) => {
-                const keywords = searchString.toLowerCase().trim()
-                    .replace(/([-_']+)/gm, ' ').split(' ').filter((word) => word.length > 1);
+                const keywords = keywordsFromString(searchString);
                 const tags = event.tags
                     .filter((tag: NDKTag) => tag[0] === 't').map((tag: NDKTag) => tag[1]);
                 const content = event.content.toLowerCase().replace(/([-_']+)/gm, ' ');
                 return keywords.some((keyword: string) => content.includes(keyword) || (tags?.indexOf(keyword) > -1))
             })
             .toArray();
+        // console.log(`questions queried...`);
+        setIsQuerying(false);
         return questions;
-    }, [searchString], undefined);
+    }, [searchString], false);
 
     const tags = useLiveQuery(async () => {
        const allEvents = await db.notes.toArray();
@@ -73,7 +81,7 @@ export const Feed = () => {
        return tags;
     });
 
-    const explicitTags = ['relays', 'nips', 'badges'];
+    const explicitTags = ['relays', 'nips', 'badges', 'lightning'];
 
     const filter1: NDKFilter = {
         kinds: [1],
@@ -92,7 +100,7 @@ export const Feed = () => {
     useEffect(() => {
         if (questions && searchString && searchString.length > 2) {
             const results = searchText(searchString, questions)
-            // ignore notes with uselessshit.co dev links
+                // ignore notes with uselessshit.co dev links
                 .filter(({content}) => !content.includes('https://beta.uselessshit.co') &&
                     !content.includes('https://dev.uselessshit.co') && !content.includes('https://uselessshit.co')
                     && !content.includes('https://swarmstr.com')
@@ -119,6 +127,7 @@ export const Feed = () => {
                     onQueryChange={(event: any) => {
                         setSearchParams({ s: event.target.value});
                     }}
+                    isQuerying={isQuerying}
                 />}>
                 {
                     (!searchString || searchString === '' || searchString.length < 2) && tags &&

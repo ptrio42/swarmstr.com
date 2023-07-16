@@ -48,9 +48,6 @@ export const NostrNoteContextProvider = ({ children, thread }: NostrNoteContextP
     }, []);
 
     const subscribe = useCallback((filter: NDKFilter, relaySet?: NDKRelaySet) => {
-        // if (relaySet) {
-        //     console.log(filter.ids, relaySet);
-        // }
         const sub = ndk.subscribe(filter, {closeOnEose: false, groupableDelay: 3000}, relaySet);
         sub.on('event', async (event: NDKEvent) => {
             // const exists = await db.events.get({ id: event.id });
