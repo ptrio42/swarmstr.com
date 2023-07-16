@@ -1,0 +1,7 @@
+.MuiChip-root span {
+    color: #000;
+}
+
+.theme--dark .MuiChip-root span {
+    color: #fff;
+}

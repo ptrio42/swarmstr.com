@@ -21,6 +21,7 @@ import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
 import {Search} from "../../Search/Search";
 import {NOTE_TYPE, NoteEvent} from "../../../models/commons";
+import './Feed.css';
 
 const filter: NDKFilter = {
     kinds: [1],
