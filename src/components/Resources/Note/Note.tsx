@@ -197,7 +197,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
 
     const handleShareAnswer = useCallback((e: any) => {
         e.stopPropagation();
-        event && navigator.clipboard.writeText(`${process.env.BASE_URL}/swarmstr/e/${nevent}`);
+        event && navigator.clipboard.writeText(`${process.env.BASE_URL}/e/${nevent}`);
         setSnackBarMessage('Direct link to answer was copied to clipboard!');
         setSnackbarOpen(true);
     }, []);
@@ -392,7 +392,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                     component="div"
                     {...(!expanded ? { onClick: () => {
                             const a = document.createElement('a');
-                            a.href = `${process.env.BASE_URL}/swarmstr/e/${nevent}`;
+                            a.href = `${process.env.BASE_URL}/e/${nevent}`;
                             a.click();
                         } } : {}) }
                 >
