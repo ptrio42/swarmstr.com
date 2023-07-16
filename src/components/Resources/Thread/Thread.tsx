@@ -37,9 +37,8 @@ export const NoteThread = ({ nevent, data = {}, children, expanded }: ThreadProp
     const navigate = useNavigate();
 
     const events = useLiveQuery(async () => {
-       const events = await db.events
-           .where('kind').equals(1)
-           .filter(({ tags }) => containsTag(tags, ['e', id || '']))
+       const events = await db.notes
+           .where({ referencedEventId: id })
            // filter spam notes
            .filter(({ content }) => !content.toLowerCase().includes('airdrop is live'))
            .toArray();

@@ -200,3 +200,8 @@ export const searchText = (searchString: string, events: NostrEvent[]) => {
       .map(({ data }) => ({...data}))
 };
 
+export const valueFromTag = (event: NostrEvent, tag: string): string | undefined => {
+  const matchingTag = event.tags.find((t: string[]) => t[0] === tag);
+
+  if (matchingTag) return matchingTag[1];
+};

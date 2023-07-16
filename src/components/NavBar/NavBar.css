@@ -8,6 +8,11 @@
 
 .logo {
   display: inline-flex;
+  font-size: 33px;
+  font-weight: bold;
+  color: #faefcc;
+  text-shadow: 1px 1px #000;
+  min-width: fit-content;
 }
 
 .logo-text {

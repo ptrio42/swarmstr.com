@@ -138,16 +138,7 @@ export const NavBar = () => {
             >
                 <Toolbar>
                     <Link className="logo" to="/">
-                        <img
-                            width="40px"
-                            alt="Use Less Shit"
-                            src={process.env.BASE_URL + '/images/new-uselessshit-logo.png'}
-                        />
-                        <img className="logo-text"
-                             height="40px"
-                             alt="Use Less Shit"
-                             src={process.env.BASE_URL + '/images/new-uselessshit-logo-text.png'}
-                        />
+                        swarm⚡️tr
                     </Link>
                     <Grid
                         container

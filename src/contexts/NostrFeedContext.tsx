@@ -4,7 +4,7 @@ import Dexie from "dexie";
 
 type NostrFeedContextType = {
     nevents: string[],
-    subscribe: (filter: NDKFilter, relaySet?: NDKRelaySet) => void,
+    subscribe: (filter: NDKFilter) => void,
     loading: boolean
 }
 

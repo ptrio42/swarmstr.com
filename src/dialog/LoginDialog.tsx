@@ -52,7 +52,7 @@ export const LoginDialog = ({ open, onClose }: LoginDialogProps) => {
                             color="secondary"
                             variant="outlined"
                             disabled={true}>
-                            Login with nSecBunker (NIP-46)
+                            Login with Nostr Connect (NIP-46)
                         </Button>
                     </Paper>
                 </Stack>

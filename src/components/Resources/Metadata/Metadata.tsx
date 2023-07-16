@@ -145,9 +145,8 @@ export const Metadata = ({ pubkey, handleCopyNpub, supposedName, variant = 'full
 
     // const event = events.find((e: NostrEvent) => e.pubkey === pubkey && e.kind === 0);
     const event = useLiveQuery(async () =>
-        await db.events
-            .where('kind').equals(0)
-            .and((nostrEvent: NostrEvent) => nostrEvent.pubkey === pubkey)
+        await db.users
+            .where({pubkey})
             .first()
     );
 

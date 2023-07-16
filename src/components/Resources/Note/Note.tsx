@@ -49,6 +49,7 @@ import {db} from "../../../db";
 import CircularProgress from "@mui/material/CircularProgress";
 import {NewNoteDialog} from "../../../dialog/NewNoteDialog";
 import {ZapDialog} from "../../../dialog/ZapDialog";
+import {ZapEvent} from "../../../models/commons";
 
 interface NoteProps {
     noteId?: string;
@@ -106,30 +107,31 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
     // const [event, setEvent] = useState<NostrEvent>();
 
     const event = useLiveQuery(async () => {
-        const event = await db.events.get({ id });
+        const event = await db.notes.get({ id });
+        if (event) {
+            const {type, ...nostrEvent} = event;
+            return nostrEvent;
+        }
         return event;
     }, [id]);
 
     const zapEvents = useLiveQuery(async () => {
-        const zapEvents = await db.events
-            .where('kind').equals(9735)
-            .and(({tags}: NostrEvent) => containsTag(tags, ['e', id || '']))
+        const zapEvents = await db.zaps
+            .where({ zappedNote: id })
             .toArray();
         return zapEvents;
     }, [id]);
 
     const reactionEvents = useLiveQuery(async () => {
-        const reactionEvents = await db.events
-            .where('kind').equals(7)
-            .and(({tags}: NostrEvent) => containsTag(tags, ['e', id || '']))
+        const reactionEvents = await db.reactions
+            .where({ reactedToEventId: id })
             .toArray();
         return reactionEvents;
     }, [id]);
 
     const commentEvents = useLiveQuery(async () => {
-        const commentEvents = await db.events
-            .where('kind').equals(1)
-            .and(({content, tags}: NostrEvent) => content !== '' && containsTag(tags, ['e', id || '']))
+        const commentEvents = await db.notes
+            .where({ referencedEventId: id })
             .toArray();
         return commentEvents;
     }, [id]);
@@ -144,12 +146,6 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
     const [zapDialogOpen, setZapDialogOpen] = useState<boolean>(false);
 
     useEffect(() => {
-        const i = intersection(DEFAULT_RELAYS, relays);
-
-        // if (!event) {
-        //     subscribe(filter);
-        // }
-
         return () => {
             subs && subs
                 .forEach((sub: NDKSubscription) => {
@@ -160,19 +156,23 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
     }, []);
 
     useEffect(() => {
-        if (!parsedContent && event && event.content) {
-            setParsedContent(parseHtml(event.content));
+        if (!parsedContent && !!event?.content) {
+            setParsedContent(parseHtml(event!.content));
         }
     }, [event]);
 
     useEffect(() => {
+
+        // note was displayed on screen
+        // 1. wait for note event from cache
+        // 2. if event isn't in cache, subscribe
+        // 3. once event was received from a relay, stop subscription
+        // run subs for reactions, zaps & comments in parallel
+
         if (noteVisible && !subscribed) {
-            // console.log(`starting subs for note ${id}`)
             subscribe(filter);
             subscribe(filter1);
             setSubscribed(true);
-            // subscribe(filters[1]);
-            // subscribe(filters[2]);
         }
         if (!noteVisible && subscribed) {
             // console.log(`will stop subs for note ${id} in 3 seconds...`);
@@ -201,14 +201,6 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
         setSnackBarMessage('Direct link to answer was copied to clipboard!');
         setSnackbarOpen(true);
     }, []);
-
-    const handleReaction = (reaction: string) => {
-        // const [privkey, pubkey] = getNostrKeyPair();
-        // const newEvent = event && createEvent(privkey, pubkey, 7, reaction, [['e', event.id]]) as any;
-        // if (newEvent) {
-            // nostrClient.publish(newEvent);
-        // }
-    };
 
     const getProcessedText = useCallback((text: string) => {
         if (!text) {
@@ -274,18 +266,12 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
     }, [user, reactionEvents]);
 
     const userZapEvents = useCallback(() => {
-        return zapEvents?.filter(({ tags }) => containsTag(tags, ['p', author || '']))
+        return zapEvents?.filter(({ zapper }) => zapper === author)
     }, [zapEvents]);
 
     const zapped = useCallback(() => {
         const zap = user && zapEvents && zapEvents
-        // @ts-ignore
-            .filter(({tags}) => !!tags
-                // @ts-ignore
-                .find((t: NDKTag) => {
-                    return t[0] === 'description' && (JSON.parse(t[1])?.pubkey === nip19.decode(user.npub).data);
-                })
-            ).length > 0;
+            .find((zapEvent: ZapEvent) => zapEvent.zapper === nip19.decode(user.npub).data);
         return zap;
     }, [user, userZapEvents()]);
 
@@ -310,31 +296,10 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
 
     const getTotalZaps = useCallback(() => {
         const totalZaps = zapEvents && zapEvents
-            // @ts-ignore
-            .map(({ tags }) => tags && tags
-                .find((tag: NDKTag) => tag[0] === 'bolt11')
-            )
-            // @ts-ignore
-            .map((tag: NDKTag) => tag[1])
-            // @ts-ignore
-            .map((bolt11: string) => lightBolt11Decoder.decode(bolt11).sections
-                .find((section: any) => section.name === 'amount').value)
-            .reduce((total: number, current: string) => total + (+current) / 1000, 0);
-        return nFormatter(totalZaps, 1);
+            .map((zapEvent: ZapEvent) => zapEvent.amount)
+            .reduce((total: number, current: number) => total + current / 1000, 0);
+        return totalZaps && nFormatter(totalZaps, 1);
     }, [zapEvents]);
-
-    // if (!noteVisible) {
-    //     return <Card className="note" sx={{
-    //         minWidth: 275,
-    //         marginBottom: '0.5em',
-    //         width: '100%',
-    //         ...(pinned && { backgroundColor: '#f1f1f1' })
-    //     }}>
-    //         <CardContent>
-    //             <CircularProgress/>
-    //         </CardContent>
-    //     </Card>
-    // }
 
     return (<React.Fragment>
         <Card

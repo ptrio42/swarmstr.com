@@ -1,11 +1,15 @@
 import React, {useCallback, useContext, useEffect, useRef, useState} from "react";
-import {NDKEvent, NDKFilter, NDKRelaySet, NDKSubscription, NostrEvent} from "@nostr-dev-kit/ndk";
+import {NDKEvent, NDKFilter, NDKRelaySet, NDKSubscription, NDKTag, NostrEvent} from "@nostr-dev-kit/ndk";
 import {NostrNoteContext} from "../contexts/NostrNoteContext";
 import {useNostrFeedContext} from "./NostrFeedContextProvider";
 import {useNostrNoteThreadContext} from "./NostrNoteThreadContextProvider";
 import {useNostrContext} from "./NostrContextProvider";
 import {requestProvider, WebLNProvider} from "webln";
 import {db} from "../db";
+import {containsTag, valueFromTag} from "../utils/utils";
+import {NOTE_TYPE, NoteEvent} from "../models/commons";
+import {nip19} from "nostr-tools";
+import lightBolt11Decoder from 'light-bolt11-decoder';
 
 interface NostrNoteContextProviderProps {
     children: any;
@@ -54,14 +58,47 @@ export const NostrNoteContextProvider = ({ children, thread }: NostrNoteContextP
                 // console.log({event});
                 try {
                     const nostrEvent = await event.toNostrEvent();
-                    // console.log({nostrEvent});
-                    // const newEvent = { ...nostrEvent, id: (filter.ids && filter.ids[0]) || event.id };
-                    const added = await db.events.put(nostrEvent);
-                    // console.log(`new event added`, {added});
-                    // setEvents([
-                    //     ...eventsRef.current,
-                    //     newEvent
-                    // ]);
+                    // handle note
+                    if (nostrEvent.kind === 1) {
+                        const referencedEventId = valueFromTag(nostrEvent, 'e');
+                        const noteEvent: NoteEvent = {
+                            ...nostrEvent,
+                            type: undefined,
+                            ...(!!referencedEventId && { referencedEventId })
+                        }
+
+                        if (!referencedEventId) {
+                            noteEvent.type = NOTE_TYPE.QUESTION;
+                        } else {
+                            if (!containsTag(noteEvent.tags, ['t', 'asknostr'])) {
+                                noteEvent.type = NOTE_TYPE.ANSWER;
+                            } else {
+                                noteEvent.type = NOTE_TYPE.HINT;
+                            }
+                        }
+                        db.notes.put(noteEvent);
+
+                    }
+                    // handle reaction
+                    if (nostrEvent.kind === 7) {
+                        db.reactions.put({
+                            ...nostrEvent,
+                            // @ts-ignore
+                            reactedToEventId: valueFromTag(nostrEvent, 'e')
+                        });
+                    }
+                    // handle zap
+                    if (nostrEvent.kind = 9375) {
+                        db.zaps.put({
+                            ...nostrEvent,
+                            // @ts-ignore
+                            zappedNote: valueFromTag(nostrEvent, 'e'),
+                            // @ts-ignore
+                            zapper: JSON.parse(valueFromTag(nostrEvent, 'description'))?.pubkey,
+                            amount: lightBolt11Decoder.decode(valueFromTag(nostrEvent, 'bolt11')).sections
+                                .find((section: any) => section.name === 'amount').value
+                        })
+                    }
                 } catch (error) {
 
                 }

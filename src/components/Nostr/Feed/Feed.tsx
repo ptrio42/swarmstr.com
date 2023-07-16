@@ -20,16 +20,18 @@ import {groupBy, uniqBy, sortBy, uniq} from 'lodash'
 import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
 import {Search} from "../../Search/Search";
+import {NOTE_TYPE, NoteEvent} from "../../../models/commons";
 
 const filter: NDKFilter = {
     kinds: [1],
     '#t': ['asknostr']
 };
 
+
+
 export const Feed = () => {
-    const { ndk, user, subscribeToRelaySet } = useNostrContext();
-    const { nevents, loading, subscribe } = useNostrFeedContext();
-    const [filteredNevents, setFilteredNevents] = useState<string[]>([]);
+    const { ndk, user } = useNostrContext();
+    const { subscribe } = useNostrFeedContext();
 
     const [searchParams, setSearchParams] = useSearchParams();
     const searchString = searchParams.get('s');
@@ -39,35 +41,29 @@ export const Feed = () => {
 
     const [subscribed, setSubscribed] = useState<boolean>(false);
 
-    const events = useLiveQuery(async () => {
-        const events: NostrEvent[] = await db.events.where('kind').equals(1)
-            .and(({tags}) => containsTag(tags, ['t', 'asknostr']))
-            .toArray()
+    const questions = useLiveQuery(async () => {
+        if (!searchString || searchString.length < 3) return [];
 
-        return await Promise.all(events.map (async (event: NostrEvent) => {
-                    // @ts-ignore
-                    const id =  event.tags!.filter((t) => t[0] === 'e')?.map((t) => t[1])[0];
-                    if (id) {
-                        // console.log(`quote event ${id}, content: ${event.content}`)
-                        const referencedEvent: NostrEvent|undefined = await db.events.get({ id });
-                        // console.log({referencedEvent})
-                        // console.log({refContent: referencedEvent?.content})
-                        return referencedEvent || event;
-                    }
-                    return event;
-            }));
-    }, [searchString]);
-
-    // if (!events) return <div>yyyy</div>;
+        const questions: NostrEvent[] = await db.notes.where({ type: NOTE_TYPE.QUESTION })
+            .filter((event: NostrEvent) => {
+                const keywords = searchString.toLowerCase().trim()
+                    .replace(/([-_']+)/gm, ' ').split(' ').filter((word) => word.length > 1);
+                const tags = event.tags
+                    .filter((tag: NDKTag) => tag[0] === 't').map((tag: NDKTag) => tag[1]);
+                const content = event.content.toLowerCase().replace(/([-_']+)/gm, ' ');
+                return keywords.some((keyword: string) => content.includes(keyword) || (tags?.indexOf(keyword) > -1))
+            })
+            .toArray();
+        return questions;
+    }, [searchString], undefined);
 
     const tags = useLiveQuery(async () => {
-       const allEvents = await db.events.toArray();
+       const allEvents = await db.notes.toArray();
        const tags = sortBy(
            groupBy(allEvents
                    .filter(({tags}) => containsTag(tags, ['t', 'asknostr']))
                    .map(({tags}) => tags.filter((tag: NDKTag) => tag[0] === 't' && tag[1] !== 'asknostr').map(([_, tag]) => tag))
                    .flat(2),
-                   // .filter((tag: string) => tag !== 'asknostr'),
                (tag: string) => tag
            ),
            'length'
@@ -85,42 +81,33 @@ export const Feed = () => {
     };
 
     useEffect(() => {
-        // console.log({tags})
-        // console.log(`searchString change ${searchString}`);
-        if (searchString && searchString !== '' && searchString.length > 2) {
-            // console.log(`subscribe to relaySet`);
-            // subscribeToRelaySet(filter1, ['wss://relay.nostr.band', 'wss://search.nos.today']);
-        }
-    }, [searchString]);
-
-    useEffect(() => {
-        if (!!events && !subscribed) {
+        if (!!questions && !subscribed) {
             subscribe(filter);
             setSubscribed(true);
         }
-    }, [events, subscribed]);
+    }, [questions, subscribed]);
 
 
 
     useEffect(() => {
-        if (events && searchString && searchString.length > 2) {
-            const results = searchText(searchString, events)
+        if (questions && searchString && searchString.length > 2) {
+            const results = searchText(searchString, questions)
             // ignore notes with uselessshit.co dev links
                 .filter(({content}) => !content.includes('https://beta.uselessshit.co') &&
-                    !content.includes('https://dev.uselessshit.co')
+                    !content.includes('https://dev.uselessshit.co') && !content.includes('https://uselessshit.co')
+                    && !content.includes('https://swarmstr.com')
                 );
             setSearchResults(results)
         } else {
             setSearchResults([]);
         }
-    }, [events, searchString]);
+    }, [questions, searchString]);
 
     return (
         <React.Fragment>
             {
                 false && ndk && <Box sx={{ wordWrap: 'break-word' }}>
                     Relays: {ndk.pool.stats().connected}/{ndk.pool.stats().total}<br/>
-                    {/*Events: {nevents.length}<br/>*/}
                     User: {user?.npub}
                 </Box>
             }
@@ -171,7 +158,7 @@ export const Feed = () => {
                         ))
                 }
             </NostrResources>
-            <LoadingAnimation isLoading={!events}/>
+            <LoadingAnimation isLoading={!questions}/>
             {
                 user && <Fab
                     sx={{ position: 'fixed', bottom: '21px', right: '21px' }}

@@ -50,23 +50,11 @@ const subscription = ndk.subscribe({
 
 
 subscription.eventReceived = (e: NDKEvent, r: any) => {
-    // console.log('####### NDK event ######')
-    // console.log({e});
     const {id, pubkey} = e;
     e.toNostrEvent()
         .then((e1: NostrEvent) => {
-            // console.log('######## event #######');
-            // console.log({e1});
             const hashtags = e1.tags.filter((t: any) => t[0] === 't').map((t: any) => t[1]);
             if (((hashtags.includes('ask') && hashtags.includes('nostr')) || hashtags.includes('asknostr')) && !events.includes(e1)) {
-
-                // const newEvent = { ...e1, id: e.id };
-                // if (newEvent.id === '76ccabf3f428359b0de9e8d988fe9633564cebba67f1468821da7c735d193e4a') {
-                //     console.log('got wrong id')
-                // }
-                // if (newEvent.id === 'cd87b9eb0192a2d4144324d83699881bba043fe1d4d21696e8f426579f6eb914') {
-                //     console.log('got correct id')
-                // }
                 const nevent = nip19.neventEncode({
                     id,
                     author: pubkey,
@@ -158,9 +146,9 @@ server.get('/api/nevents', (req, res) => {
 server.get('/*', (req, res) => {
     let helmet = Helmet.renderStatic();
     const path = req.originalUrl;
-    if (path === '/resources/nostr/' || path === '/resources/nostr' || path === '/nostr/resources') {
+    if (path === '/resources/nostr/' || path === '/resources/nostr' || path === '/nostr/resources' || path === '/swarmstr') {
         res.writeHead(301, {
-            Location: `/swarmstr`
+            Location: `/`
         }).end();
     }
     const pathArr = path.split('/');

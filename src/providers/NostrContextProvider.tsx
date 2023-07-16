@@ -30,60 +30,74 @@ export const NostrContextProvider = ({ children }: any) => {
     const subs = useRef<NDKSubscription[]>([]);
 
     const events = useLiveQuery(
-        () => db.events.toArray()
+        () => db.notes.toArray()
     );
 
     // buld add events to indexedDB
     const addEvents = useCallback((events: NostrEvent[]) => {
-        db.events.bulkAdd(events)
-            .then(() => {
-                // console.log('events added to db');
-            });
+        // db.events.bulkAdd(events)
+        //     .then(() => {
+        //         // console.log('events added to db');
+        //     });
     }, []);
 
-    const signIn = useCallback(async () => {
+    const signIn = useCallback(async (delay: number = 0) => {
         if (user) {
+            console.log({user});
             return user!.hexpubkey();
         }
-        try {
-            ndk.current.signer = new NDKNip07Signer();
-            await ndk.current.assertSigner();
-
-            const signedInUser: NDKUser = await ndk.current.signer!.user();
-            if (signedInUser) {
-                !user && setUser(signedInUser);
-                signedInUser.ndk = ndk.current;
-                const profile = await signedInUser.fetchProfile();
-                console.log(`logged in as ${signedInUser.npub}`, {signedInUser});
-                console.log({profile});
-                const event: NDKEvent|null = await ndk.current
-                    .fetchEvent({ kinds: [3], authors: [signedInUser.hexpubkey()] }, { skipCache: true });
-                if (event) {
-                    const nostrEvent = await event.toNostrEvent();
-                    try {
-                        const relayUrls = Object.keys(JSON.parse(nostrEvent.content));
-                        // console.log({relayUrls});
-                        // ndk.current = new NDK({ explicitRelayUrls: relayUrls })
-                        // ndk.current.pool.relays =
-                        // await ndk.current.connect();
-                    } catch (error) {
-                        console.error(`unable to parse relay list`);
-                    }
-                }
-                return signedInUser.hexpubkey();
-            }
-        } catch (error) {
-            console.error('no browser extension available for signing in...', {error});
+        if (delay > 5000) {
+            console.log('no nip-07 extension...');
+            return;
         }
+        if (window.nostr) {
+            console.log(`trying to login...`)
+            try {
+                ndk.current.signer = new NDKNip07Signer();
+                // await ndk.current.assertSigner();
 
+                const signedInUser: NDKUser = await ndk.current.signer.user();
+                if (signedInUser) {
+                    !user && setUser(signedInUser);
+                    signedInUser.ndk = ndk.current;
+                    const profile = await signedInUser.fetchProfile();
+                    console.log(`logged in as ${signedInUser.npub}`, {signedInUser});
+                    console.log({profile});
+                    const event: NDKEvent|null = await ndk.current
+                        .fetchEvent({ kinds: [3], authors: [signedInUser.hexpubkey()] }, { skipCache: true });
+                    if (event) {
+                        const nostrEvent = await event.toNostrEvent();
+                        try {
+                            const relayUrls = Object.keys(JSON.parse(nostrEvent.content));
+                            // console.log({relayUrls});
+                            // ndk.current = new NDK({ explicitRelayUrls: relayUrls })
+                            // ndk.current.pool.relays =
+                            // await ndk.current.connect();
+                        } catch (error) {
+                            console.error(`unable to parse relay list`);
+                        }
+                    }
+                    return signedInUser.hexpubkey();
+                }
+            } catch (error) {
+                console.error('no browser extension available for signing in...', {error});
+            }
+        } else {
+            delay += 100;
+            console.log(`incrementing delay ${delay}...`);
+            setTimeout(() => {
+                signIn(delay);
+            }, delay);
+        }
     }, []);
 
     const onEvent = async (event: NDKEvent) => {
-        const exists = await db.events.get({ id: event.id });
+        // const exists = await db.events.get({ id: event.id });
+        const exists = false;
         if (!exists) {
             try {
                 const nostrEvent = await event.toNostrEvent();
-                const added = await db.events.add(nostrEvent);
+                // const added = await db.events.add(nostrEvent);
                 // console.log(`new event added`, {added});
             } catch (error) {
                 console.error(`error adding new event`)
@@ -174,10 +188,12 @@ export const NostrContextProvider = ({ children }: any) => {
                 console.log('information fetched')
             });
 
-        signIn()
-            .then(() => {
-                console.log('sign in');
-            })
+        setTimeout(() => {
+            signIn()
+                .then(() => {
+                    console.log('sign in');
+                })
+        })
     }, []);
 
     return (

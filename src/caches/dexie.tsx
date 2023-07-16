@@ -7,9 +7,8 @@ export default class DexieAdapter implements NDKCacheAdapter {
     public async query(subscription: NDKSubscription): Promise<void> {
         if (subscription.filter?.kinds?.length === 1 && subscription.filter.kinds[0] === 0) {
             for (const pubkey of (subscription.filter?.authors || [])) {
-                const event = await db.events
-                    .where({ kind: 0 })
-                    .and((event: NostrEvent) => event.pubkey === pubkey)
+                const event = await db.users
+                    .where({ pubkey })
                     .first();
                 if (!event) continue;
 
@@ -19,7 +18,7 @@ export default class DexieAdapter implements NDKCacheAdapter {
         }
         if (subscription.filter?.kinds?.length === 1 && subscription.filter.kinds[0] === 1) {
             for (const id of (subscription.filter?.ids || [])) {
-                const event = await db.events
+                const event = await db.notes
                     .get({ id });
                 if (!event) continue;
 
@@ -31,8 +30,8 @@ export default class DexieAdapter implements NDKCacheAdapter {
 
     public async setEvent(event: NDKEvent, filter: NDKFilter): Promise<void> {
         const nostrEvent = await event.toNostrEvent();
-        if (event.kind === 0 || event.kind === 1) {
-            db.events.put(nostrEvent);
+        if (event.kind === 0) {
+            db.users.put(nostrEvent);
         }
     }
 }

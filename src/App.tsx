@@ -123,15 +123,15 @@ function App() {
         <ThemeProvider theme={theme}>
             <NavBar />
              <Routes>
-                 <Route path="/" element={<PageContent />} />
-                 <Route path="/spread-the-word" element={<SpreadTheWord />} />
-                 <Route path="resources" element={<Resources/>}>
-                     <Route path="bitcoin" element={<BitcoinResources />} />
-                     <Route path="nostr" element={nostrResources} />
-                     <Route path="nostr/:noteId" element={<NoteThread/>} />
-                 </Route>
-                 <Route path="swarmstr" element={<NostrFeedContextProvider><Feed/></NostrFeedContextProvider>} />
-                 <Route path="swarmstr/e/:nevent" element={
+                 {/*<Route path="/" element={<PageContent />} />*/}
+                 {/*<Route path="/spread-the-word" element={<SpreadTheWord />} />*/}
+                 {/*<Route path="resources" element={<Resources/>}>*/}
+                     {/*<Route path="bitcoin" element={<BitcoinResources />} />*/}
+                     {/*<Route path="nostr" element={nostrResources} />*/}
+                     {/*<Route path="nostr/:noteId" element={<NoteThread/>} />*/}
+                 {/*</Route>*/}
+                 <Route path="/" element={<NostrFeedContextProvider><Feed/></NostrFeedContextProvider>} />
+                 <Route path="e/:nevent" element={
                      <NostrNoteThreadContextProvider>
                          <NostrNoteThreadContext.Consumer>
                              {
@@ -151,31 +151,31 @@ function App() {
                      </NostrNoteThreadContextProvider>
                  } />
                  {/*<Route path="/card-generator" element={<CardGenerator />} />*/}
-                 <Route path="/tip-jar/:username" element={<TipJar />} />
-                     <Route path="/nostr" element={<Nostr/>}>
-                         <Route path="nip-05" element={<Nip05/>} />
-                         <Route path="zaps" element={<Zaps/>} />
-                         <Route path="resources" element={<NostrFeedContextProvider><Feed/></NostrFeedContextProvider>} />
-                         <Route path="e/:nevent" element={
-                             <NostrNoteThreadContextProvider>
-                                 <NostrNoteThreadContext.Consumer>
-                                     {
-                                         ({ nevent }) => (
-                                             <NoteThread
-                                                 key={`${nevent}-thread`}
-                                                 nevent={nevent}
-                                                 expanded={true}
-                                             >
-                                                 <NostrNoteContextProvider thread={true}>
-                                                     <Note key={`${nevent}-content`} nevent={nevent} expanded={true}/>
-                                                 </NostrNoteContextProvider>
-                                             </NoteThread>
-                                         )
-                                     }
-                                 </NostrNoteThreadContext.Consumer>
-                             </NostrNoteThreadContextProvider>
-                         }/>
-                     </Route>
+                 {/*<Route path="/tip-jar/:username" element={<TipJar />} />*/}
+                     {/*<Route path="/nostr" element={<Nostr/>}>*/}
+                         {/*<Route path="nip-05" element={<Nip05/>} />*/}
+                         {/*<Route path="zaps" element={<Zaps/>} />*/}
+                         {/*<Route path="resources" element={<NostrFeedContextProvider><Feed/></NostrFeedContextProvider>} />*/}
+                         {/*<Route path="e/:nevent" element={*/}
+                             {/*<NostrNoteThreadContextProvider>*/}
+                                 {/*<NostrNoteThreadContext.Consumer>*/}
+                                     {/*{*/}
+                                         {/*({ nevent }) => (*/}
+                                             {/*<NoteThread*/}
+                                                 {/*key={`${nevent}-thread`}*/}
+                                                 {/*nevent={nevent}*/}
+                                                 {/*expanded={true}*/}
+                                             {/*>*/}
+                                                 {/*<NostrNoteContextProvider thread={true}>*/}
+                                                     {/*<Note key={`${nevent}-content`} nevent={nevent} expanded={true}/>*/}
+                                                 {/*</NostrNoteContextProvider>*/}
+                                             {/*</NoteThread>*/}
+                                         {/*)*/}
+                                     {/*}*/}
+                                 {/*</NostrNoteThreadContext.Consumer>*/}
+                             {/*</NostrNoteThreadContextProvider>*/}
+                         {/*}/>*/}
+                     {/*</Route>*/}
              </Routes>
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                 <ThemeContext.Consumer>
