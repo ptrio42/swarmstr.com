@@ -76,6 +76,11 @@ export const REACTIONS = [
         name: 'triangular_flag_on_post',
         content: '🚩',
         type: ReactionType.DOWN
+    },
+    {
+        type: ReactionType.UP,
+        content: '🧄',
+        name: 'garlic'
     }
 ];
 

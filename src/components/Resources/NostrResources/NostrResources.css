@@ -72,9 +72,3 @@ input {
 .theme--dark .list-container li:nth-child(2) {
     background: #000;
 }
-
-.theme--dark .list-container {
-    background: url('https://swarmstr.com/images/swarmstr-cover-1.png');
-    background-size: 100%;
-    background-position-y: -26px;
-}

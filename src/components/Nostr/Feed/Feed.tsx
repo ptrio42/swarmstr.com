@@ -22,6 +22,7 @@ import Chip from "@mui/material/Chip";
 import {Search} from "../../Search/Search";
 import {NOTE_TYPE, NoteEvent} from "../../../models/commons";
 import './Feed.css';
+import {Backdrop} from "../../Backdrop/Backdrop";
 
 const filter: NDKFilter = {
     kinds: [1],
@@ -46,6 +47,8 @@ export const Feed = () => {
     const [subscribed, setSubscribed] = useState<boolean>(false);
 
     const [isQuerying, setIsQuerying] = useState<boolean>(false);
+
+    const [showPreloader, setShowPreloader] = useState<boolean>(true);
 
     const questions = useLiveQuery(async () => {
         if (!searchString || searchString.length < 3) return [];
@@ -111,6 +114,11 @@ export const Feed = () => {
             setSearchResults([]);
         }
     }, [questions, searchString]);
+
+    useEffect(()=>{
+        window.addEventListener('load', () => setShowPreloader(false));
+        return () => window.removeEventListener('load', () => setShowPreloader(false));
+    },[]);
 
     return (
         <React.Fragment>
@@ -182,6 +190,7 @@ export const Feed = () => {
                 </Fab>
             }
             <NewNoteDialog open={newNoteDialogOpen} onClose={() => setNewNoteDialogOpen(false)} label="What's your question?" explicitTags={[['t', 'asknostr']]} />
+            <Backdrop open={showPreloader} />
         </React.Fragment>
     )
 };
