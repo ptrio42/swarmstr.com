@@ -116,8 +116,9 @@ export const Feed = () => {
     }, [questions, searchString]);
 
     useEffect(()=>{
-        window.addEventListener('load', () => setShowPreloader(false));
-        return () => window.removeEventListener('load', () => setShowPreloader(false));
+        // window.addEventListener('load', () => setShowPreloader(false));
+        // return () => window.removeEventListener('load', () => setShowPreloader(false));
+        setShowPreloader(false);
     },[]);
 
     return (
