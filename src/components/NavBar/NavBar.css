@@ -1,9 +1,9 @@
 .navbar {
-  background-color: #FFF;
+  background-color: #FFF !important;
 }
 
 .theme--dark .navbar {
-  background-color: #000;
+  background-color: #000 !important;
 }
 
 .navbar-actions {

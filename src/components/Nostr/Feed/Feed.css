@@ -1,6 +1,6 @@
 .MuiChip-root {
-    height: 37px;
-    margin: 5px;
+    height: 37px !important;
+    margin: 5px !important;
 }
 
 .MuiChip-root span {
