@@ -25,7 +25,7 @@ import './Feed.css';
 import {Backdrop} from "../../Backdrop/Backdrop";
 
 const filter: NDKFilter = {
-    kinds: [1],
+    kinds: [1, 30023],
     '#t': ['asknostr']
 };
 
@@ -106,8 +106,9 @@ export const Feed = () => {
             const results = searchText(searchString, questions)
                 // ignore notes with uselessshit.co dev links
                 .filter(({content}) => !content.includes('https://beta.uselessshit.co') &&
-                    !content.includes('https://dev.uselessshit.co') && !content.includes('https://uselessshit.co')
-                    && !content.includes('https://swarmstr.com')
+                    !content.includes('https://dev.uselessshit.co')
+                    // && !content.includes('https://uselessshit.co')
+                    // && !content.includes('https://swarmstr.com')
                 );
             setSearchResults(results)
         } else {

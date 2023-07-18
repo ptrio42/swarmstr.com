@@ -1,5 +1,5 @@
 import parse, {DOMNode, HTMLReactParserOptions} from 'html-react-parser';
-import React, {FC, useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, {FC, lazy, useCallback, useEffect, useMemo, useRef, useState, Suspense} from "react";
 import {
     CopyAll,
     DoneOutline,
@@ -28,11 +28,6 @@ import './Note.css';
 import { Element, isTag } from 'domhandler';
 import {Link, useSearchParams} from "react-router-dom";
 import {processText} from "../../../services/util";
-import {Config} from "nostr-hooks/dist/types";
-import {DEFAULT_RELAYS} from "../../../resources/Config";
-// @ts-ignore
-import {useSubscribe} from "nostr-hooks";
-import {DEFAULT_EVENTS} from "../../../stubs/events";
 import {NoteThread} from "../Thread/Thread";
 import {Skeleton} from "@mui/material";
 import ReactPlayer from 'react-player';
@@ -40,16 +35,18 @@ import NDK, {NDKEvent, NDKFilter, NDKRelaySet, NDKSubscription, NDKTag, NostrEve
 import {NostrNoteContextProvider, useNostrNoteContext} from "../../../providers/NostrNoteContextProvider";
 import { intersection } from 'lodash';
 import {containsTag, matchString, nFormatter, noteIsVisible} from "../../../utils/utils";
-import Box from "@mui/material/Box";
 import {useNostrContext} from "../../../providers/NostrContextProvider";
-// import { decode } from 'bolt11';
-import lightBolt11Decoder from 'light-bolt11-decoder';
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
 import CircularProgress from "@mui/material/CircularProgress";
 import {NewNoteDialog} from "../../../dialog/NewNoteDialog";
 import {ZapDialog} from "../../../dialog/ZapDialog";
 import {ZapEvent} from "../../../models/commons";
+
+const ReactMarkdown = lazy(() => import('react-markdown'));
+const MDEditor = lazy(() => import('@uiw/react-md-editor'));
+// const rehypeRaw = lazy(() => import('rehype-raw'));
+import rehypeRaw from 'rehype-raw'
 
 interface NoteProps {
     noteId?: string;
@@ -92,7 +89,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
 
     const { id, author } = nip19.decode(nevent).data;
     const filter: NDKFilter = { kinds: [1], ids: [id]};
-    const filter1: NDKFilter = { kinds: [1, 7, 9735], '#e': [id]};
+    const filter1: NDKFilter = { kinds: [1, 7, 9735, 30023], '#e': [id]};
 
     const [subscribed, setSubscribed] = useState<boolean>(false);
 
@@ -150,7 +147,8 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
 
     useEffect(() => {
         if (!parsedContent && !!event?.content) {
-            setParsedContent(parseHtml(event!.content));
+            const _parsedContent = parseHtml(event!.content);
+            setParsedContent(_parsedContent);
         }
     }, [event]);
 
@@ -389,7 +387,10 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                             a.click();
                         } } : {}) }
                 >
-                    { event && parseHtml(event.content) }
+                    {
+                        // @ts-ignore
+                        event && parseHtml(event.content)
+                    }
                 </Typography>
                 {
                     !event && <React.Fragment>

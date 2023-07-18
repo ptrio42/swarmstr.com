@@ -107,9 +107,9 @@ export const NostrContextProvider = ({ children }: any) => {
     }
 
     const subscribe = useCallback((filter: NDKFilter) => {
-        const sub = ndk.current.subscribe(filter, {closeOnEose: false, groupableDelay: 3000});
-        sub.on('event', onEvent);
-        subs.current.push(sub);
+        // const sub = ndk.current.subscribe(filter, {closeOnEose: false, groupableDelay: 3000});
+        // sub.on('event', onEvent);
+        // subs.current.push(sub);
     }, []);
 
     const subscribeToRelaySet = useCallback((filter: NDKFilter, relayUrls: string[]) => {
@@ -130,11 +130,11 @@ export const NostrContextProvider = ({ children }: any) => {
             });
     }, []);
 
-    const post = useCallback(async (content: string, tags: NDKTag[]) => {
+    const post = useCallback(async (content: string, tags: NDKTag[], kind: number = 1) => {
         try {
             const pubkey = await signIn();
             const event = new NDKEvent(ndk.current);
-            event.kind = 1;
+            event.kind = kind;
             event.content = content;
             event.tags = tags;
             event.pubkey = pubkey!;

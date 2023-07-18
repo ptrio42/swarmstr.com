@@ -3,16 +3,40 @@ import {keywordsFromString} from "../components/Nostr/Feed/Feed";
 
 export const processText = (text: string, tags?: string[][], searchString?: string): string => {
     let replacedText = text
+        // links
+            .replace(/^(?!\[)(https?:\/\/(?![^" \n]*(?:jpg|jpeg|png|gif|svg|webp|mov|mp4))[^" \n\(\)]+).*(?<!\))/gm, '<a class="test-0" href="$1" target="_blank">$1</a>')
+            // .replace(/^(?!\[).*(http?:\/\/(?![^" \n]*(?:jpg|jpeg|png|gif|svg|webp|mov|mp4))[^" \n]+).*(?<!\))/gm, '<a href="$1" target="_blank">$1</a>')
+            // images
+            .replace(/^(?!\!)(https?:\/\/.*\.(?:png|jpg|jpeg|gif|svg|webp)).*(?<!\))/gm, '<img width="100%" src="$1" style="max-width:512px;" />')
+            // markdown
+            // images
+            .replace(/!(\[(?<text>[^(]+)]\((?<url>[^")]+))\)/gm, (result, _, text, url) => {
+                return `<img src=${url} style="max-width:512px;" alt="${text}" />`;
+            })
+            // urls
+            .replace(/(\[(?<text>[^(]+)]\((?<url>[^")]+))\)/gm, (result, _, text, url) => {
+                return `<a class="test" href=${url} target="_blank">${text}</a>`;
+            })
+            .replace(/(<!--(?<comment>[^-->]*)-->)/gm, '')
+            // .replace(/((?<!\d+\..+\n)\d+\. (?<orderedListFirstItem>.+)\n)/gm, '<ol><li>$1</li>')
+            // .replace(/((?<=\d+\..+\n)\d+\. (?<orderedListMiddleItem>.+)\n(?=\d+\.))/gm, '<li>$1</li>')
+            // .replace(/(\d+\. (?<orderedListLastItem>.+)\n(?!\d+\.))/gm, '<li>$1</li></ol>')
+            // .replace(/((?<!-.\n)- (?<unorderedListFirstItem>.+)\n)|((?<=-.\n)- (?<unorderedListMiddleItem>.+)\n(?=-))|(- (?<unorderedListLastItem>.+)(?!-))/gm, (result, g1, g2, g3) => {
+            //     console.log({result, g1, g2, g3})
+            //     return result;
+            // })
+            .replace(/\*\*\*(?<boldAndItalic>[^*]*)\*\*\*/gm, '<b><i>$1</i></b>')
+            .replace(/(\*\*(?<bold>[^*]*)\*\*)/gm, '<b>$1</b>')
+            .replace(/\*(?<italic>[^*]*)\*/gm, '<i>$1</i>')
+            .replace(/~~(?<strikethrough>[^~]*)~~/gm, '<s>$1</s>')
+            .replace(/`{3}(?<multilineCode>[^§]+)`{3}/gm, '<pre>$1</pre>')
+            // .replace(/`(?<inlineCode>[^`\n]*)`/gm, '<code>$1</code>')
+            // .replace(/\`(?:[^\`||\s]+)\`/gm, '<code>$1</code>')
+            .replace(/(?<=^\n)> (?<singleLineQuote>.+)\n(?!^>)/gm, '<blockquote>$1</blockquote>')
         .replace(/https:\/\/youtu\.be\/([a-zA-Z0-9_-]+)/g, '<button class="video-btn">$1</button>')
-        .replace(/(https?:\/\/(?![^" \n]*(?:jpg|jpeg|png|gif|svg|webp|mov|mp4))[^" \n]+)/g, '<a href="$1" target="_blank">$1</a>')
-        .replace(/(http?:\/\/(?![^" \n]*(?:jpg|jpeg|png|gif|svg|webp|mov|mp4))[^" \n]+)/g, '<a href="$1" target="_blank">$1</a>')
-        .replace(/(https?:\/\/.*\.(?:png|jpg|jpeg|gif|svg|webp))/g, '<img width="100%" src="$1" style="max-width:512px;" />')
         .replace(/(https?:\/\/.*\.(?:mov|mp4))/g, '<button class="video-btn">$1</button>')
         // .replace(/(\n+)/, '$1<br/>')
         .replace(/\n/g, '<br/>')
-        .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
-        .replace(/~~(.*?)~~/g, "<i>$1</i>")
-        .replace(/__(.*?)__/g, "<u>$1</u>")
         .replace(/nostr:npub1([a-z0-9]+)/g, (result) => {
             const npub = result.split(':')[1];
             return `<button class="metadata-btn">${npub}</button>`;
@@ -26,7 +50,9 @@ export const processText = (text: string, tags?: string[][], searchString?: stri
         .replace(/nostr:nevent1([a-z0-9]+)/g, (result) => {
             const nevent = result.split(':')[1];
             return `<button class="thread-btn">${nevent}</button>`;
-        });
+        })
+        // .replace(new RegExp(`\n(&gt;|\\>)(.*)`, "g"), '<blockquote>$1</blockquote>')
+    ;
 
     if (searchString && searchString !== '' && searchString.length > 2) {
         const keywords = keywordsFromString(searchString);

@@ -8,7 +8,7 @@ type NostrContextType = {
     subscribe: (filter: NDKFilter) => void,
     subscribeToRelaySet: (filter: NDKFilter, relayUrls: string[]) => void,
     signIn: () => Promise<string|undefined>
-    post: (content: string, tags: NDKTag[]) => Promise<void>
+    post: (content: string, tags: NDKTag[], kind?: number) => Promise<void>
 }
 
 export const NostrContext = createContext<NostrContextType>({

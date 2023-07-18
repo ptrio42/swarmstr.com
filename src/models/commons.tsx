@@ -11,6 +11,7 @@ export const NOTE_TYPE: { [key: string]: NoteType } = {
 export interface NoteEvent extends NostrEvent {
     type: NoteType;
     referencedEventId?: string;
+    title?: string;
 }
 
 export interface ZapEvent extends NostrEvent {
@@ -25,5 +26,9 @@ export interface ReactionEvent extends NostrEvent {
 }
 
 export interface UserEvent extends NostrEvent {
+}
+
+export interface PostEvent extends NoteEvent {
+    title: string;
 }
 

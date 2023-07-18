@@ -56,12 +56,14 @@ export const NostrNoteContextProvider = ({ children, thread }: NostrNoteContextP
                 try {
                     const nostrEvent = await event.toNostrEvent();
                     // handle note
-                    if (nostrEvent.kind === 1) {
+                    if (nostrEvent.kind === 1 || nostrEvent.kind === 30023) {
                         const referencedEventId = valueFromTag(nostrEvent, 'e');
+                        const title = valueFromTag(nostrEvent, 'title');
                         const noteEvent: NoteEvent = {
                             ...nostrEvent,
                             type: undefined,
-                            ...(!!referencedEventId && { referencedEventId })
+                            ...(!!referencedEventId && { referencedEventId }),
+                            ...(!!title && { title })
                         }
 
                         if (!referencedEventId) {

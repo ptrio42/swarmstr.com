@@ -2,7 +2,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import Box from "@mui/material/Box";
 import {useFormik} from "formik";
-import React, {useEffect, useRef} from "react";
+import React, {lazy, useEffect, useRef, useState, Suspense} from "react";
 import TextField from "@mui/material/TextField";
 import './NewNoteDialog.css';
 import {DialogActions} from "@mui/material";
@@ -14,6 +14,46 @@ import {differenceWith} from 'lodash';
 import Input from "@mui/material/Input";
 import { Image as ImageIcon } from '@mui/icons-material';
 import {uploadToNostrCheckMe} from "../services/uploadImage";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
+import Typography from "@mui/material/Typography";
+
+const MDEditor = lazy(() => import('@uiw/react-md-editor'));
+
+interface TabPanelProps {
+    children?: React.ReactNode;
+    index: number;
+    value: number;
+}
+
+const TabPanel = (props: TabPanelProps) => {
+    const { children, value, index, ...other } = props;
+
+    return (
+        <div
+            role="tabpanel"
+            hidden={value !== index}
+            id={`newNote-tabpanel-${index}`}
+            aria-labelledby={`newNote-tab-${index}`}
+            {...other}
+        >
+            {value === index && (
+                <Box sx={{ p: 3 }}>
+                    <Typography>{children}</Typography>
+                </Box>
+            )}
+        </div>
+    );
+};
+
+const a11yProps = (index: number) => {
+    return {
+        id: `simplnewNote-tab-${index}`,
+        'aria-controls': `newNote-tabpanel-${index}`,
+    };
+};
 
 interface NewNoteDialogProps {
     open: boolean;
@@ -32,9 +72,16 @@ export const NewNoteDialog = ({ open, onClose, noteId, replyTo, label, explicitT
 
     const fileInputRef = useRef<HTMLInputElement|null>(null);
 
+    const [kind, setKind] = useState<number>(1);
+    const [tabIndex, setTabIndex] = useState<number>(0);
+
+    const theme = useTheme();
+    const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+
     const formik = useFormik({
         initialValues: {
             content: '',
+            title: ''
         },
         onSubmit: (values) => {
             console.log(`form submit`, {values});
@@ -57,13 +104,34 @@ export const NewNoteDialog = ({ open, onClose, noteId, replyTo, label, explicitT
         diff && diff.length > 0 && tags.current.push(...(diff));
     }, [replyTo]);
 
+    useEffect(() => {
+        let newKind: number;
+        if (tabIndex === 1) {
+            newKind = 30023;
+        } else {
+            newKind = 1;
+        }
+        setKind(newKind!);
+    }, [tabIndex]);
+
     const handleClose = () => {
         console.log('close');
         onClose && onClose();
     };
 
-    return <Dialog open={open} onClose={() => { console.log('close') }}>
+    const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+        console.log({newValue});
+        setTabIndex(newValue);
+    };
+
+    return <Dialog fullScreen={fullScreen} open={open} onClose={() => { console.log('close') }}>
             <DialogTitle sx={{ color: 'rgba(255,255,255,.77)', paddingLeft: '8px' }}>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                    <Tabs value={tabIndex} onChange={handleChange} aria-label="Choose note type">
+                        <Tab label={noteId ? 'Short reply' : 'Add Question'} {...a11yProps(0)} />
+                        <Tab label={ noteId ? 'Long reply' : 'Create Post' } {...a11yProps(1)} />
+                    </Tabs>
+                </Box>
                 {
                     noteId && <React.Fragment>
                         Reply to: { nip19.noteEncode(noteId).slice(0, 12) }...
@@ -73,20 +141,41 @@ export const NewNoteDialog = ({ open, onClose, noteId, replyTo, label, explicitT
                     !noteId && <React.Fragment>Post to: #asknostr</React.Fragment>
                 }
             </DialogTitle>
-            <Box className="newNote-form">
+            <Box sx={{ height: '90%' }} className="newNote-form">
                 <form onSubmit={formik.handleSubmit}>
-                    <TextField
-                        sx={{ minWidth: '272px' }}
-                        id="content"
-                        name="content"
-                        label={ label || 'Post' }
-                        multiline
-                        rows={10}
-                        value={formik.values.content}
-                        onChange={(event: any) => {
-                            formik.handleChange(event);
-                        }}
-                    />
+                    <TabPanel index={0} value={tabIndex}>
+                        <TextField
+                            sx={{ minWidth: '272px' }}
+                            id="content"
+                            name="content"
+                            label={ label || 'Post' }
+                            multiline
+                            rows={10}
+                            value={formik.values.content}
+                            onChange={(event: any) => {
+                                formik.handleChange(event);
+                            }}
+                        />
+                    </TabPanel>
+                    <TabPanel index={1} value={tabIndex}>
+                        <TextField
+                            id="title"
+                            name="title"
+                            type="text"
+                            label="Post title..."
+                            value={formik.values.title}
+                            onChange={(event) => {
+                                formik.handleChange(event);
+                            }} />
+                        <Suspense fallback={'Loading...'}>
+                            <MDEditor
+                                value={formik.values.content}
+                                onChange={(value: string | undefined) => {
+                                    formik.setFieldValue('content', value);
+                                }}
+                            />
+                        </Suspense>
+                    </TabPanel>
                 </form>
             </Box>
             <DialogActions>
@@ -127,10 +216,17 @@ export const NewNoteDialog = ({ open, onClose, noteId, replyTo, label, explicitT
                         const diff = differenceWith(tagsInContent, tags.current, (t1, t2) => t1[0] === t2[0] && t1[1] === t2[1]);
                         tags.current.push(...diff);
                     }
-                    // console.log({tags: tags.current})
-                    post(formik.values.content, tags.current)
+                    if (kind === 30023) {
+                        const index = tags.current.findIndex((tag: NDKTag) => tag[0] === 'title');
+                        if (index > -1) {
+                            tags.current.slice(index, 1);
+                        }
+                        tags.current.push(['title', formik.values.title]);
+                    }
+                    post(formik.values.content, tags.current, kind)
                         .then(() => {
                             formik.setFieldValue('content', '');
+                            formik.setFieldValue('title', '');
                             onClose && onClose();
                         })
                 }} autoFocus>

@@ -12,3 +12,34 @@
 .theme--dark .newNote-form label {
     color: rgba(255,255,255,.55)!important;
 }
+
+.theme--dark .MuiTabs-root button {
+    color: #fff;
+}
+
+.theme--dark .w-md-editor-toolbar {
+    background: #000;
+}
+
+.theme--dark .w-md-editor-toolbar button {
+    color: rgba(255,255,255,.77);
+}
+
+.theme--dark .w-md-editor {
+    height: 450px!important;
+    box-shadow: none;
+    background: none;
+}
+
+.theme--dark .wmde-markdown-color {
+    color: rgba(255,255,255,.77);
+}
+
+.theme--dark .wmde-markdown.wmde-markdown-color {
+    color: rgba(255,255,255,.77);
+    background: transparent;
+}
+
+.theme--dark .wmde-markdown.wmde-markdown-color pre {
+    background: transparent;
+}

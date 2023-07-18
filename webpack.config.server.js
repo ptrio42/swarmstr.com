@@ -13,17 +13,25 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: '[name].js',
+        publicPath: "/"
     },
     resolve: {
         extensions: ['.ts', '.tsx', '.js'],
         alias: {
             'nostr-hooks': path.resolve(__dirname, 'node_modules/nostr-hooks'),
             'domhandler': path.resolve(__dirname, 'node_modules/domhandler'),
+            'react-simplemde-editor': path.resolve(__dirname, 'node_modules/react-simplemde-editor'),
+            // '@uiw/react-md-editor': path.resolve(__dirname, 'node_modules/@uiw/react-md-editor'),
+            // '@uiw/react-markdown-preview': path.resolve(__dirname, 'node_modules/@uiw/react-markdown-preview'),
+            // 'react-markdown': path.resolve(__dirname, 'node_modules/react-markdown'),
         }
     },
     externals: [nodeExternals({
         allowlist: [/\.css$/, 'nostr-mux', 'domhandler', 'nostr-hooks']
     })],
+    externalsPresets: {
+        node: true
+    },
     target: 'node',
     node: {
         __dirname: false,

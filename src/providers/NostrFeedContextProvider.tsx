@@ -58,11 +58,13 @@ export const NostrFeedContextProvider = ({ children }: any) => {
             const nostrEvent = await event.toNostrEvent();
             const { tags } = nostrEvent;
             const referencedEventId = valueFromTag(nostrEvent, 'e');
+            const title = valueFromTag(nostrEvent, 'title');
             if (containsTag(tags, ['t', 'asknostr'])) {
                 const noteEvent: NoteEvent = {
                     ...nostrEvent,
                     type: undefined,
-                    ...(!!referencedEventId && { referencedEventId })
+                    ...(!!referencedEventId && { referencedEventId }),
+                    ...(!!title && { title })
                 };
                 // if event contains referenced event tag, it serves at question hint
                 // thus gotta fetch the referenced event
