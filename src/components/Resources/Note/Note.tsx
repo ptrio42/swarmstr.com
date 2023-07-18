@@ -230,12 +230,16 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                         const { attribs, children, name } = domNode;
                         if (name === 'button' && attribs.class === 'metadata-btn') {
                             const data = children.length > 0 && children[0].data;
-                            const userPubkey = nip19.decode(data)?.data || data;
-                            if (userPubkey) {
-                                return  <Metadata
-                                    variant={'link'}
-                                    pubkey={userPubkey}
-                                />
+                            try {
+                                const userPubkey = nip19.decode(data)?.data || data;
+                                if (userPubkey) {
+                                    return  <Metadata
+                                        variant={'link'}
+                                        pubkey={userPubkey}
+                                    />
+                                }
+                            } catch (error) {
+                                console.error(`unable to decode npub ${data}...`, {error});
                             }
                         }
                         if (name === 'button' && attribs.class === 'thread-btn') {
