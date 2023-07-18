@@ -47,6 +47,7 @@ const ReactMarkdown = lazy(() => import('react-markdown'));
 const MDEditor = lazy(() => import('@uiw/react-md-editor'));
 // const rehypeRaw = lazy(() => import('rehype-raw'));
 import rehypeRaw from 'rehype-raw'
+import Tooltip from "@mui/material/Tooltip";
 
 interface NoteProps {
     noteId?: string;
@@ -130,7 +131,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
     const noteRef = useRef(null);
     const noteVisible = noteIsVisible(noteRef);
 
-    const { user } = useNostrContext();
+    const { user, setLoginDialogOpen } = useNostrContext();
 
     const [newReplyDialogOpen, setNewReplyDialogOpen] = useState<boolean>(false);
     const [zapDialogOpen, setZapDialogOpen] = useState<boolean>(false);
@@ -413,57 +414,75 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                         <Stack sx={{ justifyContent: 'space-between', alignItems: 'center' }} direction="row" spacing={1}>
                             <Typography component="div" sx={{ fontSize: 14, display: 'flex', alignItems: 'center' }}>
                                 <React.Fragment>
-                                    <Button
-                                        color="secondary"
-                                        sx={{ textTransform: 'none' }}
-                                        onClick={() => {
-                                            if (user) {
-                                                setNewReplyDialogOpen(true);
-                                            }
-                                        }}
-                                    >
-                                        <Badge
-                                            badgeContent={commentEvents?.length}
-                                            color="primary"
-                                            className="comments-count"
+                                    <Tooltip title="Add new answer">
+                                        <Button
+                                            color="secondary"
+                                            sx={{ textTransform: 'none' }}
+                                            onClick={() => {
+                                                if (user) {
+                                                    setNewReplyDialogOpen(true);
+                                                } else {
+                                                    setLoginDialogOpen(true);
+                                                }
+                                            }}
                                         >
-                                            <ChatBubbleOutline sx={{ fontSize: 18 }} />
-                                        </Badge>
-                                    </Button>
+                                            <Badge
+                                                badgeContent={commentEvents?.length}
+                                                color="primary"
+                                                className="comments-count"
+                                            >
+                                                <ChatBubbleOutline sx={{ fontSize: 18 }} />
+                                            </Badge>
+                                        </Button>
+                                    </Tooltip>
                                 </React.Fragment>
                             </Typography>
                             <Typography component="div" sx={{ fontSize: 14, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                                 { pinned &&
                                 <DoneOutline color="success" />
                                 }
-                                <Button
-                                    sx={{ ...(zapped() && { color: '#fbf722' }) }}
-                                    color="secondary"
-                                    onClick={() => {
-                                        console.log('zap', {event});
-                                        setZapDialogOpen(true);
-                                    }}
-                                >
-                                    {
-                                        zapEvents && <React.Fragment>
-                                            <ElectricBolt sx={{ fontSize: 18 }} />
-                                            { getTotalZaps() }
-                                        </React.Fragment>
-                                    }
-                                </Button>
+                                <Tooltip title={`Zaps from ${(zapEvents || []).length} user(s)`}>
+                                    <Button
+                                        sx={{ ...(zapped() && { color: '#fbf722' }) }}
+                                        color="secondary"
+                                        onClick={() => {
+                                            console.log('zap', {event});
+                                            if (user) {
+                                                setZapDialogOpen(true);
+                                            } else {
+                                                setLoginDialogOpen(true);
+                                            }
+                                        }}
+                                    >
+                                        {
+                                            zapEvents && <React.Fragment>
+                                                <ElectricBolt sx={{ fontSize: 18 }} />
+                                                { getTotalZaps() }
+                                            </React.Fragment>
+                                        }
+                                    </Button>
+                                </Tooltip>
                                 {
                                     reactionEvents && <React.Fragment>
                                         <Reactions
                                             reactions={getUpReactions()}
                                             type={ReactionType.UP}
                                             handleReaction={(reaction: string) => {
-                                                addReaction(id, reaction);
+                                                if (user) {
+                                                    addReaction(id, reaction);
+                                                } else {
+                                                    setLoginDialogOpen(true);
+                                                }
                                             }}
                                             placeholder={REACTIONS[0].content}
                                             reacted={reacted(ReactionType.UP)}
                                         />
                                         <Reactions reactions={getDownReactions()} type={ReactionType.DOWN} handleReaction={(reaction: string) => {
-                                            addReaction(id, reaction);
+                                            if (user) {
+                                                addReaction(id, reaction);
+                                            } else {
+                                                setLoginDialogOpen(true);
+                                            }
                                         }} placeholder={REACTIONS[4].content.replace('-', '👎')} reacted={reacted(ReactionType.DOWN)} />
                                     </React.Fragment>
                                 }

@@ -6,6 +6,7 @@ import NDK from "@nostr-dev-kit/ndk";
 import {DEFAULT_RELAYS} from "../resources/Config";
 import {useParams} from "react-router";
 import {useNostrContext} from "./NostrContextProvider";
+import {Backdrop} from "../components/Backdrop/Backdrop";
 
 const subs = [];
 
@@ -18,6 +19,8 @@ export const NostrNoteThreadContextProvider = ({children}: any) => {
     };
     const { ndk } = useNostrContext();
     const { nevent } = useParams();
+
+    const [showPreloader, setShowPreloader] = useState<boolean>(true);
 
     const subscribe = useCallback((filter: NDKFilter, relaySet?: NDKRelaySet) => {
         // if (relaySet) {
@@ -42,6 +45,7 @@ export const NostrNoteThreadContextProvider = ({children}: any) => {
     }, []);
 
     useEffect(() => {
+        setShowPreloader(false);
         ndk.connect()
             .then(() => {
                 console.log(`connected to relays`);
@@ -62,6 +66,7 @@ export const NostrNoteThreadContextProvider = ({children}: any) => {
     return (
         <NostrNoteThreadContext.Provider value={{ events, subscribe, nevent: nevent || '' }}>
             {children}
+            <Backdrop open={showPreloader} />
         </NostrNoteThreadContext.Provider>
     );
 };

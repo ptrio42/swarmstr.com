@@ -25,23 +25,23 @@ export const Footer = () => {
             justifyContent="center"
             alignContent="center" sx={{ color: '#C0C0C0' }}>
             <Item>
-                &copy; 2023 UselessShit.co |&nbsp; <a className="link1" href="https://opensource.org/licenses/MIT" target="_blank">License</a>
+                &copy; 2023 Swarmstr |&nbsp; <a className="link1" href="https://opensource.org/licenses/MIT" target="_blank">License</a>
             </Item>
             <Grid item>
                 <Item sx={{ display: 'inline-flex' }}>
                     Made with <Favorite sx={{ color: '#FFA500', margin: 'auto 0.25em' }} /> in Warsaw by <Twitter sx={{ color: '#1976D2', margin: 'auto 0.25em' }} /> <Link sx={{ color: '#1976D2' }} href="https://twitter.com/pitiunited" target="_blank">pitiunited</Link>
                 </Item>
             </Grid>
-            <Grid item>
-                <Item sx={{ display: 'inline-flex', margin: '1em 0' }}>
-                    Check out our <GitHub sx={{ margin: 'auto 0.25em' }} /> <a className="link1" href="https://github.com/ptrio42/uselessshit.co" target="_blank">repository</a>.
-                </Item>
-            </Grid>
-            <Grid item>
-                <Item sx={{ display: 'inline-flex' }}>
-                    Tips: <Bolt sx={{ color: '#FADA5E' }} /> pitiunited@uselessshit.co | <Link href="https://uselessshit.co/tip-jar/pitiunited">Tip Jar</Link>
-                </Item>
-            </Grid>
+            {/*<Grid item>*/}
+                {/*<Item sx={{ display: 'inline-flex', margin: '1em 0' }}>*/}
+                    {/*Check out our <GitHub sx={{ margin: 'auto 0.25em' }} /> <a className="link1" href="https://github.com/ptrio42/uselessshit.co" target="_blank">repository</a>.*/}
+                {/*</Item>*/}
+            {/*</Grid>*/}
+            {/*<Grid item>*/}
+                {/*<Item sx={{ display: 'inline-flex' }}>*/}
+                    {/*Tips: <Bolt sx={{ color: '#FADA5E' }} /> pitiunited@uselessshit.co | <Link href="https://uselessshit.co/tip-jar/pitiunited">Tip Jar</Link>*/}
+                {/*</Item>*/}
+            {/*</Grid>*/}
         </Grid>
     );
 };

@@ -27,7 +27,6 @@ a:hover {
 }
 
 .guide-search, .guide-sort {
-    margin-top: 1em !important;
     width: 100%;
     display: flex;
     justify-content: center !important;
@@ -54,10 +53,14 @@ input {
     color: rgba(255, 255, 255, .3);
 }
 
+.MuiInputBase-root {
+    border: 1px solid rgba(0, 0, 0, .15);
+    border-radius: 15px;
+    padding: 8px 7px;
+}
+
 .theme--dark .MuiInputBase-root {
     border: 1px solid rgba(255, 255, 255, .3);
-    border-radius: 3px;
-    padding: 3px 7px;
 }
 
 .theme--dark .guide-sort div {

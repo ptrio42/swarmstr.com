@@ -8,7 +8,9 @@ type NostrContextType = {
     subscribe: (filter: NDKFilter) => void,
     subscribeToRelaySet: (filter: NDKFilter, relayUrls: string[]) => void,
     signIn: () => Promise<string|undefined>
-    post: (content: string, tags: NDKTag[], kind?: number) => Promise<void>
+    post: (content: string, tags: NDKTag[], kind?: number) => Promise<void>,
+    loginDialogOpen: boolean,
+    setLoginDialogOpen: (open: boolean) => void
 }
 
 export const NostrContext = createContext<NostrContextType>({
@@ -16,5 +18,7 @@ export const NostrContext = createContext<NostrContextType>({
     subscribe: () => {},
     subscribeToRelaySet: () => {},
     signIn: async () => '',
-    post: async () => undefined
+    post: async () => undefined,
+    loginDialogOpen: false,
+    setLoginDialogOpen: () => {}
 });

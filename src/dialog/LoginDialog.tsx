@@ -7,6 +7,9 @@ import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import {useNostrContext} from "../providers/NostrContextProvider";
 import React from "react";
+import Typography from "@mui/material/Typography";
+import Tooltip from "@mui/material/Tooltip";
+import './LoginDialog.css';
 
 interface LoginDialogProps {
     open: boolean;
@@ -33,28 +36,33 @@ export const LoginDialog = ({ open, onClose }: LoginDialogProps) => {
 
     return (
         <Dialog open={open} onClose={handleClose}>
-            <DialogTitle sx={{ color: '#fff' }}>Login</DialogTitle>
+            <DialogTitle sx={{ color: '#fff' }}>Secure login</DialogTitle>
             <DialogContent>
+                <Typography className="loginInfo" component="div" variant="body1">
+                    To be able to post new questions, answer to existing ones, sent zaps and add reactions, you need to login first.
+                </Typography>
                 <Stack direction="column" spacing={3}>
                     <Paper>
                         <Button
-                            sx={{ background: 'rgb(46, 125, 50)' }}
+                            sx={{ width: '100%' }}
                             color="primary"
-                            variant="outlined"
+                            variant="contained"
                             onClick={onLoginWithBrowserExtension}
                         >
                             Login with browser extension (NIP-07)
                         </Button>
                     </Paper>
-                    <Paper>
-                        <Button
-                            sx={{ background: 'rgb(0, 0, 0, .33)' }}
-                            color="secondary"
-                            variant="outlined"
-                            disabled={true}>
-                            Login with Nostr Connect (NIP-46)
-                        </Button>
-                    </Paper>
+                    <Tooltip title="Login method not yet available">
+                        <Paper>
+                            <Button
+                                sx={{ background: 'rgb(0, 0, 0, .33)', width: '100%' }}
+                                color="secondary"
+                                variant="outlined"
+                                disabled={true}>
+                                Login with Nostr Connect (NIP-46)
+                            </Button>
+                        </Paper>
+                    </Tooltip>
                 </Stack>
             </DialogContent>
             <DialogActions>

@@ -132,14 +132,6 @@ export const NewNoteDialog = ({ open, onClose, noteId, replyTo, label, explicitT
                         <Tab label={ noteId ? 'Long reply' : 'Create Post' } {...a11yProps(1)} />
                     </Tabs>
                 </Box>
-                {
-                    noteId && <React.Fragment>
-                        Reply to: { nip19.noteEncode(noteId).slice(0, 12) }...
-                    </React.Fragment>
-                }
-                {
-                    !noteId && <React.Fragment>Post to: #asknostr</React.Fragment>
-                }
             </DialogTitle>
             <Box sx={{ height: '90%' }} className="newNote-form">
                 <form onSubmit={formik.handleSubmit}>
@@ -159,6 +151,7 @@ export const NewNoteDialog = ({ open, onClose, noteId, replyTo, label, explicitT
                     </TabPanel>
                     <TabPanel index={1} value={tabIndex}>
                         <TextField
+                            sx={{ marginBottom: '1em', padding: '0!important' }}
                             id="title"
                             name="title"
                             type="text"

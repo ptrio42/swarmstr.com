@@ -37,9 +37,7 @@ export const NavBar = () => {
     const [toolsMenuAnchorEl, setToolsMenuAnchorEl] = React.useState<null | HTMLElement>(null);
     const toolsMenuOpen = Boolean(toolsMenuAnchorEl);
 
-    const [loginDialogOpen, setLoginDialogOpen] = useState<boolean>(false);
-
-    const { user, signIn } = useNostrContext();
+    const { user, loginDialogOpen, setLoginDialogOpen } = useNostrContext();
 
     const handleToolsMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setToolsMenuAnchorEl(event.currentTarget);
@@ -147,9 +145,8 @@ export const NavBar = () => {
                         {
                             !user && <Button
                                 sx={{ fontWeight: 'bold' }}
-                                variant="text"
-                                color="inherit"
-                                // component={Link}
+                                color="primary"
+                                variant="contained"
                                 onClick={() => {
                                     console.log(`login request`);
                                     setLoginDialogOpen(true);

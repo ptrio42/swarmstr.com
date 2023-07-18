@@ -13,6 +13,7 @@ import {NostrNoteContextProvider} from "../../../providers/NostrNoteContextProvi
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
 import {containsTag} from "../../../utils/utils";
+import Typography from "@mui/material/Typography";
 
 interface ThreadProps {
     nevent?: string;
@@ -89,6 +90,8 @@ export const NoteThread = ({ nevent, data = {}, children, expanded }: ThreadProp
                 </ListItem>
                 {
                     expanded && <List key={`${nevent}-answers`} sx={{ width: '90%', margin: 'auto' }}>
+                        { !events && <Typography component="div" variant="body1">Loading answers...</Typography> }
+                        { (events && events.length === 0) && <Typography component="div" variant="body1">No answers yet...</Typography> }
                         {
                             (events || [])
                                 .map(({ id, ..._ }: NostrEvent) => nip19.neventEncode({ id }))

@@ -69,8 +69,9 @@ export const ZapDialog = ({ open, event, npub, onClose }: ZapDialogProps) => {
                         ZAP_AMOUNTS.map((item: any, index: number) =>
                             <React.Fragment>
                                 <Button
-                                    sx={{ background: selectedZapAmount === item.amount ? 'rgba(255,255,255,.33)!important' : 'transparent' }}
+                                    sx={{ background: selectedZapAmount === item.amount ? 'rgba(255,255,255,.33)!important' : 'transparent', margin: '3px', width: '80px' }}
                                     onClick={() => { handleSelectZapAmount(+item.amount) }}
+                                    variant="outlined"
                                     startIcon={<React.Fragment>{item.emoji}</React.Fragment>}
                                 >
                                     { nFormatter(item.amount, 0) }

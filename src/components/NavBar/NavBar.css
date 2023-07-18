@@ -1,5 +1,9 @@
 .navbar {
-  background-color: #F0E68C;
+  background-color: #FFF;
+}
+
+.theme--dark .navbar {
+  background-color: #000;
 }
 
 .navbar-actions {

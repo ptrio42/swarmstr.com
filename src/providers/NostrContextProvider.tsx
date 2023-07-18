@@ -27,6 +27,8 @@ export const NostrContextProvider = ({ children }: any) => {
     const [user, setUser] = useState<NDKUser>();
     const [eventsFetched, addEventsFetched] = useState<boolean>(false);
 
+    const [loginDialogOpen, setLoginDialogOpen] = useState<boolean>(false);
+
     const subs = useRef<NDKSubscription[]>([]);
 
     const events = useLiveQuery(
@@ -197,7 +199,7 @@ export const NostrContextProvider = ({ children }: any) => {
     }, []);
 
     return (
-        <NostrContext.Provider value={{ ndk: ndk.current, user, events, subscribe, subscribeToRelaySet, signIn, post }}>
+        <NostrContext.Provider value={{ ndk: ndk.current, user, events, subscribe, subscribeToRelaySet, signIn, post, loginDialogOpen, setLoginDialogOpen }}>
             {children}
         </NostrContext.Provider>
     );

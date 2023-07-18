@@ -1,0 +1,15 @@
+h2 {
+    color: #000 !important;
+}
+
+.theme--dark h2 {
+    color: rgba(255,255,255,.77) !important;
+}
+
+.loginInfo {
+    margin-bottom: 1em;
+}
+
+.theme--dark .loginInfo {
+    color: rgba(255,255,255,.77);
+}

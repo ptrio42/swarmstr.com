@@ -23,6 +23,10 @@ import {Search} from "../../Search/Search";
 import {NOTE_TYPE, NoteEvent} from "../../../models/commons";
 import './Feed.css';
 import {Backdrop} from "../../Backdrop/Backdrop";
+import Badge from "@mui/material/Badge";
+import Tooltip from "@mui/material/Tooltip";
+import IconButton from "@mui/material/IconButton";
+import {HelpOutline, Info} from "@mui/icons-material";
 
 const filter: NDKFilter = {
     kinds: [1, 30023],
@@ -35,7 +39,7 @@ export const keywordsFromString = (s: string) => {
 };
 
 export const Feed = () => {
-    const { ndk, user } = useNostrContext();
+    const { ndk, user, setLoginDialogOpen } = useNostrContext();
     const { subscribe } = useNostrFeedContext();
 
     const [searchParams, setSearchParams] = useSearchParams();
@@ -131,6 +135,20 @@ export const Feed = () => {
                 </Box>
             }
 
+            <Typography sx={{ marginTop: '0.5em', padding: '0 10px', fontSize: '2rem!important' }} variant="h5" component="div">
+                Use search to explore questions or pick a popular keyword
+                <Tooltip title="Find out more">
+                    <IconButton className="aboutSwarmstr-button" onClick={() => {
+                        const a = document.createElement('a');
+                        a.target = '_blank';
+                        a.href = `${process.env.BASE_URL}/e/nevent1qqsw9yrz4yzks5rns52aprghenapqfq0pep8zzcsmd6a8anala296aczyrclnvyed48lr0m4u70yejzh0jy7kce7dpq4cla0wn830grmlq9asku2zd0`;
+                        a.click();
+                    }}>
+                        <Info />
+                    </IconButton>
+                </Tooltip>
+            </Typography>
+
             <NostrResources
                 search={<Search
                     query={searchString || ''}
@@ -143,7 +161,7 @@ export const Feed = () => {
                 {
                     (!searchString || searchString === '' || searchString.length < 2) && tags &&
                         <React.Fragment>
-                            <Typography component="div" variant="h6">
+                            <Typography sx={{ marginBottom: '1em' }} component="div" variant="h6">
                                 Popular keywords
                             </Typography>
                             {
@@ -180,12 +198,16 @@ export const Feed = () => {
             </NostrResources>
             <LoadingAnimation isLoading={!questions}/>
             {
-                user && <Fab
+                <Fab
                     sx={{ position: 'fixed', bottom: '21px', right: '21px' }}
                     color="primary"
                     aria-label="add new note"
                     onClick={() => {
-                        setNewNoteDialogOpen(true);
+                        if (user) {
+                            setNewNoteDialogOpen(true);
+                        } else {
+                            setLoginDialogOpen(true);
+                        }
                     }}
                 >
                     <AddIcon/>

@@ -1,7 +1,21 @@
+.MuiChip-root {
+    height: 37px;
+    margin: 5px;
+}
+
 .MuiChip-root span {
     color: #000;
 }
 
 .theme--dark .MuiChip-root span {
     color: #fff;
+}
+
+.theme--dark .aboutSwarmstr-button {
+    color: rgba(255,255,255,.77);
+}
+
+.aboutSwarmstr-button {
+    margin-top: -15px;
+    margin-left: -8px;
 }
