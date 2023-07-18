@@ -97,14 +97,15 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
     const [searchParams, setSearchParams] = useSearchParams();
     const searchString = searchParams.get('s');
 
-    const event = useLiveQuery(async () => {
+    const [event, loaded] = useLiveQuery(async () => {
         const event = await db.notes.get({ id });
-        if (event) {
-            const {type, ...nostrEvent} = event;
-            return nostrEvent;
-        }
-        return event;
-    }, [id]);
+        // console.log('useLiveQuery', {event});
+        // if (event) {
+        //     const {type, ...nostrEvent} = event;
+        //     return nostrEvent;
+        // }
+        return [event, true];
+    }, [id], []);
 
     const zapEvents = useLiveQuery(async () => {
         const zapEvents = await db.zaps
@@ -153,6 +154,14 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
         }
     }, [event]);
 
+    // useEffect(() => {
+    //     console.log({loaded})
+    //
+    //     if (loaded) {
+    //         console.log('event loaded...', 'found?', !!event);
+    //     }
+    // }, [loaded]);
+
     useEffect(() => {
 
         // note was displayed on screen
@@ -161,8 +170,14 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
         // 3. once event was received from a relay, stop subscription
         // run subs for reactions, zaps & comments in parallel
 
-        if (noteVisible && !subscribed) {
-            subscribe(filter);
+        if (noteVisible && !subscribed && loaded) {
+            // only subscribe if the event does not exist in the db
+            if (!event) {
+                // console.log(`loaded: ${loaded} but event not in the db; subscribing...`)
+                subscribe(filter);
+            } else {
+                // console.log('event already in the db. not subscribing...');
+            }
             subscribe(filter1);
             setSubscribed(true);
         }
@@ -177,7 +192,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                 setSubscribed(false);
             }, 3000);
         }
-    }, [noteVisible, subscribed]);
+    }, [noteVisible, subscribed, loaded]);
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         setMenuAnchorEl(event.currentTarget);

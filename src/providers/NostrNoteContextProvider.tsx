@@ -49,12 +49,17 @@ export const NostrNoteContextProvider = ({ children, thread }: NostrNoteContextP
 
     const subscribe = useCallback((filter: NDKFilter, relaySet?: NDKRelaySet) => {
         const sub = ndk.subscribe(filter, {closeOnEose: false, groupableDelay: 3000}, relaySet);
-        sub.on('event', async (event: NDKEvent) => {
+        sub.on('event',  (event: NDKEvent) => {
             // const exists = await db.events.get({ id: event.id });
             // if (!exists) {
                 // console.log({event});
                 try {
-                    const nostrEvent = await event.toNostrEvent();
+                    const nostrEvent = {
+                        ...event.rawEvent(),
+                        kind: event.kind,
+                        ...(filter?.ids?.length === 1 && { id: filter.ids[0] })
+                    };
+                    // console.log(`received event`, {nostrEvent}, {event});
                     // handle note
                     if (nostrEvent.kind === 1 || nostrEvent.kind === 30023) {
                         const referencedEventId = valueFromTag(nostrEvent, 'e');
@@ -68,14 +73,20 @@ export const NostrNoteContextProvider = ({ children, thread }: NostrNoteContextP
 
                         if (!referencedEventId) {
                             noteEvent.type = NOTE_TYPE.QUESTION;
+                            // console.log(`classifed as question`);
                         } else {
                             if (!containsTag(noteEvent.tags, ['t', 'asknostr'])) {
                                 noteEvent.type = NOTE_TYPE.ANSWER;
+                                // console.log(`classifed as answer`);
                             } else {
                                 noteEvent.type = NOTE_TYPE.HINT;
+                                // console.log(`classifed as hint`);
                             }
                         }
-                        db.notes.put(noteEvent);
+                        db.notes.put(noteEvent)
+                            .then(() => {
+                                // console.log(`added to db...`)
+                            });
 
                     }
                     // handle reaction

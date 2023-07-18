@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import {NostrResources} from "../../Resources/NostrResources/NostrResources";
 import {NoteThread} from "../../Resources/Thread/Thread";
 import {Note} from "../../Resources/Note/Note";
@@ -54,6 +54,8 @@ export const Feed = () => {
 
     const [showPreloader, setShowPreloader] = useState<boolean>(true);
 
+    const [limit, setLimit] = useState<number>(10);
+
     const questions = useLiveQuery(async () => {
         if (!searchString || searchString.length < 3) return [];
         // console.log(`querying results...`);
@@ -67,6 +69,7 @@ export const Feed = () => {
                 const content = event.content.toLowerCase().replace(/([-_']+)/gm, ' ');
                 return keywords.some((keyword: string) => content.includes(keyword) || (tags?.indexOf(keyword) > -1))
             })
+            // .limit(limit)
             .toArray();
         // console.log(`questions queried...`);
         setIsQuerying(false);
@@ -91,10 +94,7 @@ export const Feed = () => {
 
     const explicitTags = ['relays', 'nips', 'badges', 'lightning'];
 
-    const filter1: NDKFilter = {
-        kinds: [1],
-        search: searchString
-    };
+    const boxRef = useRef();
 
     useEffect(() => {
         if (!!questions && !subscribed) {
@@ -102,8 +102,6 @@ export const Feed = () => {
             setSubscribed(true);
         }
     }, [questions, subscribed]);
-
-
 
     useEffect(() => {
         if (questions && searchString && searchString.length > 2) {
@@ -124,10 +122,28 @@ export const Feed = () => {
         setTimeout(() => {
             setShowPreloader(false);
         }, 2100);
+
+        const handleScroll = ((event: any) => {
+            // console.log('scroll', {event});
+            const {scrollHeight, scrollTop, clientHeight} = event.srcElement.scrollingElement;
+            const bottom = scrollHeight - Math.floor(scrollTop as number) === clientHeight;
+            if(bottom) {
+                // console.log('reached scroll bottom')
+                // setLimit(limit+10);
+            }
+        });
+
+        // @ts-ignore
+        window.addEventListener('scroll', handleScroll);
+        // console.log({boxRef})
+        return () => {
+            // @ts-ignore
+            window.removeEventListener('scroll', handleScroll);
+        }
     },[]);
 
     return (
-        <React.Fragment>
+        <Box ref={boxRef}>
             {
                 false && ndk && <Box sx={{ wordWrap: 'break-word' }}>
                     Relays: {ndk.pool.stats().connected}/{ndk.pool.stats().total}<br/>
@@ -215,6 +231,6 @@ export const Feed = () => {
             }
             <NewNoteDialog open={newNoteDialogOpen} onClose={() => setNewNoteDialogOpen(false)} label="What's your question?" explicitTags={[['t', 'asknostr']]} />
             <Backdrop open={showPreloader} />
-        </React.Fragment>
+        </Box>
     )
 };

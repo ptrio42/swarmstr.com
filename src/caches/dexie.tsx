@@ -16,16 +16,16 @@ export default class DexieAdapter implements NDKCacheAdapter {
                 subscription.eventReceived(ndkEvent, undefined, true);
             }
         }
-        if (subscription.filter?.kinds?.length === 1 && subscription.filter.kinds[0] === 1) {
-            for (const id of (subscription.filter?.ids || [])) {
-                const event = await db.notes
-                    .get({ id });
-                if (!event) continue;
-
-                const ndkEvent = new NDKEvent(undefined, event);
-                subscription.eventReceived(ndkEvent, undefined, true);
-            }
-        }
+        // if (subscription.filter?.kinds?.length === 1 && subscription.filter.kinds[0] === 1) {
+        //     for (const id of (subscription.filter?.ids || [])) {
+        //         const event = await db.notes
+        //             .get({ id });
+        //         if (!event) continue;
+        //
+        //         const ndkEvent = new NDKEvent(undefined, event);
+        //         subscription.eventReceived(ndkEvent, undefined, true);
+        //     }
+        // }
     }
 
     public async setEvent(event: NDKEvent, filter: NDKFilter): Promise<void> {

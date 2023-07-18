@@ -73,7 +73,7 @@ export const NostrFeedContextProvider = ({ children }: any) => {
                     // console.log(`got hint event from ${nostrEvent.pubkey}`);
                     db.notes.put(noteEvent)
                         .then(() => {
-                            subscribe({ ids: [referencedEventId] }, { closeOnEose: true, groupable: true, groupableDelay: 2000 });
+                            subscribe({ ids: [referencedEventId] }, { closeOnEose: true, groupable: true, groupableDelay: 5000 });
                         });
                 } else {
                     // event is a question

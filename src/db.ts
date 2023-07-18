@@ -10,7 +10,7 @@ export class NostrStore extends Dexie {
 
     constructor() {
         super('swarmstrDB');
-        this.version(1).stores({
+        this.version(2).stores({
             notes: '++id, pubkey, title, content, type, referencedEventId, tags',
             // posts: '++id, pubkey, title, content, type, referencedEventId, tags',
             zaps: '++id, amount, zappedNote, zapper, zappee',

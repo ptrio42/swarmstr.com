@@ -120,7 +120,7 @@ export const NostrContextProvider = ({ children }: any) => {
         const sub = localNdk.subscribe(filter, { closeOnEose: true, groupableDelay: 1500 });
         sub.on('event', async (event: NDKEvent) => {
             await onEvent(event);
-            console.log('search result', {event});
+            // console.log('search result', {event});
         });
         localNdk
             .connect()
