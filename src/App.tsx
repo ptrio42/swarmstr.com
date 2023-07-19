@@ -125,6 +125,7 @@ function App() {
             <Box sx={{ maxWidth: '640px', margin: '0 auto' }}>
                 <Routes>
                     <Route path="/" element={<NostrFeedContextProvider><Feed/></NostrFeedContextProvider>} />
+                    <Route path="/nostr-address" element={<Nip05/>} />
                     <Route path="e/:nevent" element={
                         <NostrNoteThreadContextProvider>
                             <NostrNoteThreadContext.Consumer>

@@ -53,22 +53,22 @@ export const NoteThread = ({ nevent, data = {}, children, expanded }: ThreadProp
     return (
         <React.Fragment>
             <Helmet>
-                <title>{`Thread ${ nevent } - UseLessShit.co`}</title>
-                <meta property="description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />
-                <meta property="keywords" content="nostr guide, nostr resources, nostr most common questions, getting started on nostr, what is nostr" />
+                <title>{`Thread ${ nevent } - Swarmstr.com`}</title>
+                {/*<meta property="description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />*/}
+                {/*<meta property="keywords" content="nostr guide, nostr resources, nostr most common questions, getting started on nostr, what is nostr" />*/}
 
                 <meta property="og:url" content={process.env.BASE_URL + '/e/' + nevent } />
                 <meta property="og:type" content="website" />
-                <meta property="og:title" content={`Thread ${ nevent } - UseLessShit.co`} />
-                <meta property="og:image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />
-                <meta property="og:description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />
+                <meta property="og:title" content={`Thread ${ nevent } - Swarmstr.com`} />
+                {/*<meta property="og:image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />*/}
+                {/*<meta property="og:description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />*/}
 
-                <meta itemProp="name" content={`${ nevent } - UseLessShit.co`} />
-                <meta itemProp="image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />
+                <meta itemProp="name" content={`${ nevent } - Swarmstr.com`} />
+                {/*<meta itemProp="image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />*/}
 
-                <meta name="twitter:title" content={`${ nevent } - UseLessShit.co`} />
-                <meta name="twitter:description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />
-                <meta name="twitter:image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />
+                <meta name="twitter:title" content={`${ nevent } - Swarmstr.com`} />
+                {/*<meta name="twitter:description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />*/}
+                {/*<meta name="twitter:image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />*/}
 
             </Helmet>
 

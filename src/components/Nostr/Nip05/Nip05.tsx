@@ -6,7 +6,7 @@ import CardContent from "@mui/material/CardContent";
 import Card from "@mui/material/Card";
 import TextField from "@mui/material/TextField";
 import { nip19 } from 'nostr-tools';
-import {checkName, createInvoice, getInvoiceStatus} from '../../../services/invoices';
+import {checkName, createInvoice, getInvoiceStatus, registerName} from '../../../services/invoices';
 import Button from "@mui/material/Button";
 import {QrCodeDialog} from "../../Resources/Metadata/Metadata";
 import {Helmet} from "react-helmet";
@@ -19,7 +19,7 @@ export const Nip05 = () => {
     const [nameAvailable, setNameAvailable] = useState<boolean>();
     const [nameAvailableMessage, setNameAvailableMessage] = useState<string>('');
     const [invoice, setInvoice] = useState();
-    const [invoiceStatus, setInvoiceStatus] = useState();
+    const [invoiceStatus, setInvoiceStatus] = useState<string|undefined>();
     const [dialogOpen, setDialogOpen] = useState<boolean>(false);
 
     let fallbackTimeout: any;
@@ -100,19 +100,19 @@ export const Nip05 = () => {
     return (
         <React.Fragment>
             <Helmet>
-                <title>Human readable identifier for your public key - UseLessShit.co</title>
-                <meta property="description" content="Get a Nostr address at @nostrich.love" />
+                <title>Get free Swarmstr.com Nostr Address</title>
+                <meta property="description" content="Get a Nostr address at @swarmstr.com" />
                 <meta property="keywords" content="nostr, nip05, nostr handle, nostr address" />
 
-                <meta property="og:url" content="https://uselessshit.co/resources/nostr" />
+                <meta property="og:url" content="https://swarmstr.com/nostr-address" />
                 <meta property="og:type" content="website" />
-                <meta property="og:title" content="Human readable identifier for your public key - UseLessShit.co" />
-                <meta property="og:description" content="Get a Nostr address at @nostrich.love" />
+                <meta property="og:title" content="Get free Swarmstr.com Nostr Address" />
+                <meta property="og:description" content="Get a Nostr address at @swarmstr.com" />
 
-                <meta itemProp="name" content="Human readable identifier for your public key - UseLessShit.co" />
+                <meta itemProp="name" content="Get free Swarmstr.com Nostr Address" />
 
-                <meta name="twitter:title" content="Human readable identifier for your public key - UseLessShit.co" />
-                <meta name="twitter:description" content="Get a Nostr address at @nostrich.love" />
+                <meta name="twitter:title" content="Get free Swarmstr.com Nostr Address" />
+                <meta name="twitter:description" content="Get a Nostr address at @swarmstr.com" />
 
             </Helmet>
             <Box sx={{ flexDirection: 'column' }}>
@@ -121,19 +121,19 @@ export const Nip05 = () => {
                     variant="h5"
                     sx={{ margin: '0.33em' }}
                 >
-                    Get yourname@nostrich.love NIP-05 handle
+                    Get a free yourname@swarmstr.com Nostr Address
                 </Typography>
                 <Typography component="div" sx={{ margin: '0.33em' }}>
-                    Human readable identifier for your public key.
+                    Human readable identifier for your public key (NIP-05).
                 </Typography>
                 <Typography component="div" sx={{ margin: '0.33em' }}>
-                    Provide your Nostr pubkey and desired name to generate a Bitcoin Lightning invoice.
+                    Provide your Nostr pubkey and desired name.
                 </Typography>
+                {/*<Typography component="div" sx={{ margin: '0.33em' }}>*/}
+                    {/*Fee: 420 sats*/}
+                {/*</Typography>*/}
                 <Typography component="div" sx={{ margin: '0.33em' }}>
-                    Fee: 420 sats
-                </Typography>
-                <Typography component="div" sx={{ margin: '0.33em' }}>
-                    Allowed characters: a-zA-Z0-9_.
+                    Allowed characters: a-zA-Z0-9_. case insensitive
                 </Typography>
                 <Typography component="div" sx={{ margin: '0.33em' }}>
                     Having issues? Reach out on Nostr or Telegram @pitiunited
@@ -145,7 +145,7 @@ export const Nip05 = () => {
                             color="text.secondary"
                             gutterBottom
                         >
-                            Your handle: {name}@nostrich.love
+                            Your handle: {name}@swarmstr.com
                         </Typography>
 
                         <TextField
@@ -175,15 +175,18 @@ export const Nip05 = () => {
                         sx={{ width:'50%', alignSelf: 'center', marginBottom: '1em' }}
                         variant="contained"
                         color="secondary"
-                        disabled={!pubkey || !pubkeyValid || !name || !nameAvailable || (invoiceStatus && invoiceStatus === 'completed')}
+                        disabled={!pubkey || !pubkeyValid || !name || !nameAvailable || (invoiceStatus && invoiceStatus! === 'completed') || false}
                         onClick={() => {
                             if (pubkey && name) {
-                                createInvoice(pubkey, name)
+                                registerName(pubkey!, name!)
                                     .then(data => {
-                                        setInvoice(data.invoice);
-                                        setInvoiceStatus(data.status);
-                                        setDialogOpen(true);
-                                        fallbackTimeout = setTimeout(handleInvoiceStatus, getBackoffTime());
+                                        // setInvoice(data.invoice);
+                                        setInvoiceStatus('completed');
+                                        // setDialogOpen(true);
+                                        // fallbackTimeout = setTimeout(handleInvoiceStatus, getBackoffTime());
+                                    })
+                                    .catch(() => {
+                                        setInvoiceStatus('failure');
                                     })
                             }
                         }}
@@ -192,19 +195,24 @@ export const Nip05 = () => {
                     </Button>
                 </Card>
                 {
-                    invoiceStatus && invoiceStatus === 'completed' && <Typography sx={{ marginTop: '0.33em' }} variant="h5">
-                        Payment { invoiceStatus }! Your handle is now all set and ready to be used 💜
+                    invoiceStatus && invoiceStatus! === 'completed' && <Typography sx={{ marginTop: '0.33em' }} variant="h5">
+                        Your handle is now all set and ready to be used 💜
+                    </Typography>
+                }
+                {
+                    invoiceStatus && invoiceStatus! === 'failure' && <Typography sx={{ marginTop: '0.33em' }} variant="h5">
+                        Something went wrong... Please try again.
                     </Typography>
                 }
             </Box>
-            <QrCodeDialog
-                str={invoice && `lightning:${invoice}` || ''}
-                dialogOpen={dialogOpen}
-                close={() => setDialogOpen(false)}
-                fee={420}
-                status={invoiceStatus}
-                lnbc={invoice}
-            />
+            {/*<QrCodeDialog*/}
+                {/*str={invoice && `lightning:${invoice}` || ''}*/}
+                {/*dialogOpen={dialogOpen}*/}
+                {/*close={() => setDialogOpen(false)}*/}
+                {/*fee={420}*/}
+                {/*status={invoiceStatus}*/}
+                {/*lnbc={invoice}*/}
+            {/*/>*/}
         </React.Fragment>
     );
 };

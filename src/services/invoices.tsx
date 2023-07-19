@@ -14,8 +14,20 @@ export const createInvoice = async (pubkey: string, name: string) => {
 
 export const checkName = async (name: string) => {
     const response = await request({
-        url: `https://nostrich.love/check-name/${name}`,
+        url: `${process.env.BASE_URL}/api/check-name/${name}`,
         method: 'GET'
+    });
+    return response.data;
+};
+
+export const registerName = async (pubkey: string, name: string) => {
+    const response = await request({
+        url: `${process.env.BASE_URL}/api/register-name`,
+        method: 'POST',
+        body: {
+            pubkey,
+            name
+        }
     });
     return response.data;
 };

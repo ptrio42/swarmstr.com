@@ -12,6 +12,17 @@ import NDK, {NDKEvent, NDKSubscriptionCacheUsage, NostrEvent} from '@nostr-dev-k
 import RedisAdapter from '@nostr-dev-kit/ndk-cache-redis';
 import {uniqBy} from 'lodash';
 
+const Pool = require('pg').Pool;
+const pool = new Pool({
+    user: process.env.PG_USER,
+    host: process.env.PG_HOST,
+    database: process.env.PG_DB,
+    password: process.env.PG_PWD,
+    port: process.env.PG_PORT
+});
+
+const bodyParser = require('body-parser');
+
 const baseUrl = process.env.BASE_URL;
 const server = express();
 
@@ -25,6 +36,7 @@ server.set('view engine', 'ejs');
 server.set('views', path.join(__dirname, 'views'));
 server.use('/', express.static(path.join(__dirname, 'static')));
 server.use(express.static('public'));
+server.use(bodyParser.json());
 
 const manifest = fs.readFileSync(
     path.join(__dirname, 'static/manifest.json'),
@@ -128,7 +140,26 @@ const connectToRelays = (ndk: NDK) => {
 };
 connectToRelays(ndk);
 
+const isNameAvailable = async (name: string): Promise<boolean> => {
+    if (!(new RegExp(/([a-z0-9_.]+)/, 'gi').test(name)) || name.length < 1) return false;
+    try {
+        const response = await pool.query('SELECT * FROM addresses WHERE name = $1', [name]);
+        if (response.rows.length > 0) return false;
+        return true;
+    } catch (error) {
+        console.error(`unable to fetch name...`, {error});
+    }
+    return false;
+};
 
+const isPubkeyValid = (pubkey: string): boolean => {
+    try {
+        return pubkey.length === 64 && !!nip19.npubEncode(pubkey);
+    } catch (error) {
+
+    }
+    return false;
+} ;
 
 
 server.get('/api/events', (req, res) => {
@@ -141,6 +172,55 @@ server.get('/api/nevents', (req, res) => {
         console.log({data})
         return data.data.id;
     }));
+});
+
+server.get('/.well-known/nostr.json', async (req, res) => {
+    try {
+        const response = await pool.query('SELECT * FROM addresses');
+        const names: any = {};
+        response.rows.forEach(({ name, pubkey }: any) => {
+            names[name] = pubkey;
+        });
+        res.json({names});
+    } catch (error) {
+        console.error(`unable to get nostr addresses...`, {error});
+    }
+});
+
+server.get('/api/check-name/:name', async (req, res) => {
+    // console.log({params: req.params});
+    const name = req.params.name.toLowerCase();
+    const nameAvailable = await isNameAvailable(name);
+    res.json({ nameAvailable });
+});
+
+server.post('/api/register-name', async (req, res) => {
+    console.log({body: req.body});
+    const { name, pubkey } = req.body;
+    try {
+        const nameAvailable = await isNameAvailable(name);
+        const pubkeyValid = await isPubkeyValid(pubkey);
+        if (!nameAvailable || !pubkeyValid) {
+            res.sendStatus(400);
+            return;
+        }
+
+        try {
+            const response = await pool.query('INSERT INTO addresses (name, pubkey) VALUES ($1, $2) RETURNING *', [name, pubkey]);
+            if (response.rows[0]) {
+                res.sendStatus(204);
+                return;
+            }
+            res.sendStatus(400);
+            return;
+        } catch (error) {
+
+        }
+    } catch (error) {
+
+    }
+    res.sendStatus(400);
+    console.log({name, pubkey});
 });
 
 server.get('/*', (req, res) => {

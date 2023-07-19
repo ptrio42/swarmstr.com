@@ -65,20 +65,20 @@ export const NostrResources = ({ children, search }: NostrResourcesProps) => {
     return (
         <React.Fragment>
             <Helmet>
-                <title>Swarmstr - Your knowledge hub for curious minds - UseLessShit.co</title>
+                <title>Swarmstr - Your knowledge hub for curious minds</title>
                 {/*<meta property="description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />*/}
                 {/*<meta property="keywords" content="nostr guide, nostr resources, nostr most common questions, getting started on nostr, what is nostr" />*/}
 
                 {/*<meta property="og:url" content="https://uselessshit.co/resources/nostr" />*/}
                 <meta property="og:type" content="website" />
-                <meta property="og:title" content="Swarmstr - Your knowledge hub for curious minds - UseLessShit.co" />
+                <meta property="og:title" content="Swarmstr - Your knowledge hub for curious minds" />
                 <meta property="og:image" content="https://swarmstr.com/images/swarmstr-cover-2.jpeg" />
                 {/*<meta property="og:description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />*/}
 
-                <meta itemProp="name" content="Swarmstr - Your knowledge hub for curious minds - UseLessShit.co" />
+                <meta itemProp="name" content="Swarmstr - Your knowledge hub for curious minds" />
                 <meta itemProp="image" content="https://swarmstr.com/images/swarmstr-cover-2.jpeg" />
 
-                <meta name="twitter:title" content="Swarmstr - Your knowledge hub for curious minds - UseLessShit.co" />
+                <meta name="twitter:title" content="Swarmstr - Your knowledge hub for curious minds" />
                 {/*<meta name="twitter:description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />*/}
                 <meta name="twitter:image" content="https://swarmstr.com/images/swarmstr-cover-2.jpeg" />
 

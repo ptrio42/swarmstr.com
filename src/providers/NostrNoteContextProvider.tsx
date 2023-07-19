@@ -59,7 +59,7 @@ export const NostrNoteContextProvider = ({ children, thread }: NostrNoteContextP
                         kind: event.kind,
                         ...(filter?.ids?.length === 1 && { id: filter.ids[0] })
                     };
-                    // console.log(`received event`, {nostrEvent}, {event});
+                    console.log(`received event`, {nostrEvent}, {event});
                     // handle note
                     if (nostrEvent.kind === 1 || nostrEvent.kind === 30023) {
                         const referencedEventId = valueFromTag(nostrEvent, 'e');
