@@ -196,8 +196,10 @@ server.get('/api/check-name/:name', async (req, res) => {
 
 server.post('/api/register-name', async (req, res) => {
     console.log({body: req.body});
-    const { name, pubkey } = req.body;
+    let { name, pubkey } = req.body;
     try {
+        name = name.toLowerCase();
+        pubkey = new RegExp(/(npub)/).test(pubkey) ? nip19.decode(pubkey).data as string : pubkey;
         const nameAvailable = await isNameAvailable(name);
         const pubkeyValid = await isPubkeyValid(pubkey);
         if (!nameAvailable || !pubkeyValid) {
