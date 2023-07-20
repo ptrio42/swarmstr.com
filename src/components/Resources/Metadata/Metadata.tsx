@@ -21,6 +21,7 @@ import {useNostrNoteContext} from "../../../providers/NostrNoteContextProvider";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
 import {useNostrContext} from "../../../providers/NostrContextProvider";
+import Tooltip from "@mui/material/Tooltip";
 
 interface QrCodeDialogProps {
     dialogOpen: boolean;
@@ -185,7 +186,9 @@ export const Metadata = ({ pubkey, handleCopyNpub, supposedName, variant = 'full
     const avatar = useMemo(() => {
         switch (variant) {
             case 'avatar': {
-                return <Avatar imgProps={{ height: '42' }} sx={{ width: '42px', height: '42px' }} alt="" src={metadata?.picture} />
+                return <Tooltip title={getProfileDisplayedName()}>
+                    <Avatar imgProps={{ height: '42' }} sx={{ width: '42px', height: '42px' }} alt="" src={metadata?.picture} />
+                </Tooltip>
             }
             default: {
                 return <Avatar imgProps={{ height: '21' }} sx={{ width: '21px', height: '21px' }} alt="" src={metadata && metadata.picture} />

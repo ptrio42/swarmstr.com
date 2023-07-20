@@ -20,13 +20,16 @@ import {groupBy, uniqBy, sortBy, uniq} from 'lodash'
 import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
 import {Search} from "../../Search/Search";
-import {NOTE_TYPE, NoteEvent} from "../../../models/commons";
+import {NOTE_TYPE, NoteEvent, NoteType} from "../../../models/commons";
 import './Feed.css';
 import {Backdrop} from "../../Backdrop/Backdrop";
 import Badge from "@mui/material/Badge";
 import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
 import {HelpOutline, Info} from "@mui/icons-material";
+import {Metadata} from "../../Resources/Metadata/Metadata";
+import Divider from "@mui/material/Divider";
+
 
 const filter: NDKFilter = {
     kinds: [1, 30023],
@@ -69,9 +72,7 @@ export const Feed = () => {
                 const content = event.content.toLowerCase().replace(/([-_']+)/gm, ' ');
                 return keywords.some((keyword: string) => content.includes(keyword) || (tags?.indexOf(keyword) > -1))
             })
-            // .limit(limit)
             .toArray();
-        // console.log(`questions queried...`);
         setIsQuerying(false);
         return questions;
     }, [searchString], false);
@@ -91,6 +92,28 @@ export const Feed = () => {
            .slice(0, 21);
        return tags;
     });
+
+    const getMostActivePubkeysByNoteType = (noteType: NoteType, notes: NoteEvent[]) => {
+        return sortBy(
+            groupBy(
+                notes
+                    .filter(({type}) => type === noteType)
+                    .map(({pubkey}) => pubkey),
+                (pubkey: string) => pubkey
+            ),
+            'length'
+        ).reverse()
+            .slice(0, 7)
+    };
+
+    const [contributors, inquirers, respondents] = useLiveQuery(async () => {
+        const allEvents = await db.notes.toArray();
+        const contributors = getMostActivePubkeysByNoteType(NOTE_TYPE.HINT, allEvents);
+        const inquirers = getMostActivePubkeysByNoteType(NOTE_TYPE.QUESTION, allEvents);
+        const respondents = getMostActivePubkeysByNoteType(NOTE_TYPE.ANSWER, allEvents);
+        // console.log({contributors})
+        return [contributors, inquirers, respondents];
+    }, [], []);
 
     const explicitTags = ['relays', 'nips', 'badges', 'lightning'];
 
@@ -175,21 +198,86 @@ export const Feed = () => {
                     isQuerying={isQuerying}
                 />}>
                 {
-                    (!searchString || searchString === '' || searchString.length < 2) && tags &&
+                    (!searchString || searchString === '' || searchString.length < 2) &&
                         <React.Fragment>
-                            <Typography sx={{ marginBottom: '1em' }} component="div" variant="h6">
-                                Popular keywords
+                            {
+                                tags && <React.Fragment>
+                                    <Typography sx={{ marginBottom: '1em' }} component="div" variant="h5">
+                                        Popular keywords
+                                    </Typography>
+                                    {
+                                        uniq([...tags, ...explicitTags]).map((tag: string) => <Chip
+                                            sx={{ color: '#fff' }}
+                                            label={tag}
+                                            variant="outlined"
+                                            onClick={() => {
+                                                setSearchParams({ s: tag })
+                                            }}
+                                        />)
+                                    }
+                                </React.Fragment>
+                            }
+                            <Divider sx={{ margin: '1em 0;' }} />
+                            <Typography sx={{ marginBottom: '1em' }} component="div" variant="h5">
+                                Active users
+                                <Tooltip title="Based on #asknostr hashtag activity">
+                                    <IconButton className="activity-button">
+                                        <Info />
+                                    </IconButton>
+                                </Tooltip>
                             </Typography>
                             {
-                                uniq([...tags, ...explicitTags]).map((tag: string) => <Chip
-                                    sx={{ color: '#fff' }}
-                                    label={tag}
-                                    variant="outlined"
-                                    onClick={() => {
-                                        setSearchParams({ s: tag })
-                                    }}
-                                />)
+                                contributors && <React.Fragment>
+                                    <Typography sx={{ margin: '1em 0' }} component="div" variant="h6">
+                                        Contributors
+                                    </Typography>
+                                    {
+                                        contributors.map((pubkey: string[]) => (
+                                            <Badge
+                                                badgeContent={pubkey.length}
+                                                color="primary"
+                                            >
+                                                <Metadata variant={'avatar'} pubkey={pubkey[0]} />
+                                            </Badge>
+                                        ))
+                                    }
+                                </React.Fragment>
                             }
+                            {
+                                inquirers && <React.Fragment>
+                                    <Typography sx={{ margin: '1em 0' }} component="div" variant="h6">
+                                        Inquirers
+                                    </Typography>
+                                    {
+                                        inquirers.map((pubkey: string[]) => (
+                                            <Badge
+                                                badgeContent={pubkey.length}
+                                                color="primary"
+                                            >
+                                                <Metadata variant={'avatar'} pubkey={pubkey[0]} />
+                                            </Badge>
+                                        ))
+                                    }
+                                </React.Fragment>
+                            }
+                            {
+                                respondents && <React.Fragment>
+                                    <Typography sx={{ margin: '1em 0' }} component="div" variant="h6">
+                                        Respondents
+                                    </Typography>
+                                    {
+                                        respondents.map((pubkey: string[]) => (
+                                            <Badge
+                                                badgeContent={pubkey.length}
+                                                color="primary"
+                                            >
+                                                <Metadata variant={'avatar'} pubkey={pubkey[0]} />
+                                            </Badge>
+                                        ))
+                                    }
+                                </React.Fragment>
+                            }
+                            <Divider sx={{ margin: '1em 0;' }} />
                         </React.Fragment>
                 }
                 {
