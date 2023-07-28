@@ -140,7 +140,7 @@ export const Metadata = ({ pubkey, handleCopyNpub, supposedName, variant = 'full
 
     const [metadata, setMetadata] = useState<Metadata | undefined>(undefined);
 
-    const { subscribe } = useNostrContext();
+    const { subscribe } = useNostrNoteContext();
 
     const filter: NDKFilter = { kinds: [0], authors: [pubkey] };
 

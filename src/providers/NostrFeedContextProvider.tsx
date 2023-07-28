@@ -53,9 +53,9 @@ export const NostrFeedContextProvider = ({ children }: any) => {
         subs.push(sub);
     }, []);
 
-    const onEvent = async (event: NDKEvent) => {
-        await new Promise(async (resolve: any, reject: any) => {
-            const nostrEvent = await event.toNostrEvent();
+    const onEvent = (event: NDKEvent) => {
+        // await new Promise(async (resolve: any, reject: any) => {
+            const nostrEvent = event.rawEvent();
             const { tags } = nostrEvent;
             const referencedEventId = valueFromTag(nostrEvent, 'e');
             const title = valueFromTag(nostrEvent, 'title');
@@ -78,23 +78,25 @@ export const NostrFeedContextProvider = ({ children }: any) => {
                 } else {
                     // event is a question
                     noteEvent.type = NOTE_TYPE.QUESTION;
-                    await db.notes.put(noteEvent);
+                    db.notes.put(noteEvent);
                 }
 
             } else {
                 // event doesn't contain the asknostr tag
                 // check if we have a question hint for this event already in the db
                 // if so, the received event is a question as well
-                const hintEvent = await db.notes.get({ referencedEventId: nostrEvent.id });
-                if (hintEvent && hintEvent.type === NOTE_TYPE.HINT) {
-                    await db.notes.put({
-                        ...nostrEvent,
-                        type: NOTE_TYPE.QUESTION
-                    })
-                }
+                db.notes.get({ referencedEventId: nostrEvent.id })
+                    .then((hintEvent: NoteEvent|undefined) => {
+                        if (hintEvent && hintEvent.type === NOTE_TYPE.HINT) {
+                            db.notes.put({
+                                ...nostrEvent,
+                                type: NOTE_TYPE.QUESTION
+                            })
+                        }
+                    });
             }
-            resolve();
-        });
+            // resolve();
+        // });
         // if (!events!
         //     .map((event: NostrEvent) => event.id)
         //     .includes(id)) {

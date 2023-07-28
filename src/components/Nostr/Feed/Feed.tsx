@@ -89,7 +89,7 @@ export const Feed = () => {
            'length'
        ).reverse()
            .map((tags: string[]) => tags[0].toLowerCase())
-           .slice(0, 21);
+           .slice(3, 24);
        return tags;
     });
 
@@ -115,7 +115,7 @@ export const Feed = () => {
         return [contributors, inquirers, respondents];
     }, [], []);
 
-    const explicitTags = ['relays', 'nips', 'badges', 'lightning'];
+    const explicitTags = ['relays', 'nips', 'badges', 'lightning', 'snort', 'primal', 'alby', 'clients'];
 
     const boxRef = useRef();
 

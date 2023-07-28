@@ -170,23 +170,23 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
         // 3. once event was received from a relay, stop subscription
         // run subs for reactions, zaps & comments in parallel
 
-        console.log({noteVisible, subscribed, loaded})
+        // console.log({noteVisible, subscribed, loaded})
 
         if (noteVisible && !subscribed && loaded) {
             // only subscribe if the event does not exist in the db
             if (!event) {
-                console.log(`loaded: ${loaded} but event not in the db; subscribing...`)
+                // console.log(`loaded: ${loaded} but event not in the db; subscribing...`)
                 subscribe(filter);
             } else {
-                console.log('event already in the db. not subscribing...');
+                // console.log('event already in the db. not subscribing...');
             }
             subscribe(filter1);
             setSubscribed(true);
         }
         if (!noteVisible && subscribed) {
-            console.log(`will stop subs for note ${id} in 3 seconds...`);
+            // console.log(`will stop subs for note ${id} in 3 seconds...`);
             setTimeout(() => {
-                console.log(`stopping subs for ${id}`)
+                // console.log(`stopping subs for ${id}`)
                 subs && subs
                     .forEach((sub: NDKSubscription) => {
                         sub.stop();
@@ -215,7 +215,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
         if (!text) {
             text = '';
         }
-        return processText(text, event && event.tags, searchString || undefined);
+        return processText(text, event && event.tags, searchString || undefined, event && event.kind);
 
     }, [event]);
 

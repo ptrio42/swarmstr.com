@@ -17,16 +17,9 @@ interface NostrNoteContextProviderProps {
 }
 
 export const NostrNoteContextProvider = ({ children, thread }: NostrNoteContextProviderProps) => {
-    // const [events, _setEvents] = useState<NostrEvent[]>([]);
-    // const eventsRef = useRef<NostrEvent[]>(events);
-    // const setEvents = (events: NostrEvent[]) => {
-    //     eventsRef.current = events;
-    //     _setEvents(eventsRef.current);
-    // };
-
     const subs = useRef<NDKSubscription[]>([]);
 
-    const { ndk, events } = useNostrContext();
+    const { ndk } = useNostrContext();
 
     const connectToRelays = useCallback(async () => {
         try {
@@ -39,16 +32,16 @@ export const NostrNoteContextProvider = ({ children, thread }: NostrNoteContextP
     }, []);
 
     useEffect(() => {
-        ndk.pool.on('relay:disconnect', async (data) => {
-            // console.log('relay has disconnected', {data})
-            setTimeout(async () => {
-                const reconnected = await connectToRelays();
-            }, 5000)
-        });
+        // ndk.pool.on('relay:disconnect', async (data) => {
+        //     // console.log('relay has disconnected', {data})
+        //     setTimeout(async () => {
+        //         const reconnected = await connectToRelays();
+        //     }, 5000)
+        // });
     }, []);
 
     const subscribe = useCallback((filter: NDKFilter, relaySet?: NDKRelaySet) => {
-        const sub = ndk.subscribe(filter, {closeOnEose: false, groupableDelay: 3000}, relaySet);
+        const sub = ndk.subscribe(filter, {closeOnEose: false, groupable: true, groupableDelay: 3000}, relaySet);
         sub.on('event',  (event: NDKEvent) => {
             // const exists = await db.events.get({ id: event.id });
             // if (!exists) {
@@ -59,36 +52,36 @@ export const NostrNoteContextProvider = ({ children, thread }: NostrNoteContextP
                         kind: event.kind,
                         ...(filter?.ids?.length === 1 && { id: filter.ids[0] })
                     };
-                    console.log(`received event`, {nostrEvent}, {event});
+                    // console.log(`received event`, {nostrEvent}, {event});
                     // handle note
-                    if (nostrEvent.kind === 1 || nostrEvent.kind === 30023) {
-                        const referencedEventId = valueFromTag(nostrEvent, 'e');
-                        const title = valueFromTag(nostrEvent, 'title');
-                        const noteEvent: NoteEvent = {
-                            ...nostrEvent,
-                            type: undefined,
-                            ...(!!referencedEventId && { referencedEventId }),
-                            ...(!!title && { title })
-                        }
-
-                        if (!referencedEventId) {
-                            noteEvent.type = NOTE_TYPE.QUESTION;
-                            // console.log(`classifed as question`);
-                        } else {
-                            if (!containsTag(noteEvent.tags, ['t', 'asknostr'])) {
-                                noteEvent.type = NOTE_TYPE.ANSWER;
-                                // console.log(`classifed as answer`);
-                            } else {
-                                noteEvent.type = NOTE_TYPE.HINT;
-                                // console.log(`classifed as hint`);
-                            }
-                        }
-                        db.notes.put(noteEvent)
-                            .then(() => {
-                                // console.log(`added to db...`)
-                            });
-
-                    }
+                    // if (nostrEvent.kind === 1 || nostrEvent.kind === 30023) {
+                    //     const referencedEventId = valueFromTag(nostrEvent, 'e');
+                    //     const title = valueFromTag(nostrEvent, 'title');
+                    //     const noteEvent: NoteEvent = {
+                    //         ...nostrEvent,
+                    //         type: undefined,
+                    //         ...(!!referencedEventId && { referencedEventId }),
+                    //         ...(!!title && { title })
+                    //     }
+                    //
+                    //     if (!referencedEventId) {
+                    //         noteEvent.type = NOTE_TYPE.QUESTION;
+                    //         // console.log(`classifed as question`);
+                    //     } else {
+                    //         if (!containsTag(noteEvent.tags, ['t', 'asknostr'])) {
+                    //             noteEvent.type = NOTE_TYPE.ANSWER;
+                    //             // console.log(`classifed as answer`);
+                    //         } else {
+                    //             noteEvent.type = NOTE_TYPE.HINT;
+                    //             // console.log(`classifed as hint`);
+                    //         }
+                    //     }
+                    //     db.notes.put(noteEvent)
+                    //         .then(() => {
+                    //             // console.log(`added to db...`)
+                    //         });
+                    //
+                    // }
                     // handle reaction
                     if (nostrEvent.kind === 7) {
                         db.reactions.put({
@@ -109,6 +102,9 @@ export const NostrNoteContextProvider = ({ children, thread }: NostrNoteContextP
                                 .find((section: any) => section.name === 'amount').value
                         })
                     }
+                    // if (nostrEvent.kind === 0) {
+                    //     db.users.put(nostrEvent);
+                    // }
                 } catch (error) {
 
                 }

@@ -1,13 +1,13 @@
 import { nip19 } from 'nostr-tools';
 import {keywordsFromString} from "../components/Nostr/Feed/Feed";
 
-export const processText = (text: string, tags?: string[][], searchString?: string): string => {
+export const processText = (text: string, tags?: string[][], searchString?: string, kind?: number): string => {
     let replacedText = text
         // links
-            .replace(/^(?!\[)(https?:\/\/(?![^" \n]*(?:jpg|jpeg|png|gif|svg|webp|mov|mp4))[^" \n\(\)]+).*(?<!\))/gm, '<a class="test-0" href="$1" target="_blank">$1</a>')
+            .replace(/(?<!\]\()(https?:\/\/(?![^" \n]*(?:jpg|jpeg|png|gif|svg|webp|mov|mp4))[^" \n\(\)]+)(?<!\))/gm, '<a class="test-0" href="$1" target="_blank">$1</a>')
             // .replace(/^(?!\[).*(http?:\/\/(?![^" \n]*(?:jpg|jpeg|png|gif|svg|webp|mov|mp4))[^" \n]+).*(?<!\))/gm, '<a href="$1" target="_blank">$1</a>')
             // images
-            .replace(/^(?!\!)(https?:\/\/.*\.(?:png|jpg|jpeg|gif|svg|webp)).*(?<!\))/gm, '<img width="100%" src="$1" style="max-width:512px;" />')
+            .replace(/(?<!\]\()(https?:\/\/.*\.(?:png|jpg|jpeg|gif|svg|webp)).*(?<!\))/gm, '<img width="100%" src="$1" style="max-width:512px;" />')
             // markdown
             // images
             .replace(/!(\[(?<text>[^(]+)]\((?<url>[^")]+))\)/gm, (result, _, text, url) => {
