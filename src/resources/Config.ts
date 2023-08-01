@@ -41,7 +41,14 @@ export const Config = {
       // 'wss://nostr.mutinywallet.com',
 
     ]
-  }
+  },
+  APP_TITLE: 'Swarmstr - Your knowledge hub for curious minds',
+  APP_DESCRIPTION: 'Swarmstr is a simple Q&A web-client, powered by #nostr, where users tap into collective wisdom. Ask questions, find answers, and enjoy expert insights. ',
+  APP_IMAGE: `${process.env.BASE_URL}/images/swarmstr-cover-2.jpeg`,
+  APP_KEYWORDS: 'nostr, questions, answers, q&a, nostr client',
+  HASHTAG: 'asknostr',
+  SEARCH_RELAY: `wss://search.swarmstr.com`,
+  SEARCH_RELAY_PUBLISH: `wss://search.swarmstr.com?api_key=${process.env.SEARCHNOS_API_KEY}`
 };
 
 export const DEFAULT_RELAYS = [...Config.NOSTR_CLIENT.DEFAULT_RELAYS];

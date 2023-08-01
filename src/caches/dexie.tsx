@@ -2,6 +2,7 @@ import {NDKCacheAdapter, NDKEvent, NDKFilter, NDKSubscription, NostrEvent} from 
 import {db} from "../db";
 import {containsTag, valueFromTag} from "../utils/utils";
 import {NOTE_TYPE, NoteEvent} from "../models/commons";
+import {Config} from "../resources/Config";
 
 export default class DexieAdapter implements NDKCacheAdapter {
     public readonly locking = true;
@@ -55,7 +56,7 @@ export default class DexieAdapter implements NDKCacheAdapter {
                 noteEvent.type = NOTE_TYPE.QUESTION;
                 // console.log(`classifed as question`);
             } else {
-                if (!containsTag(noteEvent.tags, ['t', 'asknostr'])) {
+                if (!containsTag(noteEvent.tags, ['t', Config.HASHTAG])) {
                     noteEvent.type = NOTE_TYPE.ANSWER;
                     // console.log(`classifed as answer`);
                 } else {

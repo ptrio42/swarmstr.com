@@ -5,11 +5,11 @@ import NDK, {
     NDKNip07Signer,
     NDKRelay,
     NDKRelaySet,
-    NDKSubscription, NDKTag,
+    NDKSubscription, NDKSubscriptionOptions, NDKTag,
     NDKUser,
     NostrEvent
 } from "@nostr-dev-kit/ndk";
-import {DEFAULT_RELAYS} from "../resources/Config";
+import {Config, DEFAULT_RELAYS} from "../resources/Config";
 import {NostrContext} from "../contexts/NostrContext";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../db";
@@ -18,18 +18,20 @@ import {nip19} from "nostr-tools";
 import {intersection, difference} from 'lodash';
 import {getRelayInformationDocument} from "../services/nostr";
 import DexieAdapter from "../caches/dexie";
+import {NOTE_TYPE, NoteEvent} from "../models/commons";
+import {containsTag, valueFromTag} from "../utils/utils";
 
 const cacheAdapter = new DexieAdapter();
 
 export const NostrContextProvider = ({ children }: any) => {
-    const ndk = useRef<NDK>(new NDK({ explicitRelayUrls: DEFAULT_RELAYS, cacheAdapter }));
+    const ndk = useRef<NDK>(new NDK({ explicitRelayUrls: [...DEFAULT_RELAYS, 'wss://blastr.f7z.xyz'], cacheAdapter }));
     
     const [user, setUser] = useState<NDKUser>();
     const [eventsFetched, addEventsFetched] = useState<boolean>(false);
 
     const [loginDialogOpen, setLoginDialogOpen] = useState<boolean>(false);
 
-    const subs = useRef<NDKSubscription[]>([]);
+    const subscription = useRef<NDKSubscription>();
 
     const events = useLiveQuery(
         () => db.notes.toArray()
@@ -93,43 +95,57 @@ export const NostrContextProvider = ({ children }: any) => {
         }
     }, []);
 
-    const onEvent = async (event: NDKEvent) => {
-        // const exists = await db.events.get({ id: event.id });
-        const exists = false;
-        if (!exists) {
-            try {
-                const nostrEvent = await event.toNostrEvent();
-                // const added = await db.events.add(nostrEvent);
-                // console.log(`new event added`, {added});
-            } catch (error) {
-                console.error(`error adding new event`)
-            }
-        }
-
-    }
-
-    const subscribe = useCallback((filter: NDKFilter) => {
-        // const sub = ndk.current.subscribe(filter, {closeOnEose: false, groupableDelay: 3000});
-        // sub.on('event', onEvent);
-        // subs.current.push(sub);
-    }, []);
-
-    const subscribeToRelaySet = useCallback((filter: NDKFilter, relayUrls: string[]) => {
-        const localNdk = new NDK({ explicitRelayUrls: relayUrls });
-        const relaySet = NDKRelaySet.fromRelayUrls(relayUrls, localNdk);
-        const sub = localNdk.subscribe(filter, { closeOnEose: true, groupableDelay: 1500 });
-        sub.on('event', async (event: NDKEvent) => {
-            await onEvent(event);
-            // console.log('search result', {event});
-        });
-        localNdk
-            .connect()
-            .then(() => {
-                sub.start()
+    const onEvent = (event: NDKEvent) => {
+        // this is purely for stats
+        const nostrEvent = event.rawEvent();
+        const { tags } = nostrEvent;
+        const referencedEventId = valueFromTag(nostrEvent, 'e');
+        const title = valueFromTag(nostrEvent, 'title');
+        if (containsTag(tags, ['t', 'asknostr'])) {
+            const noteEvent: NoteEvent = {
+                ...nostrEvent,
+                type: undefined,
+                ...(!!referencedEventId && { referencedEventId }),
+                ...(!!title && { title })
+            };
+            // if event contains referenced event tag, it serves at question hint
+            // thus gotta fetch the referenced event
+            if (!!referencedEventId) {
+                noteEvent.type = NOTE_TYPE.HINT;
+                // console.log(`got hint event from ${nostrEvent.pubkey}`);
+                db.notes.put(noteEvent)
                     .then(() => {
-                        console.log(`relaySet sub started...`);
+                        subscribe({ ids: [referencedEventId] }, { closeOnEose: true, groupable: true, groupableDelay: 5000 });
                     });
-            });
+            } else {
+                // event is a question
+                noteEvent.type = NOTE_TYPE.QUESTION;
+                db.notes.put(noteEvent);
+            }
+
+        } else {
+            // event doesn't contain the asknostr tag
+            // check if we have a question hint for this event already in the db
+            // if so, the received event is a question as well
+            db.notes.get({ referencedEventId: nostrEvent.id })
+                .then((hintEvent: NoteEvent|undefined) => {
+                    if (hintEvent && hintEvent.type === NOTE_TYPE.HINT) {
+                        db.notes.put({
+                            ...nostrEvent,
+                            type: NOTE_TYPE.QUESTION
+                        })
+                    }
+                });
+        }
+    };
+
+    const subscribe = useCallback((
+        filter: NDKFilter,
+        opts: NDKSubscriptionOptions = {closeOnEose: false, groupable: false}
+    ) => {
+        const sub = ndk.current.subscribe(filter, opts);
+        sub.on('event', onEvent);
+        subscription.current = sub;
     }, []);
 
     const post = useCallback(async (content: string, tags: NDKTag[], kind: number = 1) => {
@@ -184,6 +200,15 @@ export const NostrContextProvider = ({ children }: any) => {
     }, [events]);
 
     useEffect(() => {
+        ndk.current.connect(2100)
+            .then(() => {
+                console.log(`Connected to relays...`);
+            });
+
+        // subscribe({
+        //     kinds: [1, 30023],
+        //     '#t': [Config.HASHTAG]
+        // });
 
         fetchRelaysInformation()
             .then(() => {
@@ -195,11 +220,16 @@ export const NostrContextProvider = ({ children }: any) => {
                 .then(() => {
                     console.log('sign in');
                 })
-        })
+        });
+
+        return () => {
+            console.log(`unsubscribing...`);
+            subscription.current?.stop();
+        }
     }, []);
 
     return (
-        <NostrContext.Provider value={{ ndk: ndk.current, user, events, subscribe, subscribeToRelaySet, signIn, post, loginDialogOpen, setLoginDialogOpen }}>
+        <NostrContext.Provider value={{ ndk: ndk.current, user, events, subscribe, signIn, post, loginDialogOpen, setLoginDialogOpen }}>
             {children}
         </NostrContext.Provider>
     );

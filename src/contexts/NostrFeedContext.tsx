@@ -5,11 +5,19 @@ import Dexie from "dexie";
 type NostrFeedContextType = {
     nevents: string[],
     subscribe: (filter: NDKFilter, opts?: NDKSubscriptionOptions) => void,
-    loading: boolean
+    loading: boolean,
+    clearEvents: () => void,
+    events: NostrEvent[],
+    query: string,
+    setQuery: (query: string) => void
 }
 
 export const NostrFeedContext = createContext<NostrFeedContextType>({
     nevents: [],
     subscribe: () => {},
-    loading: true
+    loading: true,
+    clearEvents: () => {},
+    events: [],
+    query: '',
+    setQuery: () => {}
 });

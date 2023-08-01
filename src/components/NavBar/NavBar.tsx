@@ -29,7 +29,7 @@ import MenuItem from '@mui/material/MenuItem';
 import SwapVerticalCircleIcon from '@mui/icons-material/SwapVerticalCircle';
 import './NavBar.css';
 import {useNostrContext} from "../../providers/NostrContextProvider";
-import {Metadata} from "../Resources/Metadata/Metadata";
+import {Metadata} from "../Nostr/Metadata/Metadata";
 import {LoginDialog} from "../../dialog/LoginDialog";
 
 export const NavBar = () => {

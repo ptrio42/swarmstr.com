@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import {NostrResources} from "../../Resources/NostrResources/NostrResources";
-import {NoteThread} from "../../Resources/Thread/Thread";
-import {Note} from "../../Resources/Note/Note";
+import {NoteThread} from "../Thread/Thread";
+import {Note} from "../Note/Note";
 import {Box} from "@mui/material";
 import {NostrNoteContextProvider} from "../../../providers/NostrNoteContextProvider";
 import {useNostrFeedContext} from "../../../providers/NostrFeedContextProvider";
@@ -27,62 +27,61 @@ import Badge from "@mui/material/Badge";
 import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
 import {HelpOutline, Info} from "@mui/icons-material";
-import {Metadata} from "../../Resources/Metadata/Metadata";
+import {Metadata} from "../Metadata/Metadata";
 import Divider from "@mui/material/Divider";
-
+import {Config} from "../../../resources/Config";
+import {Helmet} from "react-helmet";
+import {debounce} from 'lodash';
 
 const filter: NDKFilter = {
     kinds: [1, 30023],
-    '#t': ['asknostr']
+    '#t': [Config.HASHTAG]
 };
 
 export const keywordsFromString = (s: string) => {
     return s.toLowerCase().trim()
-        .replace(/([-_']+)/gm, ' ').split(' ').filter((word) => word.length > 1);
+        .replace(/([-_']+)/gm, ' ').split(' ')
+        .filter((word) => word.length > 1);
 };
 
 export const Feed = () => {
     const { ndk, user, setLoginDialogOpen } = useNostrContext();
-    const { subscribe } = useNostrFeedContext();
+    const { events, subscribe, clearEvents, loading, query, setQuery } = useNostrFeedContext();
 
     const [searchParams, setSearchParams] = useSearchParams();
     const searchString = searchParams.get('s');
-    const [searchResults, setSearchResults] = useState<NostrEvent[]>([]);
 
     const [newNoteDialogOpen, setNewNoteDialogOpen] = useState<boolean>(false);
 
     const [subscribed, setSubscribed] = useState<boolean>(false);
 
-    const [isQuerying, setIsQuerying] = useState<boolean>(false);
-
     const [showPreloader, setShowPreloader] = useState<boolean>(true);
 
-    const [limit, setLimit] = useState<number>(10);
-
-    const questions = useLiveQuery(async () => {
-        if (!searchString || searchString.length < 3) return [];
-        // console.log(`querying results...`);
-        setIsQuerying(true);
-
-        const questions: NostrEvent[] = await db.notes.where({ type: NOTE_TYPE.QUESTION })
-            .filter((event: NostrEvent) => {
-                const keywords = keywordsFromString(searchString);
-                const tags = event.tags
-                    .filter((tag: NDKTag) => tag[0] === 't').map((tag: NDKTag) => tag[1]);
-                const content = event.content.toLowerCase().replace(/([-_']+)/gm, ' ');
-                return keywords.some((keyword: string) => content.includes(keyword) || (tags?.indexOf(keyword) > -1))
-            })
-            .toArray();
-        setIsQuerying(false);
-        return questions;
-    }, [searchString], false);
+    // const questions = useLiveQuery(async () => {
+    //     if (!searchString || searchString.length < 3) return [];
+    //     // console.log(`querying results...`);
+    //     setIsQuerying(true);
+    //
+    //     const questions: NostrEvent[] = await db.notes.where({ type: NOTE_TYPE.QUESTION })
+    //         .filter((event: NostrEvent) => {
+    //             const keywords = keywordsFromString(searchString);
+    //             const tags = event.tags
+    //                 .filter((tag: NDKTag) => tag[0] === 't').map((tag: NDKTag) => tag[1]);
+    //             const content = event.content.toLowerCase().replace(/([-_']+)/gm, ' ');
+    //             return keywords.some((keyword: string) => content.includes(keyword) || (tags?.indexOf(keyword) > -1))
+    //         })
+    //         .toArray();
+    //     setIsQuerying(false);
+    //     return questions;
+    // }, [searchString], false);
 
     const tags = useLiveQuery(async () => {
        const allEvents = await db.notes.toArray();
        const tags = sortBy(
            groupBy(allEvents
-                   .filter(({tags}) => containsTag(tags, ['t', 'asknostr']))
-                   .map(({tags}) => tags.filter((tag: NDKTag) => tag[0] === 't' && tag[1] !== 'asknostr').map(([_, tag]) => tag))
+                   .filter(({tags}) => containsTag(tags, ['t', Config.HASHTAG]))
+                   .map(({tags}) => tags
+                       .filter((tag: NDKTag) => tag[0] === 't' && tag[1] !== Config.HASHTAG).map(([_, tag]) => tag))
                    .flat(2),
                (tag: string) => tag
            ),
@@ -106,99 +105,105 @@ export const Feed = () => {
             .slice(0, 7)
     };
 
+    const getMostActivePubkeysWithAnswers = (notes: NoteEvent[]) => {
+        return sortBy(
+            groupBy(
+                notes
+                    .filter(({type}) => type !== NOTE_TYPE.HINT && type !== NOTE_TYPE.QUESTION)
+                    .map(({pubkey}) => pubkey),
+                (pubkey: string) => pubkey
+            ),
+            'length'
+        ).reverse()
+            .slice(0, 7)
+    };
+
     const [contributors, inquirers, respondents] = useLiveQuery(async () => {
         const allEvents = await db.notes.toArray();
         const contributors = getMostActivePubkeysByNoteType(NOTE_TYPE.HINT, allEvents);
         const inquirers = getMostActivePubkeysByNoteType(NOTE_TYPE.QUESTION, allEvents);
-        const respondents = getMostActivePubkeysByNoteType(NOTE_TYPE.ANSWER, allEvents);
-        // console.log({contributors})
+        const respondents = getMostActivePubkeysWithAnswers(allEvents);
         return [contributors, inquirers, respondents];
     }, [], []);
 
-    const explicitTags = ['relays', 'nips', 'badges', 'lightning', 'snort', 'primal', 'alby', 'clients'];
+    const explicitTags = ['relays', 'nips', 'badges', 'lightning', 'snort', 'primal', 'alby', 'clients', 'begineer', 'zaps', 'damus', 'amethyst'];
 
     const boxRef = useRef();
 
-    useEffect(() => {
-        if (!!questions && !subscribed) {
-            subscribe(filter);
-            setSubscribed(true);
-        }
-    }, [questions, subscribed]);
+    const debouncedQuery = useMemo(() =>
+        debounce((query: string) => {
+            // console.log('debounce:', {query});
+            if (query && query.length > 2) {
+                subscribe({ search: query });
+                setSubscribed(true);
+            }
+        }, 500)
+    , []);
 
     useEffect(() => {
-        if (questions && searchString && searchString.length > 2) {
-            const results = searchText(searchString, questions)
-                // ignore notes with uselessshit.co dev links
-                .filter(({content}) => !content.includes('https://beta.uselessshit.co') &&
-                    !content.includes('https://dev.uselessshit.co')
-                    // && !content.includes('https://uselessshit.co')
-                    // && !content.includes('https://swarmstr.com')
-                );
-            setSearchResults(results)
-        } else {
-            setSearchResults([]);
-        }
-    }, [questions, searchString]);
+        clearEvents();
+        setSubscribed(false);
+        setQuery(searchString || '');
+    }, [searchString]);
+
+    useEffect(() => {
+        debouncedQuery(query);
+        // console.log('change:', {query})
+    }, [query]);
 
     useEffect(()=>{
         setTimeout(() => {
             setShowPreloader(false);
         }, 2100);
-
-        const handleScroll = ((event: any) => {
-            // console.log('scroll', {event});
-            const {scrollHeight, scrollTop, clientHeight} = event.srcElement.scrollingElement;
-            const bottom = scrollHeight - Math.floor(scrollTop as number) === clientHeight;
-            if(bottom) {
-                // console.log('reached scroll bottom')
-                // setLimit(limit+10);
-            }
-        });
-
-        // @ts-ignore
-        window.addEventListener('scroll', handleScroll);
-        // console.log({boxRef})
-        return () => {
-            // @ts-ignore
-            window.removeEventListener('scroll', handleScroll);
-        }
     },[]);
 
     return (
-        <Box ref={boxRef}>
-            {
-                false && ndk && <Box sx={{ wordWrap: 'break-word' }}>
-                    Relays: {ndk.pool.stats().connected}/{ndk.pool.stats().total}<br/>
-                    User: {user?.npub}
-                </Box>
-            }
+        <React.Fragment>
+            <Helmet>
+                <title>{ Config.APP_TITLE }</title>
+                <meta property="description" content={ Config.APP_DESCRIPTION } />
+                <meta property="keywords" content={ Config.APP_KEYWORDS } />
 
-            <Typography sx={{ marginTop: '0.5em', padding: '0 10px', fontSize: '2rem!important' }} variant="h5" component="div">
-                Use search to explore questions or pick a popular keyword
-                <Tooltip title="Find out more">
-                    <IconButton className="aboutSwarmstr-button" onClick={() => {
-                        const a = document.createElement('a');
-                        a.target = '_blank';
-                        a.href = `${process.env.BASE_URL}/e/nevent1qqsw9yrz4yzks5rns52aprghenapqfq0pep8zzcsmd6a8anala296aczyrclnvyed48lr0m4u70yejzh0jy7kce7dpq4cla0wn830grmlq9asku2zd0`;
-                        a.click();
-                    }}>
-                        <Info />
-                    </IconButton>
-                </Tooltip>
-            </Typography>
+                <meta property="og:url" content={ `${process.env.BASE_URL}/` } />
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content={ Config.APP_TITLE } />
+                <meta property="og:image" content={ Config.APP_IMAGE } />
+                <meta property="og:description" content={ Config.APP_DESCRIPTION } />
 
-            <NostrResources
-                search={<Search
-                    query={searchString || ''}
-                    resultsCount={searchResults?.length}
-                    onQueryChange={(event: any) => {
-                        setSearchParams({ s: event.target.value});
-                    }}
-                    isQuerying={isQuerying}
-                />}>
-                {
-                    (!searchString || searchString === '' || searchString.length < 2) &&
+                <meta itemProp="name" content={ Config.APP_TITLE } />
+                <meta itemProp="image" content={ Config.APP_IMAGE }  />
+
+                <meta name="twitter:title" content={ Config.APP_TITLE } />
+                <meta name="twitter:description" content={ Config.APP_DESCRIPTION } />
+                <meta name="twitter:image" content={ Config.APP_IMAGE }  />
+
+            </Helmet>
+            <Box ref={boxRef}>
+                <Typography sx={{ marginTop: '0.5em', padding: '0 10px', fontSize: '2rem!important' }} variant="h5" component="div">
+                    Use search to explore questions or pick a popular keyword
+                    <Tooltip title="Find out more">
+                        <IconButton className="aboutSwarmstr-button" onClick={() => {
+                            const a = document.createElement('a');
+                            a.target = '_blank';
+                            a.href = `${process.env.BASE_URL}/e/nevent1qqsw9yrz4yzks5rns52aprghenapqfq0pep8zzcsmd6a8anala296aczyrclnvyed48lr0m4u70yejzh0jy7kce7dpq4cla0wn830grmlq9asku2zd0`;
+                            a.click();
+                        }}>
+                            <Info />
+                        </IconButton>
+                    </Tooltip>
+                </Typography>
+
+                <NostrResources
+                    search={<Search
+                        query={searchString || ''}
+                        resultsCount={events.length}
+                        onQueryChange={(event: any) => {
+                            setSearchParams({ s: event.target.value});
+                        }}
+                        isQuerying={loading}
+                    />}>
+                    {
+                        (!searchString || searchString === '' || searchString.length < 2) &&
                         <React.Fragment>
                             {
                                 tags && <React.Fragment>
@@ -220,7 +225,7 @@ export const Feed = () => {
                             <Divider sx={{ margin: '1em 0;' }} />
                             <Typography sx={{ marginBottom: '1em' }} component="div" variant="h5">
                                 Active users
-                                <Tooltip title="Based on #asknostr hashtag activity">
+                                <Tooltip title={`Based on #${Config.HASHTAG} hashtag activity`}>
                                     <IconButton className="activity-button">
                                         <Info />
                                     </IconButton>
@@ -279,46 +284,52 @@ export const Feed = () => {
                             }
                             <Divider sx={{ margin: '1em 0;' }} />
                         </React.Fragment>
-                }
+                    }
+                    {
+                        (sortBy(events, 'created_at').reverse() || [])
+                            .filter(({id}) => !!id)
+                            .map((nostrEvent: NostrEvent) => nip19.neventEncode({
+                                id: nostrEvent.id,
+                                author: nostrEvent.pubkey,
+                                relays: []
+                            }))
+                            .map((nevent: string) => (
+                                <NoteThread
+                                    key={`${nevent}-thread`}
+                                    nevent={nevent}
+                                >
+                                    <NostrNoteContextProvider>
+                                        <Note key={`${nevent}-content`} nevent={nevent}/>
+                                    </NostrNoteContextProvider>
+                                </NoteThread>
+                            ))
+                    }
+                </NostrResources>
+                {/*<LoadingAnimation isLoading={!questions}/>*/}
                 {
-                    (sortBy(searchResults, 'created_at').reverse() || [])
-                        .filter(({id}) => !!id)
-                        .map((nostrEvent: NostrEvent) => nip19.neventEncode({
-                    id: nostrEvent.id,
-                    author: nostrEvent.pubkey,
-                    relays: []
-                }))
-                        .map((nevent: string) => (
-                            <NoteThread
-                                key={`${nevent}-thread`}
-                                nevent={nevent}
-                            >
-                                <NostrNoteContextProvider>
-                                    <Note key={`${nevent}-content`} nevent={nevent}/>
-                                </NostrNoteContextProvider>
-                            </NoteThread>
-                        ))
+                    <Fab
+                        sx={{ position: 'fixed', bottom: '21px', right: '21px' }}
+                        color="primary"
+                        aria-label="add new note"
+                        onClick={() => {
+                            if (user) {
+                                setNewNoteDialogOpen(true);
+                            } else {
+                                setLoginDialogOpen(true);
+                            }
+                        }}
+                    >
+                        <AddIcon/>
+                    </Fab>
                 }
-            </NostrResources>
-            <LoadingAnimation isLoading={!questions}/>
-            {
-                <Fab
-                    sx={{ position: 'fixed', bottom: '21px', right: '21px' }}
-                    color="primary"
-                    aria-label="add new note"
-                    onClick={() => {
-                        if (user) {
-                            setNewNoteDialogOpen(true);
-                        } else {
-                            setLoginDialogOpen(true);
-                        }
-                    }}
-                >
-                    <AddIcon/>
-                </Fab>
-            }
-            <NewNoteDialog open={newNoteDialogOpen} onClose={() => setNewNoteDialogOpen(false)} label="What's your question?" explicitTags={[['t', 'asknostr']]} />
-            <Backdrop open={showPreloader} />
-        </Box>
+                <NewNoteDialog
+                    open={newNoteDialogOpen}
+                    onClose={() => setNewNoteDialogOpen(false)}
+                    label="What's your question?"
+                    explicitTags={[['t', Config.HASHTAG]]}
+                />
+                <Backdrop open={showPreloader} />
+            </Box>
+        </React.Fragment>
     )
 };

@@ -4,14 +4,14 @@ import NDK, {
     NDKFilter,
     NDKNip07Signer,
     NDKRelay,
-    NDKRelaySet,
+    NDKRelaySet, NDKSubscription,
     NDKSubscriptionOptions,
     NDKTag,
     NostrEvent
 } from "@nostr-dev-kit/ndk";
 import {NostrFeedContext} from '../contexts/NostrFeedContext';
 import axios from "axios";
-import {DEFAULT_RELAYS} from "../resources/Config";
+import {Config, DEFAULT_RELAYS} from "../resources/Config";
 import { nip19 } from 'nostr-tools';
 import {useNostrContext} from "./NostrContextProvider";
 import {db} from "../db";
@@ -19,7 +19,7 @@ import {useLiveQuery} from "dexie-react-hooks";
 import {containsTag, valueFromTag} from "../utils/utils";
 import {NOTE_TYPE, NoteEvent} from "../models/commons";
 
-const subs = [];
+const subs: NDKSubscription[] = [];
 
 export const NostrFeedContextProvider = ({ children }: any) => {
     const [nevents, _setNevents] = useState<string[]>([]);
@@ -29,8 +29,12 @@ export const NostrFeedContextProvider = ({ children }: any) => {
         _setNevents(neventsRef.current);
     };
 
-    const { ndk, events } = useNostrContext();
-    const [loading, setLoading] = useState<boolean>(true);
+    // const { events } = useNostrContext();
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const ndk = useRef<NDK>(new NDK({ explicitRelayUrls: [Config.SEARCH_RELAY] }));
+    const [events, setEvents] = useState<NostrEvent[]>([]);
+    const [query, setQuery] = useState<string>('');
 
     const fetchNevents = useCallback(() => {
         axios
@@ -48,77 +52,44 @@ export const NostrFeedContextProvider = ({ children }: any) => {
         filter: NDKFilter,
         opts: NDKSubscriptionOptions = {closeOnEose: false, groupable: false}
     ) => {
-        const sub = ndk.subscribe(filter, opts);
+        const sub = ndk.current.subscribe(filter, opts);
         sub.on('event', onEvent);
+        sub.on('eose', () => {
+            console.log('eose received');
+            setLoading(false);
+        });
         subs.push(sub);
     }, []);
 
-    const onEvent = (event: NDKEvent) => {
-        // await new Promise(async (resolve: any, reject: any) => {
-            const nostrEvent = event.rawEvent();
-            const { tags } = nostrEvent;
-            const referencedEventId = valueFromTag(nostrEvent, 'e');
-            const title = valueFromTag(nostrEvent, 'title');
-            if (containsTag(tags, ['t', 'asknostr'])) {
-                const noteEvent: NoteEvent = {
-                    ...nostrEvent,
-                    type: undefined,
-                    ...(!!referencedEventId && { referencedEventId }),
-                    ...(!!title && { title })
-                };
-                // if event contains referenced event tag, it serves at question hint
-                // thus gotta fetch the referenced event
-                if (!!referencedEventId) {
-                    noteEvent.type = NOTE_TYPE.HINT;
-                    // console.log(`got hint event from ${nostrEvent.pubkey}`);
-                    db.notes.put(noteEvent)
-                        .then(() => {
-                            subscribe({ ids: [referencedEventId] }, { closeOnEose: true, groupable: true, groupableDelay: 5000 });
-                        });
-                } else {
-                    // event is a question
-                    noteEvent.type = NOTE_TYPE.QUESTION;
-                    db.notes.put(noteEvent);
-                }
+    useEffect(() => {
+        setLoading(true);
+        console.log(`events change ${events?.length}`)
+    }, [events]);
 
-            } else {
-                // event doesn't contain the asknostr tag
-                // check if we have a question hint for this event already in the db
-                // if so, the received event is a question as well
-                db.notes.get({ referencedEventId: nostrEvent.id })
-                    .then((hintEvent: NoteEvent|undefined) => {
-                        if (hintEvent && hintEvent.type === NOTE_TYPE.HINT) {
-                            db.notes.put({
-                                ...nostrEvent,
-                                type: NOTE_TYPE.QUESTION
-                            })
-                        }
-                    });
-            }
-            // resolve();
-        // });
-        // if (!events!
-        //     .map((event: NostrEvent) => event.id)
-        //     .includes(id)) {
-        //     event.toNostrEvent()
-        //         .then((nostrEvent: NostrEvent) => {
-        //             console.log(`adding sub event to db ${event.id}`);
-        //             db.events.add(nostrEvent);
-        //         });
-        //     // console.log('new event...', {event});
-        //     const nevent = nip19.neventEncode({
-        //         id,
-        //         author: pubkey,
-        //         relays: [relay]
-        //     });
-        // }
+    const onEvent = (event: NDKEvent) => {
+        const nostrEvent = event.rawEvent();
+        console.log(`new event`, {event});
+        // events.current.push(nostrEvent);
+        setEvents((prevState: NostrEvent[]) => ([
+            ...prevState,
+            nostrEvent
+        ]));
+        // console.log({events})
     };
 
-    const memoValue = useMemo(() => ({ nevents, subscribe, loading, events }), [events, nevents, loading]);
+    const clearEvents = () => {
+        console.log(`clearing events...`);
+        subs.forEach((sub: NDKSubscription) => {
+            sub.stop();
+        });
+        setEvents([]);
+    };
+
+    const memoValue = useMemo(() => ({ nevents, subscribe, loading, events, clearEvents, query, setQuery }), [events, query, loading]);
 
     const connectToRelays = useCallback(async () => {
         try {
-            const connected = await ndk.connect(1500);
+            const connected = await ndk.current.connect(1500);
             return connected;
 
         } catch (error) {
@@ -128,13 +99,13 @@ export const NostrFeedContextProvider = ({ children }: any) => {
 
     useEffect(() => {
         connectToRelays().then(() => {
-                console.log(`connected to relays`);
+                console.log(`Connected to search relay...`);
             })
             .catch((error) => {
                 console.error('unable to connect', {error});
             });
 
-        ndk.pool.on('relay:disconnect', async (data) => {
+        ndk.current.pool.on('relay:disconnect', async (data) => {
             // console.log('relay has disconnected', {data})
             console.log({data});
             try {
@@ -150,6 +121,7 @@ export const NostrFeedContextProvider = ({ children }: any) => {
 
         return () => {
             // do something on unmount
+            clearEvents();
         }
     }, []);
 

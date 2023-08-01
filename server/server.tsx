@@ -7,10 +7,17 @@ import App from "../src/App";
 import {StaticRouter} from "react-router-dom/server";
 import {Helmet} from "react-helmet";
 import {nip19} from 'nostr-tools';
-import {DEFAULT_RELAYS} from "../src/resources/Config";
-import NDK, {NDKEvent, NDKSubscriptionCacheUsage, NostrEvent} from '@nostr-dev-kit/ndk';
+import {Config, DEFAULT_RELAYS} from "../src/resources/Config";
+import NDK, {
+    NDKEvent,
+    NDKFilter,
+    NDKSubscriptionCacheUsage,
+    NDKSubscriptionOptions,
+    NostrEvent
+} from '@nostr-dev-kit/ndk';
 import RedisAdapter from '@nostr-dev-kit/ndk-cache-redis';
 import {uniqBy} from 'lodash';
+import {containsTag, valueFromTag} from "../src/utils/utils";
 
 const Pool = require('pg').Pool;
 const pool = new Pool({
@@ -22,6 +29,16 @@ const pool = new Pool({
 });
 
 const bodyParser = require('body-parser');
+
+const { Configuration, OpenAIApi } = require('openai');
+
+const aiConfig = new Configuration({
+    apiKey: process.env.OPENAI_API_KEY
+});
+const ai = new OpenAIApi(aiConfig);
+
+const ts = require('@tensorflow/tfjs');
+const use = require('@tensorflow-models/universal-sentence-encoder');
 
 const baseUrl = process.env.BASE_URL;
 const server = express();
@@ -47,98 +64,125 @@ const assets = JSON.parse(manifest);
 // const eventsFile = fs.readFileSync(path.join(__dirname, '../public/events.json'), 'utf-8');
 // const events = JSON.parse(eventsFile);
 
-const redisAdapter = new RedisAdapter({ expirationTime: 60 * 60 * 24 });
-// @ts-ignore
-const ndk = new NDK({ explicitRelayUrls: DEFAULT_RELAYS, cacheAdapter: redisAdapter });
 const events: NostrEvent[] = [];
 
 const nevents: string[] = [];
 
-const subscription = ndk.subscribe({
-        kinds: [1],
-        // ids: NOTES
-        '#t': ['ask', 'nostr', 'asknostr']
-    }, { closeOnEose: false, cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY });
 
 
-subscription.eventReceived = (e: NDKEvent, r: any) => {
-    const {id, pubkey} = e;
-    e.toNostrEvent()
-        .then((e1: NostrEvent) => {
-            const hashtags = e1.tags.filter((t: any) => t[0] === 't').map((t: any) => t[1]);
-            if (((hashtags.includes('ask') && hashtags.includes('nostr')) || hashtags.includes('asknostr')) && !events.includes(e1)) {
-                const nevent = nip19.neventEncode({
-                    id,
-                    author: pubkey,
-                    relays: [r.url]
-                });
 
-                // console.log({nevent})
+const redisAdapter = new RedisAdapter({ expirationTime: 60 * 60 * 24 });
 
-                nevents.push(nevent);
+// ndk instance used to subscribe to events with a given HASHTAG
+// @ts-ignore
+const ndk = new NDK({ explicitRelayUrls: DEFAULT_RELAYS, cacheAdapter: redisAdapter });
 
-                events.push(
-                    e1
-                );
-            }
-        })
-        .catch((e: any) => {
-            console.log('eventReceived error', {e})
-        });
-};
-subscription.eoseReceived = (r: any) => {
-    console.log('eose');
+// ndk instance used to publish events to search relay
+const ndkSearchnos = new NDK({ explicitRelayUrls: [Config.SEARCH_RELAY_PUBLISH] });
+
+const subs = [];
+
+const publish = async (nostrEvent: NostrEvent) => {
+    try {
+        const event = new NDKEvent(ndkSearchnos, nostrEvent);
+        console.log(`signing & publishing new event`, {event});
+        try {
+            await event.publish();
+            console.log(`event ${event.id} published!`);
+        } catch (error) {
+            console.error(`unable to publish event ${nostrEvent.id}`);
+        }
+    } catch (error) {
+        console.error(`unable to create NDKEvent from event ${nostrEvent.id}`);
+    }
 };
 
-// serverEvents.push(...events);
-let iterator = 0;
-
-
-
-
-const connectToRelays = (ndk: NDK) => {
-    ndk.connect()
-        .then(() => {
-            console.log('connected');
-            ndk.fetchEvents({
-                kinds: [1],
-                // ids: NOTES
-                '#t': ['ask', 'nostr', 'asknostr']
-            }, {skipCache: false})
-                .then((set: any) => {
-                    // serverEvents.push(...Array.from(set)
-                    //     .filter(({tags}: any) => {
-                    //         const hashtags = tags.filter((t: any) => t[0] === 't').map((t: any) => t[1]);
-                    //         return (hashtags.includes('ask') && hashtags.includes('nostr')) || hashtags.includes('asknostr');
-                    //     })
-                    //     .filter(({content}: any) => {
-                    //         return !content.includes('https://dev.uselessshit.co/resources/nostr');
-                    //     })
-                    //     .map(({id, content, created_at, kind, tags, sig, pubkey}: any) => ({
-                    //         id, content, created_at, kind, tags, sig, pubkey
-                    //     })));
-                })
-                .catch((e: any) => {
-                    console.error('fetchEvents error', {e});
-                });
-            subscription.start()
+const onEvent = (event: NDKEvent) => {
+    const nostrEvent = event.rawEvent();
+    const { tags } = nostrEvent;
+    const referencedEventId = valueFromTag(nostrEvent, 'e');
+    if (containsTag(tags, ['t', Config.HASHTAG])) {
+        // if event contains referenced event tag, it serves at question hint
+        // thus gotta fetch the referenced event
+        if (!!referencedEventId) {
+            subscribe({ ids: [referencedEventId] }, { closeOnEose: true, groupable: true, groupableDelay: 2100 });
+        } else {
+            // event is a question
+            // publish the event to search pseudo relay
+            publish(nostrEvent)
                 .then(() => {
-                    console.log('sub started')
-                })
-                .catch((e: any) => {
-                    console.error('start error', {e});
+                    console.log(`event published to search relay!`);
                 });
-        })
-        .catch((e: any) => {
-            console.error({e});
-            while (iterator <= 10) {
-                console.log(`reconnect attempt #${iterator}`);
-                connectToRelays(ndk);
-                iterator++;
-            }
-        })
+        }
+    } else {
+        // event doesn't contain the asknostr tag
+        // but it was hinted by a quote event
+        // publish the event to search pseudo relay
+        publish(nostrEvent)
+            .then(() => {
+                console.log(`event published to search relay!`);
+            });
+    }
 };
-connectToRelays(ndk);
+
+const subscribe = (
+    filter: NDKFilter,
+    opts: NDKSubscriptionOptions = {closeOnEose: false, groupable: false}
+) => {
+    const sub = ndk.subscribe(filter, opts);
+    sub.on('event', onEvent);
+    sub.on('eose', () => {
+        console.log(`eose received`);
+    });
+    sub.on('close', () => {
+        console.log(`the sub was closed...`);
+        sub.start()
+            .then(() => {
+                console.log(`sub restarted...`);
+            })
+    });
+    subs.push(sub);
+};
+
+// connect to relays
+ndk.connect(2100)
+    .then(() => {
+        console.log(`Connected to relays`);
+    });
+
+let delay: number = 0;
+
+// try to reconnect on relay disconnect
+ndk.pool.on('relay:disconnect', () => {
+    delay += 500;
+    setTimeout(() => {
+        ndk.connect(2100)
+            .then(() => {
+                console.log(`Reconnected...`);
+                delay = 0;
+            });
+    }, delay);
+});
+
+ndk.pool.on('notice', (notice) => {
+    console.log(`got a notice`, {notice});
+});
+
+ndk.pool.on('flapping', (flapping) => {
+    console.log(`some relays flapping`, {flapping});
+});
+
+// connect to search relay
+ndkSearchnos.connect(2100)
+    .then(() => {
+        console.log(`Connected to search relay`);
+    });
+
+// subscribe to events with a given HASHTAG
+subscribe({
+    kinds: [1, 30023],
+    '#t': [Config.HASHTAG]
+}, { closeOnEose: false, cacheUsage: NDKSubscriptionCacheUsage.PARALLEL });
 
 const isNameAvailable = async (name: string): Promise<boolean> => {
     if (!(new RegExp(/([a-z0-9_.]+)/, 'gi').test(name)) || name.length < 1) return false;
@@ -223,6 +267,53 @@ server.post('/api/register-name', async (req, res) => {
     }
     res.sendStatus(400);
     console.log({name, pubkey});
+});
+
+server.get('/api/ai', async (req, res) => {
+    // Load the model.
+    // @ts-ignore
+    use.load().then(model => {
+        // Embed an array of sentences.
+        const sentences = [
+            'Hello.',
+            'How are you?'
+        ];
+        // @ts-ignore
+        model.embed(sentences).then(embeddings => {
+            console.log({embeddings})
+            // `embeddings` is a 2D tensor consisting of the 512-dimensional embeddings for each sentence.
+            // So in this example `embeddings` has the shape [2, 512].
+            embeddings.print(true /* verbose */);
+        });
+    });
+    // const id = '2f02d76f09666ae076e65beb60ff195eb7f44b51c73147a6a37748bfabd60a7c';
+    // const content = 'can anyone explain in simple terms what nostr is and how to start using it?!';
+    // try {
+    //     const response = await ai.createEmbedding({
+    //         model: 'text-embedding-ada-002',
+    //         input: content
+    //     });
+    //     const [{ embedding }] = response.data.data;
+    //
+    //     console.log({embedding});
+    //
+    //     try {
+    //         const response = await pool.query('INSERT INTO events (id, content, embedding) VALUES ($1, $2, $3)', [id, content, embedding]);
+    //         if (response) {
+    //             res.sendStatus(204);
+    //         }
+    //     } catch (error) {
+    //         console.error('error adding event...', {error});
+    //         res.sendStatus(400);
+    //     }
+    //
+    // } catch (error) {
+    //     console.error('error getting embedding...', {error})
+    //     res.sendStatus(400);
+    //     // @ts-ignore
+    //     console.log({data: error?.response?.data})
+    // }
+
 });
 
 server.get('/*', (req, res) => {

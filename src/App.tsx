@@ -17,12 +17,12 @@ import {Nostr} from "./components/Nostr/Nostr";
 import {Nip05} from "./components/Nostr/Nip05/Nip05";
 import {Zaps} from "./components/Nostr/Zaps/Zaps";
 import {ThemeContextWrapper} from "./theme/ThemeContextWrapper";
-import {NoteThread} from "./components/Resources/Thread/Thread";
+import {NoteThread} from "./components/Nostr/Thread/Thread";
 import {Feed} from "./components/Nostr/Feed/Feed";
 import {NostrFeedContextProvider} from "./providers/NostrFeedContextProvider";
 import {NostrNoteThreadContextProvider, useNostrNoteThreadContext} from "./providers/NostrNoteThreadContextProvider";
 import {NostrNoteContextProvider} from "./providers/NostrNoteContextProvider";
-import {Note} from "./components/Resources/Note/Note";
+import {Note} from "./components/Nostr/Note/Note";
 import {NostrNoteThreadContext} from "./contexts/NostrNoteThreadContext";
 import {NostrContextProvider} from "./providers/NostrContextProvider";
 
