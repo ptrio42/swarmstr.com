@@ -22,3 +22,13 @@
             transparent
     )!important;
 }
+
+pre {
+    background: rgba(0,0,0,.03);
+    padding: 1em;
+    overflow-x: scroll;
+}
+
+.theme--dark pre {
+    background: rgba(255,255,255,.03);
+}

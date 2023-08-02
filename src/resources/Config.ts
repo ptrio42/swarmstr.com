@@ -21,7 +21,7 @@ export const Config = {
       // 'wss://nostr.terminus.money',
       // 'wss://atlas.nostr.land/',
       'wss://offchain.pub/',
-      'wss://nostr.uselessshit.co',
+      // 'wss://nostr.uselessshit.co',
       // 'wss://relay.plebstr.com',
       // 'wss://relay.primal.net',
       // 'wss://relay.snort.social',

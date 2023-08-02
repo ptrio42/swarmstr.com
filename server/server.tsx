@@ -10,7 +10,7 @@ import {nip19} from 'nostr-tools';
 import {Config, DEFAULT_RELAYS} from "../src/resources/Config";
 import NDK, {
     NDKEvent,
-    NDKFilter,
+    NDKFilter, NDKRelay, NDKRelaySet, NDKSubscription,
     NDKSubscriptionCacheUsage,
     NDKSubscriptionOptions,
     NostrEvent
@@ -71,16 +71,16 @@ const nevents: string[] = [];
 
 
 
-const redisAdapter = new RedisAdapter({ expirationTime: 60 * 60 * 24 });
+const cacheAdapter = new RedisAdapter({ expirationTime: 60 * 60 * 24 });
 
 // ndk instance used to subscribe to events with a given HASHTAG
 // @ts-ignore
-const ndk = new NDK({ explicitRelayUrls: DEFAULT_RELAYS, cacheAdapter: redisAdapter });
+let ndk = new NDK({ explicitRelayUrls: DEFAULT_RELAYS, cacheAdapter });
 
 // ndk instance used to publish events to search relay
 const ndkSearchnos = new NDK({ explicitRelayUrls: [Config.SEARCH_RELAY_PUBLISH] });
 
-const subs = [];
+let subscription: NDKSubscription;
 
 const publish = async (nostrEvent: NostrEvent) => {
     try {
@@ -101,17 +101,19 @@ const onEvent = (event: NDKEvent) => {
     const nostrEvent = event.rawEvent();
     const { tags } = nostrEvent;
     const referencedEventId = valueFromTag(nostrEvent, 'e');
+    const referencedEventId1 = valueFromTag(event, 'e');
+    console.log({referencedEventId, referencedEventId1})
     if (containsTag(tags, ['t', Config.HASHTAG])) {
         // if event contains referenced event tag, it serves at question hint
         // thus gotta fetch the referenced event
         if (!!referencedEventId) {
-            subscribe({ ids: [referencedEventId] }, { closeOnEose: true, groupable: true, groupableDelay: 2100 });
+            subscribe({ ids: [referencedEventId] }, { closeOnEose: true, groupable: true, groupableDelay: 2100 }, false);
         } else {
             // event is a question
             // publish the event to search pseudo relay
             publish(nostrEvent)
                 .then(() => {
-                    console.log(`event published to search relay!`);
+                    console.log(`event published to search relay (direct)!`);
                 });
         }
     } else {
@@ -120,28 +122,41 @@ const onEvent = (event: NDKEvent) => {
         // publish the event to search pseudo relay
         publish(nostrEvent)
             .then(() => {
-                console.log(`event published to search relay!`);
+                console.log(`event published to search relay (hinted)!`);
             });
     }
 };
 
 const subscribe = (
     filter: NDKFilter,
-    opts: NDKSubscriptionOptions = {closeOnEose: false, groupable: false}
+    opts: NDKSubscriptionOptions = {closeOnEose: false, groupable: false},
+    override: boolean = true
 ) => {
+    if (override) {
+        // @ts-ignore
+        ndk = new NDK({ explicitRelayUrls: DEFAULT_RELAYS, cacheAdapter });
+        ndk.pool.relays.forEach((relay: NDKRelay) => {
+            relay.activeSubscriptions.forEach((_sub: NDKSubscription) => _sub.stop())
+        });
+    }
     const sub = ndk.subscribe(filter, opts);
+    console.log(`new sub created...`);
     sub.on('event', onEvent);
     sub.on('eose', () => {
         console.log(`eose received`);
     });
     sub.on('close', () => {
         console.log(`the sub was closed...`);
-        sub.start()
-            .then(() => {
-                console.log(`sub restarted...`);
-            })
     });
-    subs.push(sub);
+    if (override) {
+        subscription?.stop();
+        subscription = sub;
+        subscription.start()
+            .then(() => {
+                console.log(`sub started...`);
+            });
+        ndk.connect(5000);
+    }
 };
 
 // connect to relays
@@ -152,11 +167,15 @@ ndk.connect(2100)
 
 let delay: number = 0;
 
+setInterval(() => {
+    console.log(`relays: ${ndk.pool.stats().connected}/${ndk.pool.stats().total}`);
+}, 30000);
+
 // try to reconnect on relay disconnect
 ndk.pool.on('relay:disconnect', () => {
     delay += 500;
     setTimeout(() => {
-        ndk.connect(2100)
+        ndk.pool.connect(2100)
             .then(() => {
                 console.log(`Reconnected...`);
                 delay = 0;
@@ -165,11 +184,11 @@ ndk.pool.on('relay:disconnect', () => {
 });
 
 ndk.pool.on('notice', (notice) => {
-    console.log(`got a notice`, {notice});
+    console.log(`got a notice`);
 });
 
 ndk.pool.on('flapping', (flapping) => {
-    console.log(`some relays flapping`, {flapping});
+    console.log(`some relays flapping`);
 });
 
 // connect to search relay
@@ -178,11 +197,25 @@ ndkSearchnos.connect(2100)
         console.log(`Connected to search relay`);
     });
 
-// subscribe to events with a given HASHTAG
+// initial sub
 subscribe({
     kinds: [1, 30023],
-    '#t': [Config.HASHTAG]
-}, { closeOnEose: false, cacheUsage: NDKSubscriptionCacheUsage.PARALLEL });
+    '#t': [Config.HASHTAG],
+    since: Date.now() / 1000 - 12 * 60 * 60,
+}, { closeOnEose: false, groupable: false});
+
+// subscribe to events with a given HASHTAG
+setInterval(() => {
+    console.log(`recreating subscription so it doesnt go idle...`);
+    // subscription?.stop();
+    subscribe({
+        kinds: [1, 30023],
+        '#t': [Config.HASHTAG],
+        since: Date.now() / 1000 - 45 * 60,
+    }, { closeOnEose: false, groupable: false});
+    // ndk.pool = new NDKPool(DEFAULT_RELAYS, ndk);
+    // ndk.pool.connect(2100);
+}, 5 * 60 * 1000);
 
 const isNameAvailable = async (name: string): Promise<boolean> => {
     if (!(new RegExp(/([a-z0-9_.]+)/, 'gi').test(name)) || name.length < 1) return false;

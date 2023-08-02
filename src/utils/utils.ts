@@ -3,7 +3,7 @@ import {nip19} from "nostr-tools";
 import {List, LISTS} from "../stubs/lists";
 import {uniq, uniqBy} from "lodash";
 import {debounce} from "lodash";
-import {NDKTag, NostrEvent} from "@nostr-dev-kit/ndk";
+import {NDKEvent, NDKTag, NostrEvent} from "@nostr-dev-kit/ndk";
 
 export const matchString = (searchString: string, phrase: string) => {
   const regEx = new RegExp(searchString.toLowerCase(), 'g');
@@ -200,7 +200,7 @@ export const searchText = (searchString: string, events: NostrEvent[]) => {
       .map(({ data }) => ({...data}))
 };
 
-export const valueFromTag = (event: NostrEvent, tag: string): string | undefined => {
+export const valueFromTag = (event: NostrEvent|NDKEvent, tag: string): string | undefined => {
   const matchingTag = event.tags.find((t: string[]) => t[0] === tag);
 
   if (matchingTag) return matchingTag[1];

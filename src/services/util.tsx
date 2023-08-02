@@ -29,7 +29,7 @@ export const processText = (text: string, tags?: string[][], searchString?: stri
             .replace(/(\*\*(?<bold>[^*]*)\*\*)/gm, '<b>$1</b>')
             .replace(/\*(?<italic>[^*]*)\*/gm, '<i>$1</i>')
             .replace(/~~(?<strikethrough>[^~]*)~~/gm, '<s>$1</s>')
-            .replace(/`{3}(?<multilineCode>[^§]+)`{3}/gm, '<pre>$1</pre>')
+            .replace(/`{3}(?<multilineCode>[^§]+?)`{3}/gm, '<pre>$1</pre>')
             // .replace(/`(?<inlineCode>[^`\n]*)`/gm, '<code>$1</code>')
             // .replace(/\`(?:[^\`||\s]+)\`/gm, '<code>$1</code>')
             .replace(/(?<=^\n)> (?<singleLineQuote>.+)\n(?!^>)/gm, '<blockquote>$1</blockquote>')
@@ -85,7 +85,7 @@ export const processText = (text: string, tags?: string[][], searchString?: stri
                 return tags && tags[+id];
             }
         })
-        .replace(/\B(\#[a-zA-Z0-9]+\b)(?!;)/g, (result) => {
+        .replace(/(?<!\'\")\B(\#[a-zA-Z0-9]+\b)(?!;)(?![\w\s]*[\'\"])/gm, (result) => {
             const hashtag = result.replace('#', '');
             return `<a href="${process.env.BASE_URL}/?s=${hashtag.replace(/(<([^>]+)>)/gi, '')}">#${hashtag}</a>`
         })

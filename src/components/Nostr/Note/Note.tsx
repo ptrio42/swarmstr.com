@@ -89,7 +89,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
     const { subscribe, addReaction, zap, subs } = useNostrNoteContext();
 
     const { id, author } = nip19.decode(nevent).data;
-    const filter: NDKFilter = { kinds: [1], ids: [id]};
+    const filter: NDKFilter = { ids: [id]};
     const filter1: NDKFilter = { kinds: [1, 7, 9735, 30023], '#e': [id]};
 
     const [subscribed, setSubscribed] = useState<boolean>(false);

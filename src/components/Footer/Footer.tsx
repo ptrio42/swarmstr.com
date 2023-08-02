@@ -8,6 +8,7 @@ import GitHub from '@mui/icons-material/GitHub';
 import './Footer.css';
 import Bolt from "@mui/icons-material/Bolt";
 import React from "react";
+import Box from "@mui/material/Box";
 
 const Item = styled(Paper)(({ theme }) => ({
     ...theme.typography.body1,
@@ -29,7 +30,9 @@ export const Footer = () => {
             </Item>
             <Grid item>
                 <Item sx={{ display: 'inline-flex' }}>
-                    Made with <Favorite sx={{ color: '#FFA500', margin: 'auto 0.25em' }} /> in Warsaw by <Twitter sx={{ color: '#1976D2', margin: 'auto 0.25em' }} /> <Link sx={{ color: '#1976D2' }} href="https://twitter.com/pitiunited" target="_blank">pitiunited</Link>
+                    Made with <Favorite sx={{ color: '#FFA500', margin: 'auto 0.25em' }} /> in Warsaw by <Box className="nostr-icon" sx={{ width: '20px', height: '20px', marginLeft: '0.5em' }}>
+                    <img src={`${process.env.BASE_URL}/images/nostr-icon.png`} height={30}/>
+                </Box> <Link sx={{ color: '#7139f1' }} href="https://snort.social/p/npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4" target="_blank">pitiunited</Link>
                 </Item>
             </Grid>
             {/*<Grid item>*/}

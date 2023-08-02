@@ -6,6 +6,7 @@
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "@fontsource/roboto": "^4.5.7",
+    "@giphy/react-components": "^8.0.0",
     "@mui/icons-material": "^5.11.16",
     "@mui/material": "^5.12.1",
     "@nostr-dev-kit/ndk": "^0.6.0",

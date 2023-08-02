@@ -12,13 +12,14 @@ import {NDKTag} from "@nostr-dev-kit/ndk";
 import {nip19} from 'nostr-tools';
 import {differenceWith} from 'lodash';
 import Input from "@mui/material/Input";
-import { Image as ImageIcon } from '@mui/icons-material';
+import {GifBox, Image as ImageIcon} from '@mui/icons-material';
 import {uploadToNostrCheckMe} from "../services/uploadImage";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import Typography from "@mui/material/Typography";
+import {GifDialog} from "./GifDialog";
 
 const MDEditor = lazy(() => import('@uiw/react-md-editor'));
 
@@ -78,6 +79,8 @@ export const NewNoteDialog = ({ open, onClose, noteId, replyTo, label, explicitT
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
+    const [gifDialogOpen, setGifDialogOpen] = useState<boolean>(false);
+
     const formik = useFormik({
         initialValues: {
             content: '',
@@ -124,7 +127,7 @@ export const NewNoteDialog = ({ open, onClose, noteId, replyTo, label, explicitT
         setTabIndex(newValue);
     };
 
-    return <Dialog fullScreen={fullScreen} open={open} onClose={() => { console.log('close') }}>
+    return <React.Fragment><Dialog fullScreen={fullScreen} open={open} onClose={() => { console.log('close') }}>
             <DialogTitle sx={{ color: 'rgba(255,255,255,.77)', paddingLeft: '8px' }}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <Tabs value={tabIndex} onChange={handleChange} aria-label="Choose note type">
@@ -197,6 +200,11 @@ export const NewNoteDialog = ({ open, onClose, noteId, replyTo, label, explicitT
                             <ImageIcon/>
                         </Button>
                 </form>
+                <Button onClick={() => {
+                    setGifDialogOpen(true);
+                }}>
+                    <GifBox/>
+                </Button>
                 <Button autoFocus onClick={handleClose}>
                     Cancel
                 </Button>
@@ -227,4 +235,9 @@ export const NewNoteDialog = ({ open, onClose, noteId, replyTo, label, explicitT
                 </Button>
             </DialogActions>
         </Dialog>
+        <GifDialog open={gifDialogOpen} onClose={(gifUrl?: string) => {
+            if (gifUrl) formik.setFieldValue('content', formik.values.content + `\n${gifUrl}`);
+            setGifDialogOpen(false);
+        }} />
+    </React.Fragment>
 };
