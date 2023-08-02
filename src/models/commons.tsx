@@ -32,3 +32,7 @@ export interface PostEvent extends NoteEvent {
     title: string;
 }
 
+export interface RepostEvent extends NostrEvent {
+    repostedEventId: string;
+}
+

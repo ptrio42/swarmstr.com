@@ -11,7 +11,7 @@ import NDK, {
 } from "@nostr-dev-kit/ndk";
 import {NostrFeedContext} from '../contexts/NostrFeedContext';
 import axios from "axios";
-import {Config, DEFAULT_RELAYS} from "../resources/Config";
+import {Config, CLIENT_RELAYS} from "../resources/Config";
 import { nip19 } from 'nostr-tools';
 import {useNostrContext} from "./NostrContextProvider";
 import {db} from "../db";

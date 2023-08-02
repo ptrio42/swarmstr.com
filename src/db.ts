@@ -1,5 +1,5 @@
 import Dexie, { Table } from 'dexie';
-import {NoteEvent, PostEvent, ReactionEvent, UserEvent, ZapEvent} from "./models/commons";
+import {NoteEvent, PostEvent, ReactionEvent, RepostEvent, UserEvent, ZapEvent} from "./models/commons";
 
 export class NostrStore extends Dexie {
     notes!: Table<NoteEvent>;
@@ -7,15 +7,17 @@ export class NostrStore extends Dexie {
     zaps!: Table<ZapEvent>;
     reactions!: Table<ReactionEvent>;
     users!: Table<UserEvent>;
+    reposts!: Table<RepostEvent>;
 
     constructor() {
         super('swarmstrDB');
-        this.version(6).stores({
+        this.version(7).stores({
             notes: '++id, pubkey, title, content, type, referencedEventId, tags',
             // posts: '++id, pubkey, title, content, type, referencedEventId, tags',
             zaps: '++id, amount, zappedNote, zapper, zappee',
             reactions: '++id, reactedToEventId, content',
             users: '++id, pubkey, content',
+            reposts: '++id, pubkey, repostedEventId'
             // events: '++id, tags, pubkey, kind, content' // Primary key and indexed props
         });
     }

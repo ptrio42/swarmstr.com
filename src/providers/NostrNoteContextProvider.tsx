@@ -90,6 +90,15 @@ export const NostrNoteContextProvider = ({ children, thread }: NostrNoteContextP
                             reactedToEventId: valueFromTag(nostrEvent, 'e')
                         });
                     }
+
+                    // handle repost
+                    if (nostrEvent.kind === 6) {
+                        db.reposts.put({
+                            ...nostrEvent,
+                            // @ts-ignore
+                            repostedEventId: valueFromTag(nostrEvent, 'e')
+                        });
+                    }
                     // handle zap
                     if (nostrEvent.kind = 9375) {
                         db.zaps.put({
@@ -176,12 +185,41 @@ export const NostrNoteContextProvider = ({ children, thread }: NostrNoteContextP
                 //     .catch((e) => {})
             })
             .catch((error) => {
-                console.error('unable to assert signer...')
+                console.error('unable to assert signer...');
             })
     }, []);
 
+    const boost = useCallback((nostrEvent: NostrEvent) => {
+        const event = new NDKEvent(ndk);
+        event.kind = 6;
+        event.content = JSON.stringify(nostrEvent);
+        event.tags = [
+            ['e', nostrEvent.id!, 'wss://relay.damus.io'],
+            ['p', nostrEvent.pubkey]
+        ];
+        ndk.assertSigner()
+            .then(() => {
+                event.sign(ndk.signer!)
+                    .then(() => {
+                        ndk.publish(event)
+                            .then(() => {
+                                console.log('repost event published!');
+                            })
+                            .catch((error) => {
+                                console.error('unable to publish repost event...')
+                            })
+                    })
+                    .catch((error) => {
+                        console.error('unable to sign repost event...');
+                    })
+            })
+            .catch((error) => {
+                console.error('unable to assert signer...')
+            });
+    }, []);
+
     return (
-        <NostrNoteContext.Provider value={{ subscribe, addReaction, zap, subs: subs.current }}>
+        <NostrNoteContext.Provider value={{ subscribe, addReaction, zap, subs: subs.current, boost }}>
             {children}
         </NostrNoteContext.Provider>
     );

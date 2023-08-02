@@ -7,7 +7,7 @@ import {
     QrCodeScanner,
     UnfoldLess,
     UnfoldMore,
-    Note as NoteIcon, ChatBubbleOutline, ElectricBolt
+    Note as NoteIcon, ChatBubbleOutline, ElectricBolt, Loop
 } from "@mui/icons-material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -41,7 +41,7 @@ import {db} from "../../../db";
 import CircularProgress from "@mui/material/CircularProgress";
 import {NewNoteDialog} from "../../../dialog/NewNoteDialog";
 import {ZapDialog} from "../../../dialog/ZapDialog";
-import {ZapEvent} from "../../../models/commons";
+import {RepostEvent, ZapEvent} from "../../../models/commons";
 
 const ReactMarkdown = lazy(() => import('react-markdown'));
 const MDEditor = lazy(() => import('@uiw/react-md-editor'));
@@ -86,11 +86,11 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
 
     const [parsedContent, setParsedContent] = useState<any>();
 
-    const { subscribe, addReaction, zap, subs } = useNostrNoteContext();
+    const { subscribe, addReaction, subs, boost } = useNostrNoteContext();
 
     const { id, author } = nip19.decode(nevent).data;
     const filter: NDKFilter = { ids: [id]};
-    const filter1: NDKFilter = { kinds: [1, 7, 9735, 30023], '#e': [id]};
+    const filter1: NDKFilter = { kinds: [1, 7, 9735, 30023, 6], '#e': [id]};
 
     const [subscribed, setSubscribed] = useState<boolean>(false);
 
@@ -128,6 +128,13 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
         return commentEvents;
     }, [id]);
 
+    const repostEvents = useLiveQuery(async () => {
+        const repostEvents = await db.reposts
+            .where({ repostedEventId: id })
+            .toArray();
+        return repostEvents;
+    }, [id], []);
+
 
     const noteRef = useRef(null);
     const noteVisible = noteIsVisible(noteRef);
@@ -153,14 +160,6 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
             setParsedContent(_parsedContent);
         }
     }, [event]);
-
-    // useEffect(() => {
-    //     console.log({loaded})
-    //
-    //     if (loaded) {
-    //         console.log('event loaded...', 'found?', !!event);
-    //     }
-    // }, [loaded]);
 
     useEffect(() => {
 
@@ -287,6 +286,12 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
             .find((zapEvent: ZapEvent) => zapEvent.zapper === nip19.decode(user.npub).data);
         return zap;
     }, [user, userZapEvents()]);
+
+    const boosted = useCallback(() => {
+        const boost = user && repostEvents && repostEvents
+            .find((repostEvent: RepostEvent) => repostEvent.pubkey === user.hexpubkey());
+        return boost;
+    }, [repostEvents]);
 
     const getUpReactions = useCallback(() => reactionEvents && reactionEvents
             .filter((r: any) => REACTIONS
@@ -483,6 +488,28 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                                         }
                                     </Button>
                                 </Tooltip>
+                                <Button sx={{ minWidth: '21px' }} color="secondary" onClick={() => {
+                                    console.log('boost', {event});
+                                    if (user) {
+                                        boost(event);
+                                    } else {
+                                        setLoginDialogOpen(true);
+                                    }
+                                }}>
+                                    {
+                                        repostEvents.length >= 1 && <React.Fragment>
+                                            <Badge className="reposts-count"
+                                                   sx={{ opacity: boosted() ? 1 : 0.5 }}
+                                                   color="primary"
+                                                   badgeContent={repostEvents.length}>
+                                                <Loop sx={{ fontSize: 18 }} />
+                                            </Badge>
+                                        </React.Fragment>
+                                    }
+                                    {
+                                        repostEvents.length === 0 && <Loop sx={{ fontSize: 18, opacity: boosted() ? 1 : 0.5 }} />
+                                    }
+                                </Button>
                                 {
                                     reactionEvents && <React.Fragment>
                                         <Reactions

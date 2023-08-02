@@ -118,15 +118,24 @@ export const Feed = () => {
             .slice(0, 7)
     };
 
-    const [contributors, inquirers, respondents] = useLiveQuery(async () => {
-        const allEvents = await db.notes.toArray();
-        const contributors = getMostActivePubkeysByNoteType(NOTE_TYPE.HINT, allEvents);
-        const inquirers = getMostActivePubkeysByNoteType(NOTE_TYPE.QUESTION, allEvents);
-        const respondents = getMostActivePubkeysWithAnswers(allEvents);
-        return [contributors, inquirers, respondents];
-    }, [], []);
+    // const [contributors, inquirers, respondents] = useLiveQuery(async () => {
+    //     const allEvents = await db.notes.toArray();
+    //     const contributors = getMostActivePubkeysByNoteType(NOTE_TYPE.HINT, allEvents);
+    //     const inquirers = getMostActivePubkeysByNoteType(NOTE_TYPE.QUESTION, allEvents);
+    //     const respondents = getMostActivePubkeysWithAnswers(allEvents);
+    //     return [contributors, inquirers, respondents];
+    // }, [], []);
 
-    const explicitTags = ['relays', 'nips', 'badges', 'lightning', 'snort', 'primal', 'alby', 'clients', 'begineer', 'zaps', 'damus', 'amethyst'];
+    const contributors = [
+        'f747b6b3202555cbf39c74b14da9a89585e5fb21431c1e630071e5c86cfb7a2b',
+        '89d1ce9164f1f172daaa9c784153178cb1dec7912bf55f5dc07e0f1dabe40e6c',
+        '1577e4599dd10c863498fe3c20bd82aafaf829a595ce83c5cf8ac3463531b09b',
+        '1bc70a0148b3f316da33fe3c89f23e3e71ac4ff998027ec712b905cd24f6a411',
+        'f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8'
+    ];
+
+    const explicitTags = ['relays', 'nips', 'badges', 'lightning', 'snort', 'primal', 'keys',
+        'alby', 'clients', 'beginner', 'zaps', 'damus', 'amethyst', 'plebstr', 'zapathon', 'coracle', 'WoS', 'newbie'];
 
     const boxRef = useRef();
 
@@ -224,64 +233,56 @@ export const Feed = () => {
                             }
                             <Divider sx={{ margin: '1em 0;' }} />
                             <Typography sx={{ marginBottom: '1em' }} component="div" variant="h5">
-                                Active users
-                                <Tooltip title={`Based on #${Config.HASHTAG} hashtag activity`}>
-                                    <IconButton className="activity-button">
+                                Contributors
+                                <Tooltip title={`People that helped Swarmstr happen.`}>
+                                    <IconButton className="contributors-button">
                                         <Info />
                                     </IconButton>
                                 </Tooltip>
                             </Typography>
                             {
                                 contributors && <React.Fragment>
-                                    <Typography sx={{ margin: '1em 0' }} component="div" variant="h6">
-                                        Contributors
-                                    </Typography>
                                     {
-                                        contributors.map((pubkey: string[]) => (
-                                            <Badge
-                                                badgeContent={pubkey.length}
-                                                color="primary"
-                                            >
-                                                <Metadata variant={'avatar'} pubkey={pubkey[0]} />
-                                            </Badge>
+                                        contributors.map((pubkey: string) => (
+                                            <Metadata variant={'avatar'} pubkey={pubkey} />
                                         ))
                                     }
                                 </React.Fragment>
                             }
-                            {
-                                inquirers && <React.Fragment>
-                                    <Typography sx={{ margin: '1em 0' }} component="div" variant="h6">
-                                        Inquirers
-                                    </Typography>
-                                    {
-                                        inquirers.map((pubkey: string[]) => (
-                                            <Badge
-                                                badgeContent={pubkey.length}
-                                                color="primary"
-                                            >
-                                                <Metadata variant={'avatar'} pubkey={pubkey[0]} />
-                                            </Badge>
-                                        ))
-                                    }
-                                </React.Fragment>
-                            }
-                            {
-                                respondents && <React.Fragment>
-                                    <Typography sx={{ margin: '1em 0' }} component="div" variant="h6">
-                                        Respondents
-                                    </Typography>
-                                    {
-                                        respondents.map((pubkey: string[]) => (
-                                            <Badge
-                                                badgeContent={pubkey.length}
-                                                color="primary"
-                                            >
-                                                <Metadata variant={'avatar'} pubkey={pubkey[0]} />
-                                            </Badge>
-                                        ))
-                                    }
-                                </React.Fragment>
-                            }
+                            {/*{*/}
+                                {/*inquirers && <React.Fragment>*/}
+                                    {/*<Typography sx={{ margin: '1em 0' }} component="div" variant="h6">*/}
+                                        {/*Inquirers*/}
+                                    {/*</Typography>*/}
+                                    {/*{*/}
+                                        {/*inquirers.map((pubkey: string[]) => (*/}
+                                            {/*<Badge*/}
+                                                {/*badgeContent={pubkey.length}*/}
+                                                {/*color="primary"*/}
+                                            {/*>*/}
+                                                {/*<Metadata variant={'avatar'} pubkey={pubkey[0]} />*/}
+                                            {/*</Badge>*/}
+                                        {/*))*/}
+                                    {/*}*/}
+                                {/*</React.Fragment>*/}
+                            {/*}*/}
+                            {/*{*/}
+                                {/*respondents && <React.Fragment>*/}
+                                    {/*<Typography sx={{ margin: '1em 0' }} component="div" variant="h6">*/}
+                                        {/*Respondents*/}
+                                    {/*</Typography>*/}
+                                    {/*{*/}
+                                        {/*respondents.map((pubkey: string[]) => (*/}
+                                            {/*<Badge*/}
+                                                {/*badgeContent={pubkey.length}*/}
+                                                {/*color="primary"*/}
+                                            {/*>*/}
+                                                {/*<Metadata variant={'avatar'} pubkey={pubkey[0]} />*/}
+                                            {/*</Badge>*/}
+                                        {/*))*/}
+                                    {/*}*/}
+                                {/*</React.Fragment>*/}
+                            {/*}*/}
                             <Divider sx={{ margin: '1em 0;' }} />
                         </React.Fragment>
                     }

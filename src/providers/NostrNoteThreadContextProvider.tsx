@@ -3,7 +3,7 @@ import {NDKEvent, NDKFilter, NDKRelaySet, NostrEvent} from "@nostr-dev-kit/ndk";
 import {useNostrFeedContext} from "./NostrFeedContextProvider";
 import {NostrNoteThreadContext} from "../contexts/NostrNoteThreadContext";
 import NDK from "@nostr-dev-kit/ndk";
-import {DEFAULT_RELAYS} from "../resources/Config";
+import {CLIENT_RELAYS} from "../resources/Config";
 import {useParams} from "react-router";
 import {useNostrContext} from "./NostrContextProvider";
 import {Backdrop} from "../components/Backdrop/Backdrop";

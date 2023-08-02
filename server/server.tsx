@@ -7,7 +7,7 @@ import App from "../src/App";
 import {StaticRouter} from "react-router-dom/server";
 import {Helmet} from "react-helmet";
 import {nip19} from 'nostr-tools';
-import {Config, DEFAULT_RELAYS} from "../src/resources/Config";
+import {Config, SERVER_RELAYS} from "../src/resources/Config";
 import NDK, {
     NDKEvent,
     NDKFilter, NDKRelay, NDKRelaySet, NDKSubscription,
@@ -75,7 +75,7 @@ const cacheAdapter = new RedisAdapter({ expirationTime: 60 * 60 * 24 });
 
 // ndk instance used to subscribe to events with a given HASHTAG
 // @ts-ignore
-let ndk = new NDK({ explicitRelayUrls: DEFAULT_RELAYS, cacheAdapter });
+let ndk = new NDK({ explicitRelayUrls: SERVER_RELAYS, cacheAdapter });
 
 // ndk instance used to publish events to search relay
 const ndkSearchnos = new NDK({ explicitRelayUrls: [Config.SEARCH_RELAY_PUBLISH] });
@@ -134,7 +134,7 @@ const subscribe = (
 ) => {
     if (override) {
         // @ts-ignore
-        ndk = new NDK({ explicitRelayUrls: DEFAULT_RELAYS, cacheAdapter });
+        ndk = new NDK({ explicitRelayUrls: SERVER_RELAYS, cacheAdapter });
         ndk.pool.relays.forEach((relay: NDKRelay) => {
             relay.activeSubscriptions.forEach((_sub: NDKSubscription) => _sub.stop())
         });

@@ -11,11 +11,11 @@
     color: #fff;
 }
 
-.theme--dark .aboutSwarmstr-button {
+.theme--dark .aboutSwarmstr-button, .contributors-button {
     color: rgba(255,255,255,.77);
 }
 
-.aboutSwarmstr-button, .activity-button {
+.aboutSwarmstr-button, .contributors-button {
     margin-top: -15px;
     margin-left: -8px;
 }

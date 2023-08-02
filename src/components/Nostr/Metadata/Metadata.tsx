@@ -12,15 +12,11 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Dialog from "@mui/material/Dialog";
 import CloseIcon from '@mui/icons-material/Close';
 import {nip19} from 'nostr-tools';
-import {useSubscribe} from "nostr-hooks";
-import {Config} from "nostr-hooks/dist/types";
-import {DEFAULT_RELAYS} from "../../../resources/Config";
 import CircularProgress from "@mui/material/CircularProgress";
 import {NDKFilter, NostrEvent} from "@nostr-dev-kit/ndk";
 import {useNostrNoteContext} from "../../../providers/NostrNoteContextProvider";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
-import {useNostrContext} from "../../../providers/NostrContextProvider";
 import Tooltip from "@mui/material/Tooltip";
 
 interface QrCodeDialogProps {

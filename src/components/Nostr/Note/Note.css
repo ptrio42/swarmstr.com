@@ -32,3 +32,7 @@ pre {
 .theme--dark pre {
     background: rgba(255,255,255,.03);
 }
+
+.theme--dark .reposts-count span {
+    color: #000 !important;
+}

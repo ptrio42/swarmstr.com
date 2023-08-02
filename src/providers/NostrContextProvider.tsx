@@ -9,7 +9,7 @@ import NDK, {
     NDKUser,
     NostrEvent
 } from "@nostr-dev-kit/ndk";
-import {Config, DEFAULT_RELAYS} from "../resources/Config";
+import {Config, CLIENT_RELAYS} from "../resources/Config";
 import {NostrContext} from "../contexts/NostrContext";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../db";
@@ -24,7 +24,7 @@ import {containsTag, valueFromTag} from "../utils/utils";
 const cacheAdapter = new DexieAdapter();
 
 export const NostrContextProvider = ({ children }: any) => {
-    const ndk = useRef<NDK>(new NDK({ explicitRelayUrls: [...DEFAULT_RELAYS, 'wss://blastr.f7z.xyz'], cacheAdapter }));
+    const ndk = useRef<NDK>(new NDK({ explicitRelayUrls: [...CLIENT_RELAYS, 'wss://blastr.f7z.xyz'], cacheAdapter }));
     
     const [user, setUser] = useState<NDKUser>();
     const [eventsFetched, addEventsFetched] = useState<boolean>(false);
@@ -175,11 +175,11 @@ export const NostrContextProvider = ({ children }: any) => {
     }, []);
 
     const fetchRelaysInformation = async () => {
-        return await Promise.all(DEFAULT_RELAYS.map(async (url): Promise<any> => {
-            const relayInformationDocument = await getRelayInformationDocument(url.replace(/wss/, 'https'));
-            // console.log({relayInformationDocument});
-            return relayInformationDocument;
-        }));
+        // return await Promise.all(DEFAULT_RELAYS.map(async (url): Promise<any> => {
+        //     const relayInformationDocument = await getRelayInformationDocument(url.replace(/wss/, 'https'));
+        //     // console.log({relayInformationDocument});
+        //     return relayInformationDocument;
+        // }));
     }
 
     useEffect(() => {
@@ -210,10 +210,10 @@ export const NostrContextProvider = ({ children }: any) => {
         //     '#t': [Config.HASHTAG]
         // });
 
-        fetchRelaysInformation()
-            .then(() => {
-                console.log('information fetched')
-            });
+        // fetchRelaysInformation()
+        //     .then(() => {
+        //         console.log('information fetched')
+        //     });
 
         setTimeout(() => {
             signIn()
