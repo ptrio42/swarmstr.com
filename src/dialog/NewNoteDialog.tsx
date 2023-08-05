@@ -77,7 +77,7 @@ export const NewNoteDialog = ({ open, onClose, noteId, replyTo, label, explicitT
     const [tabIndex, setTabIndex] = useState<number>(0);
 
     const theme = useTheme();
-    const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+    const fullScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
     const [gifDialogOpen, setGifDialogOpen] = useState<boolean>(false);
 
@@ -127,12 +127,12 @@ export const NewNoteDialog = ({ open, onClose, noteId, replyTo, label, explicitT
         setTabIndex(newValue);
     };
 
-    return <React.Fragment><Dialog fullScreen={fullScreen} open={open} onClose={() => { console.log('close') }}>
+    return <React.Fragment><Dialog fullWidth={true} fullScreen={fullScreen} open={open} onClose={() => { console.log('close') }}>
             <DialogTitle sx={{ color: 'rgba(255,255,255,.77)', paddingLeft: '8px' }}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <Tabs value={tabIndex} onChange={handleChange} aria-label="Choose note type">
-                        <Tab label={noteId ? 'Short reply' : 'Add Question'} {...a11yProps(0)} />
-                        <Tab label={ noteId ? 'Long reply' : 'Create Post' } {...a11yProps(1)} />
+                        <Tab className="newNote-tab" label={noteId ? 'Short reply' : 'Add Question'} {...a11yProps(0)} />
+                        <Tab className="newNote-tab" label={ noteId ? 'Create reply' : 'Create Post' } {...a11yProps(1)} />
                     </Tabs>
                 </Box>
             </DialogTitle>
@@ -193,22 +193,22 @@ export const NewNoteDialog = ({ open, onClose, noteId, replyTo, label, explicitT
                                     });
                             }
                         }} />
-                        <Button onClick={() => {
+                        <Button color="warning" onClick={() => {
                             console.log({fileInpuRef: fileInputRef.current})
                             fileInputRef.current?.click();
                         }}>
-                            <ImageIcon/>
+                            <ImageIcon sx={{ fontSize: 32 }}/>
                         </Button>
                 </form>
-                <Button onClick={() => {
+                <Button color="warning" onClick={() => {
                     setGifDialogOpen(true);
                 }}>
-                    <GifBox/>
+                    <GifBox sx={{ fontSize: 32 }}/>
                 </Button>
-                <Button autoFocus onClick={handleClose}>
+                <Button sx={{ textTransform: 'capitalize', borderRadius: '18px' }} variant="outlined" color="secondary" autoFocus onClick={handleClose}>
                     Cancel
                 </Button>
-                <Button variant="contained" onClick={() => {
+                <Button  sx={{ textTransform: 'capitalize', borderRadius: '18px' }} variant="contained" color="warning" onClick={() => {
                     // find tags in content
                     const tagsInContent = formik.values.content.match(/\B(\#[a-zA-Z0-9]+\b)(?!;)/gm)
                         ?.map((match: string) => match.replace('#', ''))

@@ -14,9 +14,11 @@ export const Config = {
   },
   APP_TITLE: 'Swarmstr - Your knowledge hub for curious minds',
   APP_DESCRIPTION: 'Swarmstr is a simple Q&A web-client, powered by #nostr, where users tap into collective wisdom. Ask questions, find answers, and enjoy expert insights. ',
-  APP_IMAGE: `${process.env.BASE_URL}/images/swarmstr-cover-2.jpeg`,
+  APP_IMAGE: `${process.env.BASE_URL}/images/swarmstr_cover-image.png`,
   APP_KEYWORDS: 'nostr, asknostr, questions, answers, q&a, nostr clients, zaps, relays, nips, bitcoin, lightning',
   HASHTAG: 'asknostr',
+  SLOGAN: 'Use search to explore questions or pick a popular keyword',
+  LOGO_IMG: `${process.env.BASE_URL}/images/swarmstr.png`,
   SEARCH_RELAY: `wss://search.swarmstr.com`,
   SEARCH_RELAY_PUBLISH: `wss://search.swarmstr.com?api_key=${process.env.SEARCHNOS_API_KEY}`,
   SERVER_RELAYS: [

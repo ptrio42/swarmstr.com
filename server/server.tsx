@@ -29,17 +29,6 @@ const pool = new Pool({
 });
 
 const bodyParser = require('body-parser');
-
-const { Configuration, OpenAIApi } = require('openai');
-
-const aiConfig = new Configuration({
-    apiKey: process.env.OPENAI_API_KEY
-});
-const ai = new OpenAIApi(aiConfig);
-
-const ts = require('@tensorflow/tfjs');
-const use = require('@tensorflow-models/universal-sentence-encoder');
-
 const baseUrl = process.env.BASE_URL;
 const server = express();
 
@@ -59,10 +48,7 @@ const manifest = fs.readFileSync(
     path.join(__dirname, 'static/manifest.json'),
     'utf-8'
 );
-
 const assets = JSON.parse(manifest);
-// const eventsFile = fs.readFileSync(path.join(__dirname, '../public/events.json'), 'utf-8');
-// const events = JSON.parse(eventsFile);
 
 const events: NostrEvent[] = [];
 
@@ -78,7 +64,7 @@ const cacheAdapter = new RedisAdapter({ expirationTime: 60 * 60 * 24 });
 let ndk = new NDK({ explicitRelayUrls: SERVER_RELAYS, cacheAdapter });
 
 // ndk instance used to publish events to search relay
-const ndkSearchnos = new NDK({ explicitRelayUrls: [Config.SEARCH_RELAY_PUBLISH] });
+let ndkSearchnos = new NDK({ explicitRelayUrls: [Config.SEARCH_RELAY_PUBLISH] });
 
 let subscription: NDKSubscription;
 
@@ -87,6 +73,7 @@ const publish = async (nostrEvent: NostrEvent) => {
         const event = new NDKEvent(ndkSearchnos, nostrEvent);
         console.log(`signing & publishing new event`, {event});
         try {
+            await ndkSearchnos.connect();
             await event.publish();
             console.log(`event ${event.id} published!`);
         } catch (error) {
@@ -107,7 +94,7 @@ const onEvent = (event: NDKEvent) => {
         // if event contains referenced event tag, it serves at question hint
         // thus gotta fetch the referenced event
         if (!!referencedEventId) {
-            subscribe({ ids: [referencedEventId] }, { closeOnEose: true, groupable: true, groupableDelay: 2100 }, false);
+            subscribe({ ids: [referencedEventId] }, { closeOnEose: true, groupable: true, groupableDelay: 5000 }, false);
         } else {
             // event is a question
             // publish the event to search pseudo relay
@@ -132,31 +119,52 @@ const subscribe = (
     opts: NDKSubscriptionOptions = {closeOnEose: false, groupable: false},
     override: boolean = true
 ) => {
+    // when set to true:
+    //  1. stop all active subs
+    //  2. recreate ndk instances
     if (override) {
+        // stopping all active subs
+        ndk.pool.relays.forEach((relay: NDKRelay) => {
+            relay.activeSubscriptions
+                .forEach((_sub: NDKSubscription) => _sub.stop())
+        });
+        // a dummy 'hack' to deal with relay connectivity issues
+        // todo: find a way to constantly stay connected to as many relays as possible
         // @ts-ignore
         ndk = new NDK({ explicitRelayUrls: SERVER_RELAYS, cacheAdapter });
-        ndk.pool.relays.forEach((relay: NDKRelay) => {
-            relay.activeSubscriptions.forEach((_sub: NDKSubscription) => _sub.stop())
-        });
+        ndkSearchnos = new NDK({ explicitRelayUrls: [Config.SEARCH_RELAY_PUBLISH] });
+        Promise.all([
+            ndk.connect(5000),
+            ndkSearchnos.connect(5000)
+        ])
+            .then(() => {
+                console.log('connected to relays')
+            });
     }
+    // subscribe
     const sub = ndk.subscribe(filter, opts);
+
     console.log(`new sub created...`);
+
     sub.on('event', onEvent);
+
     sub.on('eose', () => {
         console.log(`eose received`);
     });
+
     sub.on('close', () => {
         console.log(`the sub was closed...`);
     });
-    if (override) {
-        subscription?.stop();
-        subscription = sub;
-        subscription.start()
-            .then(() => {
-                console.log(`sub started...`);
-            });
-        ndk.connect(5000);
-    }
+
+    // if (override) {
+    //     subscription?.stop();
+    //     subscription = sub;
+    //     subscription.start()
+    //         .then(() => {
+    //             console.log(`sub started...`);
+    //         });
+    //
+    // }
 };
 
 // connect to relays
@@ -171,17 +179,24 @@ setInterval(() => {
     console.log(`relays: ${ndk.pool.stats().connected}/${ndk.pool.stats().total}`);
 }, 30000);
 
+setInterval(() => {
+    // console.log(`subs: ${Array.from(ndk.pool.relays.values()).reduce((relay, { activeSubscriptions }) => relay.activeSubscriptions.size() + activeSubscriptions.size())}`);
+}, 30000);
+
 // try to reconnect on relay disconnect
-ndk.pool.on('relay:disconnect', () => {
-    delay += 500;
-    setTimeout(() => {
-        ndk.pool.connect(2100)
-            .then(() => {
-                console.log(`Reconnected...`);
-                delay = 0;
-            });
-    }, delay);
-});
+// ndk.pool.on('relay:disconnect', () => {
+//     delay += 500;
+//     setTimeout(() => {
+//         // @ts-ignore
+//         ndk = new NDK({ explicitRelayUrls: SERVER_RELAYS, cacheAdapter });
+//         ndkSearchnos = new NDK({ explicitRelayUrls: [Config.SEARCH_RELAY_PUBLISH] });
+//         ndk.connect(2100)
+//             .then(() => {
+//                 console.log(`Reconnected...`);
+//                 delay = 0;
+//             });
+//     }, delay);
+// });
 
 ndk.pool.on('notice', (notice) => {
     console.log(`got a notice`);
@@ -197,24 +212,23 @@ ndkSearchnos.connect(2100)
         console.log(`Connected to search relay`);
     });
 
-// initial sub
+// initially subscribe to hashtag events
 subscribe({
     kinds: [1, 30023],
     '#t': [Config.HASHTAG],
-    since: Date.now() / 1000 - 12 * 60 * 60,
+    since: Date.now() / 1000 - 24 * 60 * 60,
 }, { closeOnEose: false, groupable: false});
 
 // subscribe to events with a given HASHTAG
+// every x seconds to deals with relay connectivity issues
+// more info in subscribe method
 setInterval(() => {
-    console.log(`recreating subscription so it doesnt go idle...`);
-    // subscription?.stop();
+    console.log(`'re-subscribe' attempt...`);
     subscribe({
         kinds: [1, 30023],
         '#t': [Config.HASHTAG],
-        since: Date.now() / 1000 - 45 * 60,
-    }, { closeOnEose: false, groupable: false});
-    // ndk.pool = new NDKPool(DEFAULT_RELAYS, ndk);
-    // ndk.pool.connect(2100);
+        since: Date.now() / 1000 - 60 * 60,
+    }, { closeOnEose: false, groupable: false}, true);
 }, 5 * 60 * 1000);
 
 const isNameAvailable = async (name: string): Promise<boolean> => {
@@ -305,20 +319,20 @@ server.post('/api/register-name', async (req, res) => {
 server.get('/api/ai', async (req, res) => {
     // Load the model.
     // @ts-ignore
-    use.load().then(model => {
-        // Embed an array of sentences.
-        const sentences = [
-            'Hello.',
-            'How are you?'
-        ];
-        // @ts-ignore
-        model.embed(sentences).then(embeddings => {
-            console.log({embeddings})
-            // `embeddings` is a 2D tensor consisting of the 512-dimensional embeddings for each sentence.
-            // So in this example `embeddings` has the shape [2, 512].
-            embeddings.print(true /* verbose */);
-        });
-    });
+    // use.load().then(model => {
+    //     // Embed an array of sentences.
+    //     const sentences = [
+    //         'Hello.',
+    //         'How are you?'
+    //     ];
+    //     // @ts-ignore
+    //     model.embed(sentences).then(embeddings => {
+    //         console.log({embeddings})
+    //         // `embeddings` is a 2D tensor consisting of the 512-dimensional embeddings for each sentence.
+    //         // So in this example `embeddings` has the shape [2, 512].
+    //         embeddings.print(true /* verbose */);
+    //     });
+    // });
     // const id = '2f02d76f09666ae076e65beb60ff195eb7f44b51c73147a6a37748bfabd60a7c';
     // const content = 'can anyone explain in simple terms what nostr is and how to start using it?!';
     // try {

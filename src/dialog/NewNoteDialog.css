@@ -43,3 +43,8 @@
 .theme--dark .wmde-markdown.wmde-markdown-color pre {
     background: transparent;
 }
+
+.newNote-tab {
+    text-transform: capitalize;
+    font-size: 16px;
+}

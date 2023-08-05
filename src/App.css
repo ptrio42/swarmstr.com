@@ -27,6 +27,15 @@ code {
 }
 
 strong {
-  background: rgba(244, 153, 33, 0.3);
+  background: rgba(240, 230, 140, 0.21);
+  padding: 0.1em;
+}
+
+.Mui-selected {
+  color: #ed6c02 !important;
+}
+
+.MuiTabs-indicator {
+  background-color: #ed6c02 !important;
 }
 

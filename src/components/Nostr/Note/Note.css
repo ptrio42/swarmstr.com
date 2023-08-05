@@ -1,5 +1,12 @@
+.note {
+    border: 1px solid rgba(0,0,0,.05);
+    box-shadow: none !important;
+    position: relative;
+}
+
 .theme--dark .note {
     background: rgba(255,255,255,.1);
+    border: none;
 }
 
 .theme--dark .note div div span, .theme--dark .note div div p button, .theme--dark .note div div p a, .theme--dark .note div div {
@@ -35,4 +42,17 @@ pre {
 
 .theme--dark .reposts-count span {
     color: #000 !important;
+}
+
+.MuiDivider-root {
+    border-color: rgba(0,0,0,.05);
+}
+
+.theme--dark .MuiDivider-root {
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.video-player {
+    width: auto !important;
+    height: auto !important;
 }

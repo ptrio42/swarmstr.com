@@ -176,7 +176,7 @@ export const Metadata = ({ pubkey, handleCopyNpub, supposedName, variant = 'full
     };
 
     const getProfileDisplayedName = () => {
-        return metadata ? (metadata.nip05 || metadata.name || metadata.displayName) : (npub && npub.slice(5, 13) + ':' + npub.slice(npub.length - 8));
+        return metadata ? (metadata.name || metadata.displayName || metadata.nip05) : (npub && npub.slice(5, 13) + ':' + npub.slice(npub.length - 8));
     };
 
     const avatar = useMemo(() => {
@@ -196,7 +196,7 @@ export const Metadata = ({ pubkey, handleCopyNpub, supposedName, variant = 'full
     return (
         <React.Fragment>
             {
-                pubkey && <Typography sx={{ display: 'inline-flex', alignItems: 'center' }} component="div">
+                pubkey && <Typography sx={{ display: 'inline-flex', alignItems: 'center', ...(variant === 'link' && { transform: 'translateY(4px)', fontWeight: '400!important' }) }} component="div">
                     <ListItemAvatar sx={{minWidth: '0', marginRight: '2px'}}>
                         { avatar }
                     </ListItemAvatar>

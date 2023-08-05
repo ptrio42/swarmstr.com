@@ -73,6 +73,11 @@ export const REACTIONS = [
         type: ReactionType.UP
     },
     {
+      type: ReactionType.DOWN,
+      content: '🤷',
+      name: 'shrug'
+    },
+    {
         name: 'triangular_flag_on_post',
         content: '🚩',
         type: ReactionType.DOWN
@@ -81,6 +86,11 @@ export const REACTIONS = [
         type: ReactionType.UP,
         content: '🧄',
         name: 'garlic'
+    },
+    {
+        type: ReactionType.UP,
+        content: '🧠',
+        name: 'brain'
     }
 ];
 
@@ -168,6 +178,7 @@ export const Reactions = ({ reactions = [], handleReaction, type, placeholder, r
                         }}>
                             <MenuList id="reactions-menu" autoFocusItem>
                                 <MenuItem
+                                    sx={{ width: '210px', display: 'flex', flexWrap: 'wrap' }}
                                     onClick={() => {}}
                                 >
                                     { REACTIONS

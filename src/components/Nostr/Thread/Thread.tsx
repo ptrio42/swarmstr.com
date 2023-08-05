@@ -76,7 +76,7 @@ export const NoteThread = ({ nevent, data = {}, children, expanded }: ThreadProp
 
                 {
                     expanded && <ListItem key={'nostr-resources-nav-back'}>
-                        <Button variant="text" onClick={() =>
+                        <Button sx={{ textTransform: 'capitalize' }} color="secondary" variant="text" onClick={() =>
                             // @ts-ignore
                             navigate(-1, { replace: false })
                         }>

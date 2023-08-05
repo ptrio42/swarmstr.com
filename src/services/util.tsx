@@ -2,7 +2,13 @@ import { nip19 } from 'nostr-tools';
 import {keywordsFromString} from "../components/Nostr/Feed/Feed";
 
 export const processText = (text: string, tags?: string[][], searchString?: string, kind?: number): string => {
-    let replacedText = text
+    if (searchString && searchString !== '' && searchString.length > 2) {
+        const keywords = keywordsFromString(searchString);
+        const expression = `(${keywords.join('|')})`;
+        text = text
+            .replace(new RegExp(expression, 'gmi'), '<strong>$1</strong>')
+    }
+    text = text
         // links
             .replace(/(?<!\]\()(https?:\/\/(?![^" \n]*(?:jpg|jpeg|png|gif|svg|webp|mov|mp4))[^" \n\(\)]+)(?<!\))/gm, '<a class="test-0" href="$1" target="_blank">$1</a>')
             // .replace(/^(?!\[).*(http?:\/\/(?![^" \n]*(?:jpg|jpeg|png|gif|svg|webp|mov|mp4))[^" \n]+).*(?<!\))/gm, '<a href="$1" target="_blank">$1</a>')
@@ -54,14 +60,7 @@ export const processText = (text: string, tags?: string[][], searchString?: stri
         // .replace(new RegExp(`\n(&gt;|\\>)(.*)`, "g"), '<blockquote>$1</blockquote>')
     ;
 
-    if (searchString && searchString !== '' && searchString.length > 2) {
-        const keywords = keywordsFromString(searchString);
-        const expression = `(${keywords.join('|')})`;
-        replacedText = replacedText
-            .replace(new RegExp(expression, 'gmi'), '<strong>$1</strong>')
-    }
-
-    return replacedText
+    return text
     // @ts-ignore
         .replace(/#\[([0-9]+)\]/g, (placeholder) => {
             const match = placeholder.match(/(\d+)/);

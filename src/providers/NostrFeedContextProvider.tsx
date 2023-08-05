@@ -106,8 +106,6 @@ export const NostrFeedContextProvider = ({ children }: any) => {
             });
 
         ndk.current.pool.on('relay:disconnect', async (data) => {
-            // console.log('relay has disconnected', {data})
-            console.log({data});
             try {
                 const reconnected = await connectToRelays();
                 console.log(`reconnected`, {reconnected})

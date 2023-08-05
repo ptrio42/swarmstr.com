@@ -20,6 +20,10 @@ import {getRelayInformationDocument} from "../services/nostr";
 import DexieAdapter from "../caches/dexie";
 import {NOTE_TYPE, NoteEvent} from "../models/commons";
 import {containsTag, valueFromTag} from "../utils/utils";
+import TimeAgo from 'javascript-time-ago'
+import en from 'javascript-time-ago/locale/en.json'
+
+TimeAgo.addDefaultLocale(en);
 
 const cacheAdapter = new DexieAdapter();
 
@@ -30,6 +34,7 @@ export const NostrContextProvider = ({ children }: any) => {
     const [eventsFetched, addEventsFetched] = useState<boolean>(false);
 
     const [loginDialogOpen, setLoginDialogOpen] = useState<boolean>(false);
+    const [newNoteDialogOpen, setNewNoteDialogOpen] = useState<boolean>(false);
 
     const subscription = useRef<NDKSubscription>();
 
@@ -229,7 +234,7 @@ export const NostrContextProvider = ({ children }: any) => {
     }, []);
 
     return (
-        <NostrContext.Provider value={{ ndk: ndk.current, user, events, subscribe, signIn, post, loginDialogOpen, setLoginDialogOpen }}>
+        <NostrContext.Provider value={{ ndk: ndk.current, user, events, subscribe, signIn, post, loginDialogOpen, setLoginDialogOpen, newNoteDialogOpen, setNewNoteDialogOpen }}>
             {children}
         </NostrContext.Provider>
     );

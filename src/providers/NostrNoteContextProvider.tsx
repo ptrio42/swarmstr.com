@@ -16,36 +16,14 @@ interface NostrNoteContextProviderProps {
     thread?: boolean;
 }
 
-export const NostrNoteContextProvider = ({ children, thread }: NostrNoteContextProviderProps) => {
+export const NostrNoteContextProvider = ({ children }: NostrNoteContextProviderProps) => {
     const subs = useRef<NDKSubscription[]>([]);
 
     const { ndk } = useNostrContext();
 
-    const connectToRelays = useCallback(async () => {
-        try {
-            const connected = await ndk.connect(1500);
-            return connected;
-
-        } catch (error) {
-            console.error('cannot connect to relays')
-        }
-    }, []);
-
-    useEffect(() => {
-        // ndk.pool.on('relay:disconnect', async (data) => {
-        //     // console.log('relay has disconnected', {data})
-        //     setTimeout(async () => {
-        //         const reconnected = await connectToRelays();
-        //     }, 5000)
-        // });
-    }, []);
-
     const subscribe = useCallback((filter: NDKFilter, relaySet?: NDKRelaySet) => {
         const sub = ndk.subscribe(filter, {closeOnEose: false, groupable: true, groupableDelay: 3000}, relaySet);
         sub.on('event',  (event: NDKEvent) => {
-            // const exists = await db.events.get({ id: event.id });
-            // if (!exists) {
-                // console.log({event});
                 try {
                     const nostrEvent = {
                         ...event.rawEvent(),
@@ -175,14 +153,6 @@ export const NostrNoteContextProvider = ({ children, thread }: NostrNoteContextP
                     .catch((error) => {
                         console.error(`problem getting zap request`)
                     })
-                // event.sign(ndk.signer!)
-                //     .then(() => {
-                //         ndk.publish(event)
-                //             .then(() => {
-                //                 console.log('reaction added!');
-                //             })
-                //     })
-                //     .catch((e) => {})
             })
             .catch((error) => {
                 console.error('unable to assert signer...');

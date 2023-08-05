@@ -36,7 +36,7 @@ export const LoginDialog = ({ open, onClose }: LoginDialogProps) => {
 
     return (
         <Dialog open={open} onClose={handleClose}>
-            <DialogTitle sx={{ color: '#fff' }}>Secure login</DialogTitle>
+            <DialogTitle sx={{ color: '#fff' }}>Login</DialogTitle>
             <DialogContent>
                 <Typography className="loginInfo" component="div" variant="body1">
                     To be able to post new questions, answer to existing ones, sent zaps and add reactions, you need to login first.

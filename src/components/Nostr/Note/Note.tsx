@@ -45,9 +45,9 @@ import {RepostEvent, ZapEvent} from "../../../models/commons";
 
 const ReactMarkdown = lazy(() => import('react-markdown'));
 const MDEditor = lazy(() => import('@uiw/react-md-editor'));
-// const rehypeRaw = lazy(() => import('rehype-raw'));
 import rehypeRaw from 'rehype-raw'
 import Tooltip from "@mui/material/Tooltip";
+import ReactTimeAgo from 'react-time-ago'
 
 interface NoteProps {
     noteId?: string;
@@ -99,11 +99,6 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
 
     const [event, loaded] = useLiveQuery(async () => {
         const event = await db.notes.get({ id });
-        // console.log('useLiveQuery', {event});
-        // if (event) {
-        //     const {type, ...nostrEvent} = event;
-        //     return nostrEvent;
-        // }
         return [event, true];
     }, [id], []);
 
@@ -169,15 +164,10 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
         // 3. once event was received from a relay, stop subscription
         // run subs for reactions, zaps & comments in parallel
 
-        // console.log({noteVisible, subscribed, loaded})
-
         if (noteVisible && !subscribed && loaded) {
             // only subscribe if the event does not exist in the db
             if (!event) {
-                // console.log(`loaded: ${loaded} but event not in the db; subscribing...`)
                 subscribe(filter);
-            } else {
-                // console.log('event already in the db. not subscribing...');
             }
             subscribe(filter1);
             setSubscribed(true);
@@ -185,7 +175,6 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
         if (!noteVisible && subscribed) {
             // console.log(`will stop subs for note ${id} in 3 seconds...`);
             setTimeout(() => {
-                // console.log(`stopping subs for ${id}`)
                 subs && subs
                     .forEach((sub: NDKSubscription) => {
                         sub.stop();
@@ -220,7 +209,6 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
 
     const parseHtml = useCallback((text: string) => {
         // TODO: Clean up after react-html-parser
-        // return text;
         return parse(
             getProcessedText(text),
             {
@@ -259,7 +247,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                             if (!data.includes('https')) {
                                 data = `https://www.youtube.com/watch?v=${data}`
                             }
-                            return <ReactPlayer url={data} playing={true} volume={0} muted={true} loop={true} controls={true} />
+                            return <ReactPlayer className="video-player" url={data} playing={true} volume={0} muted={true} loop={true} controls={true} />
                         }
                     }
                 }
@@ -346,65 +334,25 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                     component="div"
                 >
                     <React.Fragment>
-                        <Typography component="div" sx={{ position: 'absolute', top: '1em', right: '2em', textAlign: 'end' }}>
-                            <React.Fragment>
-                                <IconButton
-                                    color="secondary"
-                                    aria-controls={menuOpen ? 'account-menu' : undefined}
-                                    aria-haspopup="true"
-                                    aria-expanded={menuOpen ? 'true' : undefined}
-                                    onClick={(_event) => {
-                                        _event.stopPropagation();
-                                        handleMenuOpen(_event);
-                                    }}
-                                >
-                                    <MoreHoriz sx={{ fontSize: 18 }} />
-                                </IconButton>
-                                <Menu
-                                    anchorEl={menuAnchorEl}
-                                    id="account-menu"
-                                    open={menuOpen}
-                                    onClose={handleMenuClose}
-                                    onClick={handleMenuClose}
-                                >
-                                    <MenuItem onClick={(_event) => {
-                                        navigator.clipboard.writeText(nevent);
-                                        setSnackBarMessage(nevent);
-                                        setSnackbarOpen(true);
-                                        _event.stopPropagation();
-                                    }}>
-                                        <CopyAll sx={{ fontSize: 18, marginRight: 1 }} /> Copy note ID
-                                    </MenuItem>
-                                    <MenuItem
-                                        onClick={(_) => {
-                                            setDialogOpen(true);
-                                        }}>
-                                        <QrCodeScanner sx={{ fontSize: 18, marginRight: 1 }} /> Show QR
-                                    </MenuItem>
-                                    <MenuItem onClick={(_) => {
-                                        const a = document.createElement('a');
-                                        a.href = 'nostr:' + nevent;
-                                        a.click();
-                                    }}>
-                                        <Launch sx={{ fontSize: 18, marginRight: 1 }}/> Open in client
-                                    </MenuItem>
-                                </Menu>
-                            </React.Fragment>
+                        <Typography component="div" sx={{ position: 'absolute', top: '0.25em', right: '16px', textAlign: 'end' }}>
+                            <Typography sx={{ fontSize: '14px', fontWeight: '300', paddingLeft: '8px', margin: '1em 0' }}>
+                                {
+                                    event && <Tooltip title={new Date(event.created_at*1000).toLocaleString()}>
+                                        <ReactTimeAgo date={event.created_at*1000} />
+                                    </Tooltip>
+                                }
+                            </Typography>
                         </Typography>
                     </React.Fragment>
                 </Typography>
                 <Typography sx={{ display: 'flex' }} component="div">
                     <MetadataMemo
-                        variant="simplified"
+                        variant="link"
                         pubkey={author || (event && event.pubkey)}
-                        handleCopyNpub={(npub: string) => {
-                            setSnackBarMessage(npub);
-                            setSnackbarOpen(true);
-                        }}
                     />
                 </Typography>
                 <Typography
-                    sx={{ textAlign: 'justify', marginTop: '1em!important', ...(!expanded && { cursor: 'pointer' }) }}
+                    sx={{ textAlign: 'left', fontSize: '16px', fontWeight: '300', marginTop: '1em!important', ...(!expanded && { cursor: 'pointer' }) }}
                     gutterBottom
                     variant="body2"
                     component="div"
@@ -430,14 +378,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
             {
                 event && <CardActions>
                     <Typography sx={{ width: '100%' }} variant="body2" component="div">
-                        <Divider sx={{ margin: '0.4em' }} component="div" />
-                        <Stack sx={{ justifyContent: 'flex-start', alignItems: 'center' }} direction="row" spacing={1}>
-                            <Typography sx={{ fontSize: '14px' }}>
-                                Posted on {event && new Date(event.created_at*1000).toDateString()}
-                            </Typography>
-                        </Stack>
-                        <Divider sx={{ margin: '0.4em' }} component="div" />
-                        <Stack sx={{ justifyContent: 'space-between', alignItems: 'center' }} direction="row" spacing={1}>
+                        <Stack sx={{ justifyContent: 'space-between', alignItems: 'center', marginTop: '1em' }} direction="row" spacing={1}>
                             <Typography component="div" sx={{ fontSize: 14, display: 'flex', alignItems: 'center' }}>
                                 <React.Fragment>
                                     <Tooltip title="Add new answer">
@@ -537,15 +478,54 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                                 {
                                     (!reactionEvents || !zapEvents) && <CircularProgress sx={{ width: '18px!important', height: '18px!important' }} />
                                 }
-                                <IconButton
-                                    color="secondary"
-                                    sx={{ marginLeft: '0.5em' }}
-                                    onClick={(event) => {
-                                        handleShareAnswer(event);
-                                    }}
-                                >
-                                    <IosShare sx={{ fontSize: 18 }} />
-                                </IconButton>
+                                <React.Fragment>
+                                    <IconButton
+                                        color="secondary"
+                                        aria-controls={menuOpen ? 'account-menu' : undefined}
+                                        aria-haspopup="true"
+                                        aria-expanded={menuOpen ? 'true' : undefined}
+                                        onClick={(_event) => {
+                                            _event.stopPropagation();
+                                            handleMenuOpen(_event);
+                                        }}
+                                    >
+                                        <MoreHoriz sx={{ fontSize: 18 }} />
+                                    </IconButton>
+                                    <Menu
+                                        anchorEl={menuAnchorEl}
+                                        id="account-menu"
+                                        open={menuOpen}
+                                        onClose={handleMenuClose}
+                                        onClick={handleMenuClose}
+                                    >
+                                        <MenuItem onClick={(_event) => {
+                                            navigator.clipboard.writeText(nevent);
+                                            setSnackBarMessage(nevent);
+                                            setSnackbarOpen(true);
+                                            _event.stopPropagation();
+                                        }}>
+                                            <CopyAll sx={{ fontSize: 18, marginRight: 1 }} /> Copy note ID
+                                        </MenuItem>
+                                        <MenuItem
+                                            onClick={(_) => {
+                                                setDialogOpen(true);
+                                            }}>
+                                            <QrCodeScanner sx={{ fontSize: 18, marginRight: 1 }} /> Show QR
+                                        </MenuItem>
+                                        <MenuItem onClick={(_) => {
+                                            const a = document.createElement('a');
+                                            a.href = 'nostr:' + nevent;
+                                            a.click();
+                                        }}>
+                                            <Launch sx={{ fontSize: 18, marginRight: 1 }}/> Open in client
+                                        </MenuItem>
+                                        <MenuItem onClick={(event) => {
+                                            handleShareAnswer(event);
+                                        }}>
+                                            Share link
+                                        </MenuItem>
+                                    </Menu>
+                                </React.Fragment>
                             </Typography>
                         </Stack>
                     </Typography>

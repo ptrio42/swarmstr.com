@@ -45,7 +45,7 @@ export const keywordsFromString = (s: string) => {
 };
 
 export const Feed = () => {
-    const { ndk, user, setLoginDialogOpen } = useNostrContext();
+    const { user, setLoginDialogOpen } = useNostrContext();
     const { events, subscribe, clearEvents, loading, query, setQuery } = useNostrFeedContext();
 
     const [searchParams, setSearchParams] = useSearchParams();
@@ -56,24 +56,6 @@ export const Feed = () => {
     const [subscribed, setSubscribed] = useState<boolean>(false);
 
     const [showPreloader, setShowPreloader] = useState<boolean>(true);
-
-    // const questions = useLiveQuery(async () => {
-    //     if (!searchString || searchString.length < 3) return [];
-    //     // console.log(`querying results...`);
-    //     setIsQuerying(true);
-    //
-    //     const questions: NostrEvent[] = await db.notes.where({ type: NOTE_TYPE.QUESTION })
-    //         .filter((event: NostrEvent) => {
-    //             const keywords = keywordsFromString(searchString);
-    //             const tags = event.tags
-    //                 .filter((tag: NDKTag) => tag[0] === 't').map((tag: NDKTag) => tag[1]);
-    //             const content = event.content.toLowerCase().replace(/([-_']+)/gm, ' ');
-    //             return keywords.some((keyword: string) => content.includes(keyword) || (tags?.indexOf(keyword) > -1))
-    //         })
-    //         .toArray();
-    //     setIsQuerying(false);
-    //     return questions;
-    // }, [searchString], false);
 
     const tags = useLiveQuery(async () => {
        const allEvents = await db.notes.toArray();
@@ -141,7 +123,6 @@ export const Feed = () => {
 
     const debouncedQuery = useMemo(() =>
         debounce((query: string) => {
-            // console.log('debounce:', {query});
             if (query && query.length > 2) {
                 subscribe({ search: query });
                 setSubscribed(true);
@@ -306,29 +287,6 @@ export const Feed = () => {
                             ))
                     }
                 </NostrResources>
-                {/*<LoadingAnimation isLoading={!questions}/>*/}
-                {
-                    <Fab
-                        sx={{ position: 'fixed', bottom: '21px', right: '21px' }}
-                        color="primary"
-                        aria-label="add new note"
-                        onClick={() => {
-                            if (user) {
-                                setNewNoteDialogOpen(true);
-                            } else {
-                                setLoginDialogOpen(true);
-                            }
-                        }}
-                    >
-                        <AddIcon/>
-                    </Fab>
-                }
-                <NewNoteDialog
-                    open={newNoteDialogOpen}
-                    onClose={() => setNewNoteDialogOpen(false)}
-                    label="What's your question?"
-                    explicitTags={[['t', Config.HASHTAG]]}
-                />
                 <Backdrop open={showPreloader} />
             </Box>
         </React.Fragment>
