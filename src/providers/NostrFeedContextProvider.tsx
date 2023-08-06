@@ -68,7 +68,7 @@ export const NostrFeedContextProvider = ({ children }: any) => {
 
     const onEvent = (event: NDKEvent) => {
         const nostrEvent = event.rawEvent();
-        console.log(`new event`, {event});
+        // console.log(`new event`, {event});
         // events.current.push(nostrEvent);
         setEvents((prevState: NostrEvent[]) => ([
             ...prevState,

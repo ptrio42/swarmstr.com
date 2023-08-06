@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {NostrResources} from "../../Resources/NostrResources/NostrResources";
 import {NoteThread} from "../Thread/Thread";
 import {Note} from "../Note/Note";
@@ -32,6 +32,8 @@ import Divider from "@mui/material/Divider";
 import {Config} from "../../../resources/Config";
 import {Helmet} from "react-helmet";
 import {debounce} from 'lodash';
+import InfiniteScroll from "react-infinite-scroll-component";
+import Button from "@mui/material/Button";
 
 const filter: NDKFilter = {
     kinds: [1, 30023],
@@ -57,6 +59,8 @@ export const Feed = () => {
 
     const [showPreloader, setShowPreloader] = useState<boolean>(true);
 
+    const [limit, setLimit] = useState<number>(10);
+
     const tags = useLiveQuery(async () => {
        const allEvents = await db.notes.toArray();
        const tags = sortBy(
@@ -73,6 +77,13 @@ export const Feed = () => {
            .slice(3, 24);
        return tags;
     });
+
+    const filteredEvents = useCallback(() => sortBy(events, 'created_at').reverse().slice(0, limit), [events, limit]);
+    // const [filteredEvents, setFilteredEvents] = useState<NostrEvent[]>();
+
+    const onScrollEnd = () => {
+        setLimit(limit + 3);
+    };
 
     const getMostActivePubkeysByNoteType = (noteType: NoteType, notes: NoteEvent[]) => {
         return sortBy(
@@ -170,7 +181,7 @@ export const Feed = () => {
             </Helmet>
             <Box ref={boxRef}>
                 <Typography sx={{ marginTop: '0.5em', padding: '0 10px', fontSize: '2rem!important' }} variant="h5" component="div">
-                    Use search to explore questions or pick a popular keyword
+                    Query questions with search, pick a keyword or <Button className="feedBrowse-button" variant="text" color="secondary" onClick={() => setSearchParams({ s: Config.HASHTAG })}>browse</Button> latest posts.
                     <Tooltip title="Find out more">
                         <IconButton className="aboutSwarmstr-button" onClick={() => {
                             const a = document.createElement('a');
@@ -187,6 +198,7 @@ export const Feed = () => {
                     search={<Search
                         query={searchString || ''}
                         resultsCount={events.length}
+                        // filteredResultsCount={filteredEvents().length}
                         onQueryChange={(event: any) => {
                             setSearchParams({ s: event.target.value});
                         }}
@@ -267,25 +279,40 @@ export const Feed = () => {
                             <Divider sx={{ margin: '1em 0;' }} />
                         </React.Fragment>
                     }
-                    {
-                        (sortBy(events, 'created_at').reverse() || [])
-                            .filter(({id}) => !!id)
-                            .map((nostrEvent: NostrEvent) => nip19.neventEncode({
-                                id: nostrEvent.id,
-                                author: nostrEvent.pubkey,
-                                relays: []
-                            }))
-                            .map((nevent: string) => (
-                                <NoteThread
-                                    key={`${nevent}-thread`}
-                                    nevent={nevent}
-                                >
-                                    <NostrNoteContextProvider>
-                                        <Note key={`${nevent}-content`} nevent={nevent}/>
-                                    </NostrNoteContextProvider>
-                                </NoteThread>
-                            ))
-                    }
+                    <InfiniteScroll
+                        dataLength={filteredEvents().length} //This is important field to render the next data
+                        next={onScrollEnd}
+                        hasMore={true}
+                        loader={<Box sx={{ display: 'none' }}>Loading...</Box>}
+                        endMessage={
+                            <p style={{ textAlign: 'center' }}>
+                                <b>Yay! You have seen it all</b>
+                            </p>
+                        }
+                    >
+                        {
+                            (filteredEvents() || [])
+                                .filter(({id}) => !!id)
+                                .map((nostrEvent: NostrEvent) => ({
+                                    event: nostrEvent,
+                                    nevent: nip19.neventEncode({
+                                        id: nostrEvent.id,
+                                        author: nostrEvent.pubkey,
+                                        relays: []
+                                    })
+                                }))
+                                .map(({event, nevent}) => (
+                                    <NoteThread
+                                        key={`${nevent}-thread`}
+                                        nevent={nevent}
+                                    >
+                                        <NostrNoteContextProvider>
+                                            <Note key={`${nevent}-content`} event={event} nevent={nevent}/>
+                                        </NostrNoteContextProvider>
+                                    </NoteThread>
+                                ))
+                        }
+                    </InfiniteScroll>
                 </NostrResources>
                 <Backdrop open={showPreloader} />
             </Box>

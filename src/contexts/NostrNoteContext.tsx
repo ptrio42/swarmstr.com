@@ -6,12 +6,14 @@ type NostrNoteContextType = {
     addReaction: (id: string, content: string) => void,
     zap: (nostrEvent: NostrEvent, amount: number, callback?: () => void) => void,
     subs?: NDKSubscription[],
-    boost: (nostrEvent: NostrEvent) => void
+    boost: (nostrEvent: NostrEvent) => void,
+    payInvoice: (paymentRequest: string) => void
 }
 
 export const NostrNoteContext = createContext<NostrNoteContextType>({
     subscribe: () => {},
     addReaction: () => {},
     zap: () => {},
-    boost: () => {}
+    boost: () => {},
+    payInvoice: () => {}
 });

@@ -40,11 +40,11 @@ header {
 }
 
 .newNote-button {
-  transition: 0.5s ease-in-out;
-  width: 64px;
+  transition: 0.5s ease-in-out !important;
+  width: 64px!important;
 }
 
 .newNote-button:hover {
-  width: 128px;
+  width: 128px!important;
   background-color: #f59649;
 }

@@ -48,6 +48,7 @@
     "react-helmet": "^6.1.0",
     "react-image-crop": "^10.0.8",
     "react-image-file-resizer": "^0.4.8",
+    "react-infinite-scroll-component": "^6.1.0",
     "react-markdown": "^8.0.7",
     "react-media": "^1.10.0",
     "react-player": "^2.12.0",

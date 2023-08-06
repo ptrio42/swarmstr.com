@@ -143,11 +143,17 @@ export const NostrNoteContextProvider = ({ children }: NostrNoteContextProviderP
                                         callback && callback();
                                     })
                                     .catch((error) => {
-                                        console.error(`unable to zap`)
+                                        console.error(`unable to zap`);
+                                        const a = document.createElement('a');
+                                        a.href = `lightning:${paymentRequest}`;
+                                        a.click();
                                     })
                             })
                             .catch((error) => {
                                 console.error(`unable to request ln provider`)
+                                const a = document.createElement('a');
+                                a.href = `lightning:${paymentRequest}`;
+                                a.click();
                             })
                     })
                     .catch((error) => {
@@ -188,8 +194,36 @@ export const NostrNoteContextProvider = ({ children }: NostrNoteContextProviderP
             });
     }, []);
 
+    const payInvoice = useCallback((paymentRequest: string) => {
+        ndk
+            .assertSigner()
+            .then(() => {
+                requestProvider()
+                    .then((webln: WebLNProvider) => {
+                        webln.sendPayment(paymentRequest)
+                            .then(() => {
+                                console.log('zapped');
+                                // callback && callback();
+                                const a = document.createElement('a');
+                                a.href = `lightning:${paymentRequest}`;
+                                a.click();
+                            })
+                            .catch((error) => {
+                                console.error(`unable to zap`)
+                            })
+                    })
+                    .catch((error) => {
+                        console.error(`unable to request ln provider`)
+                        const a = document.createElement('a');
+                        a.href = `lightning:${paymentRequest}`;
+                        a.click();
+                    })
+            })
+            .catch()
+    }, []);
+
     return (
-        <NostrNoteContext.Provider value={{ subscribe, addReaction, zap, subs: subs.current, boost }}>
+        <NostrNoteContext.Provider value={{ subscribe, addReaction, zap, subs: subs.current, boost, payInvoice }}>
             {children}
         </NostrNoteContext.Provider>
     );

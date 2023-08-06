@@ -2,6 +2,7 @@ import { nip19 } from 'nostr-tools';
 import {keywordsFromString} from "../components/Nostr/Feed/Feed";
 
 export const processText = (text: string, tags?: string[][], searchString?: string, kind?: number): string => {
+    text = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
     if (searchString && searchString !== '' && searchString.length > 2) {
         const keywords = keywordsFromString(searchString);
         const expression = `(${keywords.join('|')})`;
@@ -10,10 +11,15 @@ export const processText = (text: string, tags?: string[][], searchString?: stri
     }
     text = text
         // links
-            .replace(/(?<!\]\()(https?:\/\/(?![^" \n]*(?:jpg|jpeg|png|gif|svg|webp|mov|mp4))[^" \n\(\)]+)(?<!\))/gm, '<a class="test-0" href="$1" target="_blank">$1</a>')
+        .replace(/https:\/\/youtu\.be\/([a-zA-Z0-9_-]+)/g, '<button class="video-btn">$1</button>')
+        .replace(/(?<!\]\()(https?:\/\/(?![^" \n]*(?:jpg|jpeg|png|gif|svg|webp|mov|mp4))[^" \n\(\)]+)(?<!\))/gm, '<a class="test-0" href="$1" target="_blank">$1</a>')
             // .replace(/^(?!\[).*(http?:\/\/(?![^" \n]*(?:jpg|jpeg|png|gif|svg|webp|mov|mp4))[^" \n]+).*(?<!\))/gm, '<a href="$1" target="_blank">$1</a>')
             // images
-            .replace(/(?<!\]\()(https?:\/\/.*\.(?:png|jpg|jpeg|gif|svg|webp)).*(?<!\))/gm, '<img width="100%" src="$1" style="max-width:512px;" />')
+            .replace(/(?<!\]\()(https?:\/\/.*\.(?:png|jpg|jpeg|gif|svg|webp)).*(?<!\))/gm, (result) => {
+                const multilink = result.split(' ');
+                if (multilink.length > 1 ) return multilink.map((url: string) => `<img width="100%" src="${url}" style="max-width:512px;" />`).join('<br/>');
+                return `<img width="100%" src="${result}" style="max-width:512px;" />`
+            })
             // markdown
             // images
             .replace(/!(\[(?<text>[^(]+)]\((?<url>[^")]+))\)/gm, (result, _, text, url) => {
@@ -39,7 +45,6 @@ export const processText = (text: string, tags?: string[][], searchString?: stri
             // .replace(/`(?<inlineCode>[^`\n]*)`/gm, '<code>$1</code>')
             // .replace(/\`(?:[^\`||\s]+)\`/gm, '<code>$1</code>')
             .replace(/(?<=^\n)> (?<singleLineQuote>.+)\n(?!^>)/gm, '<blockquote>$1</blockquote>')
-        .replace(/https:\/\/youtu\.be\/([a-zA-Z0-9_-]+)/g, '<button class="video-btn">$1</button>')
         .replace(/(https?:\/\/.*\.(?:mov|mp4))/g, '<button class="video-btn">$1</button>')
         // .replace(/(\n+)/, '$1<br/>')
         .replace(/\n/g, '<br/>')
@@ -57,6 +62,7 @@ export const processText = (text: string, tags?: string[][], searchString?: stri
             const nevent = result.split(':')[1];
             return `<button class="thread-btn">${nevent}</button>`;
         })
+        .replace(/lnbc1([a-z0-9]+)/g, '<button class="lnbc-btn">lnbc1$1</button>')
         // .replace(new RegExp(`\n(&gt;|\\>)(.*)`, "g"), '<blockquote>$1</blockquote>')
     ;
 

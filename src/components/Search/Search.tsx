@@ -11,11 +11,12 @@ import CircularProgress from "@mui/material/CircularProgress";
 interface SearchProps {
     query: string;
     resultsCount?: number;
+    filteredResultsCount?: number;
     onQueryChange?: (event?: any) => void,
     isQuerying: boolean
 }
 
-export const Search = ({ query, resultsCount, onQueryChange = () => {}, isQuerying }: SearchProps) => {
+export const Search = ({ query, resultsCount, filteredResultsCount, onQueryChange = () => {}, isQuerying }: SearchProps) => {
     return (
         <List sx={{ width: '100%', paddingBottom: 0 }}>
             <ListItem key={'search-box'} className="guide-search">
@@ -40,7 +41,7 @@ export const Search = ({ query, resultsCount, onQueryChange = () => {}, isQueryi
             </ListItem>
             {
                 query && <ListItem key={'results-count'} sx={{ justifyContent: 'center' }}>
-                    { resultsCount || 0 } results
+                    { filteredResultsCount && `${filteredResultsCount}/` }{ resultsCount || 0 } results
                     {
                         query && isQuerying && <Box>
                             <CircularProgress sx={{ width: '21px!important', height: '21px!important', marginLeft: '3px' }} />

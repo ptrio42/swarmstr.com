@@ -1,0 +1,17 @@
+.lightningInvoice-container {
+    border: 1px solid rgba(0,0,0,.05);
+    padding: 1em;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.theme--dark .lightningInvoice-container {
+    border: none;
+    background: rgba(255,255,255,.05);
+}
+
+.lightningInvoice-button {
+    text-transform: capitalize;
+    border-radius: 18px;
+}

@@ -34,7 +34,7 @@ import ReactPlayer from 'react-player';
 import NDK, {NDKEvent, NDKFilter, NDKRelaySet, NDKSubscription, NDKTag, NostrEvent} from "@nostr-dev-kit/ndk";
 import {NostrNoteContextProvider, useNostrNoteContext} from "../../../providers/NostrNoteContextProvider";
 import { intersection } from 'lodash';
-import {containsTag, matchString, nFormatter, noteIsVisible} from "../../../utils/utils";
+import {containsTag, matchString, nFormatter, noteIsVisible, valueFromTag} from "../../../utils/utils";
 import {useNostrContext} from "../../../providers/NostrContextProvider";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
@@ -48,6 +48,8 @@ const MDEditor = lazy(() => import('@uiw/react-md-editor'));
 import rehypeRaw from 'rehype-raw'
 import Tooltip from "@mui/material/Tooltip";
 import ReactTimeAgo from 'react-time-ago'
+import lightBolt11Decoder from "light-bolt11-decoder";
+import {LightningInvoice} from "../../LightningInvoice/LightningInvoice";
 
 interface NoteProps {
     noteId?: string;
@@ -59,13 +61,11 @@ interface NoteProps {
     handleUpReaction?: (noteId: string, reaction?: string) => void;
     handleDownReaction?: (noteId: string, reaction?: string) => void;
     isRead?: boolean;
-    data?: {
-        event?: any;
-    };
     threadView?: boolean;
     nevent: string;
     context?: 'feed' | 'thread';
     expanded?: boolean;
+    event?: NostrEvent
 
     onSearchQuery?: (nevent: string, display: boolean) => void
 }
@@ -73,7 +73,7 @@ interface NoteProps {
 const MetadataMemo = React.memo(Metadata);
 
 export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handleThreadToggle, isCollapsable, handleUpReaction,
-     handleDownReaction, isThreadExpanded, isRead, data = {}, threadView = false, onSearchQuery, expanded }: NoteProps
+     handleDownReaction, isThreadExpanded, isRead, threadView = false, onSearchQuery, expanded, ...props }: NoteProps
 ) => {
 
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
@@ -99,8 +99,8 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
 
     const [event, loaded] = useLiveQuery(async () => {
         const event = await db.notes.get({ id });
-        return [event, true];
-    }, [id], []);
+        return [event || props?.event, true];
+    }, [id], [props?.event, false]);
 
     const zapEvents = useLiveQuery(async () => {
         const zapEvents = await db.zaps
@@ -120,7 +120,8 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
         const commentEvents = await db.notes
             .where({ referencedEventId: id })
             .toArray();
-        return commentEvents;
+        return commentEvents
+            .filter(({ content }) => !content.toLowerCase().includes('airdrop is live') && !content.toLowerCase().includes('claim your free $'));
     }, [id]);
 
     const repostEvents = useLiveQuery(async () => {
@@ -182,7 +183,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                 setSubscribed(false);
             }, 3000);
         }
-    }, [noteVisible, subscribed, loaded]);
+    }, [noteVisible, subscribed, loaded, event]);
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         setMenuAnchorEl(event.currentTarget);
@@ -248,6 +249,12 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                                 data = `https://www.youtube.com/watch?v=${data}`
                             }
                             return <ReactPlayer className="video-player" url={data} playing={true} volume={0} muted={true} loop={true} controls={true} />
+                        }
+                        if (name === 'button' && attribs.class === 'lnbc-btn') {
+                            const data = children.length > 0 && children[0].data;
+                            if (data) {
+                                return <LightningInvoice lnbc={data}/>
+                            }
                         }
                     }
                 }
@@ -364,11 +371,11 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                 >
                     {
                         // @ts-ignore
-                        event && parseHtml(event.content)
+                        parsedContent
                     }
                 </Typography>
                 {
-                    !event && <React.Fragment>
+                    (!event || !parsedContent) && <React.Fragment>
                         <Skeleton sx={{ width: '100%' }} animation="wave" />
                         <Skeleton sx={{ width: '100%' }} animation="wave" />
                         <Skeleton sx={{ width: '100%' }} animation="wave" />

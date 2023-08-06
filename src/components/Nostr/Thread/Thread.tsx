@@ -41,7 +41,7 @@ export const NoteThread = ({ nevent, data = {}, children, expanded }: ThreadProp
        const events = await db.notes
            .where({ referencedEventId: id })
            // filter spam notes
-           .filter(({ content }) => !content.toLowerCase().includes('airdrop is live'))
+           .filter(({ content }) => !content.toLowerCase().includes('airdrop is live') && !content.toLowerCase().includes('claim your free $'))
            .toArray();
        return events;
     }, [id]);
@@ -76,7 +76,7 @@ export const NoteThread = ({ nevent, data = {}, children, expanded }: ThreadProp
 
                 {
                     expanded && <ListItem key={'nostr-resources-nav-back'}>
-                        <Button sx={{ textTransform: 'capitalize' }} color="secondary" variant="text" onClick={() =>
+                        <Button sx={{ textTransform: 'capitalize', fontSize: '16px', borderRadius: '18px' }} color="secondary" variant="outlined" onClick={() =>
                             // @ts-ignore
                             navigate(-1, { replace: false })
                         }>

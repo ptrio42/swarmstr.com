@@ -56,3 +56,9 @@ pre {
     width: auto !important;
     height: auto !important;
 }
+
+@media only screen and (min-width: 660px) {
+    .video-player {
+        height: 360px !important;
+    }
+}
