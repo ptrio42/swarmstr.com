@@ -21,8 +21,8 @@
 }
 
 .feedBrowse-button {
-    text-transform: lowercase;
-    font-size: 32px;
+    text-transform: lowercase !important;
+    font-size: 32px !important;
     padding: 0 !important;
     margin: 0;
     transform: translateY(-2px);

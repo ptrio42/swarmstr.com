@@ -11,7 +11,8 @@ type NostrContextType = {
     loginDialogOpen: boolean,
     setLoginDialogOpen: (open: boolean) => void,
     newNoteDialogOpen: boolean,
-    setNewNoteDialogOpen: (open: boolean) => void
+    setNewNoteDialogOpen: (open: boolean) => void,
+    setNdk: (relayUrls: string[]) => void
 }
 
 export const NostrContext = createContext<NostrContextType>({
@@ -22,5 +23,6 @@ export const NostrContext = createContext<NostrContextType>({
     loginDialogOpen: false,
     setLoginDialogOpen: () => {},
     newNoteDialogOpen: false,
-    setNewNoteDialogOpen: () => {}
+    setNewNoteDialogOpen: () => {},
+    setNdk: () => {}
 });

@@ -17,7 +17,7 @@ export const NostrNoteThreadContextProvider = ({children}: any) => {
         eventsRef.current = events;
         _setEvents(eventsRef.current);
     };
-    const { ndk } = useNostrContext();
+    const { ndk, setNdk } = useNostrContext();
     const { nevent } = useParams();
 
     const [showPreloader, setShowPreloader] = useState<boolean>(true);
@@ -46,6 +46,7 @@ export const NostrNoteThreadContextProvider = ({children}: any) => {
 
     useEffect(() => {
         setShowPreloader(false);
+        setNdk(CLIENT_RELAYS);
         ndk.connect()
             .then(() => {
                 console.log(`connected to relays`);

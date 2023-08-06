@@ -29,6 +29,10 @@ const cacheAdapter = new DexieAdapter();
 
 export const NostrContextProvider = ({ children }: any) => {
     const ndk = useRef<NDK>(new NDK({ explicitRelayUrls: [...CLIENT_RELAYS, 'wss://blastr.f7z.xyz'], cacheAdapter }));
+
+    const setNdk = useCallback((relayUrls: string[]) => {
+        ndk.current = new NDK({ explicitRelayUrls: [...relayUrls, 'wss://blastr.f7z.xyz'], cacheAdapter });
+    }, []);
     
     const [user, setUser] = useState<NDKUser>();
     const [eventsFetched, addEventsFetched] = useState<boolean>(false);
@@ -234,7 +238,7 @@ export const NostrContextProvider = ({ children }: any) => {
     }, []);
 
     return (
-        <NostrContext.Provider value={{ ndk: ndk.current, user, events, subscribe, signIn, post, loginDialogOpen, setLoginDialogOpen, newNoteDialogOpen, setNewNoteDialogOpen }}>
+        <NostrContext.Provider value={{ ndk: ndk.current, user, events, subscribe, signIn, post, loginDialogOpen, setLoginDialogOpen, newNoteDialogOpen, setNewNoteDialogOpen, setNdk }}>
             {children}
         </NostrContext.Provider>
     );
