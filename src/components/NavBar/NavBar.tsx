@@ -34,6 +34,7 @@ import {LoginDialog} from "../../dialog/LoginDialog";
 import AddIcon from '@mui/icons-material/Add';
 import {Config} from "../../resources/Config";
 import {NewNoteDialog} from "../../dialog/NewNoteDialog";
+import {NewLabelDialog} from "../../dialog/NewLabelDialog";
 
 
 export const NavBar = () => {

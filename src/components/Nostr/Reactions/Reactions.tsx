@@ -91,6 +91,16 @@ export const REACTIONS = [
         type: ReactionType.UP,
         content: '🧠',
         name: 'brain'
+    },
+    {
+        type: ReactionType.UP,
+        content: '#️⃣',
+        name: 'hash'
+    },
+    {
+        type: ReactionType.UP,
+        content: '👀',
+        name: 'eyes'
     }
 ];
 
@@ -154,7 +164,7 @@ export const Reactions = ({ reactions = [], handleReaction, type, placeholder, r
             anchorEl={reactionsRef.current}
             role={undefined}
             transition
-            placement="bottom"
+            placement="top"
             disablePortal
         >
             {({ TransitionProps }) => (

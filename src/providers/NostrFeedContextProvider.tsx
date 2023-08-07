@@ -63,18 +63,22 @@ export const NostrFeedContextProvider = ({ children }: any) => {
 
     useEffect(() => {
         setLoading(true);
-        console.log(`events change ${events?.length}`)
+        // console.log(`events change ${events?.length}`)
     }, [events]);
 
     const onEvent = (event: NDKEvent) => {
         const nostrEvent = event.rawEvent();
-        // console.log(`new event`, {event});
-        // events.current.push(nostrEvent);
-        setEvents((prevState: NostrEvent[]) => ([
-            ...prevState,
-            nostrEvent
-        ]));
-        // console.log({events})
+        if (!nostrEvent.content.includes('nsfw') &&
+            !nostrEvent.content.includes('Just deployed https://swarmstr.com build')) {
+            db.notes.put({
+                ...nostrEvent,
+                type: NOTE_TYPE.QUESTION
+            });
+            setEvents((prevState: NostrEvent[]) => ([
+                ...prevState,
+                nostrEvent
+            ]));
+        }
     };
 
     const clearEvents = () => {
@@ -89,7 +93,12 @@ export const NostrFeedContextProvider = ({ children }: any) => {
 
     const connectToRelays = useCallback(async () => {
         try {
-            const connected = await ndk.current.connect(1500);
+            ndk.current.pool.relays
+                .forEach((relay: NDKRelay) => relay
+                    .activeSubscriptions
+                    .forEach((subscription: NDKSubscription) => subscription.stop()));
+
+            const connected = await ndk.current.connect(5000);
             return connected;
 
         } catch (error) {

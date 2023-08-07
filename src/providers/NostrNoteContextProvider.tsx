@@ -1,5 +1,13 @@
 import React, {useCallback, useContext, useEffect, useRef, useState} from "react";
-import {NDKEvent, NDKFilter, NDKRelaySet, NDKSubscription, NDKTag, NostrEvent} from "@nostr-dev-kit/ndk";
+import {
+    NDKEvent,
+    NDKFilter,
+    NDKRelaySet,
+    NDKSubscription,
+    NDKSubscriptionOptions,
+    NDKTag,
+    NostrEvent
+} from "@nostr-dev-kit/ndk";
 import {NostrNoteContext} from "../contexts/NostrNoteContext";
 import {useNostrFeedContext} from "./NostrFeedContextProvider";
 import {useNostrNoteThreadContext} from "./NostrNoteThreadContextProvider";
@@ -21,8 +29,8 @@ export const NostrNoteContextProvider = ({ children }: NostrNoteContextProviderP
 
     const { ndk } = useNostrContext();
 
-    const subscribe = useCallback((filter: NDKFilter, relaySet?: NDKRelaySet) => {
-        const sub = ndk.subscribe(filter, {closeOnEose: false, groupable: true, groupableDelay: 3000}, relaySet);
+    const subscribe = useCallback((filter: NDKFilter, opts?: NDKSubscriptionOptions) => {
+        const sub = ndk.subscribe(filter, opts || {closeOnEose: false, groupable: true, groupableDelay: 3000, subId: `${Date.now()}-${JSON.stringify(filter)}`});
         sub.on('event',  (event: NDKEvent) => {
                 try {
                     const nostrEvent = {
@@ -93,11 +101,14 @@ export const NostrNoteContextProvider = ({ children }: NostrNoteContextProviderP
                     //     db.users.put(nostrEvent);
                     // }
                 } catch (error) {
-
                 }
             // }
 
         });
+        sub.start()
+            .then(() => {
+                // console.log(`${sub.subId} started...`);
+            });
         subs.current.push(sub);
     }, []);
 

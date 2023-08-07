@@ -44,13 +44,15 @@ export const Config = {
   ],
   CLIENT_RELAYS: [
     'wss://nos.lol',
-    'wss://relay.f7z.io',
-    'wss://relay.damus.io',
-    'wss://nostr.mom',
     'wss://relay.nostr.band',
+    'wss://q.swarmstr.com',
+    'wss://relay.damus.io',
+    'wss://relay.f7z.io',
+    'wss://nostr.mom',
+
     'wss://offchain.pub/',
     'wss://nostr.wine',
-    'wss://nostr.bitcoiner.social'
+    'wss://nostr.bitcoiner.social',
   ]
 };
 

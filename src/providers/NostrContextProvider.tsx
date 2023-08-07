@@ -31,6 +31,7 @@ export const NostrContextProvider = ({ children }: any) => {
     const ndk = useRef<NDK>(new NDK({ explicitRelayUrls: [...CLIENT_RELAYS, 'wss://blastr.f7z.xyz'], cacheAdapter }));
 
     const setNdk = useCallback((relayUrls: string[]) => {
+        console.log(`resetting ndk instance...`);
         ndk.current = new NDK({ explicitRelayUrls: [...relayUrls, 'wss://blastr.f7z.xyz'], cacheAdapter });
     }, []);
     
@@ -39,6 +40,7 @@ export const NostrContextProvider = ({ children }: any) => {
 
     const [loginDialogOpen, setLoginDialogOpen] = useState<boolean>(false);
     const [newNoteDialogOpen, setNewNoteDialogOpen] = useState<boolean>(false);
+    const [newLabelDialogOpen, setNewLabelDialogOpen] = useState<boolean>(false);
 
     const subscription = useRef<NDKSubscription>();
 
@@ -183,6 +185,101 @@ export const NostrContextProvider = ({ children }: any) => {
         }
     }, []);
 
+    const label = useCallback((reaction: string, nostrEvent?: NostrEvent, pubkey?: string, content?: string, tag?: string) => {
+        try {
+            const event = new NDKEvent(ndk.current);
+            event.kind = 1985;
+            event.tags = [];
+            event.content = content || reaction;
+            event.pubkey = pubkey || '';
+
+            switch (reaction) {
+                // DUPLICATE
+                // label question as a duplicate and reference the previous question
+                case 'expressionless':
+                case 'unamused':
+                case 'garlic': {
+                    const review = {
+                        quality: 0.5
+                    };
+                    event.tags.push(['L', '#e']);
+                    event.tags.push(['l', 'question/review', '#e', JSON.stringify(review)]);
+                    const id = nostrEvent?.id;
+                    if (id) event.tags.push(['e', id]);
+                }
+                break;
+                // WORTH CHECKING
+                case 'eyes': {
+                    const review = {
+                        quality: 1
+                    };
+                    event.tags.push(['L', '#e']);
+                    event.tags.push(['l', 'question/review', '#e', JSON.stringify(review)]);
+                    const id = nostrEvent?.id;
+                    if (id) event.tags.push(['e', id]);
+                }
+                break;
+                // MISSING TAG
+                // suggest category eg. relays, clients etc.
+                case 'hash': {
+                    if (tag) {
+                        event.tags.push(['L', '#t']);
+                        event.tags.push((['l', tag, '#t']))
+                    }
+                    const id = nostrEvent?.id;
+                    if (id) event.tags.push(['e', id]);
+                }
+                break;
+                // HELPFUL ANSWER
+                // mark answer as helpful
+                case 'people_hugging':
+                case 'shaka': {
+                    const id = nostrEvent?.id;
+                    const review = {
+                        quality: 1
+                    };
+                    if (id) {
+                        event.tags.push(['L', '#e']);
+                        // event.tags.push(['l', id, '#e']);
+                        event.tags.push(['l', 'answer/review', '#e', JSON.stringify(review)])
+                        event.tags.push(['e', id]);
+                    }
+                }
+                break;
+                // SUGGEST EXPERT
+                case 'brain': {
+                    const id = nostrEvent?.id;
+                    if (id) {
+                        event.tags.push(['L', '#e']);
+                        if (pubkey) {
+                            event.tags.push(['l', id, '#e']);
+                            event.tags.push(['p', pubkey, ''])
+                        }
+                    }
+                }
+                break;
+                // SPAM
+                // mark entry as spam
+                case 'triangular_flag_on_post': {
+                    const id = nostrEvent?.id;
+                    const review = {
+                        quality: 0
+                    };
+                    if (id) {
+                        event.tags.push(['L', '#e']);
+                        event.tags.push(['l', 'question/review', '#e', JSON.stringify(review)]);
+                        event.tags.push(['e', id]);
+                    }
+                }
+            }
+            console.log({event});
+
+
+        } catch (error) {
+            console.error({error});
+        }
+    }, []);
+
     const fetchRelaysInformation = async () => {
         // return await Promise.all(DEFAULT_RELAYS.map(async (url): Promise<any> => {
         //     const relayInformationDocument = await getRelayInformationDocument(url.replace(/wss/, 'https'));
@@ -209,9 +306,12 @@ export const NostrContextProvider = ({ children }: any) => {
     }, [events]);
 
     useEffect(() => {
-        ndk.current.connect(2100)
+        ndk.current.connect(5000)
             .then(() => {
                 console.log(`Connected to relays...`);
+            })
+            .catch(error => {
+                console.error('unable to connect', {error})
             });
 
         // subscribe({
@@ -238,7 +338,7 @@ export const NostrContextProvider = ({ children }: any) => {
     }, []);
 
     return (
-        <NostrContext.Provider value={{ ndk: ndk.current, user, events, subscribe, signIn, post, loginDialogOpen, setLoginDialogOpen, newNoteDialogOpen, setNewNoteDialogOpen, setNdk }}>
+        <NostrContext.Provider value={{ ndk: ndk.current, user, events, subscribe, signIn, post, loginDialogOpen, setLoginDialogOpen, newNoteDialogOpen, setNewNoteDialogOpen, setNdk, label, newLabelDialogOpen, setNewLabelDialogOpen }}>
             {children}
         </NostrContext.Provider>
     );

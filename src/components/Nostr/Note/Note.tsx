@@ -50,6 +50,7 @@ import Tooltip from "@mui/material/Tooltip";
 import ReactTimeAgo from 'react-time-ago'
 import lightBolt11Decoder from "light-bolt11-decoder";
 import {LightningInvoice} from "../../LightningInvoice/LightningInvoice";
+import {NewLabelDialog} from "../../../dialog/NewLabelDialog";
 
 interface NoteProps {
     noteId?: string;
@@ -135,7 +136,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
     const noteRef = useRef(null);
     const noteVisible = noteIsVisible(noteRef);
 
-    const { user, setLoginDialogOpen } = useNostrContext();
+    const { user, setLoginDialogOpen, newLabelDialogOpen, setNewLabelDialogOpen } = useNostrContext();
 
     const [newReplyDialogOpen, setNewReplyDialogOpen] = useState<boolean>(false);
     const [zapDialogOpen, setZapDialogOpen] = useState<boolean>(false);
@@ -158,6 +159,13 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
     }, [event]);
 
     useEffect(() => {
+        if (loaded && !event) {
+            console.log(`event ${id} was not found in db`);
+            subscribe(filter, { closeOnEose: true, groupableDelay: 3000 });
+        }
+    }, [loaded]);
+
+    useEffect(() => {
 
         // note was displayed on screen
         // 1. wait for note event from cache
@@ -174,7 +182,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
             setSubscribed(true);
         }
         if (!noteVisible && subscribed) {
-            // console.log(`will stop subs for note ${id} in 3 seconds...`);
+            console.log(`will stop subs for note ${id} in 3 seconds...`);
             setTimeout(() => {
                 subs && subs
                     .forEach((sub: NDKSubscription) => {
@@ -359,7 +367,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                     />
                 </Typography>
                 <Typography
-                    sx={{ textAlign: 'left', fontSize: '16px', fontWeight: '300', marginTop: '1em!important', ...(!expanded && { cursor: 'pointer' }) }}
+                    sx={{ textAlign: 'left', fontSize: '16px', fontWeight: '300', marginTop: '1em!important', wordBreak: 'break-word', ...(!expanded && { cursor: 'pointer' }) }}
                     gutterBottom
                     variant="body2"
                     component="div"
@@ -417,7 +425,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                                 }
                                 <Tooltip title={`Zaps from ${(zapEvents || []).length} user(s)`}>
                                     <Button
-                                        sx={{ ...(zapped() && { color: '#fbf722' }) }}
+                                        sx={{ ...(zapped() && { color: '#ffdf00' }) }}
                                         color="secondary"
                                         onClick={() => {
                                             console.log('zap', {event});
@@ -466,6 +474,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                                             handleReaction={(reaction: string) => {
                                                 if (user) {
                                                     addReaction(id, reaction);
+                                                    // setNewLabelDialogOpen(true);
                                                 } else {
                                                     setLoginDialogOpen(true);
                                                 }
@@ -476,6 +485,9 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                                         <Reactions reactions={getDownReactions()} type={ReactionType.DOWN} handleReaction={(reaction: string) => {
                                             if (user) {
                                                 addReaction(id, reaction);
+                                                // if (reaction === 'shaka') {
+                                                    setNewLabelDialogOpen(true);
+                                                // }
                                             } else {
                                                 setLoginDialogOpen(true);
                                             }
@@ -547,6 +559,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
         />
         <NewNoteDialog open={newReplyDialogOpen} onClose={() => setNewReplyDialogOpen(false)} noteId={id} replyTo={event && [event.pubkey]} label="Your reply..." />
         <ZapDialog open={zapDialogOpen} event={event} onClose={() => setZapDialogOpen(false)} npub={author && nip19.npubEncode(author)} />
-        {/*<QrCodeDialog str={event && new RegExp(/([0123456789abcdef]{64})/).test(event.id) && `nostr:${nip19.noteEncode(event.id)}` || ''} dialogOpen={dialogOpen} close={() => setDialogOpen(false)} />*/}
+        { event && <NewLabelDialog open={newLabelDialogOpen} onClose={() => { setNewLabelDialogOpen(false) }} reaction={'shaka'} event={event} /> }
+        <QrCodeDialog str={event && new RegExp(/([0123456789abcdef]{64})/).test(event!.id!) && `nostr:${nip19.noteEncode(event.id)}` || ''} dialogOpen={dialogOpen} close={() => setDialogOpen(false)} />
     </React.Fragment>);
 };

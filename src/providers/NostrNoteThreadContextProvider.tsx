@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useEffect, useRef, useState} from "react";
-import {NDKEvent, NDKFilter, NDKRelaySet, NostrEvent} from "@nostr-dev-kit/ndk";
+import {NDKEvent, NDKFilter, NDKRelay, NDKRelaySet, NDKSubscription, NostrEvent} from "@nostr-dev-kit/ndk";
 import {useNostrFeedContext} from "./NostrFeedContextProvider";
 import {NostrNoteThreadContext} from "../contexts/NostrNoteThreadContext";
 import NDK from "@nostr-dev-kit/ndk";
@@ -23,9 +23,6 @@ export const NostrNoteThreadContextProvider = ({children}: any) => {
     const [showPreloader, setShowPreloader] = useState<boolean>(true);
 
     const subscribe = useCallback((filter: NDKFilter, relaySet?: NDKRelaySet) => {
-        // if (relaySet) {
-        //     console.log(filter.ids, relaySet);
-        // }
         const sub = ndk.subscribe(filter, {closeOnEose: false, groupableDelay: 1000}, relaySet);
         sub.on('event', async (event: NDKEvent) => {
             // console.log({event});
@@ -46,21 +43,14 @@ export const NostrNoteThreadContextProvider = ({children}: any) => {
 
     useEffect(() => {
         setShowPreloader(false);
-        setNdk(CLIENT_RELAYS);
-        ndk.connect()
-            .then(() => {
-                console.log(`connected to relays`);
-            })
-            .catch((error) => {
-                console.error('unable to connect', {error});
-            });
-
-        ndk.pool.on('relay:disconnect', async (data) => {
-            // console.log('relay has disconnected', {data})
-        });
+        // setNdk(CLIENT_RELAYS);
 
         return () => {
-            // do something on unmount
+            console.log('stop all subs...');
+            ndk.pool.relays
+                .forEach((relay: NDKRelay) => relay
+                    .activeSubscriptions
+                    .forEach((subscription: NDKSubscription) => subscription.stop()));
         }
     }, []);
 

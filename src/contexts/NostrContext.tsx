@@ -1,4 +1,4 @@
-import NDK, {NDKFilter, NDKTag, NDKUser, NostrEvent} from '@nostr-dev-kit/ndk';
+import NDK, {NDKEvent, NDKFilter, NDKTag, NDKUser, NostrEvent} from '@nostr-dev-kit/ndk';
 import React, {createContext} from "react";
 
 type NostrContextType = {
@@ -12,7 +12,10 @@ type NostrContextType = {
     setLoginDialogOpen: (open: boolean) => void,
     newNoteDialogOpen: boolean,
     setNewNoteDialogOpen: (open: boolean) => void,
-    setNdk: (relayUrls: string[]) => void
+    setNdk: (relayUrls: string[]) => void,
+    label: (reaction: string, nostrEvent?: NostrEvent, pubkey?: string, content?: string, tag?: string) => void,
+    newLabelDialogOpen: boolean,
+    setNewLabelDialogOpen: (open: boolean) => void
 }
 
 export const NostrContext = createContext<NostrContextType>({
@@ -24,5 +27,8 @@ export const NostrContext = createContext<NostrContextType>({
     setLoginDialogOpen: () => {},
     newNoteDialogOpen: false,
     setNewNoteDialogOpen: () => {},
-    setNdk: () => {}
+    setNdk: () => {},
+    label: () => {},
+    newLabelDialogOpen: false,
+    setNewLabelDialogOpen: () => {}
 });

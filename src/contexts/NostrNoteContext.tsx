@@ -1,8 +1,8 @@
 import React, {createContext} from "react";
-import NDK, {NDKFilter, NDKRelaySet, NDKSubscription, NostrEvent} from "@nostr-dev-kit/ndk";
+import NDK, {NDKFilter, NDKRelaySet, NDKSubscription, NDKSubscriptionOptions, NostrEvent} from "@nostr-dev-kit/ndk";
 
 type NostrNoteContextType = {
-    subscribe: (filter: NDKFilter, relaySet?: NDKRelaySet) => void,
+    subscribe: (filter: NDKFilter, opts?: NDKSubscriptionOptions) => void,
     addReaction: (id: string, content: string) => void,
     zap: (nostrEvent: NostrEvent, amount: number, callback?: () => void) => void,
     subs?: NDKSubscription[],

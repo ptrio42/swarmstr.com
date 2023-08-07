@@ -6,7 +6,7 @@ import {Box} from "@mui/material";
 import {NostrNoteContextProvider} from "../../../providers/NostrNoteContextProvider";
 import {useNostrFeedContext} from "../../../providers/NostrFeedContextProvider";
 import {LoadingAnimation} from "../../LoadingAnimation/LoadingAnimation";
-import {NDKFilter, NDKTag, NostrEvent} from "@nostr-dev-kit/ndk";
+import {NDKFilter, NDKRelay, NDKSubscription, NDKTag, NostrEvent} from "@nostr-dev-kit/ndk";
 import {useNostrContext} from "../../../providers/NostrContextProvider";
 import {nip19} from "nostr-tools";
 import {useSearchParams} from "react-router-dom";
@@ -47,7 +47,7 @@ export const keywordsFromString = (s: string) => {
 };
 
 export const Feed = () => {
-    const { user, setLoginDialogOpen } = useNostrContext();
+    const { user, setLoginDialogOpen, ndk } = useNostrContext();
     const { events, subscribe, clearEvents, loading, query, setQuery } = useNostrFeedContext();
 
     const [searchParams, setSearchParams] = useSearchParams();
@@ -78,7 +78,9 @@ export const Feed = () => {
        return tags;
     });
 
-    const filteredEvents = useCallback(() => sortBy(events, 'created_at').reverse().slice(0, limit), [events, limit]);
+    const filteredEvents = useCallback(() =>
+        sortBy(events, 'created_at').reverse()
+            .slice(0, limit), [events, limit]);
     // const [filteredEvents, setFilteredEvents] = useState<NostrEvent[]>();
 
     const onScrollEnd = () => {
@@ -156,6 +158,13 @@ export const Feed = () => {
         setTimeout(() => {
             setShowPreloader(false);
         }, 2100);
+
+        return () => {
+            ndk.pool.relays
+                .forEach((relay: NDKRelay) => relay
+                    .activeSubscriptions
+                    .forEach((subscription: NDKSubscription) => subscription.stop()));
+        }
     },[]);
 
     return (

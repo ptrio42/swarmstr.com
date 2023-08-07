@@ -66,11 +66,13 @@ let ndk = new NDK({ explicitRelayUrls: SERVER_RELAYS, cacheAdapter });
 // ndk instance used to publish events to search relay
 let ndkSearchnos = new NDK({ explicitRelayUrls: [Config.SEARCH_RELAY_PUBLISH] });
 
+const ndkDev = new NDK({ explicitRelayUrls: ['wss://q.swarmstr.com'] });
+
 let subscription: NDKSubscription;
 
-const publish = async (nostrEvent: NostrEvent) => {
+const publish = async (ndk: NDK, nostrEvent: NostrEvent) => {
     try {
-        const event = new NDKEvent(ndkSearchnos, nostrEvent);
+        const event = new NDKEvent(ndk, nostrEvent);
         console.log(`signing & publishing new event`, {event});
         try {
             await ndkSearchnos.connect();
@@ -98,18 +100,26 @@ const onEvent = (event: NDKEvent) => {
         } else {
             // event is a question
             // publish the event to search pseudo relay
-            publish(nostrEvent)
+            publish(ndkSearchnos, nostrEvent)
                 .then(() => {
                     console.log(`event published to search relay (direct)!`);
+                });
+            publish(ndkDev, nostrEvent)
+                .then(() => {
+                    console.log(`event published to question relay (direct)!`);
                 });
         }
     } else {
         // event doesn't contain the asknostr tag
         // but it was hinted by a quote event
         // publish the event to search pseudo relay
-        publish(nostrEvent)
+        publish(ndkSearchnos, nostrEvent)
             .then(() => {
                 console.log(`event published to search relay (hinted)!`);
+            });
+        publish(ndkDev, nostrEvent)
+            .then(() => {
+                console.log(`event published to question relay (hinted)!`);
             });
     }
 };
@@ -128,6 +138,10 @@ const subscribe = (
             relay.activeSubscriptions
                 .forEach((_sub: NDKSubscription) => _sub.stop())
         });
+        ndkSearchnos.pool.relays
+            .forEach((relay: NDKRelay) => relay
+                .activeSubscriptions
+                .forEach((_sub: NDKSubscription) => _sub.stop()));
         // a dummy 'hack' to deal with relay connectivity issues
         // todo: find a way to constantly stay connected to as many relays as possible
         // @ts-ignore
@@ -218,6 +232,12 @@ subscribe({
     '#t': [Config.HASHTAG],
     since: Date.now() / 1000 - 24 * 60 * 60,
 }, { closeOnEose: false, groupable: false});
+
+// connect to search relay
+ndkDev.connect(2100)
+    .then(() => {
+        console.log(`Connected to search relay`);
+    });
 
 // subscribe to events with a given HASHTAG
 // every x seconds to deals with relay connectivity issues
@@ -375,6 +395,7 @@ server.get('/*', (req, res) => {
     const noteIdBech32 = pathArr && pathArr[pathArr.length - 1];
     try {
         const noteIdHex = nip19.decode(noteIdBech32);
+        console.log({noteIdHex})
         const noteId = noteIdHex && noteIdHex.data;
         if (noteId) {
             const note = events.find((e: any) => e.id === noteId);

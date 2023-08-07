@@ -1,5 +1,5 @@
 import {Note} from "../Note/Note";
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {ListItem} from "@mui/material";
 import List from "@mui/material/List";
 import {Link, useNavigate} from "react-router-dom";
@@ -14,6 +14,12 @@ import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
 import {containsTag} from "../../../utils/utils";
 import Typography from "@mui/material/Typography";
+import {NewLabelDialog} from "../../../dialog/NewLabelDialog";
+import {useNostrContext} from "../../../providers/NostrContextProvider";
+import {request} from "../../../services/request";
+import ButtonGroup from "@mui/material/ButtonGroup";
+import { orderBy, chunk } from 'lodash';
+import './Thread.css';
 
 interface ThreadProps {
     nevent?: string;
@@ -46,9 +52,39 @@ export const NoteThread = ({ nevent, data = {}, children, expanded }: ThreadProp
        return events;
     }, [id]);
 
+    const [stats, setStats] = useState<any>({});
+    const [sort, setSort] = useState<'score' | 'zap' | 'recent'>('score');
+
+    useEffect(() => {
+        if (events && events.length > 0) {
+            const ids = events!.map((e: NostrEvent) => e.id);
+            ids && chunk(ids, 10)
+                // @ts-ignore
+                .forEach((_ids: string[]) => {
+                    request({
+                        url: `https://api.nostr.band/v0/stats/event/batch?objects=${_ids.join(',')}`,
+                        method: 'GET'
+                    }).then((response) => {
+                        setStats({
+                            ...stats,
+                            ...response.data.stats
+                        });
+                        // console.log({stats: response.data})
+                    })
+                });
+        }
+    }, [events]);
+
     useEffect(() => {
         subscribe(filter);
     }, []);
+
+    const calculateScore = (id: string) => {
+        if (!stats) return 0;
+
+        const { zaps , reaction_count, repost_count, report_count } = stats[id] || { zaps: { count: 0 }, reaction_count: 0, repost_count: 0, report_count: 0 };
+        return ((zaps?.count || 0) + ((reaction_count || 0) * 0.5) + ((repost_count || 0) * 0.25)) - (report_count || 0);
+    };
 
     return (
         <React.Fragment>
@@ -89,15 +125,45 @@ export const NoteThread = ({ nevent, data = {}, children, expanded }: ThreadProp
                     {children}
                 </ListItem>
                 {
+                    expanded && <ListItem key={`${id}-replySort`} sx={{ justifyContent: 'flex-end' }}>
+                        <ButtonGroup sx={{ boxShadow: 'none' }} variant="contained" aria-label="reply sort">
+                            <Button
+                                color={'primary'}
+                                sx={{ textTransform: 'capitalize', padding: '7px', fontSize: '15px',
+                                    ...(sort !== 'score' && { backgroundColor: 'rgba(240, 230, 140, .5)', fontWeight: '300' } || { fontWeight: '400' }) }}
+                                onClick={() => setSort('score')}
+                            >Best answers
+                            </Button>
+                            <Button color={'primary'}
+                                    sx={{ textTransform: 'capitalize', padding: '7px', fontSize: '15px', ...(sort !== 'zap' && { backgroundColor: 'rgba(240, 230, 140, .5)', fontWeight: '300' } || { fontWeight: '400' }) }}  onClick={() => setSort('zap')}>Most zapped</Button>
+                            <Button color={'primary'} sx={{ textTransform: 'capitalize', padding: '7px', fontSize: '15px', ...(sort !== 'recent' && { backgroundColor: 'rgba(240, 230, 140, .5)', fontWeight: '300' } || { fontWeight: '400' }) }}  onClick={() => setSort('recent')}>Date added</Button>
+                        </ButtonGroup>
+                    </ListItem>
+                }
+                {
                     expanded && <List key={`${nevent}-answers`} sx={{ width: '90%', margin: 'auto' }}>
-                        { !events && <Typography component="div" variant="body1">Loading answers...</Typography> }
-                        { (events && events.length === 0) && <Typography component="div" variant="body1">No answers yet...</Typography> }
+                        { !events && <Typography className="thread-repliesPlaceholder" component="div" variant="body1">Loading answers...</Typography> }
+                        { (events && events.length === 0) && <Typography className="thread-repliesPlaceholder" component="div" variant="body1">No answers yet...</Typography> }
                         {
-                            (events || [])
-                                .map(({ id, ..._ }: NostrEvent) => nip19.neventEncode({ id }))
-                                .map((_nevent: string) => (
+                            (orderBy(events, ({id, created_at}) => {
+                                switch (sort) {
+                                    case 'score':
+
+                                        const score = calculateScore(id!);
+                                        return score;
+                                    case 'zap':
+                                        return stats && stats[id!] && stats[id!].zaps ? stats[id!].zaps.count : 0;
+                                    case 'recent':
+                                        return created_at;
+                                }
+                            }, (sort === 'score' || sort === 'zap') ? 'desc' : 'asc') || [])
+                                .map((event: NostrEvent) => ({
+                                    nevent: nip19.neventEncode({ id: event.id, author: event.pubkey }),
+                                    event
+                                    }))
+                                .map(({nevent, event}) => (
                                     <NostrNoteContextProvider thread={true}>
-                                        <Note key={`${_nevent}-content`} nevent={_nevent}/>
+                                        <Note key={`${nevent}-content`} nevent={nevent} event={event}/>
                                     </NostrNoteContextProvider>
                                 ))
                         }

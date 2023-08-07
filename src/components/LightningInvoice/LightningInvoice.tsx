@@ -15,9 +15,16 @@ export const LightningInvoice = ({lnbc}: LightningInvoiceProps) => {
     const { payInvoice } = useNostrNoteContext();
 
     const getAmount = useCallback(() => {
+        try {
+            const decoded = lightBolt11Decoder.decode(lnbc);
+            return decoded.sections
+                .find((section: any) => section.name === 'amount').value
+        } catch (e) {
+            console.error('unable to decode lnbc');
+            return 'n/a';
+        }
         // console.log({lnbc})
-        return lightBolt11Decoder.decode(lnbc).sections
-            .find((section: any) => section.name === 'amount').value
+        // return lightBolt11Decoder.decode(lnbc)
     }, [lnbc]);
 
     return (
