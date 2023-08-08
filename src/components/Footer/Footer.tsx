@@ -26,7 +26,7 @@ export const Footer = () => {
             justifyContent="center"
             alignContent="center" sx={{ color: '#C0C0C0' }}>
             <Item>
-                &copy; 2023 Swarmstr |&nbsp; <a className="link1" href="https://opensource.org/licenses/MIT" target="_blank">License</a>
+                &copy; 2023 Swarmstr |&nbsp; <a className="link1" href={`${process.env.BASE_URL}/nostr-address`} target="_blank">Get free nostr address</a>
             </Item>
             <Grid item>
                 <Item sx={{ display: 'inline-flex' }}>

@@ -28,11 +28,11 @@ TimeAgo.addDefaultLocale(en);
 const cacheAdapter = new DexieAdapter();
 
 export const NostrContextProvider = ({ children }: any) => {
-    const ndk = useRef<NDK>(new NDK({ explicitRelayUrls: [...CLIENT_RELAYS, 'wss://blastr.f7z.xyz'], cacheAdapter }));
+    const ndk = useRef<NDK>(new NDK({ explicitRelayUrls: [...CLIENT_RELAYS], cacheAdapter }));
 
     const setNdk = useCallback((relayUrls: string[]) => {
         console.log(`resetting ndk instance...`);
-        ndk.current = new NDK({ explicitRelayUrls: [...relayUrls, 'wss://blastr.f7z.xyz'], cacheAdapter });
+        // ndk.current = new NDK({ explicitRelayUrls: [...relayUrls, 'wss://blastr.f7z.xyz'], cacheAdapter });
     }, []);
     
     const [user, setUser] = useState<NDKUser>();
@@ -78,20 +78,6 @@ export const NostrContextProvider = ({ children }: any) => {
                     const profile = await signedInUser.fetchProfile();
                     console.log(`logged in as ${signedInUser.npub}`, {signedInUser});
                     console.log({profile});
-                    const event: NDKEvent|null = await ndk.current
-                        .fetchEvent({ kinds: [3], authors: [signedInUser.hexpubkey()] }, { skipCache: true });
-                    if (event) {
-                        const nostrEvent = await event.toNostrEvent();
-                        try {
-                            const relayUrls = Object.keys(JSON.parse(nostrEvent.content));
-                            // console.log({relayUrls});
-                            // ndk.current = new NDK({ explicitRelayUrls: relayUrls })
-                            // ndk.current.pool.relays =
-                            // await ndk.current.connect();
-                        } catch (error) {
-                            console.error(`unable to parse relay list`);
-                        }
-                    }
                     return signedInUser.hexpubkey();
                 }
             } catch (error) {
@@ -124,10 +110,10 @@ export const NostrContextProvider = ({ children }: any) => {
             if (!!referencedEventId) {
                 noteEvent.type = NOTE_TYPE.HINT;
                 // console.log(`got hint event from ${nostrEvent.pubkey}`);
-                db.notes.put(noteEvent)
-                    .then(() => {
-                        subscribe({ ids: [referencedEventId] }, { closeOnEose: true, groupable: true, groupableDelay: 5000 });
-                    });
+                // db.notes.put(noteEvent)
+                //     .then(() => {
+                //         subscribe({ ids: [referencedEventId] }, { closeOnEose: true, groupable: true, groupableDelay: 5000 });
+                //     });
             } else {
                 // event is a question
                 noteEvent.type = NOTE_TYPE.QUESTION;
@@ -152,11 +138,17 @@ export const NostrContextProvider = ({ children }: any) => {
 
     const subscribe = useCallback((
         filter: NDKFilter,
-        opts: NDKSubscriptionOptions = {closeOnEose: false, groupable: false}
+        opts: NDKSubscriptionOptions = {closeOnEose: false, groupable: false},
+        relayUrls: string[]
     ) => {
-        const sub = ndk.current.subscribe(filter, opts);
-        sub.on('event', onEvent);
-        subscription.current = sub;
+        const notesReadRelays = NDKRelaySet.fromRelayUrls(relayUrls, ndk.current);
+        const sub = new NDKSubscription(ndk.current, filter, opts);
+        // sub.on('event', onEvent);
+        notesReadRelays.subscribe(sub).start()
+            .then(() => {
+                console.log(`started subscription ${sub.subId} with filter: ${JSON.stringify(filter)} and relaySet: ${relayUrls.join(',')}`)
+            });
+        // subscription.current = sub;
     }, []);
 
     const post = useCallback(async (content: string, tags: NDKTag[], kind: number = 1) => {
@@ -289,23 +281,7 @@ export const NostrContextProvider = ({ children }: any) => {
     }
 
     useEffect(() => {
-        if (events && !eventsFetched) {
-            axios
-                .get('../api/events')
-                .then((response: { data: NostrEvent[] }) => {
-                    const eventsToAdd = difference(intersection(events, response.data), events);
-                    addEvents(eventsToAdd);
-                    addEventsFetched(true);
-                })
-                .catch((error) => {
-                    console.log('error fetching events...');
-                });
-        }
 
-
-    }, [events]);
-
-    useEffect(() => {
         ndk.current.connect(5000)
             .then(() => {
                 console.log(`Connected to relays...`);
@@ -313,16 +289,6 @@ export const NostrContextProvider = ({ children }: any) => {
             .catch(error => {
                 console.error('unable to connect', {error})
             });
-
-        // subscribe({
-        //     kinds: [1, 30023],
-        //     '#t': [Config.HASHTAG]
-        // });
-
-        // fetchRelaysInformation()
-        //     .then(() => {
-        //         console.log('information fetched')
-        //     });
 
         setTimeout(() => {
             signIn()
@@ -338,9 +304,14 @@ export const NostrContextProvider = ({ children }: any) => {
     }, []);
 
     return (
-        <NostrContext.Provider value={{ ndk: ndk.current, user, events, subscribe, signIn, post, loginDialogOpen, setLoginDialogOpen, newNoteDialogOpen, setNewNoteDialogOpen, setNdk, label, newLabelDialogOpen, setNewLabelDialogOpen }}>
-            {children}
-        </NostrContext.Provider>
+        <React.Fragment>
+            {
+                // @ts-ignore
+                <NostrContext.Provider value={{ ndk: ndk.current, user, events, subscribe, signIn, post, loginDialogOpen, setLoginDialogOpen, newNoteDialogOpen, setNewNoteDialogOpen, label, newLabelDialogOpen, setNewLabelDialogOpen }}>
+                    {children}
+                </NostrContext.Provider>
+            }
+        </React.Fragment>
     );
 };
 

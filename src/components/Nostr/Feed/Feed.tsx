@@ -34,6 +34,7 @@ import {Helmet} from "react-helmet";
 import {debounce} from 'lodash';
 import InfiniteScroll from "react-infinite-scroll-component";
 import Button from "@mui/material/Button";
+import {ThreadDialog} from "../../../dialog/ThreadDialog";
 
 const filter: NDKFilter = {
     kinds: [1, 30023],
@@ -47,11 +48,11 @@ export const keywordsFromString = (s: string) => {
 };
 
 export const Feed = () => {
-    const { user, setLoginDialogOpen, ndk } = useNostrContext();
-    const { events, subscribe, clearEvents, loading, query, setQuery } = useNostrFeedContext();
+    const { events, subscribe, clearEvents, loading, query, setQuery, startSubs, stopSubs } = useNostrFeedContext();
 
     const [searchParams, setSearchParams] = useSearchParams();
     const searchString = searchParams.get('s');
+    const nevent = searchParams.get('e');
 
     const [newNoteDialogOpen, setNewNoteDialogOpen] = useState<boolean>(false);
 
@@ -74,7 +75,7 @@ export const Feed = () => {
            'length'
        ).reverse()
            .map((tags: string[]) => tags[0].toLowerCase())
-           .slice(3, 24);
+           .slice(3, 36);
        return tags;
     });
 
@@ -130,14 +131,16 @@ export const Feed = () => {
     ];
 
     const explicitTags = ['relays', 'nips', 'badges', 'lightning', 'snort', 'primal', 'keys',
-        'alby', 'clients', 'beginner', 'zaps', 'damus', 'amethyst', 'plebstr', 'zapathon', 'coracle', 'WoS', 'newbie'];
+        'alby', 'clients', 'beginner', 'zaps', 'damus', 'amethyst', 'plebstr', 'zapathon', 'coracle', 'WoS', 'newbie',
+        'gossip', 'zeus', 'node'
+    ];
 
     const boxRef = useRef();
 
     const debouncedQuery = useMemo(() =>
         debounce((query: string) => {
             if (query && query.length > 2) {
-                subscribe({ search: query });
+                startSubs({ search: query });
                 setSubscribed(true);
             }
         }, 500)
@@ -154,17 +157,18 @@ export const Feed = () => {
         // console.log('change:', {query})
     }, [query]);
 
+    useEffect(() => {
+        if (!!nevent && !!nip19.decode(nevent).data) {
+            stopSubs();
+        } else {
+            startSubs({ search: query }, filteredEvents());
+        }
+    }, [nevent]);
+
     useEffect(()=>{
         setTimeout(() => {
             setShowPreloader(false);
         }, 2100);
-
-        return () => {
-            ndk.pool.relays
-                .forEach((relay: NDKRelay) => relay
-                    .activeSubscriptions
-                    .forEach((subscription: NDKSubscription) => subscription.stop()));
-        }
     },[]);
 
     return (
@@ -188,23 +192,62 @@ export const Feed = () => {
                 <meta name="twitter:image" content={ Config.APP_IMAGE }  />
 
             </Helmet>
-            <Box ref={boxRef}>
-                <Typography sx={{ marginTop: '0.5em', padding: '0 10px', fontSize: '2rem!important' }} variant="h5" component="div">
-                    Query questions with search, pick a keyword or <Button className="feedBrowse-button" variant="text" color="secondary" onClick={() => setSearchParams({ s: Config.HASHTAG })}>browse</Button> latest posts.
-                    <Tooltip title="Find out more">
-                        <IconButton className="aboutSwarmstr-button" onClick={() => {
-                            const a = document.createElement('a');
-                            a.target = '_blank';
-                            a.href = `${process.env.BASE_URL}/e/nevent1qqsw9yrz4yzks5rns52aprghenapqfq0pep8zzcsmd6a8anala296aczyrclnvyed48lr0m4u70yejzh0jy7kce7dpq4cla0wn830grmlq9asku2zd0`;
-                            a.click();
-                        }}>
-                            <Info />
-                        </IconButton>
-                    </Tooltip>
-                </Typography>
+            <Box className="landingPage-boxContainer" ref={boxRef}>
+                {
+                    searchString === null && <React.Fragment>
+                        <Box className="landingPage-box">
+                        <Typography variant="h5" component="div">
+                            Find answers to your questions. Assist others in resolving theirs.
+                            <Tooltip title="Find out more">
+                                <IconButton className="aboutSwarmstr-button" onClick={() => {
+                                    const a = document.createElement('a');
+                                    a.target = '_blank';
+                                    a.href = `${process.env.BASE_URL}/e/nevent1qqsw9yrz4yzks5rns52aprghenapqfq0pep8zzcsmd6a8anala296aczyrclnvyed48lr0m4u70yejzh0jy7kce7dpq4cla0wn830grmlq9asku2zd0`;
+                                    a.click();
+                                }}>
+                                    <Info />
+                                </IconButton>
+                            </Tooltip>
+                        </Typography>
+                        <Typography component="div" variant="body1">
+                            <Button className="nav-button" variant="contained" color="primary" onClick={() => { setSearchParams({s: ''}) }}>
+                                Search
+                            </Button>
+                            <Button
+                                className="nav-button"
+                                variant="text"
+                                color="secondary"
+                                onClick={() =>
+                                    setSearchParams({ s: Config.HASHTAG })
+                                }>
+                                Recent questions
+                            </Button>
+                        </Typography>
+                    </Box>
+                        <Typography sx={{ marginBottom: '1em', marginTop: '1em' }} component="div" variant="h5">
+                            Contributors
+                            <Tooltip title={`People that helped Swarmstr happen.`}>
+                                <IconButton className="contributors-button">
+                                    <Info />
+                                </IconButton>
+                            </Tooltip>
+                        </Typography>
+                        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                            {
+                                contributors && <React.Fragment>
+                                    {
+                                        contributors.map((pubkey: string) => (
+                                            <Metadata variant={'avatar'} pubkey={pubkey} />
+                                        ))
+                                    }
+                                </React.Fragment>
+                            }
+                        </Box>
+                    </React.Fragment>
+                }
 
                 <NostrResources
-                    search={<Search
+                    search={searchString !== null && <Search
                         query={searchString || ''}
                         resultsCount={events.length}
                         // filteredResultsCount={filteredEvents().length}
@@ -214,12 +257,12 @@ export const Feed = () => {
                         isQuerying={loading}
                     />}>
                     {
-                        (!searchString || searchString === '' || searchString.length < 2) &&
+                        (searchString !== null && (searchString === '' || searchString.length < 2)) &&
                         <React.Fragment>
                             {
-                                tags && <React.Fragment>
-                                    <Typography sx={{ marginBottom: '1em' }} component="div" variant="h5">
-                                        Popular keywords
+                                tags && <Box>
+                                    <Typography sx={{ marginBottom: '1em' }} component="div" variant="h6">
+                                        or explore questions by topics
                                     </Typography>
                                     {
                                         uniq([...tags, ...explicitTags]).map((tag: string) => <Chip
@@ -231,25 +274,7 @@ export const Feed = () => {
                                             }}
                                         />)
                                     }
-                                </React.Fragment>
-                            }
-                            <Divider sx={{ margin: '1em 0;' }} />
-                            <Typography sx={{ marginBottom: '1em' }} component="div" variant="h5">
-                                Contributors
-                                <Tooltip title={`People that helped Swarmstr happen.`}>
-                                    <IconButton className="contributors-button">
-                                        <Info />
-                                    </IconButton>
-                                </Tooltip>
-                            </Typography>
-                            {
-                                contributors && <React.Fragment>
-                                    {
-                                        contributors.map((pubkey: string) => (
-                                            <Metadata variant={'avatar'} pubkey={pubkey} />
-                                        ))
-                                    }
-                                </React.Fragment>
+                                </Box>
                             }
                             {/*{*/}
                                 {/*inquirers && <React.Fragment>*/}
@@ -307,7 +332,7 @@ export const Feed = () => {
                                     nevent: nip19.neventEncode({
                                         id: nostrEvent.id,
                                         author: nostrEvent.pubkey,
-                                        relays: []
+                                        relays: ['wss://q.swarmstr.com']
                                     })
                                 }))
                                 .map(({event, nevent}) => (
@@ -316,7 +341,7 @@ export const Feed = () => {
                                         nevent={nevent}
                                     >
                                         <NostrNoteContextProvider>
-                                            <Note key={`${nevent}-content`} event={event} nevent={nevent}/>
+                                            <Note key={`${nevent}-content`} event={event} nevent={nevent} floating={true}/>
                                         </NostrNoteContextProvider>
                                     </NoteThread>
                                 ))
@@ -325,6 +350,10 @@ export const Feed = () => {
                 </NostrResources>
                 <Backdrop open={showPreloader} />
             </Box>
+            <ThreadDialog open={!!nevent && !!nip19.decode(nevent).data} nevent={nevent} onClose={() => {
+                setSearchParams({ e: '', ...(!!searchString && { s: searchString }) });
+                // startSubs({ search: query });
+            }}/>
         </React.Fragment>
     )
 };

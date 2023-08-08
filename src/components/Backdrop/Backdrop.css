@@ -1,5 +1,7 @@
 .swarmstrPreloaderLogoContainer {
-    transform: translate(0, 50%);
+    transform: translate(0, 50%) !important;
+    margin: auto;
+    width: 210px;
 }
 
 .swarmstrPreloaderLogoContainer img {

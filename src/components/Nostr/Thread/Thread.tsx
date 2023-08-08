@@ -32,9 +32,10 @@ interface ThreadProps {
         events?: any[];
         event?: any;
     }
+    floating?: boolean;
 }
 
-export const NoteThread = ({ nevent, data = {}, children, expanded }: ThreadProps) => {
+export const NoteThread = ({ nevent, data = {}, children, expanded, floating }: ThreadProps) => {
     const { id } = nevent && nip19.decode(nevent).data;
 
     const filter: NDKFilter = { kinds: [1], '#e': [id] };
@@ -148,7 +149,6 @@ export const NoteThread = ({ nevent, data = {}, children, expanded }: ThreadProp
                             (orderBy(events, ({id, created_at}) => {
                                 switch (sort) {
                                     case 'score':
-
                                         const score = calculateScore(id!);
                                         return score;
                                     case 'zap':
@@ -158,12 +158,12 @@ export const NoteThread = ({ nevent, data = {}, children, expanded }: ThreadProp
                                 }
                             }, (sort === 'score' || sort === 'zap') ? 'desc' : 'asc') || [])
                                 .map((event: NostrEvent) => ({
-                                    nevent: nip19.neventEncode({ id: event.id, author: event.pubkey }),
+                                    _nevent: nip19.neventEncode({ id: event.id, author: event.pubkey }),
                                     event
                                     }))
-                                .map(({nevent, event}) => (
+                                .map(({_nevent, event}) => (
                                     <NostrNoteContextProvider thread={true}>
-                                        <Note key={`${nevent}-content`} nevent={nevent} event={event}/>
+                                        <Note key={`${_nevent}-content`} nevent={_nevent} event={event} floating={floating} />
                                     </NostrNoteContextProvider>
                                 ))
                         }

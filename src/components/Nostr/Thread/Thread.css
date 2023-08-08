@@ -3,6 +3,7 @@
     width: 90%;
     border-radius: 8px;
     border: 1px solid rgba(0,0,0,.05);
+    text-align: center;
 }
 
 .theme--dark .thread-repliesPlaceholder {

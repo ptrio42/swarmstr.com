@@ -18,6 +18,7 @@ import {db} from "../db";
 import {useLiveQuery} from "dexie-react-hooks";
 import {containsTag, valueFromTag} from "../utils/utils";
 import {NOTE_TYPE, NoteEvent} from "../models/commons";
+import {sortBy} from 'lodash';
 
 const subs: NDKSubscription[] = [];
 
@@ -66,10 +67,32 @@ export const NostrFeedContextProvider = ({ children }: any) => {
         // console.log(`events change ${events?.length}`)
     }, [events]);
 
+    const startSubs = useCallback((filter: NDKFilter, _events?: NostrEvent[]) => {
+        const activeSubs = ndk.current.pool.relays.entries().next().value?.activeSubscriptions?.size() || 0;
+        console.log({activeSubs, relay: ndk.current.pool.relays.entries().next().value})
+        if (activeSubs === 0) {
+            const { created_at } = _events && _events.length > 0 && sortBy(_events, 'created_at')?.[0] || { created_at: null };
+            console.log({created_at}, {_events});
+            subscribe({
+                ...filter,
+                ...(!!created_at && { until: created_at })
+            });
+        }
+    }, []);
+
+    const stopSubs = useCallback(() => {
+        subs.forEach((sub: NDKSubscription) => {
+            sub.stop();
+        });
+    }, []);
+
     const onEvent = (event: NDKEvent) => {
         const nostrEvent = event.rawEvent();
         if (!nostrEvent.content.includes('nsfw') &&
-            !nostrEvent.content.includes('Just deployed https://swarmstr.com build')) {
+            !nostrEvent.content.includes('Just deployed https://swarmstr.com build') &&
+            !nostrEvent.content.includes('beta.uselessshit.co') &&
+            !nostrEvent.content.includes('Let me introduce my good friend') &&
+            !nostrEvent.content.includes('an early release so expect some bugs')) {
             db.notes.put({
                 ...nostrEvent,
                 type: NOTE_TYPE.QUESTION
@@ -83,13 +106,12 @@ export const NostrFeedContextProvider = ({ children }: any) => {
 
     const clearEvents = () => {
         console.log(`clearing events...`);
-        subs.forEach((sub: NDKSubscription) => {
-            sub.stop();
-        });
+        stopSubs();
+        console.log(`stopped ${subs.length} subs...`);
         setEvents([]);
     };
 
-    const memoValue = useMemo(() => ({ nevents, subscribe, loading, events, clearEvents, query, setQuery }), [events, query, loading]);
+    const memoValue = useMemo(() => ({ nevents, subscribe, loading, events, clearEvents, query, setQuery, startSubs, stopSubs }), [events, query, loading]);
 
     const connectToRelays = useCallback(async () => {
         try {

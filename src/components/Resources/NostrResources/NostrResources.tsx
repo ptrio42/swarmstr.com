@@ -19,7 +19,7 @@ export const NostrResources = ({ children, search }: NostrResourcesProps) => {
     return (
         <React.Fragment>
 
-            <List className="list-container">
+            <List sx={{ width: '100%' }} className="list-container">
                 <ListItem key="nostr-resources">
                 </ListItem>
                 <ListItem

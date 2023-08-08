@@ -26,7 +26,7 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import './Note.css';
 import { Element, isTag } from 'domhandler';
-import {Link, useSearchParams} from "react-router-dom";
+import {Link, useSearchParams, useNavigate} from "react-router-dom";
 import {processText} from "../../../services/util";
 import {NoteThread} from "../Thread/Thread";
 import {Skeleton} from "@mui/material";
@@ -68,13 +68,14 @@ interface NoteProps {
     expanded?: boolean;
     event?: NostrEvent
 
-    onSearchQuery?: (nevent: string, display: boolean) => void
+    onSearchQuery?: (nevent: string, display: boolean) => void,
+    floating?: boolean
 }
 
 const MetadataMemo = React.memo(Metadata);
 
 export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handleThreadToggle, isCollapsable, handleUpReaction,
-     handleDownReaction, isThreadExpanded, isRead, threadView = false, onSearchQuery, expanded, ...props }: NoteProps
+     handleDownReaction, isThreadExpanded, isRead, threadView = false, onSearchQuery, expanded, floating, ...props }: NoteProps
 ) => {
 
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
@@ -97,6 +98,8 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
 
     const [searchParams, setSearchParams] = useSearchParams();
     const searchString = searchParams.get('s');
+
+    const navigate = useNavigate();
 
     const [event, loaded] = useLiveQuery(async () => {
         const event = await db.notes.get({ id });
@@ -159,7 +162,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
     }, [event]);
 
     useEffect(() => {
-        if (loaded && !event) {
+        if (loaded && !event && noteVisible) {
             console.log(`event ${id} was not found in db`);
             subscribe(filter, { closeOnEose: true, groupableDelay: 3000 });
         }
@@ -245,9 +248,10 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                             return <NoteThread
                                 key={`${data}-thread`}
                                 nevent={data}
+                                floating={floating}
                             >
                                 <NostrNoteContextProvider>
-                                    <Note key={`${data}-content`} nevent={data}/>
+                                    <Note key={`${data}-content`} nevent={data} floating={floating}/>
                                 </NostrNoteContextProvider>
                             </NoteThread>
                         }
@@ -371,11 +375,8 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                     gutterBottom
                     variant="body2"
                     component="div"
-                    {...(!expanded ? { onClick: () => {
-                            const a = document.createElement('a');
-                            a.href = `${process.env.BASE_URL}/e/${nevent}`;
-                            a.click();
-                        } } : {}) }
+                    {...(!expanded && !floating && { onClick: () => { navigate(`/e/${nevent}`) } })}
+                    {...(floating && { onClick: () => { setSearchParams({ e: nevent, ...(!!searchString && { s: searchString }) }) } })}
                 >
                     {
                         // @ts-ignore

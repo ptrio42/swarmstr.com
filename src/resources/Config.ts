@@ -49,10 +49,9 @@ export const Config = {
     'wss://relay.damus.io',
     'wss://relay.f7z.io',
     'wss://nostr.mom',
-
     'wss://offchain.pub/',
     'wss://nostr.wine',
-    'wss://nostr.bitcoiner.social',
+    // 'wss://nostr.bitcoiner.social',
   ]
 };
 

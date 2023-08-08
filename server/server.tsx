@@ -16,7 +16,7 @@ import NDK, {
     NostrEvent
 } from '@nostr-dev-kit/ndk';
 import RedisAdapter from '@nostr-dev-kit/ndk-cache-redis';
-import {uniqBy} from 'lodash';
+import {uniqBy, groupBy, forOwn} from 'lodash';
 import {containsTag, valueFromTag} from "../src/utils/utils";
 
 const Pool = require('pg').Pool;
@@ -124,6 +124,31 @@ const onEvent = (event: NDKEvent) => {
     }
 };
 
+const filters: NDKFilter[] = [
+    { ids: '53728d6c1de76f867d31dbdea22a60f21b2a150bba6c60a05ec880bd0c1248fd' },
+    { ids: 'be52b4a8e43f4186863158f3e88b0f152cb70c94abe87d047ec5240bb321904e' },
+    { ids: 'f96777692a307d5e036618331e97b19f53a81c38ac19887472167eecf33e677a' },
+    { kinds: [1] }
+];
+const maxSize = 10;
+
+const addDelayedSubscription = (filter: NDKFilter) => {
+    filters.push(filter);
+};
+
+export const subscribeToDelayedSubscriptions = () => {
+    const finalFilters = [];
+    const groupedFilters = groupBy(filters, (_filter: NDKFilter) => Object.keys(_filter));
+    forOwn(groupedFilters, (f) => {})
+    const mappedFilters = Object.keys(groupedFilters).map((key) => ({
+        [key]: groupedFilters[key].map((f) => f[key])
+    }));
+
+    console.log({mappedFilters});
+};
+
+subscribeToDelayedSubscriptions();
+
 const subscribe = (
     filter: NDKFilter,
     opts: NDKSubscriptionOptions = {closeOnEose: false, groupable: false},
@@ -196,21 +221,6 @@ setInterval(() => {
 setInterval(() => {
     // console.log(`subs: ${Array.from(ndk.pool.relays.values()).reduce((relay, { activeSubscriptions }) => relay.activeSubscriptions.size() + activeSubscriptions.size())}`);
 }, 30000);
-
-// try to reconnect on relay disconnect
-// ndk.pool.on('relay:disconnect', () => {
-//     delay += 500;
-//     setTimeout(() => {
-//         // @ts-ignore
-//         ndk = new NDK({ explicitRelayUrls: SERVER_RELAYS, cacheAdapter });
-//         ndkSearchnos = new NDK({ explicitRelayUrls: [Config.SEARCH_RELAY_PUBLISH] });
-//         ndk.connect(2100)
-//             .then(() => {
-//                 console.log(`Reconnected...`);
-//                 delay = 0;
-//             });
-//     }, delay);
-// });
 
 ndk.pool.on('notice', (notice) => {
     console.log(`got a notice`);

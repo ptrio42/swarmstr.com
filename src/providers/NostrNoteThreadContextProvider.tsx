@@ -17,7 +17,7 @@ export const NostrNoteThreadContextProvider = ({children}: any) => {
         eventsRef.current = events;
         _setEvents(eventsRef.current);
     };
-    const { ndk, setNdk } = useNostrContext();
+    const { ndk } = useNostrContext();
     const { nevent } = useParams();
 
     const [showPreloader, setShowPreloader] = useState<boolean>(true);
