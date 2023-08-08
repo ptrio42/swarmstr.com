@@ -80,7 +80,7 @@ export const Feed = () => {
     });
 
     const filteredEvents = useCallback(() =>
-        sortBy(events, 'created_at').reverse()
+        uniqBy(sortBy(events, 'created_at').reverse(), 'id')
             .slice(0, limit), [events, limit]);
     // const [filteredEvents, setFilteredEvents] = useState<NostrEvent[]>();
 
