@@ -1,11 +1,3 @@
 export { NavBar } from './NavBar/NavBar';
-export { PageContent } from './PageContent/PageContent';
 export { Footer } from './Footer/Footer';
-export { Testimonials } from './Testimonials/Testimonials';
-export { BitcoinPrice } from './BitcoinPrice/BitcoinPrice';
-export { FiatToSatsCalculator } from './FiatToSatsCalculator/FiatToSatsCalculator';
-export { Carousel } from './Carousel/Carousel';
-export { SpreadTheWord } from './SpreadTheWord/SpreadTheWord';
-export { BitcoinResources } from './Resources/BitcoinResources/BitcoinResources';
-export { CardGenerator } from './CardGenerator/CardGenerator';
 export { LightningGift } from './LightningGift/LightningGift';

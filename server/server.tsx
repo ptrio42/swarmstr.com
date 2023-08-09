@@ -16,7 +16,7 @@ import NDK, {
     NostrEvent
 } from '@nostr-dev-kit/ndk';
 import RedisAdapter from '@nostr-dev-kit/ndk-cache-redis';
-import {uniqBy, groupBy, forOwn} from 'lodash';
+import {uniqBy, groupBy, forOwn, debounce} from 'lodash';
 import {containsTag, valueFromTag} from "../src/utils/utils";
 
 const Pool = require('pg').Pool;
@@ -68,14 +68,12 @@ let ndkSearchnos = new NDK({ explicitRelayUrls: [Config.SEARCH_RELAY_PUBLISH] })
 
 const ndkDev = new NDK({ explicitRelayUrls: ['wss://q.swarmstr.com'] });
 
-let subscription: NDKSubscription;
-
-const publish = async (ndk: NDK, nostrEvent: NostrEvent) => {
+const publish = async (_ndk: NDK, nostrEvent: NostrEvent) => {
     try {
-        const event = new NDKEvent(ndk, nostrEvent);
+        const event = new NDKEvent(_ndk, nostrEvent);
         console.log(`signing & publishing new event`, {event});
         try {
-            await ndkSearchnos.connect();
+            // await ndkSearchnos.connect();
             await event.publish();
             console.log(`event ${event.id} published!`);
         } catch (error) {
@@ -83,6 +81,22 @@ const publish = async (ndk: NDK, nostrEvent: NostrEvent) => {
         }
     } catch (error) {
         console.error(`unable to create NDKEvent from event ${nostrEvent.id}`);
+    }
+};
+
+
+let ids: string[] = [];
+
+const debouncedSub = () => debounce(() => {
+    subscribe({ ids }, { closeOnEose: true }, false);
+    ids = [];
+}, 2000);
+
+const publishToSearchRelay = async (nostrEvent: NostrEvent) => {
+    try {
+        await publish(ndkSearchnos, nostrEvent)
+    } catch (e) {
+        console.error('Unable to publish to search relay');
     }
 };
 
@@ -96,13 +110,20 @@ const onEvent = (event: NDKEvent) => {
         // if event contains referenced event tag, it serves at question hint
         // thus gotta fetch the referenced event
         if (!!referencedEventId) {
-            subscribe({ ids: [referencedEventId] }, { closeOnEose: true, groupable: true, groupableDelay: 5000 }, false);
+            ids.push(referencedEventId);
+            debouncedSub();
         } else {
             // event is a question
             // publish the event to search pseudo relay
-            publish(ndkSearchnos, nostrEvent)
+            publishToSearchRelay(nostrEvent)
                 .then(() => {
                     console.log(`event published to search relay (direct)!`);
+                })
+                .catch((e) => {
+                    // retry in 5 secs
+                    setTimeout(() => {
+                        publishToSearchRelay(nostrEvent);
+                    }, 5000);
                 });
             publish(ndkDev, nostrEvent)
                 .then(() => {
@@ -113,9 +134,15 @@ const onEvent = (event: NDKEvent) => {
         // event doesn't contain the asknostr tag
         // but it was hinted by a quote event
         // publish the event to search pseudo relay
-        publish(ndkSearchnos, nostrEvent)
+        publishToSearchRelay(nostrEvent)
             .then(() => {
                 console.log(`event published to search relay (hinted)!`);
+            })
+            .catch((e) => {
+            // retry in 5 secs
+                setTimeout(() => {
+                    publishToSearchRelay(nostrEvent);
+                }, 5000);
             });
         publish(ndkDev, nostrEvent)
             .then(() => {

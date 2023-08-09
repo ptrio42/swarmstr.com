@@ -92,6 +92,7 @@ export const NostrFeedContextProvider = ({ children }: any) => {
             !nostrEvent.content.includes('Just deployed https://swarmstr.com build') &&
             !nostrEvent.content.includes('beta.uselessshit.co') &&
             !nostrEvent.content.includes('Let me introduce my good friend') &&
+            !nostrEvent.content.includes('and unlock exciting privileges within the community') &&
             !nostrEvent.content.includes('an early release so expect some bugs')) {
             db.notes.put({
                 ...nostrEvent,

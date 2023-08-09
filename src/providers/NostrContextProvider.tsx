@@ -16,7 +16,6 @@ import {db} from "../db";
 import axios from "axios";
 import {nip19} from "nostr-tools";
 import {intersection, difference} from 'lodash';
-import {getRelayInformationDocument} from "../services/nostr";
 import DexieAdapter from "../caches/dexie";
 import {NOTE_TYPE, NoteEvent} from "../models/commons";
 import {containsTag, valueFromTag} from "../utils/utils";
@@ -85,7 +84,6 @@ export const NostrContextProvider = ({ children }: any) => {
             }
         } else {
             delay += 100;
-            console.log(`incrementing delay ${delay}...`);
             setTimeout(() => {
                 signIn(delay);
             }, delay);

@@ -1,40 +1,36 @@
-import parse, {DOMNode, HTMLReactParserOptions} from 'html-react-parser';
-import React, {FC, lazy, useCallback, useEffect, useMemo, useRef, useState, Suspense} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {
     CopyAll,
     DoneOutline,
-    IosShare, Launch, MoreHoriz,
+    Launch,
+    MoreHoriz,
     QrCodeScanner,
-    UnfoldLess,
-    UnfoldMore,
-    Note as NoteIcon, ChatBubbleOutline, ElectricBolt, Loop
+    ChatBubbleOutline,
+    ElectricBolt,
+    Loop
 } from "@mui/icons-material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import {Metadata, QrCodeDialog} from "../Metadata/Metadata";
-import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
 import CardActions from "@mui/material/CardActions";
 import Snackbar from "@mui/material/Snackbar";
 import IconButton from "@mui/material/IconButton";
 import Badge from "@mui/material/Badge";
 import {nip19} from 'nostr-tools';
-import {Reaction, Reactions, REACTIONS, ReactionType} from "../Reactions/Reactions";
+import {Reactions, REACTIONS, ReactionType} from "../Reactions/Reactions";
 import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import './Note.css';
-import { Element, isTag } from 'domhandler';
-import {Link, useSearchParams, useNavigate} from "react-router-dom";
-import {processText} from "../../../services/util";
-import {NoteThread} from "../Thread/Thread";
+import {useSearchParams, useNavigate} from "react-router-dom";
 import {Skeleton} from "@mui/material";
 import ReactPlayer from 'react-player';
-import NDK, {NDKEvent, NDKFilter, NDKRelaySet, NDKSubscription, NDKTag, NostrEvent} from "@nostr-dev-kit/ndk";
-import {NostrNoteContextProvider, useNostrNoteContext} from "../../../providers/NostrNoteContextProvider";
+import {NDKFilter, NDKRelaySet, NDKSubscription, NostrEvent, NDKSubscriptionOptions} from "@nostr-dev-kit/ndk";
+import {useNostrNoteContext} from "../../../providers/NostrNoteContextProvider";
 import { intersection } from 'lodash';
-import {containsTag, matchString, nFormatter, noteIsVisible, valueFromTag} from "../../../utils/utils";
+import {nFormatter, noteIsVisible} from "../../../utils/utils";
 import {useNostrContext} from "../../../providers/NostrContextProvider";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
@@ -42,15 +38,10 @@ import CircularProgress from "@mui/material/CircularProgress";
 import {NewNoteDialog} from "../../../dialog/NewNoteDialog";
 import {ZapDialog} from "../../../dialog/ZapDialog";
 import {RepostEvent, ZapEvent} from "../../../models/commons";
-
-const ReactMarkdown = lazy(() => import('react-markdown'));
-const MDEditor = lazy(() => import('@uiw/react-md-editor'));
-import rehypeRaw from 'rehype-raw'
 import Tooltip from "@mui/material/Tooltip";
 import ReactTimeAgo from 'react-time-ago'
-import lightBolt11Decoder from "light-bolt11-decoder";
-import {LightningInvoice} from "../../LightningInvoice/LightningInvoice";
 import {NewLabelDialog} from "../../../dialog/NewLabelDialog";
+import {noteContentToHtml} from "../../../services/note2html";
 
 interface NoteProps {
     noteId?: string;
@@ -156,20 +147,20 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
 
     useEffect(() => {
         if (!parsedContent && !!event?.content) {
-            const _parsedContent = parseHtml(event!.content);
+            // @ts-ignore
+            const _parsedContent = noteContentToHtml(event!.content, event!.tags, searchString, floating);
             setParsedContent(_parsedContent);
         }
     }, [event]);
 
     useEffect(() => {
-        if (loaded && !event && noteVisible) {
+        if (noteVisible && loaded && !event) {
             console.log(`event ${id} was not found in db`);
-            subscribe(filter, { closeOnEose: true, groupableDelay: 3000 });
+            subscribe(filter, { closeOnEose: true });
         }
     }, [loaded]);
 
     useEffect(() => {
-
         // note was displayed on screen
         // 1. wait for note event from cache
         // 2. if event isn't in cache, subscribe
@@ -181,7 +172,13 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
             if (!event) {
                 subscribe(filter);
             }
-            subscribe(filter1);
+            const opts: NDKSubscriptionOptions = { groupableDelay: 1500, closeOnEose: false };
+            const kinds = [1, 7, 9735, 30023, 6];
+            // subscribe(filter1);
+            for (let i = 0; i < kinds.length; i++) {
+                subscribe({ kinds: [kinds[i]], '#e': [id]}, opts);
+            }
+
             setSubscribed(true);
         }
         if (!noteVisible && subscribed) {
@@ -210,69 +207,6 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
         setSnackBarMessage('Direct link to answer was copied to clipboard!');
         setSnackbarOpen(true);
     }, []);
-
-    const getProcessedText = useCallback((text: string) => {
-        if (!text) {
-            text = '';
-        }
-        return processText(text, event && event.tags, searchString || undefined, event && event.kind);
-
-    }, [event]);
-
-    const parseHtml = useCallback((text: string) => {
-        // TODO: Clean up after react-html-parser
-        return parse(
-            getProcessedText(text),
-            {
-                replace: (domNode) => {
-                    const domElement: Element = domNode as Element;
-                    if (isTag(domElement)) {
-                        // @ts-ignore
-                        const { attribs, children, name } = domNode;
-                        if (name === 'button' && attribs.class === 'metadata-btn') {
-                            const data = children.length > 0 && children[0].data;
-                            try {
-                                const userPubkey = nip19.decode(data)?.data || data;
-                                if (userPubkey) {
-                                    return  <Metadata
-                                        variant={'link'}
-                                        pubkey={userPubkey}
-                                    />
-                                }
-                            } catch (error) {
-                                console.error(`unable to decode npub ${data}...`, {error});
-                            }
-                        }
-                        if (name === 'button' && attribs.class === 'thread-btn') {
-                            const data = children.length > 0 && children[0].data;
-                            return <NoteThread
-                                key={`${data}-thread`}
-                                nevent={data}
-                                floating={floating}
-                            >
-                                <NostrNoteContextProvider>
-                                    <Note key={`${data}-content`} nevent={data} floating={floating}/>
-                                </NostrNoteContextProvider>
-                            </NoteThread>
-                        }
-                        if (name === 'button' && attribs.class === 'video-btn') {
-                            let data = children.length > 0 && children[0].data;
-                            if (!data.includes('https')) {
-                                data = `https://www.youtube.com/watch?v=${data}`
-                            }
-                            return <ReactPlayer className="video-player" url={data} playing={true} volume={0} muted={true} loop={true} controls={true} />
-                        }
-                        if (name === 'button' && attribs.class === 'lnbc-btn') {
-                            const data = children.length > 0 && children[0].data;
-                            if (data) {
-                                return <LightningInvoice lnbc={data}/>
-                            }
-                        }
-                    }
-                }
-            }
-        );
-    }, [event]);
 
     const reacted = useCallback((type: ReactionType) => {
         // @ts-ignore

@@ -1,21 +1,15 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {NostrResources} from "../../Resources/NostrResources/NostrResources";
 import {NoteThread} from "../Thread/Thread";
 import {Note} from "../Note/Note";
 import {Box} from "@mui/material";
 import {NostrNoteContextProvider} from "../../../providers/NostrNoteContextProvider";
 import {useNostrFeedContext} from "../../../providers/NostrFeedContextProvider";
-import {LoadingAnimation} from "../../LoadingAnimation/LoadingAnimation";
 import {NDKFilter, NDKRelay, NDKSubscription, NDKTag, NostrEvent} from "@nostr-dev-kit/ndk";
-import {useNostrContext} from "../../../providers/NostrContextProvider";
 import {nip19} from "nostr-tools";
 import {useSearchParams} from "react-router-dom";
-import {addHighlightAt, containsTag, matchString, searchText} from "../../../utils/utils";
+import { containsTag } from "../../../utils/utils";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
-import Fab from "@mui/material/Fab";
-import AddIcon from '@mui/icons-material/Add';
-import {NewNoteDialog} from "../../../dialog/NewNoteDialog";
 import {groupBy, uniqBy, sortBy, uniq} from 'lodash'
 import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
@@ -32,29 +26,21 @@ import Divider from "@mui/material/Divider";
 import {Config} from "../../../resources/Config";
 import {Helmet} from "react-helmet";
 import {debounce} from 'lodash';
-import InfiniteScroll from "react-infinite-scroll-component";
 import Button from "@mui/material/Button";
 import {ThreadDialog} from "../../../dialog/ThreadDialog";
+import {SearchResults} from "../SearchResults/SearchResults";
 
 const filter: NDKFilter = {
     kinds: [1, 30023],
     '#t': [Config.HASHTAG]
 };
 
-export const keywordsFromString = (s: string) => {
-    return s.toLowerCase().trim()
-        .replace(/([-_']+)/gm, ' ').split(' ')
-        .filter((word) => word.length > 1);
-};
-
 export const Feed = () => {
-    const { events, subscribe, clearEvents, loading, query, setQuery, startSubs, stopSubs } = useNostrFeedContext();
+    const { events, clearEvents, loading, query, setQuery, startSubs, stopSubs } = useNostrFeedContext();
 
     const [searchParams, setSearchParams] = useSearchParams();
     const searchString = searchParams.get('s');
     const nevent = searchParams.get('e');
-
-    const [newNoteDialogOpen, setNewNoteDialogOpen] = useState<boolean>(false);
 
     const [subscribed, setSubscribed] = useState<boolean>(false);
 
@@ -68,7 +54,8 @@ export const Feed = () => {
            groupBy(allEvents
                    .filter(({tags}) => containsTag(tags, ['t', Config.HASHTAG]))
                    .map(({tags}) => tags
-                       .filter((tag: NDKTag) => tag[0] === 't' && tag[1] !== Config.HASHTAG).map(([_, tag]) => tag))
+                       .filter((tag: NDKTag) => tag[0] === 't' && tag[1] !== Config.HASHTAG)
+                       .map(([_, tag]) => tag))
                    .flat(2),
                (tag: string) => tag
            ),
@@ -82,45 +69,6 @@ export const Feed = () => {
     const filteredEvents = useCallback(() =>
         uniqBy(sortBy(events, 'created_at').reverse(), 'id')
             .slice(0, limit), [events, limit]);
-    // const [filteredEvents, setFilteredEvents] = useState<NostrEvent[]>();
-
-    const onScrollEnd = () => {
-        setLimit(limit + 3);
-    };
-
-    const getMostActivePubkeysByNoteType = (noteType: NoteType, notes: NoteEvent[]) => {
-        return sortBy(
-            groupBy(
-                notes
-                    .filter(({type}) => type === noteType)
-                    .map(({pubkey}) => pubkey),
-                (pubkey: string) => pubkey
-            ),
-            'length'
-        ).reverse()
-            .slice(0, 7)
-    };
-
-    const getMostActivePubkeysWithAnswers = (notes: NoteEvent[]) => {
-        return sortBy(
-            groupBy(
-                notes
-                    .filter(({type}) => type !== NOTE_TYPE.HINT && type !== NOTE_TYPE.QUESTION)
-                    .map(({pubkey}) => pubkey),
-                (pubkey: string) => pubkey
-            ),
-            'length'
-        ).reverse()
-            .slice(0, 7)
-    };
-
-    // const [contributors, inquirers, respondents] = useLiveQuery(async () => {
-    //     const allEvents = await db.notes.toArray();
-    //     const contributors = getMostActivePubkeysByNoteType(NOTE_TYPE.HINT, allEvents);
-    //     const inquirers = getMostActivePubkeysByNoteType(NOTE_TYPE.QUESTION, allEvents);
-    //     const respondents = getMostActivePubkeysWithAnswers(allEvents);
-    //     return [contributors, inquirers, respondents];
-    // }, [], []);
 
     const contributors = [
         'f747b6b3202555cbf39c74b14da9a89585e5fb21431c1e630071e5c86cfb7a2b',
@@ -246,84 +194,20 @@ export const Feed = () => {
                     </React.Fragment>
                 }
 
-                <NostrResources
+                <SearchResults
                     search={searchString !== null && <Search
                         query={searchString || ''}
                         resultsCount={events.length}
-                        // filteredResultsCount={filteredEvents().length}
                         onQueryChange={(event: any) => {
                             setSearchParams({ s: event.target.value});
                         }}
                         isQuerying={loading}
-                    />}>
-                    {
-                        (searchString !== null && (searchString === '' || searchString.length < 2)) &&
-                        <React.Fragment>
-                            {
-                                tags && <Box>
-                                    <Typography sx={{ marginBottom: '1em' }} component="div" variant="h6">
-                                        or explore questions by topics
-                                    </Typography>
-                                    {
-                                        uniq([...tags, ...explicitTags]).map((tag: string) => <Chip
-                                            sx={{ color: '#fff' }}
-                                            label={tag}
-                                            variant="outlined"
-                                            onClick={() => {
-                                                setSearchParams({ s: tag })
-                                            }}
-                                        />)
-                                    }
-                                </Box>
-                            }
-                            {/*{*/}
-                                {/*inquirers && <React.Fragment>*/}
-                                    {/*<Typography sx={{ margin: '1em 0' }} component="div" variant="h6">*/}
-                                        {/*Inquirers*/}
-                                    {/*</Typography>*/}
-                                    {/*{*/}
-                                        {/*inquirers.map((pubkey: string[]) => (*/}
-                                            {/*<Badge*/}
-                                                {/*badgeContent={pubkey.length}*/}
-                                                {/*color="primary"*/}
-                                            {/*>*/}
-                                                {/*<Metadata variant={'avatar'} pubkey={pubkey[0]} />*/}
-                                            {/*</Badge>*/}
-                                        {/*))*/}
-                                    {/*}*/}
-                                {/*</React.Fragment>*/}
-                            {/*}*/}
-                            {/*{*/}
-                                {/*respondents && <React.Fragment>*/}
-                                    {/*<Typography sx={{ margin: '1em 0' }} component="div" variant="h6">*/}
-                                        {/*Respondents*/}
-                                    {/*</Typography>*/}
-                                    {/*{*/}
-                                        {/*respondents.map((pubkey: string[]) => (*/}
-                                            {/*<Badge*/}
-                                                {/*badgeContent={pubkey.length}*/}
-                                                {/*color="primary"*/}
-                                            {/*>*/}
-                                                {/*<Metadata variant={'avatar'} pubkey={pubkey[0]} />*/}
-                                            {/*</Badge>*/}
-                                        {/*))*/}
-                                    {/*}*/}
-                                {/*</React.Fragment>*/}
-                            {/*}*/}
-                            <Divider sx={{ margin: '1em 0;' }} />
-                        </React.Fragment>
-                    }
-                    <InfiniteScroll
-                        dataLength={filteredEvents().length} //This is important field to render the next data
-                        next={onScrollEnd}
-                        hasMore={true}
-                        loader={<Box sx={{ display: 'none' }}>Loading...</Box>}
-                        endMessage={
-                            <p style={{ textAlign: 'center' }}>
-                                <b>Yay! You have seen it all</b>
-                            </p>
-                        }
-                    >
+                    />}
+                    results={filteredEvents()}
+                    limit={limit}
+                    handleSetLimit={(l: number) => { setLimit(l) }}
+                >
+
                         {
                             (filteredEvents() || [])
                                 .filter(({id}) => !!id)
@@ -346,13 +230,33 @@ export const Feed = () => {
                                     </NoteThread>
                                 ))
                         }
-                    </InfiniteScroll>
-                </NostrResources>
+                </SearchResults>
+                {
+                    (searchString !== null && (searchString === '' || searchString.length < 2)) &&
+                    <React.Fragment>
+                        {
+                            tags && <Box>
+                                <Typography sx={{ marginBottom: '1em' }} component="div" variant="h6">
+                                    or explore questions by topics
+                                </Typography>
+                                {
+                                    uniq([...tags, ...explicitTags]).map((tag: string) => <Chip
+                                        sx={{ color: '#fff' }}
+                                        label={tag}
+                                        variant="outlined"
+                                        onClick={() => {
+                                            setSearchParams({ s: tag })
+                                        }}
+                                    />)
+                                }
+                            </Box>
+                        }
+                    </React.Fragment>
+                }
                 <Backdrop open={showPreloader} />
             </Box>
             <ThreadDialog open={!!nevent && !!nip19.decode(nevent).data} nevent={nevent} onClose={() => {
                 setSearchParams({ e: '', ...(!!searchString && { s: searchString }) });
-                // startSubs({ search: query });
             }}/>
         </React.Fragment>
     )

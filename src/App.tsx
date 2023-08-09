@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {Route, Routes, useLocation} from 'react-router-dom';
 import './App.css';
-import {BitcoinResources, Footer, CardGenerator, NavBar, PageContent, SpreadTheWord} from "./components";
+import {Footer, NavBar} from "./components";
 import { createTheme } from "@mui/material";
 import { ThemeProvider } from "@mui/material";
 import {Box} from "@mui/material";
@@ -10,17 +10,12 @@ import Switch from "@mui/material/Switch";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import {ThemeContext, themes} from "./contexts/ThemeContext";
-import {NostrResources} from "./components/Resources/NostrResources/NostrResources";
-import {Resources} from "./components/Resources/Resources";
-import {TipJar} from "./components/TipJar/TipJar";
-import {Nostr} from "./components/Nostr/Nostr";
 import {Nip05} from "./components/Nostr/Nip05/Nip05";
-import {Zaps} from "./components/Nostr/Zaps/Zaps";
 import {ThemeContextWrapper} from "./theme/ThemeContextWrapper";
 import {NoteThread} from "./components/Nostr/Thread/Thread";
 import {Feed} from "./components/Nostr/Feed/Feed";
 import {NostrFeedContextProvider} from "./providers/NostrFeedContextProvider";
-import {NostrNoteThreadContextProvider, useNostrNoteThreadContext} from "./providers/NostrNoteThreadContextProvider";
+import {NostrNoteThreadContextProvider} from "./providers/NostrNoteThreadContextProvider";
 import {NostrNoteContextProvider} from "./providers/NostrNoteContextProvider";
 import {Note} from "./components/Nostr/Note/Note";
 import {NostrNoteThreadContext} from "./contexts/NostrNoteThreadContext";
@@ -110,10 +105,6 @@ function App() {
       }, 0);
     }
   }, [pathname, hash, key]);
-
-  const nostrResources = useMemo(() => {
-      return <NostrResources/>
-  }, []);
 
   return (
       <React.Fragment>

@@ -141,17 +141,20 @@ export const Metadata = ({ pubkey, handleCopyNpub, supposedName, variant = 'full
     const filter: NDKFilter = { kinds: [0], authors: [pubkey] };
 
     // const event = events.find((e: NostrEvent) => e.pubkey === pubkey && e.kind === 0);
-    const event = useLiveQuery(async () =>
-        await db.users
+    const [event, loaded] = useLiveQuery(async () => {
+        const event = await db.users
             .where({pubkey})
-            .first()
-    );
+            .first();
+        return [event, true];
+    }, [pubkey], [undefined, false]);
 
     const npub = pubkey && nip19.npubEncode(pubkey);
 
     useEffect(() => {
-        subscribe(filter);
-    }, [pubkey]);
+        if (loaded && !event) {
+            subscribe(filter, { closeOnEose: true, groupableDelay: 1500 });
+        }
+    }, [pubkey, loaded]);
 
     // useEffect(() => () => {
     // }, []);

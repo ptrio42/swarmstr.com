@@ -1,7 +1,0 @@
-.active-slide {
-    animation: opacity 1s ease-in-out;
-}
-
-.inactive-slide {
-    opacity: 0;
-}
