@@ -70,18 +70,9 @@ export const Feed = () => {
         uniqBy(sortBy(events, 'created_at').reverse(), 'id')
             .slice(0, limit), [events, limit]);
 
-    const contributors = [
-        'f747b6b3202555cbf39c74b14da9a89585e5fb21431c1e630071e5c86cfb7a2b',
-        '89d1ce9164f1f172daaa9c784153178cb1dec7912bf55f5dc07e0f1dabe40e6c',
-        '1577e4599dd10c863498fe3c20bd82aafaf829a595ce83c5cf8ac3463531b09b',
-        '1bc70a0148b3f316da33fe3c89f23e3e71ac4ff998027ec712b905cd24f6a411',
-        'f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8'
-    ];
+    const contributors = Config.CONTRIBUTORS;
 
-    const explicitTags = ['relays', 'nips', 'badges', 'lightning', 'snort', 'primal', 'keys',
-        'alby', 'clients', 'beginner', 'zaps', 'damus', 'amethyst', 'plebstr', 'zapathon', 'coracle', 'WoS', 'newbie',
-        'gossip', 'zeus', 'node'
-    ];
+    const explicitTags = Config.EXPLICIT_TAGS;
 
     const boxRef = useRef();
 
@@ -122,20 +113,20 @@ export const Feed = () => {
     return (
         <React.Fragment>
             <Helmet>
-                <title>{ Config.APP_TITLE }</title>
+                <title>{ query && query.length > 2 && `Search results for: ${query} - ` }{ Config.APP_TITLE }</title>
                 <meta property="description" content={ Config.APP_DESCRIPTION } />
                 <meta property="keywords" content={ Config.APP_KEYWORDS } />
 
                 <meta property="og:url" content={ `${process.env.BASE_URL}/` } />
                 <meta property="og:type" content="website" />
-                <meta property="og:title" content={ Config.APP_TITLE } />
+                <meta property="og:title" content={ `${query && query.length > 2 && `Search results for: ${query}`} - ${Config.APP_TITLE}` } />
                 <meta property="og:image" content={ Config.APP_IMAGE } />
                 <meta property="og:description" content={ Config.APP_DESCRIPTION } />
 
-                <meta itemProp="name" content={ Config.APP_TITLE } />
+                <meta itemProp="name" content={ `${query && query.length > 2 && `Search results for: ${query}`} - ${Config.APP_TITLE}` } />
                 <meta itemProp="image" content={ Config.APP_IMAGE }  />
 
-                <meta name="twitter:title" content={ Config.APP_TITLE } />
+                <meta name="twitter:title" content={ `${query && query.length > 2 && `Search results for: ${query}`} - ${Config.APP_TITLE}` } />
                 <meta name="twitter:description" content={ Config.APP_DESCRIPTION } />
                 <meta name="twitter:image" content={ Config.APP_IMAGE }  />
 
@@ -145,7 +136,7 @@ export const Feed = () => {
                     searchString === null && <React.Fragment>
                         <Box className="landingPage-box">
                         <Typography variant="h5" component="div">
-                            Find answers to your questions. Assist others in resolving theirs.
+                            { Config.SLOGAN }
                             <Tooltip title="Find out more">
                                 <IconButton className="aboutSwarmstr-button" onClick={() => {
                                     const a = document.createElement('a');
@@ -174,7 +165,7 @@ export const Feed = () => {
                     </Box>
                         <Typography sx={{ marginBottom: '1em', marginTop: '1em' }} component="div" variant="h5">
                             Contributors
-                            <Tooltip title={`People that helped Swarmstr happen.`}>
+                            <Tooltip title={`People that helped in Swarmstr development.`}>
                                 <IconButton className="contributors-button">
                                     <Info />
                                 </IconButton>

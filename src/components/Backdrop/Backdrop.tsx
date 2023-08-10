@@ -1,6 +1,7 @@
 import {Box} from "@mui/material";
 import React from 'react';
 import './Backdrop.css';
+import {Config} from "../../resources/Config";
 
 export const Backdrop = ({ open }: any) => {
     const mountedStyle = {
@@ -24,7 +25,7 @@ export const Backdrop = ({ open }: any) => {
                          background: '#000'
                      }}>
             <Box className="swarmstrPreloaderLogoContainer">
-                <img alt="Swarmstr: Your knowledge hub for curious minds" src={`${process.env.BASE_URL}/images/swarmstr.png`}/>
+                <img alt={Config.APP_TITLE} src={Config.LOGO_IMG}/>
             </Box>
         </Box>
     );

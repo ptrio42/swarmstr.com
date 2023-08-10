@@ -84,10 +84,10 @@ const publish = async (_ndk: NDK, nostrEvent: NostrEvent) => {
     }
 };
 
-
 let ids: string[] = [];
 
-const debouncedSub = () => debounce(() => {
+const debouncedSub = debounce(() => {
+    console.log(`subscribing to ids: ${ids.join(',')}`);
     subscribe({ ids }, { closeOnEose: true }, false);
     ids = [];
 }, 2000);
@@ -125,10 +125,10 @@ const onEvent = (event: NDKEvent) => {
                         publishToSearchRelay(nostrEvent);
                     }, 5000);
                 });
-            publish(ndkDev, nostrEvent)
-                .then(() => {
-                    console.log(`event published to question relay (direct)!`);
-                });
+            // publish(ndkDev, nostrEvent)
+            //     .then(() => {
+            //         console.log(`event published to question relay (direct)!`);
+            //     });
         }
     } else {
         // event doesn't contain the asknostr tag
@@ -144,10 +144,10 @@ const onEvent = (event: NDKEvent) => {
                     publishToSearchRelay(nostrEvent);
                 }, 5000);
             });
-        publish(ndkDev, nostrEvent)
-            .then(() => {
-                console.log(`event published to question relay (hinted)!`);
-            });
+        // publish(ndkDev, nostrEvent)
+        //     .then(() => {
+        //         console.log(`event published to question relay (hinted)!`);
+        //     });
     }
 };
 
@@ -271,10 +271,10 @@ subscribe({
 }, { closeOnEose: false, groupable: false});
 
 // connect to search relay
-ndkDev.connect(2100)
-    .then(() => {
-        console.log(`Connected to search relay`);
-    });
+// ndkDev.connect(2100)
+//     .then(() => {
+//         console.log(`Connected to search relay`);
+//     });
 
 // subscribe to events with a given HASHTAG
 // every x seconds to deals with relay connectivity issues
@@ -455,7 +455,6 @@ server.get('/*', (req, res) => {
                         }
                     }
                 };
-
             }
         }
         console.log({path, noteId})
@@ -473,6 +472,6 @@ server.get('/*', (req, res) => {
 });
 
 server.listen(3000, () => {
-    console.log(`Server running on http://localhost:3000`);
+    console.log(`Server running on http://localhost:3001`);
 });
 

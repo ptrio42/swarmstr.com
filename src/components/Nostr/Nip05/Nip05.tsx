@@ -11,6 +11,7 @@ import Button from "@mui/material/Button";
 import {QrCodeDialog} from "../Metadata/Metadata";
 import {Helmet} from "react-helmet";
 import './Nip05.css';
+import {Config} from "../../../resources/Config";
 
 export const Nip05 = () => {
     const [pubkey, setPubkey] = useState<string>();
@@ -97,22 +98,24 @@ export const Nip05 = () => {
         }
     };
 
+    const domain = (process.env.BASE_URL || '').replace(/https?:\/\//, '');
+
     return (
         <React.Fragment>
             <Helmet>
-                <title>Get free Swarmstr.com Nostr Address</title>
-                <meta property="description" content="Get a Nostr address at @swarmstr.com" />
+                <title>Get free { domain } Nostr Address</title>
+                <meta property="description" content={`Get a Nostr address at @${domain}`} />
                 <meta property="keywords" content="nostr, nip05, nostr handle, nostr address" />
 
-                <meta property="og:url" content="https://swarmstr.com/nostr-address" />
+                <meta property="og:url" content={`${process.env.BASE_URL}/nostr-address`} />
                 <meta property="og:type" content="website" />
-                <meta property="og:title" content="Get free Swarmstr.com Nostr Address" />
-                <meta property="og:description" content="Get a Nostr address at @swarmstr.com" />
+                <meta property="og:title" content={`Get free ${domain} Nostr Address`} />
+                <meta property="og:description" content={`Get free ${domain} Nostr Address`} />
 
-                <meta itemProp="name" content="Get free Swarmstr.com Nostr Address" />
+                <meta itemProp="name" content={`Get free ${domain} Nostr Address`} />
 
-                <meta name="twitter:title" content="Get free Swarmstr.com Nostr Address" />
-                <meta name="twitter:description" content="Get a Nostr address at @swarmstr.com" />
+                <meta name="twitter:title" content={`Get free ${domain} Nostr Address`} />
+                <meta name="twitter:description" content={`Get free ${domain} Nostr Address`} />
 
             </Helmet>
             <Box sx={{ flexDirection: 'column' }}>
@@ -121,7 +124,7 @@ export const Nip05 = () => {
                     variant="h5"
                     sx={{ margin: '0.33em' }}
                 >
-                    Get a free yourname@swarmstr.com Nostr Address
+                    Get a free yourname@{domain} Nostr Address
                 </Typography>
                 <Typography component="div" sx={{ margin: '0.33em' }}>
                     Human readable identifier for your public key (NIP-05).
@@ -145,7 +148,7 @@ export const Nip05 = () => {
                             color="text.secondary"
                             gutterBottom
                         >
-                            Your handle: {name}@swarmstr.com
+                            Your handle: {name}@{domain}
                         </Typography>
 
                         <TextField

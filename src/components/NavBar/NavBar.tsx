@@ -278,7 +278,7 @@ export const NavBar = () => {
                         {/*)} />*/}
                     </Grid>
                     <Link className="logo" to="/">
-                        <img width="84px" height="84px" alt="Swarmstr: Your knowledge hub for curious minds" src={Config.LOGO_IMG}/>
+                        <img width="84px" height="84px" alt={Config.APP_TITLE} src={Config.LOGO_IMG}/>
                     </Link>
                     <Box sx={{ width: '122px', display: 'flex', justifyContent: 'flex-end' }}>
                         <Button

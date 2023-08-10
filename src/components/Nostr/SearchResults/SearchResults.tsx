@@ -32,7 +32,8 @@ export const SearchResults = ({ children, search, results, limit, handleSetLimit
                     paddingLeft: '0!important',
                     paddingRight: '0!important',
                     justifyContent: 'center',
-                    paddingBottom: 0
+                    paddingBottom: 0,
+                    width: '100%'
                 }}
             >
                 { search }
