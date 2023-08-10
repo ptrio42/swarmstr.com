@@ -113,20 +113,20 @@ export const Feed = () => {
     return (
         <React.Fragment>
             <Helmet>
-                <title>{ query && query.length > 2 && `Search results for: ${query} - ` }{ Config.APP_TITLE }</title>
+                <title>{ (searchString && searchString.length > 2) ? `Search results for: ${searchString} - ` : '' }{ Config.APP_TITLE }</title>
                 <meta property="description" content={ Config.APP_DESCRIPTION } />
                 <meta property="keywords" content={ Config.APP_KEYWORDS } />
 
                 <meta property="og:url" content={ `${process.env.BASE_URL}/` } />
                 <meta property="og:type" content="website" />
-                <meta property="og:title" content={ `${query && query.length > 2 && `Search results for: ${query}`} - ${Config.APP_TITLE}` } />
+                <meta property="og:title" content={ `${(searchString && searchString.length > 2) ? `Search results for: ${searchString} - ` : ''}${Config.APP_TITLE}` } />
                 <meta property="og:image" content={ Config.APP_IMAGE } />
                 <meta property="og:description" content={ Config.APP_DESCRIPTION } />
 
-                <meta itemProp="name" content={ `${query && query.length > 2 && `Search results for: ${query}`} - ${Config.APP_TITLE}` } />
+                <meta itemProp="name" content={ `${(searchString && searchString.length > 2) ? `Search results for: ${searchString} - ` : ''}${Config.APP_TITLE}` } />
                 <meta itemProp="image" content={ Config.APP_IMAGE }  />
 
-                <meta name="twitter:title" content={ `${query && query.length > 2 && `Search results for: ${query}`} - ${Config.APP_TITLE}` } />
+                <meta name="twitter:title" content={ `${(searchString && searchString.length > 2) ? `Search results for: ${searchString} - ` : ''}${Config.APP_TITLE}` } />
                 <meta name="twitter:description" content={ Config.APP_DESCRIPTION } />
                 <meta name="twitter:image" content={ Config.APP_IMAGE }  />
 

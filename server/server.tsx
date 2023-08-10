@@ -19,6 +19,19 @@ import RedisAdapter from '@nostr-dev-kit/ndk-cache-redis';
 import {uniqBy, groupBy, forOwn, debounce} from 'lodash';
 import {containsTag, valueFromTag} from "../src/utils/utils";
 
+const redis = require("redis");
+// @ts-ignore
+let redisClient;
+
+(async () => {
+    // @ts-ignore
+    redisClient = redis.createClient();
+    // @ts-ignore
+    redisClient.on("error", (error) => console.error(`Error : ${error}`));
+
+    await redisClient.connect();
+})();
+
 const Pool = require('pg').Pool;
 const pool = new Pool({
     user: process.env.PG_USER,
@@ -50,14 +63,7 @@ const manifest = fs.readFileSync(
 );
 const assets = JSON.parse(manifest);
 
-const events: NostrEvent[] = [];
-
-const nevents: string[] = [];
-
-
-
-
-const cacheAdapter = new RedisAdapter({ expirationTime: 60 * 60 * 24 });
+const cacheAdapter = new RedisAdapter({ expirationTime: 365 * 60 * 60 * 24 });
 
 // ndk instance used to subscribe to events with a given HASHTAG
 // @ts-ignore
@@ -125,10 +131,10 @@ const onEvent = (event: NDKEvent) => {
                         publishToSearchRelay(nostrEvent);
                     }, 5000);
                 });
-            // publish(ndkDev, nostrEvent)
-            //     .then(() => {
-            //         console.log(`event published to question relay (direct)!`);
-            //     });
+            publish(ndkDev, nostrEvent)
+                .then(() => {
+                    console.log(`event published to question relay (direct)!`);
+                });
         }
     } else {
         // event doesn't contain the asknostr tag
@@ -144,37 +150,37 @@ const onEvent = (event: NDKEvent) => {
                     publishToSearchRelay(nostrEvent);
                 }, 5000);
             });
-        // publish(ndkDev, nostrEvent)
-        //     .then(() => {
-        //         console.log(`event published to question relay (hinted)!`);
-        //     });
+        publish(ndkDev, nostrEvent)
+            .then(() => {
+                console.log(`event published to question relay (hinted)!`);
+            });
     }
 };
 
-const filters: NDKFilter[] = [
-    { ids: '53728d6c1de76f867d31dbdea22a60f21b2a150bba6c60a05ec880bd0c1248fd' },
-    { ids: 'be52b4a8e43f4186863158f3e88b0f152cb70c94abe87d047ec5240bb321904e' },
-    { ids: 'f96777692a307d5e036618331e97b19f53a81c38ac19887472167eecf33e677a' },
-    { kinds: [1] }
-];
-const maxSize = 10;
+// const filters: NDKFilter[] = [
+//     { ids: '53728d6c1de76f867d31dbdea22a60f21b2a150bba6c60a05ec880bd0c1248fd' },
+//     { ids: 'be52b4a8e43f4186863158f3e88b0f152cb70c94abe87d047ec5240bb321904e' },
+//     { ids: 'f96777692a307d5e036618331e97b19f53a81c38ac19887472167eecf33e677a' },
+//     { kinds: [1] }
+// ];
+// const maxSize = 10;
+//
+// const addDelayedSubscription = (filter: NDKFilter) => {
+//     filters.push(filter);
+// };
+//
+// export const subscribeToDelayedSubscriptions = () => {
+//     const finalFilters = [];
+//     const groupedFilters = groupBy(filters, (_filter: NDKFilter) => Object.keys(_filter));
+//     forOwn(groupedFilters, (f) => {})
+//     const mappedFilters = Object.keys(groupedFilters).map((key) => ({
+//         [key]: groupedFilters[key].map((f) => f[key])
+//     }));
+//
+//     console.log({mappedFilters});
+// };
 
-const addDelayedSubscription = (filter: NDKFilter) => {
-    filters.push(filter);
-};
-
-export const subscribeToDelayedSubscriptions = () => {
-    const finalFilters = [];
-    const groupedFilters = groupBy(filters, (_filter: NDKFilter) => Object.keys(_filter));
-    forOwn(groupedFilters, (f) => {})
-    const mappedFilters = Object.keys(groupedFilters).map((key) => ({
-        [key]: groupedFilters[key].map((f) => f[key])
-    }));
-
-    console.log({mappedFilters});
-};
-
-subscribeToDelayedSubscriptions();
+// subscribeToDelayedSubscriptions();
 
 const subscribe = (
     filter: NDKFilter,
@@ -221,16 +227,6 @@ const subscribe = (
     sub.on('close', () => {
         console.log(`the sub was closed...`);
     });
-
-    // if (override) {
-    //     subscription?.stop();
-    //     subscription = sub;
-    //     subscription.start()
-    //         .then(() => {
-    //             console.log(`sub started...`);
-    //         });
-    //
-    // }
 };
 
 // connect to relays
@@ -245,9 +241,9 @@ setInterval(() => {
     console.log(`relays: ${ndk.pool.stats().connected}/${ndk.pool.stats().total}`);
 }, 30000);
 
-setInterval(() => {
-    // console.log(`subs: ${Array.from(ndk.pool.relays.values()).reduce((relay, { activeSubscriptions }) => relay.activeSubscriptions.size() + activeSubscriptions.size())}`);
-}, 30000);
+// setInterval(() => {
+    // console.log(`active subs: ${Array.from(ndk.pool.relays.values()).reduce((relay, { activeSubscriptions }) => relay.activeSubscriptions.size() + activeSubscriptions.size())}`);
+// }, 30000);
 
 ndk.pool.on('notice', (notice) => {
     console.log(`got a notice`);
@@ -267,14 +263,14 @@ ndkSearchnos.connect(2100)
 subscribe({
     kinds: [1, 30023],
     '#t': [Config.HASHTAG],
-    since: Date.now() / 1000 - 24 * 60 * 60,
-}, { closeOnEose: false, groupable: false});
+    since: Date.now() / 1000 - 30 * 24 * 60 * 60,
+}, { closeOnEose: false, groupable: false });
 
-// connect to search relay
-// ndkDev.connect(2100)
-//     .then(() => {
-//         console.log(`Connected to search relay`);
-//     });
+// connect to questions relay
+ndkDev.connect(2100)
+    .then(() => {
+        console.log(`Connected to search relay`);
+    });
 
 // subscribe to events with a given HASHTAG
 // every x seconds to deals with relay connectivity issues
@@ -310,17 +306,17 @@ const isPubkeyValid = (pubkey: string): boolean => {
 } ;
 
 
-server.get('/api/events', (req, res) => {
-    res.json(uniqBy(events, 'id'));
-});
-
-server.get('/api/nevents', (req, res) => {
-    res.json(uniqBy(nevents, (nevent) => {
-        const data = nip19.decode(nevent);
-        console.log({data})
-        return data.data.id;
-    }));
-});
+// server.get('/api/events', (req, res) => {
+//     res.json(uniqBy(events, 'id'));
+// });
+//
+// server.get('/api/nevents', (req, res) => {
+//     res.json(uniqBy(nevents, (nevent) => {
+//         const data = nip19.decode(nevent);
+//         console.log({data})
+//         return data.data.id;
+//     }));
+// });
 
 server.get('/.well-known/nostr.json', async (req, res) => {
     try {
@@ -336,7 +332,6 @@ server.get('/.well-known/nostr.json', async (req, res) => {
 });
 
 server.get('/api/check-name/:name', async (req, res) => {
-    // console.log({params: req.params});
     const name = req.params.name.toLowerCase();
     const nameAvailable = await isNameAvailable(name);
     res.json({ nameAvailable });
@@ -373,54 +368,7 @@ server.post('/api/register-name', async (req, res) => {
     console.log({name, pubkey});
 });
 
-server.get('/api/ai', async (req, res) => {
-    // Load the model.
-    // @ts-ignore
-    // use.load().then(model => {
-    //     // Embed an array of sentences.
-    //     const sentences = [
-    //         'Hello.',
-    //         'How are you?'
-    //     ];
-    //     // @ts-ignore
-    //     model.embed(sentences).then(embeddings => {
-    //         console.log({embeddings})
-    //         // `embeddings` is a 2D tensor consisting of the 512-dimensional embeddings for each sentence.
-    //         // So in this example `embeddings` has the shape [2, 512].
-    //         embeddings.print(true /* verbose */);
-    //     });
-    // });
-    // const id = '2f02d76f09666ae076e65beb60ff195eb7f44b51c73147a6a37748bfabd60a7c';
-    // const content = 'can anyone explain in simple terms what nostr is and how to start using it?!';
-    // try {
-    //     const response = await ai.createEmbedding({
-    //         model: 'text-embedding-ada-002',
-    //         input: content
-    //     });
-    //     const [{ embedding }] = response.data.data;
-    //
-    //     console.log({embedding});
-    //
-    //     try {
-    //         const response = await pool.query('INSERT INTO events (id, content, embedding) VALUES ($1, $2, $3)', [id, content, embedding]);
-    //         if (response) {
-    //             res.sendStatus(204);
-    //         }
-    //     } catch (error) {
-    //         console.error('error adding event...', {error});
-    //         res.sendStatus(400);
-    //     }
-    //
-    // } catch (error) {
-    //     console.error('error getting embedding...', {error})
-    //     res.sendStatus(400);
-    //     // @ts-ignore
-    //     console.log({data: error?.response?.data})
-    // }
-
-});
-
-server.get('/*', (req, res) => {
+server.get('/*', async (req, res) => {
     let helmet = Helmet.renderStatic();
     const path = req.originalUrl;
     if (path === '/resources/nostr/' || path === '/resources/nostr' || path === '/nostr/resources' || path === '/swarmstr') {
@@ -433,31 +381,41 @@ server.get('/*', (req, res) => {
     try {
         const noteIdHex = nip19.decode(noteIdBech32);
         console.log({noteIdHex})
-        const noteId = noteIdHex && noteIdHex.data;
-        if (noteId) {
-            const note = events.find((e: any) => e.id === noteId);
-            if (note) {
-                const title = note.content.replace(/#\[([0-9]+)\]/g, '');
-                helmet = {
-                    ...helmet,
-                    title: {
-                        ...helmet.title,
-                        toString(): string {
-                            return `<title>${title} - UseLessShit.co</title>`
+        const { id } = noteIdHex && noteIdHex.data;
+        if (id) {
+            // @ts-ignore
+            const event = await redisClient.get(id);
+            // console.log('question event', {event})
+            if (event) {
+                try {
+                    const { content } = JSON.parse(event);
+                    let length = content;
+                    let title = content.replace(/#\[([0-9]+)\]/g, '').slice(0, content.indexOf('?') > -1 ? content.indexOf('?') + 1 : content.length);
+                    if (title.length > 150) title = `${title.slice(0, 150)}...`;
+                    console.log('question title', { title } )
+                    helmet = {
+                        ...helmet,
+                        title: {
+                            ...helmet.title,
+                            toString(): string {
+                                return `<title>${title} - Swarmstr.com</title>`
+                            }
+                        },
+                        meta: {
+                            ...helmet.meta,
+                            toString(): string {
+                                return `<meta property="og:title" content="${title} - Swarmstr.com" />` +
+                                    `<meta itemProp="name" content="${title} - Swarmstr.com" />` +
+                                    `<meta name="twitter:title" content="${title} - Swarmstr.com" />`;
+                            }
                         }
-                    },
-                    meta: {
-                    ...helmet.meta,
-                        toString(): string {
-                            return `<meta property="og:title" content="${title} - UseLessShit.co" />` +
-                                `<meta itemProp="name" content="${title} - UseLessShit.co" />` +
-                                `<meta name="twitter:title" content="${title} - UseLessShit.co" />`;
-                        }
-                    }
-                };
+                    };
+                } catch (e) {
+
+                }
             }
         }
-        console.log({path, noteId})
+        // console.log({path, noteId})
     } catch (error) {
         console.error({error});
     }
