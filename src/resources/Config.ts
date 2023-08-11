@@ -17,6 +17,7 @@ export const Config = {
   APP_IMAGE: `${process.env.BASE_URL}/images/swarmstr_cover-image.png`,
   APP_KEYWORDS: 'nostr, asknostr, questions, answers, q&a, nostr clients, zaps, relays, nips, bitcoin, lightning',
   HASHTAG: 'asknostr',
+  REPLIES_HASHTAG: 'asknostr-reply',
   SLOGAN: 'Find answers to your questions. Assist others in resolving theirs.',
   LOGO_IMG: `${process.env.BASE_URL}/images/swarmstr.png`,
   SEARCH_RELAY: `wss://search.swarmstr.com`,

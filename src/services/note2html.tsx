@@ -13,19 +13,19 @@ import {keywordsFromString} from "../utils/utils";
 // this method processes notes content, adds html, handles markup, etc.
 export const noteContentToHtml = (text: string, tags?: string[][], searchString?: string, floating?: boolean): string => {
     let processedText = text || '';
-    processedText = text
+    processedText = processedText
     .replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/nostr:npub1([a-z0-9]+)/g, (result) => {
+    .replace(/nostr:npub1([a-z0-9]+)/gm, (result) => {
         const npub = result.split(':')[1];
         return `<button class="metadata-btn">${npub}</button>`;
     })
-    .replace(/nostr:note1([a-z0-9]+)/g, (result) => {
+    .replace(/nostr:note1([a-z0-9]+)/gm, (result) => {
         const note1 = result.split(':')[1];
         const id = nip19.decode(note1).data;
         const nevent = nip19.neventEncode({ id });
         return `<button class="thread-btn">${nevent}</button>`;
     })
-    .replace(/nostr:nevent1([a-z0-9]+)/g, (result) => {
+    .replace(/nostr:nevent1([a-z0-9]+)/gm, (result) => {
         const nevent = result.split(':')[1];
         return `<button class="thread-btn">${nevent}</button>`;
     });
@@ -35,9 +35,10 @@ export const noteContentToHtml = (text: string, tags?: string[][], searchString?
         processedText = text
             .replace(new RegExp(expression, 'gmi'), '<strong>$1</strong>')
     }
-    processedText = text
+    processedText = processedText
     // youtube links
     .replace(/https:\/\/youtu\.be\/([a-zA-Z0-9_-]+)/g, '<button class="video-btn">$1</button>')
+    .replace(/https:\/\/youtube\.com\/watch?v=([a-zA-Z0-9_-]+)/g, '<button class="video-btn">$1</button>')
     // urls but not images and not those used in markdown
     .replace(/(?<!\]\()(https?:\/\/(?![^" \n]*(?:jpg|jpeg|png|gif|svg|webp|mov|mp4))[^" \n\(\)]+)(?<!\))/gm, '<a class="test-0" href="$1" target="_blank">$1</a>')
     // image urls and not those used in markdown

@@ -30,7 +30,7 @@ import ReactPlayer from 'react-player';
 import {NDKFilter, NDKRelaySet, NDKSubscription, NostrEvent, NDKSubscriptionOptions} from "@nostr-dev-kit/ndk";
 import {useNostrNoteContext} from "../../../providers/NostrNoteContextProvider";
 import { intersection } from 'lodash';
-import {nFormatter, noteIsVisible} from "../../../utils/utils";
+import {containsTag, nFormatter, noteIsVisible} from "../../../utils/utils";
 import {useNostrContext} from "../../../providers/NostrContextProvider";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
@@ -42,6 +42,7 @@ import Tooltip from "@mui/material/Tooltip";
 import ReactTimeAgo from 'react-time-ago'
 import {NewLabelDialog} from "../../../dialog/NewLabelDialog";
 import {noteContentToHtml} from "../../../services/note2html";
+import {Config} from "../../../resources/Config";
 
 interface NoteProps {
     noteId?: string;
@@ -266,7 +267,8 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                 minWidth: 275,
                 marginBottom: '0.5em',
                 width: '100%',
-                ...(pinned && { backgroundColor: '#f1f1f1' })
+                ...(pinned && { backgroundColor: '#f1f1f1' }),
+                ...(containsTag(event?.tags || [], ['t', Config.REPLIES_HASHTAG]) && { backgroundColor: 'rgba(0,0,0,.01)' })
             }}
             className="note"
         >
@@ -491,7 +493,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
             onClose={() => setSnackbarOpen(false)}
             message={snackbarMessage}
         />
-        <NewNoteDialog open={newReplyDialogOpen} onClose={() => setNewReplyDialogOpen(false)} noteId={id} replyTo={event && [event.pubkey]} label="Your reply..." />
+        <NewNoteDialog open={newReplyDialogOpen} onClose={() => setNewReplyDialogOpen(false)} noteId={id} replyTo={event && [event.pubkey]} explicitTags={[['t', Config.REPLIES_HASHTAG]]} label="Your reply..." />
         <ZapDialog open={zapDialogOpen} event={event} onClose={() => setZapDialogOpen(false)} npub={author && nip19.npubEncode(author)} />
         { event && <NewLabelDialog open={newLabelDialogOpen} onClose={() => { setNewLabelDialogOpen(false) }} reaction={'shaka'} event={event} /> }
         <QrCodeDialog str={event && new RegExp(/([0123456789abcdef]{64})/).test(event!.id!) && `nostr:${nip19.noteEncode(event.id)}` || ''} dialogOpen={dialogOpen} close={() => setDialogOpen(false)} />
