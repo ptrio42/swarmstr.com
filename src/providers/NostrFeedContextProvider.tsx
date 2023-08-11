@@ -10,44 +10,19 @@ import NDK, {
     NostrEvent
 } from "@nostr-dev-kit/ndk";
 import {NostrFeedContext} from '../contexts/NostrFeedContext';
-import axios from "axios";
 import {Config, CLIENT_RELAYS} from "../resources/Config";
 import { nip19 } from 'nostr-tools';
-import {useNostrContext} from "./NostrContextProvider";
 import {db} from "../db";
-import {useLiveQuery} from "dexie-react-hooks";
-import {containsTag, valueFromTag} from "../utils/utils";
 import {NOTE_TYPE, NoteEvent} from "../models/commons";
 import {sortBy} from 'lodash';
 
 const subs: NDKSubscription[] = [];
 
 export const NostrFeedContextProvider = ({ children }: any) => {
-    const [nevents, _setNevents] = useState<string[]>([]);
-    const neventsRef = useRef<string[]>(nevents);
-    const setNevents = (nevents: string[]) => {
-        neventsRef.current = nevents;
-        _setNevents(neventsRef.current);
-    };
-
-    // const { events } = useNostrContext();
     const [loading, setLoading] = useState<boolean>(false);
-
     const ndk = useRef<NDK>(new NDK({ explicitRelayUrls: [Config.SEARCH_RELAY] }));
     const [events, setEvents] = useState<NostrEvent[]>([]);
     const [query, setQuery] = useState<string>('');
-
-    const fetchNevents = useCallback(() => {
-        axios
-            .get('../api/nevents')
-            .then((response: { data: string[] }) => {
-                setLoading(false);
-                setNevents(response.data);
-            })
-            .catch((error) => {
-                console.log('error fetching events...');
-            });
-    }, []);
 
     const subscribe = useCallback((
         filter: NDKFilter,
@@ -64,7 +39,6 @@ export const NostrFeedContextProvider = ({ children }: any) => {
 
     useEffect(() => {
         setLoading(true);
-        // console.log(`events change ${events?.length}`)
     }, [events]);
 
     const startSubs = useCallback((filter: NDKFilter, _events?: NostrEvent[]) => {
@@ -88,11 +62,14 @@ export const NostrFeedContextProvider = ({ children }: any) => {
 
     const onEvent = (event: NDKEvent) => {
         const nostrEvent = event.rawEvent();
+        // simple feed filtering based on specific text
         if (!nostrEvent.content.includes('nsfw') &&
             !nostrEvent.content.includes('Just deployed https://swarmstr.com build') &&
             !nostrEvent.content.includes('beta.uselessshit.co') &&
+            !nostrEvent.content.includes('dev.uselessshit.co') &&
             !nostrEvent.content.includes('Let me introduce my good friend') &&
             !nostrEvent.content.includes('and unlock exciting privileges within the community') &&
+            !nostrEvent.content.includes('Swarmstr is a simple Q&A #nostr client') &&
             !nostrEvent.content.includes('an early release so expect some bugs')) {
             db.notes.put({
                 ...nostrEvent,
@@ -112,7 +89,7 @@ export const NostrFeedContextProvider = ({ children }: any) => {
         setEvents([]);
     };
 
-    const memoValue = useMemo(() => ({ nevents, subscribe, loading, events, clearEvents, query, setQuery, startSubs, stopSubs }), [events, query, loading]);
+    const memoValue = useMemo(() => ({ subscribe, loading, events, clearEvents, query, setQuery, startSubs, stopSubs }), [events, query, loading]);
 
     const connectToRelays = useCallback(async () => {
         try {
@@ -146,11 +123,7 @@ export const NostrFeedContextProvider = ({ children }: any) => {
             }
         });
 
-        // fetch nevents
-        fetchNevents();
-
         return () => {
-            // do something on unmount
             clearEvents();
         }
     }, []);

@@ -79,7 +79,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
 
     const [parsedContent, setParsedContent] = useState<any>();
 
-    const { subscribe, addReaction, subs, boost } = useNostrNoteContext();
+    const { subscribe, subs } = useNostrNoteContext();
 
     const { id, author } = nip19.decode(nevent).data;
     const filter: NDKFilter = { ids: [id]};
@@ -91,6 +91,14 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
     const searchString = searchParams.get('s');
 
     const navigate = useNavigate();
+
+    const noteRef = useRef(null);
+    const noteVisible = noteIsVisible(noteRef);
+
+    const { user, setLoginDialogOpen, newLabelDialogOpen, setNewLabelDialogOpen, addReaction, boost } = useNostrContext();
+
+    const [newReplyDialogOpen, setNewReplyDialogOpen] = useState<boolean>(false);
+    const [zapDialogOpen, setZapDialogOpen] = useState<boolean>(false);
 
     const [event, loaded] = useLiveQuery(async () => {
         const event = await db.notes.get({ id });
@@ -125,15 +133,6 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
             .toArray();
         return repostEvents;
     }, [id], []);
-
-
-    const noteRef = useRef(null);
-    const noteVisible = noteIsVisible(noteRef);
-
-    const { user, setLoginDialogOpen, newLabelDialogOpen, setNewLabelDialogOpen } = useNostrContext();
-
-    const [newReplyDialogOpen, setNewReplyDialogOpen] = useState<boolean>(false);
-    const [zapDialogOpen, setZapDialogOpen] = useState<boolean>(false);
 
     useEffect(() => {
         return () => {

@@ -63,25 +63,28 @@ const manifest = fs.readFileSync(
 );
 const assets = JSON.parse(manifest);
 
+// only subscribe to events since given timestamp
+// default 7 days
+const EVENTS_SINCE = Math.floor(Date.now() / 1000 - 7 * 24 * 60 * 60);
+console.log({EVENTS_SINCE})
+
 const cacheAdapter = new RedisAdapter({ expirationTime: 365 * 60 * 60 * 24 });
 
 // ndk instance used to subscribe to events with a given HASHTAG
 // @ts-ignore
-let ndk = new NDK({ explicitRelayUrls: SERVER_RELAYS, cacheAdapter });
+const ndk = new NDK({ explicitRelayUrls: SERVER_RELAYS, cacheAdapter });
 
 // ndk instance used to publish events to search relay
-let ndkSearchnos = new NDK({ explicitRelayUrls: [Config.SEARCH_RELAY_PUBLISH] });
+const ndkSearchnos = new NDK({ explicitRelayUrls: [Config.SEARCH_RELAY_PUBLISH] });
 
-const ndkDev = new NDK({ explicitRelayUrls: ['wss://q.swarmstr.com'] });
-
-const publish = async (_ndk: NDK, nostrEvent: NostrEvent) => {
+const publish = async (nostrEvent: NostrEvent, relayUrls?: string[], _ndk?: NDK) => {
     try {
-        const event = new NDKEvent(_ndk, nostrEvent);
-        console.log(`signing & publishing new event`, {event});
+        const event = new NDKEvent(_ndk || ndk, nostrEvent);
+        console.log(`publishing new event`, {event});
         try {
-            // await ndkSearchnos.connect();
-            await event.publish();
-            console.log(`event ${event.id} published!`);
+            // @ts-ignore
+            const result = await event.publish(NDKRelaySet.fromRelayUrls(relayUrls, _ndk || ndk), 5000);
+            console.log(`event ${event.id} published!`, {result});
         } catch (error) {
             console.error(`unable to publish event ${nostrEvent.id}`);
         }
@@ -100,7 +103,7 @@ const debouncedSub = debounce(() => {
 
 const publishToSearchRelay = async (nostrEvent: NostrEvent) => {
     try {
-        await publish(ndkSearchnos, nostrEvent)
+        await publish(nostrEvent, [Config.SEARCH_RELAY], ndkSearchnos)
     } catch (e) {
         console.error('Unable to publish to search relay');
     }
@@ -131,9 +134,9 @@ const onEvent = (event: NDKEvent) => {
                         publishToSearchRelay(nostrEvent);
                     }, 5000);
                 });
-            publish(ndkDev, nostrEvent)
-                .then(() => {
-                    console.log(`event published to question relay (direct)!`);
+            publish(nostrEvent, ['wss://q.swarmstr.com'])
+                .then((response) => {
+                    console.log(`event published to question relay (direct)!`, {response});
                 });
         }
     } else {
@@ -150,83 +153,30 @@ const onEvent = (event: NDKEvent) => {
                     publishToSearchRelay(nostrEvent);
                 }, 5000);
             });
-        publish(ndkDev, nostrEvent)
-            .then(() => {
-                console.log(`event published to question relay (hinted)!`);
+        publish(nostrEvent, ['wss://q.swarmstr.com'])
+            .then((response) => {
+                console.log(`event published to question relay (hinted)!`, {response});
             });
     }
 };
-
-// const filters: NDKFilter[] = [
-//     { ids: '53728d6c1de76f867d31dbdea22a60f21b2a150bba6c60a05ec880bd0c1248fd' },
-//     { ids: 'be52b4a8e43f4186863158f3e88b0f152cb70c94abe87d047ec5240bb321904e' },
-//     { ids: 'f96777692a307d5e036618331e97b19f53a81c38ac19887472167eecf33e677a' },
-//     { kinds: [1] }
-// ];
-// const maxSize = 10;
-//
-// const addDelayedSubscription = (filter: NDKFilter) => {
-//     filters.push(filter);
-// };
-//
-// export const subscribeToDelayedSubscriptions = () => {
-//     const finalFilters = [];
-//     const groupedFilters = groupBy(filters, (_filter: NDKFilter) => Object.keys(_filter));
-//     forOwn(groupedFilters, (f) => {})
-//     const mappedFilters = Object.keys(groupedFilters).map((key) => ({
-//         [key]: groupedFilters[key].map((f) => f[key])
-//     }));
-//
-//     console.log({mappedFilters});
-// };
-
-// subscribeToDelayedSubscriptions();
 
 const subscribe = (
     filter: NDKFilter,
     opts: NDKSubscriptionOptions = {closeOnEose: false, groupable: false},
     override: boolean = true
 ) => {
-    // when set to true:
-    //  1. stop all active subs
-    //  2. recreate ndk instances
-    if (override) {
-        // stopping all active subs
-        ndk.pool.relays.forEach((relay: NDKRelay) => {
-            relay.activeSubscriptions
-                .forEach((_sub: NDKSubscription) => _sub.stop())
-        });
-        ndkSearchnos.pool.relays
-            .forEach((relay: NDKRelay) => relay
-                .activeSubscriptions
-                .forEach((_sub: NDKSubscription) => _sub.stop()));
-        // a dummy 'hack' to deal with relay connectivity issues
-        // todo: find a way to constantly stay connected to as many relays as possible
-        // @ts-ignore
-        ndk = new NDK({ explicitRelayUrls: SERVER_RELAYS, cacheAdapter });
-        ndkSearchnos = new NDK({ explicitRelayUrls: [Config.SEARCH_RELAY_PUBLISH] });
-        Promise.all([
-            ndk.connect(5000),
-            ndkSearchnos.connect(5000)
-        ])
-            .then(() => {
-                console.log('connected to relays')
-            });
-    }
-    // subscribe
     const sub = ndk.subscribe(filter, opts);
 
     console.log(`new sub created...`);
 
-    sub.on('event', onEvent);
-
-    sub.on('eose', () => {
-        console.log(`eose received`);
-    });
-
-    sub.on('close', () => {
-        console.log(`the sub was closed...`);
-    });
+    sub
+        .on('event', onEvent)
+        .on('eose', () => {
+            console.log(`eose received`);
+        })
+        .on('close', () => {
+            console.log(`the sub was closed...`);
+        });
 };
 
 // connect to relays
@@ -235,15 +185,15 @@ ndk.connect(2100)
         console.log(`Connected to relays`);
     });
 
-let delay: number = 0;
+// connect to search relay
+ndkSearchnos.connect(2100)
+    .then(() => {
+        console.log(`Connected to search relay`);
+    });
 
 setInterval(() => {
     console.log(`relays: ${ndk.pool.stats().connected}/${ndk.pool.stats().total}`);
 }, 30000);
-
-// setInterval(() => {
-    // console.log(`active subs: ${Array.from(ndk.pool.relays.values()).reduce((relay, { activeSubscriptions }) => relay.activeSubscriptions.size() + activeSubscriptions.size())}`);
-// }, 30000);
 
 ndk.pool.on('notice', (notice) => {
     console.log(`got a notice`);
@@ -253,36 +203,12 @@ ndk.pool.on('flapping', (flapping) => {
     console.log(`some relays flapping`);
 });
 
-// connect to search relay
-ndkSearchnos.connect(2100)
-    .then(() => {
-        console.log(`Connected to search relay`);
-    });
-
 // initially subscribe to hashtag events
 subscribe({
     kinds: [1, 30023],
     '#t': [Config.HASHTAG],
-    since: Date.now() / 1000 - 30 * 24 * 60 * 60,
+    since: EVENTS_SINCE,
 }, { closeOnEose: false, groupable: false });
-
-// connect to questions relay
-ndkDev.connect(2100)
-    .then(() => {
-        console.log(`Connected to search relay`);
-    });
-
-// subscribe to events with a given HASHTAG
-// every x seconds to deals with relay connectivity issues
-// more info in subscribe method
-setInterval(() => {
-    console.log(`'re-subscribe' attempt...`);
-    subscribe({
-        kinds: [1, 30023],
-        '#t': [Config.HASHTAG],
-        since: Date.now() / 1000 - 60 * 60,
-    }, { closeOnEose: false, groupable: false}, true);
-}, 5 * 60 * 1000);
 
 const isNameAvailable = async (name: string): Promise<boolean> => {
     if (!(new RegExp(/([a-z0-9_.]+)/, 'gi').test(name)) || name.length < 1) return false;
@@ -304,19 +230,6 @@ const isPubkeyValid = (pubkey: string): boolean => {
     }
     return false;
 } ;
-
-
-// server.get('/api/events', (req, res) => {
-//     res.json(uniqBy(events, 'id'));
-// });
-//
-// server.get('/api/nevents', (req, res) => {
-//     res.json(uniqBy(nevents, (nevent) => {
-//         const data = nip19.decode(nevent);
-//         console.log({data})
-//         return data.data.id;
-//     }));
-// });
 
 server.get('/.well-known/nostr.json', async (req, res) => {
     try {
@@ -371,21 +284,14 @@ server.post('/api/register-name', async (req, res) => {
 server.get('/*', async (req, res) => {
     let helmet = Helmet.renderStatic();
     const path = req.originalUrl;
-    if (path === '/resources/nostr/' || path === '/resources/nostr' || path === '/nostr/resources' || path === '/swarmstr') {
-        res.writeHead(301, {
-            Location: `/`
-        }).end();
-    }
     const pathArr = path.split('/');
-    const noteIdBech32 = pathArr && pathArr[pathArr.length - 1];
+    const nevent = pathArr && pathArr[pathArr.length - 1];
     try {
-        const noteIdHex = nip19.decode(noteIdBech32);
-        console.log({noteIdHex})
-        const { id } = noteIdHex && noteIdHex.data;
+        const eventPointer = nip19.decode(nevent);
+        const { id } = eventPointer?.data;
         if (id) {
             // @ts-ignore
             const event = await redisClient.get(id);
-            // console.log('question event', {event})
             if (event) {
                 try {
                     const { content } = JSON.parse(event);
@@ -415,7 +321,6 @@ server.get('/*', async (req, res) => {
                 }
             }
         }
-        // console.log({path, noteId})
     } catch (error) {
         console.error({error});
     }
@@ -430,6 +335,6 @@ server.get('/*', async (req, res) => {
 });
 
 server.listen(3000, () => {
-    console.log(`Server running on http://localhost:3001`);
+    console.log(`Server running on http://localhost:3000`);
 });
 

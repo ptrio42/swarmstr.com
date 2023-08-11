@@ -4,7 +4,7 @@ import {Box} from "@mui/material";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import './LightningInvoice.css';
-import {useNostrNoteContext} from "../../providers/NostrNoteContextProvider";
+import {useNostrContext} from "../../providers/NostrContextProvider";
 
 interface LightningInvoiceProps {
     lnbc: string;
@@ -12,7 +12,7 @@ interface LightningInvoiceProps {
 
 export const LightningInvoice = ({lnbc}: LightningInvoiceProps) => {
 
-    const { payInvoice } = useNostrNoteContext();
+    const { payInvoice } = useNostrContext();
 
     const getAmount = useCallback(() => {
         try {
@@ -23,8 +23,6 @@ export const LightningInvoice = ({lnbc}: LightningInvoiceProps) => {
             console.error('unable to decode lnbc');
             return 'n/a';
         }
-        // console.log({lnbc})
-        // return lightBolt11Decoder.decode(lnbc)
     }, [lnbc]);
 
     return (

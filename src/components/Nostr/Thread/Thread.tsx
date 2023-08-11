@@ -20,6 +20,7 @@ import {request} from "../../../services/request";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import { orderBy, chunk } from 'lodash';
 import './Thread.css';
+import {Config} from "../../../resources/Config";
 
 interface ThreadProps {
     nevent?: string;
@@ -48,7 +49,8 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating }: 
        const events = await db.notes
            .where({ referencedEventId: id })
            // filter spam notes
-           .filter(({ content }) => !content.toLowerCase().includes('airdrop is live') && !content.toLowerCase().includes('claim your free $'))
+           .filter(({ content }) => !content.toLowerCase().includes('airdrop is live') &&
+               !content.toLowerCase().includes('claim your free $'))
            .toArray();
        return events;
     }, [id]);
@@ -70,7 +72,6 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating }: 
                             ...stats,
                             ...response.data.stats
                         });
-                        // console.log({stats: response.data})
                     })
                 });
         }
@@ -89,25 +90,27 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating }: 
 
     return (
         <React.Fragment>
-            <Helmet>
-                <title>{`Thread ${ nevent } - Swarmstr.com`}</title>
-                {/*<meta property="description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />*/}
-                {/*<meta property="keywords" content="nostr guide, nostr resources, nostr most common questions, getting started on nostr, what is nostr" />*/}
+            {
+                expanded && <Helmet>
+                    <title>{`Thread ${ nevent } - Swarmstr.com`}</title>
+                    <meta property="description" content={ Config.APP_DESCRIPTION } />
+                    <meta property="keywords" content={ Config.APP_KEYWORDS } />
 
-                <meta property="og:url" content={process.env.BASE_URL + '/e/' + nevent } />
-                <meta property="og:type" content="website" />
-                <meta property="og:title" content={`Thread ${ nevent } - Swarmstr.com`} />
-                {/*<meta property="og:image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />*/}
-                {/*<meta property="og:description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />*/}
+                    <meta property="og:url" content={process.env.BASE_URL + '/e/' + nevent } />
+                    <meta property="og:type" content="website" />
+                    <meta property="og:title" content={`Thread ${ nevent } - Swarmstr.com`} />
+                    <meta property="og:image" content="" />
+                    <meta property="og:description" content={ Config.APP_DESCRIPTION } />
 
-                <meta itemProp="name" content={`${ nevent } - Swarmstr.com`} />
-                {/*<meta itemProp="image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />*/}
+                    <meta itemProp="name" content={`${ nevent } - Swarmstr.com`} />
+                    <meta itemProp="image" content="" />
 
-                <meta name="twitter:title" content={`${ nevent } - Swarmstr.com`} />
-                {/*<meta name="twitter:description" content="Basic guides for Nostr newcomers. Find answers to the most common questions." />*/}
-                {/*<meta name="twitter:image" content="https://uselessshit.co/images/new-nostr-guide-cover.png" />*/}
+                    <meta name="twitter:title" content={`${ nevent } - Swarmstr.com`} />
+                    <meta name="twitter:description" content={ Config.APP_DESCRIPTION } />
+                    <meta name="twitter:image" content="" />
 
-            </Helmet>
+                </Helmet>
+            }
 
             <List>
 

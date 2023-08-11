@@ -34,6 +34,8 @@ pre {
     background: rgba(0,0,0,.03);
     padding: 1em;
     overflow-x: scroll;
+    padding-top: 0;
+    border-radius: 8px;
 }
 
 .theme--dark pre {

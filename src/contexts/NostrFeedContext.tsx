@@ -3,7 +3,6 @@ import NDK, {NDKEvent, NDKFilter, NDKRelaySet, NDKSubscriptionOptions, NostrEven
 import Dexie from "dexie";
 
 type NostrFeedContextType = {
-    nevents: string[],
     subscribe: (filter: NDKFilter, opts?: NDKSubscriptionOptions) => void,
     loading: boolean,
     clearEvents: () => void,
@@ -15,7 +14,6 @@ type NostrFeedContextType = {
 }
 
 export const NostrFeedContext = createContext<NostrFeedContextType>({
-    nevents: [],
     subscribe: () => {},
     loading: true,
     clearEvents: () => {},

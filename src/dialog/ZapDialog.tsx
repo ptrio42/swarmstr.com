@@ -6,9 +6,9 @@ import {nFormatter} from "../utils/utils";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import {NostrEvent} from "@nostr-dev-kit/ndk";
-import {useNostrNoteContext} from "../providers/NostrNoteContextProvider";
 import DialogActions from "@mui/material/DialogActions";
 import Divider from "@mui/material/Divider";
+import {useNostrContext} from "../providers/NostrContextProvider";
 
 interface ZapDialogProps {
     open: boolean,
@@ -48,7 +48,7 @@ export const ZapDialog = ({ open, event, npub, onClose }: ZapDialogProps) => {
 
     const [selectedZapAmount, setSelectedZapAmount] = useState<number>(21);
 
-    const { zap } = useNostrNoteContext();
+    const { zap } = useNostrContext();
 
     const handleClose = () => {
         onClose && onClose();

@@ -20,6 +20,7 @@ import {NostrNoteContextProvider} from "./providers/NostrNoteContextProvider";
 import {Note} from "./components/Nostr/Note/Note";
 import {NostrNoteThreadContext} from "./contexts/NostrNoteThreadContext";
 import {NostrContextProvider} from "./providers/NostrContextProvider";
+import {ThreadWrapper} from "./components/Nostr/ThreadWrapper/ThreadWrapper";
 
 const theme = createTheme({
     typography: {
@@ -117,25 +118,7 @@ function App() {
                 <Routes>
                     <Route path="/" element={<NostrFeedContextProvider><Feed/></NostrFeedContextProvider>} />
                     <Route path="/nostr-address" element={<Nip05/>} />
-                    <Route path="e/:nevent" element={
-                        <NostrNoteThreadContextProvider>
-                            <NostrNoteThreadContext.Consumer>
-                                {
-                                    ({ nevent }) => (
-                                        <NoteThread
-                                            key={`${nevent}-thread`}
-                                            nevent={nevent}
-                                            expanded={true}
-                                        >
-                                            <NostrNoteContextProvider thread={true}>
-                                                <Note key={`${nevent}-content`} nevent={nevent} expanded={true}/>
-                                            </NostrNoteContextProvider>
-                                        </NoteThread>
-                                    )
-                                }
-                            </NostrNoteThreadContext.Consumer>
-                        </NostrNoteThreadContextProvider>
-                    } />
+                    <Route path="e/:nevent" element={<ThreadWrapper/>} />
                 </Routes>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>

@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useEffect, useRef, useState} from "react";
+import React, {useCallback, useContext, useRef} from "react";
 import {
     NDKEvent,
     NDKFilter,
@@ -9,13 +9,10 @@ import {
     NostrEvent
 } from "@nostr-dev-kit/ndk";
 import {NostrNoteContext} from "../contexts/NostrNoteContext";
-import {useNostrFeedContext} from "./NostrFeedContextProvider";
-import {useNostrNoteThreadContext} from "./NostrNoteThreadContextProvider";
 import {useNostrContext} from "./NostrContextProvider";
 import {requestProvider, WebLNProvider} from "webln";
 import {db} from "../db";
-import {containsTag, valueFromTag} from "../utils/utils";
-import {NOTE_TYPE, NoteEvent} from "../models/commons";
+import {valueFromTag} from "../utils/utils";
 import {nip19} from "nostr-tools";
 import lightBolt11Decoder from 'light-bolt11-decoder';
 
@@ -30,13 +27,7 @@ export const NostrNoteContextProvider = ({ children }: NostrNoteContextProviderP
     const { ndk } = useNostrContext();
 
     const subscribe = useCallback((filter: NDKFilter, opts?: NDKSubscriptionOptions) => {
-        const relayUrls = ['wss://nostr.band', 'wss://nos.lol', 'wss://q.swarmstr.com'];
-        const relaySet = NDKRelaySet.fromRelayUrls(relayUrls, ndk);
-        // relaySet.relays.forEach((relay) => relay.connect().then(() => { console.log(`connected to ${relay.url}`) }));
-        // ndk.pool.connect();
-        const sub = ndk.subscribe(filter, opts, relaySet);
-        // ndk.connect();
-        // const sub = new NDKSubscription(ndk, filter, opts);
+        const sub = ndk.subscribe(filter, opts);
         sub
             .on('event',  (event: NDKEvent) => {
                 try {
@@ -74,145 +65,19 @@ export const NostrNoteContextProvider = ({ children }: NostrNoteContextProviderP
                                 .find((section: any) => section.name === 'amount').value
                         })
                     }
-                    // if (nostrEvent.kind === 0) {
-                    //     db.users.put(nostrEvent);
-                    // }
                 } catch (error) {
                 }
-            // }
-
-        })
+        });
             sub.start()
             .then(() => {
-                console.log(`${sub.subId} started with relaySet ${relayUrls.join(',')} and filter: ${JSON.stringify(filter)}...`);
+                console.log(`${sub.subId} started with filter: ${JSON.stringify(filter)}...`);
             });
 
         subs.current.push(sub);
     }, []);
 
-    const addReaction = useCallback((id: string, content: string) => {
-        const event = new NDKEvent(ndk);
-        event.kind = 7;
-        event.content = content;
-        event.tags = [
-            ['e', id]
-        ];
-        ndk.assertSigner()
-            .then(() => {
-                console.log('reaction', {event})
-                event.sign(ndk.signer!)
-                    .then(() => {
-                        ndk.publish(event)
-                            .then(() => {
-                                console.log('reaction added!');
-                            })
-                    })
-                    .catch((e) => {})
-            })
-            .catch((e) => {})
-    }, []);
-
-    const zap = useCallback((nostrEvent: NostrEvent, amount: number, callback?: () => void) => {
-        const event = new NDKEvent(ndk, nostrEvent);
-
-        ndk.assertSigner()
-            .then(() => {
-                event.zap(amount * 1000)
-                    .then((paymentRequest: string|null) => {
-                        console.log('zap request...', {paymentRequest});
-                        if (!paymentRequest) {
-                            return;
-                        }
-
-                        requestProvider()
-                            .then((webln: WebLNProvider) => {
-                                webln.sendPayment(paymentRequest)
-                                    .then(() => {
-                                        console.log('zapped');
-                                        callback && callback();
-                                    })
-                                    .catch((error) => {
-                                        console.error(`unable to zap`);
-                                        const a = document.createElement('a');
-                                        a.href = `lightning:${paymentRequest}`;
-                                        a.click();
-                                    })
-                            })
-                            .catch((error) => {
-                                console.error(`unable to request ln provider`)
-                                const a = document.createElement('a');
-                                a.href = `lightning:${paymentRequest}`;
-                                a.click();
-                            })
-                    })
-                    .catch((error) => {
-                        console.error(`problem getting zap request`)
-                    })
-            })
-            .catch((error) => {
-                console.error('unable to assert signer...');
-            })
-    }, []);
-
-    const boost = useCallback((nostrEvent: NostrEvent) => {
-        const event = new NDKEvent(ndk);
-        event.kind = 6;
-        event.content = JSON.stringify(nostrEvent);
-        event.tags = [
-            ['e', nostrEvent.id!, 'wss://relay.damus.io'],
-            ['p', nostrEvent.pubkey]
-        ];
-        ndk.assertSigner()
-            .then(() => {
-                event.sign(ndk.signer!)
-                    .then(() => {
-                        ndk.publish(event)
-                            .then(() => {
-                                console.log('repost event published!');
-                            })
-                            .catch((error) => {
-                                console.error('unable to publish repost event...')
-                            })
-                    })
-                    .catch((error) => {
-                        console.error('unable to sign repost event...');
-                    })
-            })
-            .catch((error) => {
-                console.error('unable to assert signer...')
-            });
-    }, []);
-
-    const payInvoice = useCallback((paymentRequest: string) => {
-        ndk
-            .assertSigner()
-            .then(() => {
-                requestProvider()
-                    .then((webln: WebLNProvider) => {
-                        webln.sendPayment(paymentRequest)
-                            .then(() => {
-                                console.log('zapped');
-                                // callback && callback();
-                                const a = document.createElement('a');
-                                a.href = `lightning:${paymentRequest}`;
-                                a.click();
-                            })
-                            .catch((error) => {
-                                console.error(`unable to zap`)
-                            })
-                    })
-                    .catch((error) => {
-                        console.error(`unable to request ln provider`)
-                        const a = document.createElement('a');
-                        a.href = `lightning:${paymentRequest}`;
-                        a.click();
-                    })
-            })
-            .catch()
-    }, []);
-
     return (
-        <NostrNoteContext.Provider value={{ subscribe, addReaction, zap, subs: subs.current, boost, payInvoice }}>
+        <NostrNoteContext.Provider value={{ subscribe, subs: subs.current }}>
             {children}
         </NostrNoteContext.Provider>
     );

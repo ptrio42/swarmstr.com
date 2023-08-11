@@ -1,9 +1,6 @@
 import React, {useCallback, useContext, useEffect, useRef, useState} from "react";
 import {NDKEvent, NDKFilter, NDKRelay, NDKRelaySet, NDKSubscription, NostrEvent} from "@nostr-dev-kit/ndk";
-import {useNostrFeedContext} from "./NostrFeedContextProvider";
 import {NostrNoteThreadContext} from "../contexts/NostrNoteThreadContext";
-import NDK from "@nostr-dev-kit/ndk";
-import {CLIENT_RELAYS} from "../resources/Config";
 import {useParams} from "react-router";
 import {useNostrContext} from "./NostrContextProvider";
 import {Backdrop} from "../components/Backdrop/Backdrop";

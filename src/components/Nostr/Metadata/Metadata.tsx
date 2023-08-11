@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {Bolt, CopyAll, Launch, QrCodeScanner} from "@mui/icons-material";
 import {ListItemAvatar} from "@mui/material";
 import Avatar from "@mui/material/Avatar";
@@ -7,13 +7,12 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import {CardType, SocialCard} from "../../Card/Card";
 import DialogTitle from "@mui/material/DialogTitle";
 import Dialog from "@mui/material/Dialog";
 import CloseIcon from '@mui/icons-material/Close';
 import {nip19} from 'nostr-tools';
 import CircularProgress from "@mui/material/CircularProgress";
-import {NDKFilter, NostrEvent} from "@nostr-dev-kit/ndk";
+import {NDKFilter, } from "@nostr-dev-kit/ndk";
 import {useNostrNoteContext} from "../../../providers/NostrNoteContextProvider";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
@@ -52,31 +51,6 @@ export const QrCodeDialog = ({ dialogOpen, str, close, fee, status, lnbc }: QrCo
             </Typography>
         }
         <Typography sx={{ padding: '1em' }}>
-            <SocialCard
-                slogan=""
-                sloganColor=""
-                sloganFontSize={18}
-                sloganTextShadow={false}
-                sloganTextShadowColor=""
-                mainImage=""
-                backgroundImageSize={100}
-                type={CardType.Sticker}
-                footerColor=""
-                footerFontSize={14}
-                cardWidth={2.5}
-                cardHeight={3.25}
-                backgroundPositionX={0}
-                backgroundPositionY={0}
-                primaryImageFormatWidth={0}
-                primaryImageFormatHeight={0}
-                secondaryImageFormatWidth={2.5}
-                secondaryImageFormatHeight={2.5}
-                qrCodeSize={240}
-                lnurl={str}
-                {...(lnbc && { footer: lnbc }) }
-                disableClick={true}
-                qrCodeOnly={true}
-            />
         </Typography>
         {
             status && <Typography sx={{ textAlign: 'center' }}>
@@ -212,18 +186,6 @@ export const Metadata = ({ pubkey, handleCopyNpub, supposedName, variant = 'full
                                         <a target="_blank" href={'https://snort.social/p/' + nip19.npubEncode(pubkey)}>
                                             {getProfileDisplayedName()}
                                         </a>
-
-                                        {/*{*/}
-                                        {/*variant !== 'link' &&*/}
-                                        {/*metadata && (metadata.lud06 || metadata.lud16) &&*/}
-                                        {/*<React.Fragment>*/}
-                                        {/*<a href={'lightning:' + metadata.lud06 || metadata.lud16}>*/}
-                                        {/*<IconButton>*/}
-                                        {/*<Bolt sx={{ fontSize: 18 }} color="secondary"/>*/}
-                                        {/*</IconButton>*/}
-                                        {/*</a>*/}
-                                        {/*</React.Fragment>*/}
-                                        {/*}*/}
                                         {
                                             variant !== 'link' &&
                                             <React.Fragment>

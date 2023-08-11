@@ -1,6 +1,6 @@
 {
-  "name": "uselessshit.co",
-  "version": "0.2.0",
+  "name": "swarmstr.com",
+  "version": "0.21.0",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.10.6",

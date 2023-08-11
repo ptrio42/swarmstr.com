@@ -3,17 +3,9 @@ import NDK, {NDKFilter, NDKRelaySet, NDKSubscription, NDKSubscriptionOptions, No
 
 type NostrNoteContextType = {
     subscribe: (filter: NDKFilter, opts?: NDKSubscriptionOptions) => void,
-    addReaction: (id: string, content: string) => void,
-    zap: (nostrEvent: NostrEvent, amount: number, callback?: () => void) => void,
-    subs?: NDKSubscription[],
-    boost: (nostrEvent: NostrEvent) => void,
-    payInvoice: (paymentRequest: string) => void
+    subs?: NDKSubscription[]
 }
 
 export const NostrNoteContext = createContext<NostrNoteContextType>({
-    subscribe: () => {},
-    addReaction: () => {},
-    zap: () => {},
-    boost: () => {},
-    payInvoice: () => {}
+    subscribe: () => {}
 });
