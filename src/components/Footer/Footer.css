@@ -1,5 +1,14 @@
 .footer {
   width: 100%;
   height: 153px;
-  background-color: #1B3D2F;
+  /*background-color: #1B3D2F;*/
+}
+
+.footer .MuiPaper-root {
+  box-shadow: none;
+  color: #000;
+}
+
+.theme--dark .footer .MuiPaper-root {
+  color: #fff;
 }

@@ -1,13 +1,13 @@
 {
-  "include": ["server"],
+  "include": ["server", "decs.d.ts"],
   "compilerOptions": {
     "module": "commonjs",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "lib": ["es6", "dom"],
-    "target": "es6",
+    "lib": ["esnext", "dom"],
+    "target": "esnext",
     "jsx": "react",
     "allowJs": true,
     "strict": true,

@@ -1,8 +1,8 @@
 {
-  "include": ["src"],
+  "include": ["src", "decs.d.ts"],
   "compilerOptions": {
-    "module": "es6",
-    "target": "es5",
+    "module": "esnext",
+    "target": "es6",
     "jsx": "react",
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,

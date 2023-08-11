@@ -1,0 +1,7 @@
+.theme--dark .reactions-count span {
+    color: #000 !important;
+}
+
+.theme--dark #reactions-menu {
+    background: rgba(0,0,0,.77)!important;
+}

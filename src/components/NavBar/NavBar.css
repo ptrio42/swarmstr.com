@@ -1,15 +1,50 @@
 .navbar {
-  background-color: #F0E68C;
+  background-color: #FFF !important;
+}
+
+.theme--dark .navbar {
+  background-color: #000 !important;
 }
 
 .navbar-actions {
   color: #1B3D2F;
+  width: 122px!important;
 }
 
 .logo {
   display: inline-flex;
+  font-size: 33px;
+  font-weight: bold;
+  color: #faefcc;
+  text-shadow: 1px 1px #000;
+  min-width: fit-content;
+  width: 56px;
+  height: 56px;
+}
+
+.logo img {
+  transform: translateY(-5px);
 }
 
 .logo-text {
   margin-left: 5px;
+}
+
+.nostr-icon img {
+  margin-left: -14px;
+  margin-top: -4px;
+}
+
+header {
+  box-shadow: none !important;
+}
+
+.newNote-button {
+  transition: 0.5s ease-in-out !important;
+  width: 64px!important;
+}
+
+.newNote-button:hover {
+  width: 128px!important;
+  background-color: #f59649;
 }

@@ -1,7 +1,7 @@
-import {useEffect, useState} from "react";
+import { useEffect, useState} from "react";
 import {nip19} from "nostr-tools";
-import {List, LISTS} from "../stubs/lists";
-import {uniq} from "lodash";
+import {NDKEvent, NDKTag, NostrEvent} from "@nostr-dev-kit/ndk";
+import {request} from "../services/request";
 
 export const matchString = (searchString: string, phrase: string) => {
   const regEx = new RegExp(searchString.toLowerCase(), 'g');
@@ -33,28 +33,65 @@ export const useWindowDimensions = () => {
   return windowDimensions;
 };
 
-export const getPeopleInvolvedInNostr = () => {
-  return LISTS[0];
+// format amounts
+export const nFormatter = (num: number, digits: number) => {
+  const lookup = [
+    { value: 1, symbol: "" },
+    { value: 1e3, symbol: "k" },
+    { value: 1e6, symbol: "M" },
+    { value: 1e9, symbol: "G" },
+    { value: 1e12, symbol: "T" },
+    { value: 1e15, symbol: "P" },
+    { value: 1e18, symbol: "E" }
+  ];
+  const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
+  const item = lookup.slice().reverse().find((item) => {
+    return num >= item.value;
+  });
+  return item ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol : "0";
 };
 
-const getPubkeysCount = (list: List): number => {
-  const pubkeys = uniq(Object.values(list).flat(1).map(v => v[1])).filter(v1 => !!v1);
-  return pubkeys.length;
+// tags contain a specific tag
+export const containsTag = (tags: NDKTag[], tag: NDKTag): boolean => {
+  return tags && tags.findIndex((t: string[]) => t[0] === tag[0] && t[1] === tag[1]) > -1
 };
 
-export const listToMarkup = (list: List): string[] => {
-  const markup = Object.keys(list)
-      .map((k, i) => [`#### ${k}`, ...Object.values(list)[i].map(v => ([`${v[1]}:${v[1] && nip19.decode(v[1]).data}:${v[0]}`, v[2]]))])
-      .flat(2);
+// component is visible on the device
+export const noteIsVisible = (ref: any) => {
+  const [isIntersecting, setIntersecting] = useState(false);
 
-  markup.splice(2, 0, `#### Currently ${getPubkeysCount(list)} pubkeys listed.`);
-  return markup;
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) =>
+        setIntersecting(entry.isIntersecting)
+    );
+
+    // @ts-ignore
+    observer.observe(ref.current);
+    return () => {
+      observer.disconnect();
+    };
+  }, [ref]);
+
+  return isIntersecting;
 };
 
-export const listToNote = (list: List) => {
-  const content = Object.keys(list)
-      .map((k, i) => [`${k}\n`, ...Object.values(list)[i].map(v => ([`${v[0]} - @${v[1]}`, v[2] && v[2].replace('https://', '') + '\n']))])
-      .flat(2)
-      .join('\n');
-  return content;
+// value from a given tag
+export const valueFromTag = (event: NostrEvent|NDKEvent, tag: string): string | undefined => {
+  const matchingTag = event.tags.find((t: string[]) => t[0] === tag);
+
+  if (matchingTag) return matchingTag[1];
+};
+
+// get keywords from string
+export const keywordsFromString = (s: string) => {
+  return s.toLowerCase().trim()
+      .replace(/([-_']+)/gm, ' ').split(' ')
+      .filter((word) => word.length > 1);
+};
+
+export const getRelayInformationDocument = async (url: string) => {
+  const response = await request({
+    url
+  }, { 'Accept': 'application/nostr+json' });
+  return response.data;
 };

@@ -1,0 +1,66 @@
+.note {
+    border: 1px solid rgba(0,0,0,.05);
+    box-shadow: none !important;
+    position: relative;
+}
+
+.theme--dark .note {
+    background: rgba(255,255,255,.1);
+    border: none;
+}
+
+.theme--dark .note div div span, .theme--dark .note div div p button, .theme--dark .note div div p a, .theme--dark .note div div {
+    color: rgba(255,255,255,.77);
+}
+
+.theme--dark .comments-count span {
+    color: #000 !important;
+}
+
+.theme--dark .MuiSkeleton-wave {
+    background-color: rgba(255,255,255,.22);
+}
+
+.theme--dark .MuiSkeleton-wave:after {
+    background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(0, 0, 0, 0.33),
+            transparent
+    )!important;
+}
+
+pre {
+    background: rgba(0,0,0,.03);
+    padding: 1em;
+    overflow-x: scroll;
+    padding-top: 0;
+    border-radius: 8px;
+}
+
+.theme--dark pre {
+    background: rgba(255,255,255,.03);
+}
+
+.theme--dark .reposts-count span {
+    color: #000 !important;
+}
+
+.MuiDivider-root {
+    border-color: rgba(0,0,0,.05);
+}
+
+.theme--dark .MuiDivider-root {
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.video-player {
+    width: auto !important;
+    height: auto !important;
+}
+
+@media only screen and (min-width: 660px) {
+    .video-player {
+        height: 360px !important;
+    }
+}

@@ -22,3 +22,20 @@ code {
   color: #FFFFFF;
 }
 
+.theme--dark textarea {
+  color: rgba(255,255,255,.77);
+}
+
+strong {
+  background: rgba(240, 230, 140, 0.21);
+  padding: 0.1em;
+}
+
+.Mui-selected {
+  color: #ed6c02 !important;
+}
+
+.MuiTabs-indicator {
+  background-color: #ed6c02 !important;
+}
+

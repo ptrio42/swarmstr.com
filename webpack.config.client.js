@@ -13,10 +13,14 @@ module.exports = {
   output: {
     path: path.resolve(__dirname + '/dist/static'),
     filename: '[name].[contenthash].js',
-    publicPath: '',
+    publicPath: '/',
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js'],
+    alias: {
+      'domhandler': path.resolve(__dirname, 'node_modules/domhandler'),
+      'nostr-hooks': path.resolve(__dirname, 'node_modules/nostr-hooks'),
+    }
   },
   target: 'web',
   module: {

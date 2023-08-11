@@ -1,0 +1,35 @@
+.swarmstrPreloaderLogoContainer {
+    transform: translate(0, 50%) !important;
+    margin: auto;
+    width: 210px;
+}
+
+.swarmstrPreloaderLogoContainer img {
+    animation: pulse 1s linear infinite;
+    width: 210px;
+}
+
+@-webkit-keyframes "pulse" {
+    0% {
+        -webkit-transform: scale(1.1);
+        transform: scale(1.1);
+    }
+    50% {
+        -webkit-transform: scale(0.8);
+        transform: scale(0.8);
+    }
+    100% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+    }
+}
+
+@keyframes outAnimation {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        visibility: hidden;
+    }
+}

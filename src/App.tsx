@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {Route, Routes, useLocation} from 'react-router-dom';
 import './App.css';
-import {BitcoinResources, Footer, CardGenerator, NavBar, PageContent, SpreadTheWord} from "./components";
+import {Footer, NavBar} from "./components";
 import { createTheme } from "@mui/material";
 import { ThemeProvider } from "@mui/material";
 import {Box} from "@mui/material";
@@ -10,13 +10,17 @@ import Switch from "@mui/material/Switch";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import {ThemeContext, themes} from "./contexts/ThemeContext";
-import {NostrResources} from "./components/Resources/NostrResources/NostrResources";
-import {Resources} from "./components/Resources/Resources";
-import {TipJar} from "./components/TipJar/TipJar";
-import {Nostr} from "./components/Nostr/Nostr";
 import {Nip05} from "./components/Nostr/Nip05/Nip05";
-import {Zaps} from "./components/Nostr/Zaps/Zaps";
 import {ThemeContextWrapper} from "./theme/ThemeContextWrapper";
+import {NoteThread} from "./components/Nostr/Thread/Thread";
+import {Feed} from "./components/Nostr/Feed/Feed";
+import {NostrFeedContextProvider} from "./providers/NostrFeedContextProvider";
+import {NostrNoteThreadContextProvider} from "./providers/NostrNoteThreadContextProvider";
+import {NostrNoteContextProvider} from "./providers/NostrNoteContextProvider";
+import {Note} from "./components/Nostr/Note/Note";
+import {NostrNoteThreadContext} from "./contexts/NostrNoteThreadContext";
+import {NostrContextProvider} from "./providers/NostrContextProvider";
+import {ThreadWrapper} from "./components/Nostr/ThreadWrapper/ThreadWrapper";
 
 const theme = createTheme({
     typography: {
@@ -105,10 +109,18 @@ function App() {
 
   return (
       <React.Fragment>
+          <NostrContextProvider>
       <ThemeContextWrapper>
     <div className="App">
         <ThemeProvider theme={theme}>
             <NavBar />
+            <Box sx={{ maxWidth: '640px', margin: '0 auto' }}>
+                <Routes>
+                    <Route path="/" element={<NostrFeedContextProvider><Feed/></NostrFeedContextProvider>} />
+                    <Route path="/nostr-address" element={<Nip05/>} />
+                    <Route path="e/:nevent" element={<ThreadWrapper/>} />
+                </Routes>
+            </Box>
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                 <ThemeContext.Consumer>
                     {
@@ -116,7 +128,7 @@ function App() {
                             <FormGroup>
                                 <FormControlLabel
                                     control={<MaterialUISwitch sx={{ m: 1 }} checked={theme === themes.dark} />}
-                                    label="Toggle dark mode"
+                                    label="Dark mode"
                                     onChange={
                                         () => {
                                             setDarkMode(!darkMode);
@@ -129,24 +141,11 @@ function App() {
                     }
                 </ThemeContext.Consumer>
             </Box>
-             <Routes>
-                 <Route path="/" element={<PageContent />} />
-                 <Route path="/spread-the-word" element={<SpreadTheWord />} />
-                 <Route path="resources" element={<Resources />}>
-                     <Route path="bitcoin" element={<BitcoinResources />} />
-                     <Route path="nostr" element={<NostrResources/>} />
-                 </Route>
-                 {/*<Route path="/card-generator" element={<CardGenerator />} />*/}
-                 <Route path="/tip-jar/:username" element={<TipJar />} />
-                 <Route path="/nostr" element={<Nostr/>}>
-                     <Route path="nip-05" element={<Nip05/>} />
-                     <Route path="zaps" element={<Zaps/>} />
-                 </Route>
-             </Routes>
             <Footer />
          </ThemeProvider>
     </div>
     </ThemeContextWrapper>
+          </NostrContextProvider>
       </React.Fragment>
   );
 }

@@ -1,0 +1,35 @@
+.giphy-search-bar {
+    margin: 1em auto;
+    border-radius: 15px !important;
+    height: 50px !important;
+    width: 300px !important;
+    border: 1px solid rgba(0, 0, 0, .15) !important;
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.giphy-search-bar div div {
+    background: none !important;
+}
+
+.giphy-search-bar div div::before {
+    animation: none !important;
+    background-image: none !important;
+}
+
+.theme--dark .giphy-search-bar {
+    color: #fff;
+    background: #000;
+    border: 1px solid rgba(255, 255, 255, .3) !important;
+}
+
+.giphy-grid {
+    margin: auto;
+}
+
+use#Mask {
+    fill: rgba(0, 0, 0, 0.54) !important;
+}
+
+.theme--dark use#Mask {
+    fill: rgba(255, 255, 255, .3) !important;
+}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import Box from '@mui/material/Box';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -14,8 +14,8 @@ import {
     ElectricBolt,
     Menu as MenuIcon,
     Payments,
-    School,
-    Verified
+    Link as LinkIcon,
+    School, HistoryEdu, Create,
 } from '@mui/icons-material';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
@@ -28,90 +28,18 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import SwapVerticalCircleIcon from '@mui/icons-material/SwapVerticalCircle';
 import './NavBar.css';
+import {useNostrContext} from "../../providers/NostrContextProvider";
+import {Metadata} from "../Nostr/Metadata/Metadata";
+import {LoginDialog} from "../../dialog/LoginDialog";
+import AddIcon from '@mui/icons-material/Add';
+import {Config} from "../../resources/Config";
+import {NewNoteDialog} from "../../dialog/NewNoteDialog";
+import {NewLabelDialog} from "../../dialog/NewLabelDialog";
+
 
 export const NavBar = () => {
-    const [state, setState] = React.useState(false);
-    const [toolsMenuAnchorEl, setToolsMenuAnchorEl] = React.useState<null | HTMLElement>(null);
-    const toolsMenuOpen = Boolean(toolsMenuAnchorEl);
-
-    const handleToolsMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setToolsMenuAnchorEl(event.currentTarget);
-    };
-
-    const handleToolsMenuClose = () => {
-        setToolsMenuAnchorEl(null);
-    };
-
-    const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-        if (
-            event.type === 'keydown' &&
-            ((event as React.KeyboardEvent).key === 'Tab' ||
-                (event as React.KeyboardEvent).key === 'Shift')
-        ) {
-            return;
-        }
-        setState(open);
-    };
-
-    const list = () => (
-        <Box
-            sx={{ width: 'auto' }}
-            role="presentation"
-            onClick={toggleDrawer(false)}
-            onKeyDown={toggleDrawer(false)}
-        >
-            <List>
-                {/*<ListItem disablePadding component={Link} to="/card-generator"  sx={{ color: '#000' }}>*/}
-                    {/*<ListItemButton>*/}
-                        {/*<ListItemIcon>*/}
-                            {/*<CurrencyBitcoin />*/}
-                        {/*</ListItemIcon>*/}
-                        {/*<ListItemText sx={{ textTransform: 'uppercase' }} primary="Bitcoin Artwork" />*/}
-                    {/*</ListItemButton>*/}
-                {/*</ListItem>*/}
-                <ListItem disablePadding component={Link} to="/#converter" sx={{ color: '#000' }}>
-                    <ListItemButton>
-                        <ListItemIcon>
-                            <SwapVerticalCircleIcon />
-                        </ListItemIcon>
-                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Satoshi Calculator" />
-                    </ListItemButton>
-                </ListItem>
-                <ListItem disablePadding component={Link} to="/resources/bitcoin" sx={{ color: '#000' }}>
-                    <ListItemButton>
-                        <ListItemIcon>
-                            <Receipt />
-                        </ListItemIcon>
-                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Bitcoin Resources" />
-                    </ListItemButton>
-                </ListItem>
-                <ListItem disablePadding component={Link} to="/resources/nostr/" sx={{ color: '#000' }}>
-                    <ListItemButton>
-                        <ListItemIcon>
-                            <ElectricBolt />
-                        </ListItemIcon>
-                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Nostr" />
-                    </ListItemButton>
-                </ListItem>
-                <ListItem disablePadding component="a" href="https://nostr.uselessshit.co" target="_blank" sx={{ color: '#000' }}>
-                    <ListItemButton>
-                        <ListItemIcon>
-                            <Dns />
-                        </ListItemIcon>
-                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Relay" />
-                    </ListItemButton>
-                </ListItem>
-                <ListItem disablePadding component={Link} to="/nostr/nip-05" sx={{ color: '#000' }}>
-                    <ListItemButton>
-                        <ListItemIcon>
-                            <Verified />
-                        </ListItemIcon>
-                        <ListItemText sx={{ textTransform: 'uppercase' }} primary="Nip-05" />
-                    </ListItemButton>
-                </ListItem>
-            </List>
-        </Box>
-    );
+    const { user, loginDialogOpen, setLoginDialogOpen, newNoteDialogOpen, setNewNoteDialogOpen } = useNostrContext();
+    const [newNoteButtonText, setNewNoteButtonText] = useState<string>('');
 
     return (
         <Box sx={{ flexGrow: 1 }}>
@@ -119,125 +47,69 @@ export const NavBar = () => {
                 className="navbar"
                 position="static"
             >
-                <Toolbar>
-                    <Link className="logo" to="/">
-                        <img
-                            width="40px"
-                            alt="Use Less Shit"
-                            src={process.env.BASE_URL + '/images/new-uselessshit-logo.png'}
-                        />
-                        <img className="logo-text"
-                             height="40px"
-                             alt="Use Less Shit"
-                             src={process.env.BASE_URL + '/images/new-uselessshit-logo-text.png'}
-                        />
-                    </Link>
+                <Toolbar sx={{ justifyContent: 'space-between' }}>
                     <Grid
                         container
-                        justifyContent="flex-end"
+                        justifyContent="flex-start"
                         className="navbar-actions">
-                        <Media query={{ maxWidth: '1060px' }} render={() => (
-                            <React.Fragment>
-                                <IconButton onClick={toggleDrawer(true)}><MenuIcon /></IconButton>
-                                <Drawer
-                                    anchor="right"
-                                    open={state}
-                                    onClose={toggleDrawer(false)}
-                                >
-                                    {list()}
-                                </Drawer>
-                            </React.Fragment>
-                        )} />
-                        <Media query={{ minWidth: '1061px' }} render={() => (
-                            <React.Fragment>
-                                {/*<Button*/}
-                                    {/*sx={{ fontWeight: 'bold' }}*/}
-                                    {/*variant="text"*/}
-                                    {/*color="inherit"*/}
-                                    {/*component={Link}*/}
-                                    {/*to="/card-generator"*/}
-                                    {/*startIcon={<CurrencyBitcoin color="warning" />}*/}
-                                {/*>*/}
-                                    {/*BITCOIN ARTWORK*/}
-                                {/*</Button>*/}
-                                <Button
-                                    sx={{ fontWeight: 'bold' }}
-                                    variant="text"
-                                    color="inherit"
-                                    component={Link}
-                                    to="/#converter"
-                                    startIcon={<SwapVerticalCircleIcon color="success" />}
-                                >
-                                    SATOSHI CALCULATOR
-                                </Button>
-                                <Button
-                                    sx={{ fontWeight: 'bold' }}
-                                    variant="text"
-                                    color="inherit"
-                                    component={Link}
-                                    to="/resources/bitcoin"
-                                    startIcon={<School />}
-                                >
-                                    BITCOIN RESOURCES
-                                </Button>
-                                <Button
-                                    sx={{ fontWeight: 'bold' }}
-                                    variant="text"
-                                    color="inherit"
-                                    component={Link}
-                                    to="/resources/nostr/"
-                                    startIcon={<ElectricBolt />}
-                                >
-                                    NOSTR
-                                </Button>
-                                <Button
-                                    sx={{ fontWeight: 'bold' }}
-                                    variant="text"
-                                    color="inherit"
-                                    component="a"
-                                    href="https://nostr.uselessshit.co"
-                                    target="_blank"
-                                    startIcon={<Dns />}
-                                >
-                                    RELAY
-                                </Button>
-                                <Button
-                                    sx={{ fontWeight: 'bold' }}
-                                    variant="text"
-                                    color="inherit"
-                                    component={Link}
-                                    to="/nostr/nip-05"
-                                    startIcon={<Verified />}
-                                >
-                                    NIP-05
-                                </Button>
-                                <Menu
-                                    id="tools-menu"
-                                    anchorEl={toolsMenuAnchorEl}
-                                    open={toolsMenuOpen}
-                                    onClose={handleToolsMenuClose}
-                                    MenuListProps={{
-                                        'aria-labelledby': 'tools-menu-button'
-                                    }}
-                                >
-                                    <MenuItem
-                                        onClick={handleToolsMenuClose}
-                                        component={Link}
-                                        to="/#converter"
-                                    >
-                                        <ListItemIcon>
-                                            <SwapVerticalCircleIcon color="success" />
-                                        </ListItemIcon>
-                                        <ListItemText>
-                                            FIAT TO SATS CONVERTER
-                                        </ListItemText>
-                                    </MenuItem>
-                                </Menu>
-                            </React.Fragment>
-                        )} />
+                        {
+                            !user && <Button
+                                sx={{ fontWeight: 'bold', textTransform: 'capitalize', borderRadius: '18px' }}
+                                color="primary"
+                                variant="contained"
+                                onClick={() => {
+                                    console.log(`login request`);
+                                    setLoginDialogOpen(true);
+                                }}
+                            >
+                                Login
+                            </Button>
+                        }
+                        {
+                            user && <Metadata
+                                variant={'avatar'}
+                                pubkey={user.hexpubkey()}
+                            />
+                        }
                     </Grid>
+                    <Link className="logo" to="/">
+                        <img width="84px" height="84px" alt={Config.APP_TITLE} src={Config.LOGO_IMG}/>
+                    </Link>
+                    <Box sx={{ width: '122px', display: 'flex', justifyContent: 'flex-end' }}>
+                        <Button
+                            className="newNote-button"
+                            sx={{ textTransform: 'math-auto', fontWeight: '400', fontSize: '16px', borderRadius: '18px!important', padding: '5px 8px', width: 'auto' }}
+                            color="warning"
+                            variant="contained"
+                            onClick={() => {
+                                if (user) {
+                                    setNewNoteDialogOpen(true);
+                                } else {
+                                    setLoginDialogOpen(true);
+                                }
+                            }}
+                            onMouseEnter={() => {
+                                setNewNoteButtonText(`#${Config.HASHTAG}`)
+                            }}
+                            onMouseLeave={() => {
+                                setNewNoteButtonText('');
+                            }}
+                        >
+                            { `${newNoteButtonText} ` }<Create sx={{ paddingLeft: '2px'}} />
+                        </Button>
+                    </Box>
                 </Toolbar>
             </AppBar>
+            <LoginDialog open={loginDialogOpen}
+                         onClose={() => {
+                setLoginDialogOpen(false)
+            }} />
+            <NewNoteDialog
+                open={newNoteDialogOpen}
+                onClose={() => setNewNoteDialogOpen(false)}
+                label="What's your question?"
+                explicitTags={[['t', Config.HASHTAG]]}
+            />
         </Box>
     );
 };
