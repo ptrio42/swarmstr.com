@@ -65,7 +65,7 @@ const assets = JSON.parse(manifest);
 
 // only subscribe to events since given timestamp
 // default 7 days
-const EVENTS_SINCE = Math.floor(Date.now() / 1000 - 7 * 24 * 60 * 60);
+const EVENTS_SINCE = Math.floor(Date.now() / 1000 - 1 * 1 * 45 * 60);
 console.log({EVENTS_SINCE})
 
 const cacheAdapter = new RedisAdapter({ expirationTime: 365 * 60 * 60 * 24 });
@@ -86,7 +86,10 @@ const publish = async (nostrEvent: NostrEvent, relayUrls?: string[], _ndk?: NDK)
             const result = await event.publish(NDKRelaySet.fromRelayUrls(relayUrls, _ndk || ndk), 5000);
             console.log(`event ${event.id} published!`, {result});
         } catch (error) {
-            console.error(`unable to publish event ${nostrEvent.id}`);
+            console.error(`unable to publish event ${nostrEvent.id}, ${JSON.stringify(nostrEvent)}`);
+            setTimeout(() => {
+                publish(nostrEvent, relayUrls, _ndk || ndk)
+            }, 500);
         }
     } catch (error) {
         console.error(`unable to create NDKEvent from event ${nostrEvent.id}`);
@@ -103,7 +106,7 @@ const debouncedSub = debounce(() => {
 
 const publishToSearchRelay = async (nostrEvent: NostrEvent) => {
     try {
-        await publish(nostrEvent, [Config.SEARCH_RELAY], ndkSearchnos)
+        await publish(nostrEvent, undefined, ndkSearchnos)
     } catch (e) {
         console.error('Unable to publish to search relay');
     }
@@ -149,9 +152,9 @@ const onEvent = (event: NDKEvent) => {
             })
             .catch((e) => {
             // retry in 5 secs
-                setTimeout(() => {
-                    publishToSearchRelay(nostrEvent);
-                }, 5000);
+            //     setTimeout(() => {
+            //         publishToSearchRelay(nostrEvent);
+            //     }, 5000);
             });
         publish(nostrEvent, ['wss://q.swarmstr.com'])
             .then((response) => {
@@ -208,7 +211,7 @@ subscribe({
     kinds: [1, 30023],
     '#t': [Config.HASHTAG],
     since: EVENTS_SINCE,
-}, { closeOnEose: false, groupable: false });
+}, { closeOnEose: false, groupable: false, cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST });
 
 const isNameAvailable = async (name: string): Promise<boolean> => {
     if (!(new RegExp(/([a-z0-9_.]+)/, 'gi').test(name)) || name.length < 1) return false;

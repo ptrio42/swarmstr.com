@@ -35,11 +35,11 @@ export const Footer = () => {
                 </Box> <Link sx={{ color: '#7139f1' }} href="https://snort.social/p/npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4" target="_blank">pitiunited</Link>
                 </Item>
             </Grid>
-            {/*<Grid item>*/}
-                {/*<Item sx={{ display: 'inline-flex', margin: '1em 0' }}>*/}
-                    {/*Check out our <GitHub sx={{ margin: 'auto 0.25em' }} /> <a className="link1" href="https://github.com/ptrio42/uselessshit.co" target="_blank">repository</a>.*/}
-                {/*</Item>*/}
-            {/*</Grid>*/}
+            <Grid item>
+                <Item sx={{ display: 'inline-flex', margin: '1em 0' }}>
+                    Swarmstr is <GitHub sx={{ margin: 'auto 0.25em' }} /> <a className="link1" href="https://github.com/ptrio42/swarmstr.com" target="_blank">free open source software</a>.
+                </Item>
+            </Grid>
             {/*<Grid item>*/}
                 {/*<Item sx={{ display: 'inline-flex' }}>*/}
                     {/*Tips: <Bolt sx={{ color: '#FADA5E' }} /> pitiunited@uselessshit.co | <Link href="https://uselessshit.co/tip-jar/pitiunited">Tip Jar</Link>*/}
