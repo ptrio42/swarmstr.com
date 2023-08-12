@@ -70,6 +70,7 @@ export const NostrFeedContextProvider = ({ children }: any) => {
             !nostrEvent.content.includes('Let me introduce my good friend') &&
             !nostrEvent.content.includes('and unlock exciting privileges within the community') &&
             !nostrEvent.content.includes('Swarmstr is a simple Q&A #nostr client') &&
+            nostrEvent.id !== 'c923482fe63f362677b3d9ba3e9006e3feb4bff8fc73421793c36c56fc3178be' &&
             !nostrEvent.content.includes('an early release so expect some bugs')) {
             db.notes.put({
                 ...nostrEvent,
