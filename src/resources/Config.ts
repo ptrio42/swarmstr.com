@@ -73,9 +73,10 @@ export const Config = {
     'wss://blastr.f7z.xyz'
   ],
   EXPLICIT_TAGS: [
-    'relays', 'nips', 'badges', 'lightning', 'snort', 'primal', 'keys',
-    'alby', 'clients', 'beginner', 'zaps', 'damus', 'amethyst', 'plebstr',
-    'zapathon', 'coracle', 'WoS', 'newbie', 'gossip', 'zeus', 'node', 'drivechains'
+    'relays', 'nips', 'badges', 'lightning', 'snort', 'primal', 'keys', 'education',
+    'alby', 'clients', 'beginner', 'zaps', 'damus', 'amethyst', 'plebstr', 'design',
+    'zapathon', 'coracle', 'WoS', 'newbie', 'gossip', 'zeus', 'node', 'drivechains',
+    'technology', 'space', 'podcast', 'food'
   ],
   CONTRIBUTORS: [
     'f747b6b3202555cbf39c74b14da9a89585e5fb21431c1e630071e5c86cfb7a2b',

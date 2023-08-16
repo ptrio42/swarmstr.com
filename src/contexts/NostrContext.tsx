@@ -6,6 +6,7 @@ type NostrContextType = {
     user?: NDKUser,
     events?: NostrEvent[],
     subscribe: (filter: NDKFilter, opts: NDKSubscriptionOptions, relayUrls: string[]) => any,
+    unsubscribe: () => void,
     signIn: () => Promise<string|undefined>
     post: (content: string, tags: NDKTag[], kind?: number) => Promise<void>,
     loginDialogOpen: boolean,
@@ -23,7 +24,9 @@ type NostrContextType = {
 
 export const NostrContext = createContext<NostrContextType>({
     ndk: new NDK(),
+    events: [],
     subscribe: () => {},
+    unsubscribe: () => {},
     signIn: async () => '',
     post: async () => undefined,
     loginDialogOpen: false,

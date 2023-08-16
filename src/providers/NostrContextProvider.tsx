@@ -27,6 +27,8 @@ TimeAgo.addDefaultLocale(en);
 
 const cacheAdapter = new DexieAdapter();
 
+// const subs: NDKSubscription[] = [];
+
 export const NostrContextProvider = ({ children }: any) => {
     // ndk instance with read relays
     const ndk = useRef<NDK>(new NDK({ explicitRelayUrls: [...Config.CLIENT_READ_RELAYS], cacheAdapter }));
@@ -37,11 +39,10 @@ export const NostrContextProvider = ({ children }: any) => {
     const [newNoteDialogOpen, setNewNoteDialogOpen] = useState<boolean>(false);
     const [newLabelDialogOpen, setNewLabelDialogOpen] = useState<boolean>(false);
 
-    const subscription = useRef<NDKSubscription>();
+    const subs = useRef<NDKSubscription[]>([]);
 
-    const events = useLiveQuery(
-        () => db.notes.toArray()
-    );
+    // const [events, setEvents] = useState<NostrEvent[]>([]);
+
 
     const signIn = useCallback(async (delay: number = 0) => {
         if (user) {
@@ -84,13 +85,25 @@ export const NostrContextProvider = ({ children }: any) => {
     ) => {
         const notesReadRelays: NDKRelaySet = NDKRelaySet.fromRelayUrls(relayUrls, ndk.current);
         // notesReadRelays.values().forEach((relay: NDKRelay) => relay.connect())
-        const sub = new NDKSubscription(ndk.current, filter, opts);
+        const sub = ndk.current.subscribe(filter, opts, notesReadRelays);
         // sub.on('event', onEvent);
-        notesReadRelays.subscribe(sub).start()
+        sub.on('event', (event: NDKEvent) => {
+            db.notes.put({ ...event.rawEvent(), type: NOTE_TYPE.QUESTION });
+            // setEvents((prevState: NostrEvent[]) => ([
+            //     ...prevState,
+            //     nostrEvent
+            // ]));
+        });
+        sub.start()
             .then(() => {
                 console.log(`started subscription ${sub.subId} with filter: ${JSON.stringify(filter)} and relaySet: ${relayUrls.join(',')}`)
             });
+        subs.current.push(sub);
         // subscription.current = sub;
+    }, []);
+
+    const unsubscribe = useCallback(() => {
+        subs.current.forEach((sub: NDKSubscription) => sub.stop());
     }, []);
 
     const post = useCallback(async (content: string, tags: NDKTag[], kind: number = 1) => {
@@ -101,22 +114,20 @@ export const NostrContextProvider = ({ children }: any) => {
             event.content = content;
             event.tags = tags;
             event.pubkey = pubkey!;
-            // event.created_at = Date.now();
+            // event.created_at
+            event.created_at = Math.floor(Date.now() / 1000) + 5;
             console.log(`signing & publishing new event`, {event})
             // ndk.current.assertSigner()
             //     .then(() => {
             // event.sign(ndk.current.signer!)
             //     .then(() => {
             try {
-                return await event.publish(NDKRelaySet.fromRelayUrls(Config.CLIENT_WRITE_RELAYS, ndk.current));
+                await event.publish(NDKRelaySet.fromRelayUrls(Config.CLIENT_WRITE_RELAYS, ndk.current));
                 console.log('question published!');
-                // return new Promise.resolve();
             } catch (error) {
 
             }
-        } catch (error) {
-
-        }
+        } catch (error) {}
     }, []);
 
     const addReaction = useCallback((id: string, content: string) => {
@@ -190,6 +201,7 @@ export const NostrContextProvider = ({ children }: any) => {
             ['e', nostrEvent.id!, 'wss://relay.damus.io'],
             ['p', nostrEvent.pubkey]
         ];
+        event.created_at = Math.floor(Date.now() / 1000) + 5;
         ndk.current.assertSigner()
             .then(() => {
                 event.sign(ndk.current.signer!)
@@ -354,7 +366,8 @@ export const NostrContextProvider = ({ children }: any) => {
 
         return () => {
             console.log(`unsubscribing...`);
-            subscription.current?.stop();
+            // subscription.current?.stop();
+            unsubscribe();
         }
     }, []);
 
@@ -362,7 +375,12 @@ export const NostrContextProvider = ({ children }: any) => {
         <React.Fragment>
             {
                 // @ts-ignore
-                <NostrContext.Provider value={{ ndk: ndk.current, user, events, subscribe, signIn, post, loginDialogOpen, setLoginDialogOpen, newNoteDialogOpen, setNewNoteDialogOpen, label, newLabelDialogOpen, setNewLabelDialogOpen, boost, payInvoice, addReaction, zap }}>
+                <NostrContext.Provider
+                    value={{
+                        ndk: ndk.current, user, subscribe, signIn, post, loginDialogOpen,
+                        setLoginDialogOpen, newNoteDialogOpen, setNewNoteDialogOpen, label, newLabelDialogOpen,
+                        setNewLabelDialogOpen, boost, payInvoice, addReaction, zap, unsubscribe
+                    }}>
                     {children}
                 </NostrContext.Provider>
             }

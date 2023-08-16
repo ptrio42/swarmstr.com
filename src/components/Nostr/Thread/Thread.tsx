@@ -123,6 +123,12 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating }: 
                             <ArrowBack sx={{ fontSize: 18, marginRight: 1 }} />
                             Back
                         </Button>
+                        {/*{*/}
+                            {/*floating && <React.Fragment>*/}
+                                {/*<Button component={Link} to={`/e/${nevent}`}>Open</Button>*/}
+                                {/*<Button component={Link} to="/?s=">Search</Button>*/}
+                            {/*</React.Fragment>*/}
+                        {/*}*/}
                     </ListItem>
                 }
                 <ListItem key={`${id}-container`} sx={{ paddingTop: 0, paddingBottom: 0 }}>

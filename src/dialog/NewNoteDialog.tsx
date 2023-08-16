@@ -10,7 +10,7 @@ import Button from "@mui/material/Button";
 import {useNostrContext} from "../providers/NostrContextProvider";
 import {NDKTag} from "@nostr-dev-kit/ndk";
 import {nip19} from 'nostr-tools';
-import {differenceWith} from 'lodash';
+import {differenceWith, uniqBy} from 'lodash';
 import Input from "@mui/material/Input";
 import {GifBox, Image as ImageIcon} from '@mui/icons-material';
 import {uploadToNostrCheckMe} from "../services/uploadImage";
@@ -69,7 +69,7 @@ export const NewNoteDialog = ({ open, onClose, noteId, replyTo, label, explicitT
 
     const { post } = useNostrContext();
 
-    const tags = useRef<NDKTag[]>([]);
+    const [tags, setTags] = useState<NDKTag[]>([]);
 
     const fileInputRef = useRef<HTMLInputElement|null>(null);
 
@@ -93,18 +93,18 @@ export const NewNoteDialog = ({ open, onClose, noteId, replyTo, label, explicitT
 
     useEffect(() => {
         // console.log('didMount')
-        if (explicitTags) {
-            tags.current.push(...explicitTags);
-        }
+        // if (explicitTags) {
+        //     tags.current.push(...explicitTags);
+        // }
     }, []);
 
     useEffect(() => {
-        noteId && tags.current.push(['e', noteId])
+
     }, [noteId]);
 
     useEffect(() => {
-        const diff = replyTo && differenceWith(replyTo.map((pubkey: string) => (['p', pubkey])), tags.current, (t1, t2) => t1[0] === t2[0] && t1[1] === t2[1]);
-        diff && diff.length > 0 && tags.current.push(...(diff));
+        // const diff = replyTo && differenceWith(replyTo.map((pubkey: string) => (['p', pubkey])), tags, (t1, t2) => t1[0] === t2[0] && t1[1] === t2[1]);
+        // diff && diff.length > 0 && tags.current.push(...(diff));
     }, [replyTo]);
 
     useEffect(() => {
@@ -116,6 +116,36 @@ export const NewNoteDialog = ({ open, onClose, noteId, replyTo, label, explicitT
         }
         setKind(newKind!);
     }, [tabIndex]);
+
+    useEffect(() => {
+        const { content } = formik.values;
+        console.log(`content change`, {content});
+        if (!content) return;
+
+        const eTags: NDKTag[] = [
+            ...(content.match(/nostr:note1([a-z0-9]+)/gm) || []),
+            ...(content.match(/nostr:nevent1([a-z0-9]+)/gm) || [])
+        ]?.filter((e) => !!e)
+            .map((match: string) => nip19.decode(match.split(':')[1]))
+            .map(({data}) => ['e', data?.id || data]);
+
+        const tTags = content.match(/\B(\#[a-zA-Z0-9]+\b)(?!;)/gm)?.map((match: string) => ['t', match.replace('#', '')]);
+        console.log({tags: [eTags, tTags, explicitTags]})
+        // @ts-ignore
+        setTags(uniqBy(
+            [
+                ...(eTags || []),
+                ...(tTags || []),
+                ...(explicitTags || []),
+                // @ts-ignore
+                noteId && ['e', `${noteId}`]
+            ].filter((t) => !!t && t.length > 0)
+        , '[1]'));
+    }, [formik.values.content]);
+
+    useEffect(() => {
+        console.log({tags})
+    }, [tags])
 
     const handleClose = () => {
         console.log('close');
@@ -213,18 +243,18 @@ export const NewNoteDialog = ({ open, onClose, noteId, replyTo, label, explicitT
                     const tagsInContent = formik.values.content.match(/\B(\#[a-zA-Z0-9]+\b)(?!;)/gm)
                         ?.map((match: string) => match.replace('#', ''))
                         .map((tag: string) => ['t', tag]);
-                    if (tagsInContent) {
-                        const diff = differenceWith(tagsInContent, tags.current, (t1, t2) => t1[0] === t2[0] && t1[1] === t2[1]);
-                        tags.current.push(...diff);
-                    }
-                    if (kind === 30023) {
-                        const index = tags.current.findIndex((tag: NDKTag) => tag[0] === 'title');
-                        if (index > -1) {
-                            tags.current.slice(index, 1);
-                        }
-                        tags.current.push(['title', formik.values.title]);
-                    }
-                    post(formik.values.content, tags.current, kind)
+                    // if (tagsInContent) {
+                    //     const diff = differenceWith(tagsInContent, tags, (t1, t2) => t1[0] === t2[0] && t1[1] === t2[1]);
+                    //     tags.current.push(...diff);
+                    // }
+                    // if (kind === 30023) {
+                    //     const index = tags.current.findIndex((tag: NDKTag) => tag[0] === 'title');
+                    //     if (index > -1) {
+                    //         tags.current.slice(index, 1);
+                    //     }
+                    //     tags.current.push(['title', formik.values.title]);
+                    // }
+                    post(formik.values.content, tags, kind)
                         .then(() => {
                             formik.setFieldValue('content', '');
                             formik.setFieldValue('title', '');
