@@ -44,7 +44,8 @@ export const noteContentToHtml = (text: string, tags?: string[][], searchString?
     // image urls and not those used in markdown
     .replace(/(?<!\]\()(https?:\/\/.*\.(?:png|jpg|jpeg|gif|svg|webp)).*(?<!\))/gm, (result) => {
         const multilink = result.split(' ');
-        if (multilink.length > 1 ) return multilink.map((url: string) => `<img width="100%" src="${url}" style="max-width:512px;" />`).join('<br/>');
+        console.log({multilink})
+        if (multilink.length > 1 ) return multilink.filter((str: string) => new RegExp(/http/).test(str)).map((url: string) => `<img width="100%" src="${url}" style="max-width:512px;" />`).join('<br/>');
         return `<img width="100%" src="${result}" style="max-width:512px;" />`
     })
     // image urls in markdown

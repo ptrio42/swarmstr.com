@@ -1,0 +1,15 @@
+.addNewNote-box {
+    padding: 1em;
+    justify-content: center;
+    display: flex;
+    border-radius: 8px;
+    border: 1px rgba(0,0,0,.05) solid;
+}
+
+.addNewNote-box .MuiChip-root {
+    width: 100%;
+    justify-content: flex-start;
+    font-size: 15px;
+    padding: 1em;
+    cursor: pointer;
+}

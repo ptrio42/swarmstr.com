@@ -6,7 +6,7 @@ import {NostrNoteContextProvider} from "../../../providers/NostrNoteContextProvi
 import {useNostrFeedContext} from "../../../providers/NostrFeedContextProvider";
 import {NDKFilter, NDKRelay, NDKSubscription, NDKTag, NostrEvent} from "@nostr-dev-kit/ndk";
 import {nip19} from "nostr-tools";
-import {useSearchParams} from "react-router-dom";
+import {Link, useSearchParams} from "react-router-dom";
 import { containsTag } from "../../../utils/utils";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
@@ -29,6 +29,7 @@ import {debounce} from 'lodash';
 import Button from "@mui/material/Button";
 import {ThreadDialog} from "../../../dialog/ThreadDialog";
 import {SearchResults} from "../SearchResults/SearchResults";
+import {EventList} from "../EventList/EventList";
 
 const filter: NDKFilter = {
     kinds: [1, 30023],
@@ -156,9 +157,9 @@ export const Feed = () => {
                                 className="nav-button"
                                 variant="text"
                                 color="secondary"
-                                onClick={() =>
-                                    setSearchParams({ s: Config.HASHTAG })
-                                }>
+                                component={Link}
+                                to="/recent"
+                            >
                                 Recent questions
                             </Button>
                         </Typography>
@@ -199,28 +200,7 @@ export const Feed = () => {
                     handleSetLimit={(l: number) => { setLimit(l) }}
                 >
 
-                        {
-                            (filteredEvents() || [])
-                                .filter(({id}) => !!id)
-                                .map((nostrEvent: NostrEvent) => ({
-                                    event: nostrEvent,
-                                    nevent: nip19.neventEncode({
-                                        id: nostrEvent.id,
-                                        author: nostrEvent.pubkey,
-                                        relays: ['wss://q.swarmstr.com']
-                                    })
-                                }))
-                                .map(({event, nevent}) => (
-                                    <NoteThread
-                                        key={`${nevent}-thread`}
-                                        nevent={nevent}
-                                    >
-                                        <NostrNoteContextProvider>
-                                            <Note key={`${nevent}-content`} event={event} nevent={nevent} floating={true}/>
-                                        </NostrNoteContextProvider>
-                                    </NoteThread>
-                                ))
-                        }
+                        <EventList events={filteredEvents()}/>
                 </SearchResults>
                 {
                     (searchString !== null && (searchString === '' || searchString.length < 2)) &&

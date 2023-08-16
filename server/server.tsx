@@ -65,8 +65,7 @@ const assets = JSON.parse(manifest);
 
 // only subscribe to events since given timestamp
 // default 7 days
-const EVENTS_SINCE = Math.floor(Date.now() / 1000 - 1 * 1 * 45 * 60);
-console.log({EVENTS_SINCE})
+const EVENTS_SINCE = Math.floor(Date.now() / 1000 - 7 * 24 * 60 * 60);
 
 const cacheAdapter = new RedisAdapter({ expirationTime: 365 * 60 * 60 * 24 });
 
@@ -87,9 +86,9 @@ const publish = async (nostrEvent: NostrEvent, relayUrls?: string[], _ndk?: NDK)
             console.log(`event ${event.id} published!`, {result});
         } catch (error) {
             console.error(`unable to publish event ${nostrEvent.id}, ${JSON.stringify(nostrEvent)}`);
-            setTimeout(() => {
-                publish(nostrEvent, relayUrls, _ndk || ndk)
-            }, 500);
+            // setTimeout(() => {
+            //     publish(nostrEvent, relayUrls, _ndk || ndk)
+            // }, 500);
         }
     } catch (error) {
         console.error(`unable to create NDKEvent from event ${nostrEvent.id}`);
@@ -106,7 +105,7 @@ const debouncedSub = debounce(() => {
 
 const publishToSearchRelay = async (nostrEvent: NostrEvent) => {
     try {
-        await publish(nostrEvent, undefined, ndkSearchnos)
+        await publish(nostrEvent, [Config.SEARCH_RELAY_PUBLISH], ndkSearchnos)
     } catch (e) {
         console.error('Unable to publish to search relay');
     }

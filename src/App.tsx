@@ -21,6 +21,7 @@ import {Note} from "./components/Nostr/Note/Note";
 import {NostrNoteThreadContext} from "./contexts/NostrNoteThreadContext";
 import {NostrContextProvider} from "./providers/NostrContextProvider";
 import {ThreadWrapper} from "./components/Nostr/ThreadWrapper/ThreadWrapper";
+import {RecentNotes} from "./components/Nostr/RecentNotes/RecentNotes";
 
 const theme = createTheme({
     typography: {
@@ -118,7 +119,8 @@ function App() {
                 <Routes>
                     <Route path="/" element={<NostrFeedContextProvider><Feed/></NostrFeedContextProvider>} />
                     <Route path="/nostr-address" element={<Nip05/>} />
-                    <Route path="e/:nevent" element={<ThreadWrapper/>} />
+                    <Route path="/e/:nevent" element={<ThreadWrapper/>} />
+                    <Route path="/recent" element={<RecentNotes/>} />
                 </Routes>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>

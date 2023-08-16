@@ -4,7 +4,7 @@ import './SearchResults.css';
 import Snackbar from "@mui/material/Snackbar";
 import {nip05, nip19} from 'nostr-tools';
 import {NostrEvent} from "@nostr-dev-kit/ndk";
-import InfiniteScroll from "react-infinite-scroll-component";
+import {EventListWrapper} from "../EventListWrapper/EventListWrapper";
 
 interface SearchResultsProps {
     children?: any;
@@ -18,10 +18,6 @@ interface SearchResultsProps {
 export const SearchResults = ({ children, search, results, limit, handleSetLimit }: SearchResultsProps) => {
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
     const [snackbarMessage, setSnackBarMessage] = useState<string>('');
-
-    const onScrollEnd = () => {
-        handleSetLimit(limit + 3);
-    };
 
     return (
         <React.Fragment>
@@ -38,19 +34,9 @@ export const SearchResults = ({ children, search, results, limit, handleSetLimit
             >
                 { search }
             </Box>
-            <InfiniteScroll
-                dataLength={results.length} //This is important field to render the next data
-                next={onScrollEnd}
-                hasMore={true}
-                loader={<Box sx={{ display: 'none' }}>Loading...</Box>}
-                endMessage={
-                    <p style={{ textAlign: 'center' }}>
-                        <b>Yay! You have seen it all</b>
-                    </p>
-                }
-            >
-            { children }
-            </InfiniteScroll>
+            <EventListWrapper results={results} limit={limit} handleSetLimit={(limit: number) => handleSetLimit(limit)}>
+                { children }
+            </EventListWrapper>
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={3000}

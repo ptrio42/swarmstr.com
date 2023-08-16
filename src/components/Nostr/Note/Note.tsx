@@ -146,7 +146,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
     }, []);
 
     useEffect(() => {
-        if (!parsedContent && !!event?.content) {
+        if (!!event?.content) {
             // @ts-ignore
             const _parsedContent = noteContentToHtml(event!.content, event!.tags, searchString, floating);
             setParsedContent(_parsedContent);
