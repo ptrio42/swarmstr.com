@@ -24,7 +24,7 @@ import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import './Note.css';
-import {useSearchParams, useNavigate} from "react-router-dom";
+import {useSearchParams, useNavigate, useLocation} from "react-router-dom";
 import {Skeleton} from "@mui/material";
 import ReactPlayer from 'react-player';
 import {NDKFilter, NDKRelaySet, NDKSubscription, NostrEvent, NDKSubscriptionOptions} from "@nostr-dev-kit/ndk";
@@ -61,7 +61,10 @@ interface NoteProps {
     event?: NostrEvent
 
     onSearchQuery?: (nevent: string, display: boolean) => void,
-    floating?: boolean
+    floating?: boolean;
+    state?: {
+        events?: NostrEvent[]
+    }
 }
 
 const MetadataMemo = React.memo(Metadata);
@@ -101,10 +104,12 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
     const [newReplyDialogOpen, setNewReplyDialogOpen] = useState<boolean>(false);
     const [zapDialogOpen, setZapDialogOpen] = useState<boolean>(false);
 
+    const location = useLocation();
+
     const [event, loaded] = useLiveQuery(async () => {
         const event = await db.notes.get({ id });
         return [event || props?.event, true];
-    }, [id], [props?.event, false]);
+    }, [id], [props?.event || (!!id && location?.state?.event?.id === id && location?.state?.event), false]);
 
     const zapEvents = useLiveQuery(async () => {
         const zapEvents = await db.zaps
@@ -154,6 +159,8 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
     }, [event]);
 
     useEffect(() => {
+        // console.log('note', {props: props.state?.events})
+        // console.log('note', {location: location.state?.events})
         if (noteVisible && loaded && !event) {
             console.log(`event ${id} was not found in db`);
             subscribe(filter, { closeOnEose: true });
@@ -310,7 +317,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                     gutterBottom
                     variant="body2"
                     component="div"
-                    {...(!expanded && !floating && { onClick: () => { navigate(`/e/${nevent}`) } })}
+                    {...(!expanded && !floating && { onClick: () => { navigate(`/e/${nevent}`, { state: { events: props.state?.events, event, limit: props.state?.events?.length, previousUrl: location?.pathname} }) } })}
                     {...(floating && { onClick: () => { setSearchParams({ e: nevent, ...(!!searchString && { s: searchString }) }) } })}
                 >
                     {

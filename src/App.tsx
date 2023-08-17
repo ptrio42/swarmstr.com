@@ -22,6 +22,7 @@ import {NostrNoteThreadContext} from "./contexts/NostrNoteThreadContext";
 import {NostrContextProvider} from "./providers/NostrContextProvider";
 import {ThreadWrapper} from "./components/Nostr/ThreadWrapper/ThreadWrapper";
 import {RecentNotes} from "./components/Nostr/RecentNotes/RecentNotes";
+import {Nostr} from "./components/Nostr/Nostr";
 
 const theme = createTheme({
     typography: {
@@ -117,10 +118,12 @@ function App() {
             <NavBar />
             <Box sx={{ maxWidth: '640px', margin: '0 auto' }}>
                 <Routes>
-                    <Route path="/" element={<NostrFeedContextProvider><Feed/></NostrFeedContextProvider>} />
+                    <Route path="/" element={<Nostr/>}>
+                        <Route path="/" element={<NostrFeedContextProvider><Feed/></NostrFeedContextProvider>}/>
+                        <Route path="/recent" element={<RecentNotes/>} />
+                        <Route path="/e/:nevent" element={<ThreadWrapper/>} />
+                    </Route>
                     <Route path="/nostr-address" element={<Nip05/>} />
-                    <Route path="/e/:nevent" element={<ThreadWrapper/>} />
-                    <Route path="/recent" element={<RecentNotes/>} />
                 </Routes>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>

@@ -2,13 +2,13 @@ import {Note} from "../Note/Note";
 import React, {useEffect, useState} from "react";
 import {ListItem} from "@mui/material";
 import List from "@mui/material/List";
-import {Link, useNavigate} from "react-router-dom";
+import {Link, useNavigate, useLocation} from "react-router-dom";
 import { nip19 } from 'nostr-tools';
 import {Helmet} from "react-helmet";
 import Button from "@mui/material/Button";
 import {ArrowBack} from "@mui/icons-material";
 import {useNostrNoteThreadContext} from "../../../providers/NostrNoteThreadContextProvider";
-import {NDKFilter, NostrEvent} from "@nostr-dev-kit/ndk";
+import {NDKEvent, NDKFilter, NostrEvent} from "@nostr-dev-kit/ndk";
 import {NostrNoteContextProvider} from "../../../providers/NostrNoteContextProvider";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
@@ -34,9 +34,12 @@ interface ThreadProps {
         event?: any;
     }
     floating?: boolean;
+    state?: {
+        events?: NostrEvent[]
+    }
 }
 
-export const NoteThread = ({ nevent, data = {}, children, expanded, floating }: ThreadProps) => {
+export const NoteThread = ({ nevent, data = {}, children, expanded, floating, ...props }: ThreadProps) => {
     const { id } = nevent && nip19.decode(nevent).data;
 
     const filter: NDKFilter = { kinds: [1], '#e': [id] };
@@ -49,7 +52,9 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating }: 
        const events = await db.notes
            .where({ referencedEventId: id })
            // filter spam notes
-           .filter(({ content }) => !content.toLowerCase().includes('airdrop is live') &&
+           .filter(({ content }) =>
+               !content.toLowerCase().includes('airdrop is live') &&
+               !content.toLowerCase().includes('claim $') &&
                !content.toLowerCase().includes('claim your free $'))
            .toArray();
        return events;
@@ -57,6 +62,9 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating }: 
 
     const [stats, setStats] = useState<any>({});
     const [sort, setSort] = useState<'score' | 'zap' | 'recent'>('score');
+
+    const location = useLocation();
+
 
     useEffect(() => {
         if (events && events.length > 0) {
@@ -88,6 +96,15 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating }: 
         return ((zaps?.count || 0) + ((reaction_count || 0) * 0.5) + ((repost_count || 0) * 0.25)) - (report_count || 0);
     };
 
+    const goBack = () => {
+        const previousUrl = location?.state?.previousUrl;
+        if (previousUrl === '/' || previousUrl === '/recent') {
+            navigate(`${previousUrl}#${id}`, { state: { id, events: location?.state?.events, limit: location?.state?.limit } });
+        } else {
+            navigate(-1);
+        }
+    };
+
     return (
         <React.Fragment>
             {
@@ -112,13 +129,13 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating }: 
                 </Helmet>
             }
 
-            <List>
+            <List id={id}>
 
                 {
                     expanded && <ListItem key={'nostr-resources-nav-back'}>
                         <Button sx={{ textTransform: 'capitalize', fontSize: '16px', borderRadius: '18px' }} color="secondary" variant="outlined" onClick={() =>
                             // @ts-ignore
-                            navigate(-1, { replace: false })
+                            goBack()
                         }>
                             <ArrowBack sx={{ fontSize: 18, marginRight: 1 }} />
                             Back
