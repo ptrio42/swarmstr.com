@@ -27,9 +27,10 @@ export const EventList = ({ events, floating = true }: EventListProps) => {
                     <NoteThread
                         key={`${nevent}-thread`}
                         nevent={nevent}
+                        state={{events}}
                     >
                         <NostrNoteContextProvider>
-                            <Note key={`${nevent}-content`} event={event} nevent={nevent} floating={floating}/>
+                            <Note key={`${nevent}-content`} event={event} nevent={nevent} floating={floating} state={{events}}/>
                         </NostrNoteContextProvider>
                     </NoteThread>
                 ))

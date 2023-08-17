@@ -16,6 +16,7 @@ import Chip from "@mui/material/Chip";
 import './RecentNotes.css';
 import {PsychologyAlt, Search} from "@mui/icons-material";
 import Button from "@mui/material/Button";
+import {useLocation} from "react-router-dom";
 
 const since =  Math.floor(Date.now() / 1000 - 24 * 60 * 60);
 const to =  Math.floor(Date.now() / 1000 + 24 * 60 * 60);
@@ -24,7 +25,9 @@ const filter = { kinds: [1, 30023], "#t": [Config.HASHTAG], since };
 
 export const RecentNotes = () => {
 
-    const [limit, setLimit] = useState<number>(10);
+    const { pathname, hash, key, ...location } = useLocation();
+    const [limit, setLimit] = useState<number>(location?.state?.limit || 10);
+
 
      const { subscribe, setNewNoteDialogOpen, user, setLoginDialogOpen } = useNostrContext();
 
@@ -32,11 +35,11 @@ export const RecentNotes = () => {
          async () => await db.notes.where('created_at')
              .between(since, to, true, true)
              .and(({tags}) => containsTag(tags, ['t', Config.HASHTAG]))
-             .filter(({kind}) => kind === 1 || kind === 30023)
+             .filter(({id, kind}) => (kind === 1 || kind === 30023) && id !== 'fdd786beca7debac7026aa6686077fae10d93888d6fb56220c8cacfdb46b9295')
              .reverse()
              .sortBy('created_at')
              // .toArray()
-     , [limit]);
+     , [limit], location?.state?.events);
 
      useEffect(() => {
          subscribe(filter, { closeOnEose: false, groupable: false }, Config.CLIENT_READ_RELAYS);
@@ -45,6 +48,26 @@ export const RecentNotes = () => {
      useEffect(() => {
          console.log({limit})
      }, [limit]);
+
+     useEffect(() => {
+        console.log({state: location?.state})
+     }, [location]);
+
+    useEffect(() => {
+        console.log({pathname})
+        if (hash === '') {
+            window.scrollTo(0, 0);
+        }
+        else {
+            setTimeout(() => {
+                const id = hash.replace('#', '');
+                const element = document.getElementById(id);
+                if (element) {
+                    element.scrollIntoView();
+                }
+            }, 0);
+        }
+    }, [pathname, hash, key]);
 
     return <Box>
         <Box className="addNewNote-box">

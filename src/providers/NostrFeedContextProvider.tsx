@@ -73,6 +73,7 @@ export const NostrFeedContextProvider = ({ children }: any) => {
             !nostrEvent.content.includes('Swarmstr is a free and open source Q&A') &&
             !nostrEvent.content.includes('Swarmstr is a simple Q&A web-client') &&
             nostrEvent.id !== 'c923482fe63f362677b3d9ba3e9006e3feb4bff8fc73421793c36c56fc3178be' &&
+            nostrEvent.id !== 'fdd786beca7debac7026aa6686077fae10d93888d6fb56220c8cacfdb46b9295' &&
             !nostrEvent.content.includes('an early release so expect some bugs')) {
             db.notes.put({
                 ...nostrEvent,
