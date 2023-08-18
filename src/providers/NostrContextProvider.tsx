@@ -88,11 +88,16 @@ export const NostrContextProvider = ({ children }: any) => {
         const sub = ndk.current.subscribe(filter, opts, notesReadRelays);
         // sub.on('event', onEvent);
         sub.on('event', (event: NDKEvent) => {
-            db.notes.put({ ...event.rawEvent(), type: NOTE_TYPE.QUESTION });
+            if (event.kind === 1 || event.kind === 30023) db.notes.put({ ...event.rawEvent(), type: NOTE_TYPE.QUESTION });
+            if (event.kind === 30000) db.lists.put(event.rawEvent());
+            console.log(`NostrContextProvider:subscribe ${event.kind}`, event);
             // setEvents((prevState: NostrEvent[]) => ([
             //     ...prevState,
             //     nostrEvent
             // ]));
+        });
+        sub.on('eose', () => {
+           console.log('received eose')
         });
         sub.start()
             .then(() => {

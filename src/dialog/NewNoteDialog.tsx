@@ -119,7 +119,7 @@ export const NewNoteDialog = ({ open, onClose, noteId, replyTo, label, explicitT
 
     useEffect(() => {
         const { content } = formik.values;
-        console.log(`content change`, {content});
+        // console.log(`content change`, {content});
         if (!content) return;
 
         const eTags: NDKTag[] = [
@@ -144,7 +144,7 @@ export const NewNoteDialog = ({ open, onClose, noteId, replyTo, label, explicitT
     }, [formik.values.content]);
 
     useEffect(() => {
-        console.log({tags})
+        // console.log({tags})
     }, [tags])
 
     const handleClose = () => {

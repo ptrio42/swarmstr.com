@@ -98,8 +98,13 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating, ..
 
     const goBack = () => {
         const previousUrl = location?.state?.previousUrl;
+        const opts = { preventScrollReset: true, replace: false };
         if (previousUrl === '/' || previousUrl === '/recent') {
-            navigate(`${previousUrl}#${id}`, { state: { id, events: location?.state?.events, limit: location?.state?.limit } });
+            navigate(`${previousUrl}#${id}`, { ...opts, state: {
+                id,
+                events: location?.state?.events,
+                limit: location?.state?.limit
+            }});
         } else {
             navigate(-1);
         }

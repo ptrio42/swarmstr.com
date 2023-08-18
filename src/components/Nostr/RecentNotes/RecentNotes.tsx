@@ -1,6 +1,6 @@
 import {EventListWrapper} from "../EventListWrapper/EventListWrapper";
 import {useNostrContext} from "../../../providers/NostrContextProvider";
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {Config} from "../../../resources/Config";
 import * as React from "react";
 import {Box} from "@mui/material";
@@ -17,6 +17,9 @@ import './RecentNotes.css';
 import {PsychologyAlt, Search} from "@mui/icons-material";
 import Button from "@mui/material/Button";
 import {useLocation} from "react-router-dom";
+import {ListEvent} from "../../../models/commons";
+import {NDKTag} from "@nostr-dev-kit/ndk";
+import {uniq} from 'lodash';
 
 const since =  Math.floor(Date.now() / 1000 - 24 * 60 * 60);
 const to =  Math.floor(Date.now() / 1000 + 24 * 60 * 60);
@@ -31,27 +34,51 @@ export const RecentNotes = () => {
 
      const { subscribe, setNewNoteDialogOpen, user, setLoginDialogOpen } = useNostrContext();
 
+     const mutedPubkeys = useLiveQuery(async () => {
+         const muteLists = await db.lists.where({ kind: 30000 }).toArray();
+         const mutedPubkeys = uniq(muteLists
+             .map((listEvent: ListEvent) => listEvent.tags
+                 .filter((tag: NDKTag) => tag[0] === 'p')
+                 .map(([key, value]) => value)
+             ).flat(2));
+         console.log({mutedPubkeys});
+         return mutedPubkeys;
+     }, []);
+
      const events = useLiveQuery(
-         async () => await db.notes.where('created_at')
-             .between(since, to, true, true)
-             .and(({tags}) => containsTag(tags, ['t', Config.HASHTAG]))
-             .filter(({id, kind}) => (kind === 1 || kind === 30023) && id !== 'fdd786beca7debac7026aa6686077fae10d93888d6fb56220c8cacfdb46b9295')
-             .reverse()
-             .sortBy('created_at')
+         async () => {
+             if (!mutedPubkeys) return;
+             return await db.notes.where('created_at')
+                 .between(since, to, true, true)
+                 .and(({tags}) => containsTag(tags, ['t', Config.HASHTAG]))
+                 .filter(({id, kind, pubkey, tags}) => (kind === 1 || kind === 30023) &&
+                     !mutedPubkeys.includes(pubkey) &&
+                     !containsTag(tags, ['t', 'nsfw']))
+                 .reverse()
+                 .sortBy('created_at')
+         }
              // .toArray()
-     , [limit], location?.state?.events);
+     , [limit, mutedPubkeys], location?.state?.events);
 
      useEffect(() => {
-         subscribe(filter, { closeOnEose: false, groupable: false }, Config.CLIENT_READ_RELAYS);
+         const relayUrls = Config.CLIENT_READ_RELAYS;
+         subscribe(filter, { closeOnEose: false, groupable: false }, relayUrls);
+         subscribe({
+             kinds: [30000],
+             authors: ['f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8'],
+             '#d': ['mute']
+         }, { closeOnEose: false, groupable: false }, Config.SERVER_RELAYS);
      }, []);
 
      useEffect(() => {
-         console.log({limit})
+         // console.log({limit})
      }, [limit]);
 
      useEffect(() => {
-        console.log({state: location?.state})
+        // console.log({state: location?.state})
      }, [location]);
+
+     const locationStateEventsMemo = useMemo(() => events, [!events]);
 
     useEffect(() => {
         console.log({pathname})
@@ -62,12 +89,13 @@ export const RecentNotes = () => {
             setTimeout(() => {
                 const id = hash.replace('#', '');
                 const element = document.getElementById(id);
+                // console.log({element})
                 if (element) {
                     element.scrollIntoView();
                 }
-            }, 0);
+            });
         }
-    }, [pathname, hash, key]);
+    }, [pathname, hash, key, locationStateEventsMemo]);
 
     return <Box>
         <Box className="addNewNote-box">
