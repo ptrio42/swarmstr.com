@@ -36,3 +36,6 @@ export interface RepostEvent extends NostrEvent {
     repostedEventId: string;
 }
 
+export interface ListEvent extends NostrEvent {
+}
+
