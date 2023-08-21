@@ -23,6 +23,7 @@ import {NostrContextProvider} from "./providers/NostrContextProvider";
 import {ThreadWrapper} from "./components/Nostr/ThreadWrapper/ThreadWrapper";
 import {RecentNotes} from "./components/Nostr/RecentNotes/RecentNotes";
 import {Nostr} from "./components/Nostr/Nostr";
+import {List} from "./components/Nostr/List/List";
 
 const theme = createTheme({
     typography: {
@@ -40,6 +41,9 @@ const theme = createTheme({
         secondary: {
             main: '#989500'
         }
+    },
+    shape: {
+        borderRadius: 16,
     }
 });
 
@@ -122,6 +126,7 @@ function App() {
                         <Route path="/" element={<NostrFeedContextProvider><Feed/></NostrFeedContextProvider>}/>
                         <Route path="/recent" element={<RecentNotes/>} />
                         <Route path="/e/:nevent" element={<ThreadWrapper/>} />
+                        <Route path="/d/:listName" element={<List/>} />
                     </Route>
                     <Route path="/nostr-address" element={<Nip05/>} />
                 </Routes>

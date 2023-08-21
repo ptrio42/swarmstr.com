@@ -44,7 +44,6 @@ export const noteContentToHtml = (text: string, tags?: string[][], searchString?
     // image urls and not those used in markdown
     .replace(/(?<!\]\()(https?:\/\/.*\.(?:png|jpg|jpeg|gif|svg|webp)).*(?<!\))/gm, (result) => {
         const multilink = result.split(' ');
-        console.log({multilink})
         if (multilink.length > 1 ) return multilink.filter((str: string) => new RegExp(/http/).test(str)).map((url: string) => `<img width="100%" src="${url}" style="max-width:512px;" />`).join('<br/>');
         return `<img width="100%" src="${result}" style="max-width:512px;" />`
     })
@@ -96,7 +95,6 @@ export const noteContentToHtml = (text: string, tags?: string[][], searchString?
     })
     .replace(/(#<a?:.+?:\d{18}>|#\p{Extended_Pictographic})/gu, (result) => {
         const hashtag = result.replace('#', '');
-        console.log({hashtag})
         return `<a href="${process.env.BASE_URL}/?s=${hashtag.replace(/(<([^>]+)>)/gi, '')}">#${hashtag}</a>`
     });
     // @ts-ignore

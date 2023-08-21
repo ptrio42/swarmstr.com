@@ -18,7 +18,7 @@
   color: #faefcc;
   text-shadow: 1px 1px #000;
   min-width: fit-content;
-  width: 56px;
+  width: 120px;
   height: 56px;
 }
 
@@ -41,7 +41,7 @@ header {
 
 .newNote-button {
   transition: 0.5s ease-in-out !important;
-  width: 64px!important;
+  min-width: 32px;
 }
 
 .newNote-button:hover {

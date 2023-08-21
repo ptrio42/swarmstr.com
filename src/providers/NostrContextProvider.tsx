@@ -89,8 +89,8 @@ export const NostrContextProvider = ({ children }: any) => {
         // sub.on('event', onEvent);
         sub.on('event', (event: NDKEvent) => {
             if (event.kind === 1 || event.kind === 30023) db.notes.put({ ...event.rawEvent(), type: NOTE_TYPE.QUESTION });
-            if (event.kind === 30000) db.lists.put(event.rawEvent());
-            console.log(`NostrContextProvider:subscribe ${event.kind}`, event);
+            if (event.kind === 30000 || event.kind === 10000 || event.kind === 30001) db.lists.put(event.rawEvent());
+            // console.log(`NostrContextProvider:subscribe ${event.kind}`, event);
             // setEvents((prevState: NostrEvent[]) => ([
             //     ...prevState,
             //     nostrEvent
@@ -291,7 +291,7 @@ export const NostrContextProvider = ({ children }: any) => {
                     if (id) event.tags.push(['e', id]);
                 }
                 break;
-                // MISSING TAG
+                // SUGGEST TAG
                 // suggest category eg. relays, clients etc.
                 case 'hash': {
                     if (tag) {

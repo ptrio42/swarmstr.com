@@ -12,7 +12,7 @@ import NDK, {
     NDKEvent,
     NDKFilter, NDKRelay, NDKRelaySet, NDKSubscription,
     NDKSubscriptionCacheUsage,
-    NDKSubscriptionOptions,
+    NDKSubscriptionOptions, NDKTag,
     NostrEvent
 } from '@nostr-dev-kit/ndk';
 import RedisAdapter from '@nostr-dev-kit/ndk-cache-redis';
@@ -79,7 +79,7 @@ const ndkSearchnos = new NDK({ explicitRelayUrls: [Config.SEARCH_RELAY_PUBLISH] 
 const publish = async (nostrEvent: NostrEvent, relayUrls?: string[], _ndk?: NDK) => {
     try {
         const event = new NDKEvent(_ndk || ndk, nostrEvent);
-        console.log(`publishing new event`, {event});
+        // console.log(`publishing new event`, {event});
         try {
             // @ts-ignore
             const result = await event.publish(NDKRelaySet.fromRelayUrls(relayUrls, _ndk || ndk), 5000);
@@ -98,8 +98,8 @@ const publish = async (nostrEvent: NostrEvent, relayUrls?: string[], _ndk?: NDK)
 let ids: string[] = [];
 
 const debouncedSub = debounce(() => {
-    console.log(`subscribing to ids: ${ids.join(',')}`);
-    subscribe({ ids }, { closeOnEose: true }, false);
+    // console.log(`subscribing to ids: ${ids.join(',')}`);
+    subscribe({ ids }, { closeOnEose: true });
     ids = [];
 }, 2000);
 
@@ -111,12 +111,12 @@ const publishToSearchRelay = async (nostrEvent: NostrEvent) => {
     }
 };
 
-const onEvent = (event: NDKEvent) => {
+const handleHashTagEvent = (event: NDKEvent) => {
     const nostrEvent = event.rawEvent();
     const { tags } = nostrEvent;
     const referencedEventId = valueFromTag(nostrEvent, 'e');
     const referencedEventId1 = valueFromTag(event, 'e');
-    console.log({referencedEventId, referencedEventId1})
+    // console.log({referencedEventId, referencedEventId1})
     if (containsTag(tags, ['t', Config.HASHTAG])) {
         // if event contains referenced event tag, it serves at question hint
         // thus gotta fetch the referenced event
@@ -165,17 +165,18 @@ const onEvent = (event: NDKEvent) => {
 const subscribe = (
     filter: NDKFilter,
     opts: NDKSubscriptionOptions = {closeOnEose: false, groupable: false},
-    override: boolean = true
+    onEvent?: (event: NDKEvent) => void,
+    onEose?: () => void
 ) => {
     const sub = ndk.subscribe(filter, opts);
 
     console.log(`new sub created...`);
 
     sub
-        .on('event', onEvent)
-        .on('eose', () => {
-            console.log(`eose received`);
-        })
+        .on('event', onEvent || handleHashTagEvent)
+        .on('eose', onEose || (() =>  {
+            console.log(`server client: eose received`);
+        }))
         .on('close', () => {
             console.log(`the sub was closed...`);
         });
@@ -231,7 +232,16 @@ const isPubkeyValid = (pubkey: string): boolean => {
 
     }
     return false;
-} ;
+};
+
+const isNoteValid = (id: string): boolean => {
+    try {
+        return id.length === 64 && !!nip19.noteEncode(id);
+    } catch (error) {
+
+    }
+    return false;
+};
 
 server.get('/.well-known/nostr.json', async (req, res) => {
     try {
@@ -283,6 +293,44 @@ server.post('/api/register-name', async (req, res) => {
     console.log({name, pubkey});
 });
 
+server.get('/api/cache/:value/:kind/:tag', async (req, res) => {
+    const { value, kind, tag } = req.params;
+    if (!value) return;
+    // get list of kind 1 events from filter {"#e", "eventId"}
+    // @ts-ignore
+    const eventIdsString = await redisClient.get(`${value}:#${tag || 'e'}:${+kind || 1}`);
+    const eventIds = eventIdsString && eventIdsString?.split(':');
+    // console.log({eventIds})
+    // if cached list exists, fetch events on the list from cache
+    if (eventIds?.length > 0) {
+        // @ts-ignore
+        const events = await redisClient.mGet(eventIds);
+        const parsedEvents = events.map((event: string) => JSON.parse(event))
+        // console.log('cached eventsList', {parsedEvents})
+        res.json(parsedEvents);
+    } else {
+        const events: NostrEvent[] = [];
+        // otherwise create subscription and cache the events
+        subscribe(
+            {[`#${tag || 'e'}`]: [value], kinds: [+kind || 1] },
+            { closeOnEose: true, groupable: false },
+            async (event: NDKEvent) => {
+                // console.log('got event: ', {event});
+                events.push(event.rawEvent());
+            },
+            () => {
+                let list: string = '';
+                if (tag === 'e') list = uniqBy(events, 'id').map(({id}: NostrEvent) => id).join(':');
+                if (tag === 'd') list = uniqBy(events, 'id')
+                    .map(({tags}) => tags.filter((tag: NDKTag) => tag[0] === 'e').map((tag: NDKTag) => tag[1])).flat(2).join(':');
+                // console.log('saving list...', { list });
+                // @ts-ignore
+                redisClient.set(`${value}:#${tag || 'e'}:${+kind || 1}`, list);
+            });
+        res.sendStatus(204);
+    }
+});
+
 server.get('/*', async (req, res) => {
     let helmet = Helmet.renderStatic();
     const path = req.originalUrl;
@@ -300,7 +348,7 @@ server.get('/*', async (req, res) => {
                     let length = content;
                     let title = content.replace(/#\[([0-9]+)\]/g, '').slice(0, content.indexOf('?') > -1 ? content.indexOf('?') + 1 : content.length);
                     if (title.length > 150) title = `${title.slice(0, 150)}...`;
-                    console.log('question title', { title } )
+                    // console.log('question title', { title } )
                     helmet = {
                         ...helmet,
                         title: {
