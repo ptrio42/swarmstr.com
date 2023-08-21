@@ -20,6 +20,7 @@ import {useLocation} from "react-router-dom";
 import {ListEvent} from "../../../models/commons";
 import {NDKTag} from "@nostr-dev-kit/ndk";
 import {uniq} from 'lodash';
+import {Helmet} from "react-helmet";
 
 const since =  Math.floor(Date.now() / 1000 - 24 * 60 * 60);
 const to =  Math.floor(Date.now() / 1000 + 24 * 60 * 60);
@@ -34,31 +35,46 @@ export const RecentNotes = () => {
 
      const { subscribe, setNewNoteDialogOpen, user, setLoginDialogOpen } = useNostrContext();
 
+     const mutedEventsByTagName = async (kind: number, tagName: string) => {
+         const muteLists = await db.lists.where({ kind }).toArray();
+         const mutedPubkeys = uniq(muteLists
+             .map((listEvent: ListEvent) => listEvent.tags
+                 .filter((tag: NDKTag) => tag[0] === tagName)
+                 .map(([key, value]) => value)
+             ).flat(2));
+         console.log({mutedPubkeys});
+         return mutedPubkeys;
+     };
+
+    const mutedEvents = useLiveQuery(async () => await mutedEventsByTagName(10000, 'e'), []);
+
      const mutedPubkeys = useLiveQuery(async () => {
+         if (!mutedEvents) return;
          const muteLists = await db.lists.where({ kind: 30000 }).toArray();
          const mutedPubkeys = uniq(muteLists
              .map((listEvent: ListEvent) => listEvent.tags
                  .filter((tag: NDKTag) => tag[0] === 'p')
                  .map(([key, value]) => value)
              ).flat(2));
-         console.log({mutedPubkeys});
+         console.log({mutedPubkeys, mutedEvents});
          return mutedPubkeys;
-     }, []);
+     }, [mutedEvents]);
 
      const events = useLiveQuery(
          async () => {
-             if (!mutedPubkeys) return;
+             if (!mutedPubkeys || !mutedEvents) return;
              return await db.notes.where('created_at')
                  .between(since, to, true, true)
                  .and(({tags}) => containsTag(tags, ['t', Config.HASHTAG]))
                  .filter(({id, kind, pubkey, tags}) => (kind === 1 || kind === 30023) &&
                      !mutedPubkeys.includes(pubkey) &&
+                     !mutedEvents.includes(id!) &&
                      !containsTag(tags, ['t', 'nsfw']))
                  .reverse()
                  .sortBy('created_at')
          }
              // .toArray()
-     , [limit, mutedPubkeys], location?.state?.events);
+     , [limit, mutedEvents, mutedPubkeys], location?.state?.events);
 
      useEffect(() => {
          const relayUrls = Config.CLIENT_READ_RELAYS;
@@ -67,6 +83,10 @@ export const RecentNotes = () => {
              kinds: [30000],
              authors: ['f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8'],
              '#d': ['mute']
+         }, { closeOnEose: false, groupable: false }, Config.SERVER_RELAYS);
+         subscribe({
+             kinds: [10000],
+             authors: ['000003a2c8076423148fe15e3ff5f182e0304cff6de499a3f54f5adfe3b014e6']
          }, { closeOnEose: false, groupable: false }, Config.SERVER_RELAYS);
      }, []);
 
@@ -81,7 +101,6 @@ export const RecentNotes = () => {
      const locationStateEventsMemo = useMemo(() => events, [!events]);
 
     useEffect(() => {
-        console.log({pathname})
         if (hash === '') {
             window.scrollTo(0, 0);
         }
@@ -89,7 +108,6 @@ export const RecentNotes = () => {
             setTimeout(() => {
                 const id = hash.replace('#', '');
                 const element = document.getElementById(id);
-                // console.log({element})
                 if (element) {
                     element.scrollIntoView();
                 }
@@ -98,6 +116,25 @@ export const RecentNotes = () => {
     }, [pathname, hash, key, locationStateEventsMemo]);
 
     return <Box>
+        <Helmet>
+            <title>Recent notes - { Config.APP_TITLE }</title>
+            <meta property="description" content={`Browse latest notes from #${Config.HASHTAG}`} />
+            <meta property="keywords" content={ Config.APP_KEYWORDS } />
+
+            <meta property="og:url" content={ `${process.env.BASE_URL}/recent` } />
+            <meta property="og:type" content="website" />
+            <meta property="og:title" content={`Recent notes - ${Config.APP_TITLE}`} />
+            <meta property="og:image" content={ Config.APP_IMAGE } />
+            <meta property="og:description" content={`Browse latest notes from #${Config.HASHTAG}`} />
+
+            <meta itemProp="name" content={`Recent notes - ${Config.APP_TITLE}`} />
+            <meta itemProp="image" content={ Config.APP_IMAGE }  />
+
+            <meta name="twitter:title" content={`Recent notes - ${Config.APP_TITLE}`} />
+            <meta name="twitter:description" content={`Browse latest notes from #${Config.HASHTAG}`} />
+            <meta name="twitter:image" content={ Config.APP_IMAGE }  />
+
+        </Helmet>
         <Box className="addNewNote-box">
             <Chip
                 icon={<PsychologyAlt/>}

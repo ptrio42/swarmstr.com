@@ -18,7 +18,7 @@ import {NewLabelDialog} from "../../../dialog/NewLabelDialog";
 import {useNostrContext} from "../../../providers/NostrContextProvider";
 import {request} from "../../../services/request";
 import ButtonGroup from "@mui/material/ButtonGroup";
-import { orderBy, chunk } from 'lodash';
+import { orderBy, chunk, uniqBy } from 'lodash';
 import './Thread.css';
 import {Config} from "../../../resources/Config";
 
@@ -48,6 +48,8 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating, ..
 
     const navigate = useNavigate();
 
+    const [cachedEvents, setCachedEvents] = useState<NostrEvent[]>();
+
     const events = useLiveQuery(async () => {
        const events = await db.notes
            .where({ referencedEventId: id })
@@ -57,8 +59,8 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating, ..
                !content.toLowerCase().includes('claim $') &&
                !content.toLowerCase().includes('claim your free $'))
            .toArray();
-       return events;
-    }, [id]);
+       return uniqBy([...events, ...cachedEvents || []], 'id');
+    }, [id, cachedEvents], cachedEvents);
 
     const [stats, setStats] = useState<any>({});
     const [sort, setSort] = useState<'score' | 'zap' | 'recent'>('score');
@@ -89,11 +91,21 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating, ..
         subscribe(filter);
     }, []);
 
+    useEffect(() => {
+        if (!id) return;
+        request({ url: `${process.env.BASE_URL}/api/cache/${id}/1/e` })
+            .then(response => {
+                setCachedEvents(response.data);
+                db.notes.bulkPut(response.data);
+            })
+
+    }, [id]);
+
     const calculateScore = (id: string) => {
         if (!stats) return 0;
 
         const { zaps , reaction_count, repost_count, report_count } = stats[id] || { zaps: { count: 0 }, reaction_count: 0, repost_count: 0, report_count: 0 };
-        return ((zaps?.count || 0) + ((reaction_count || 0) * 0.5) + ((repost_count || 0) * 0.25)) - (report_count || 0);
+        return ((+zaps?.msats/10000 || 0) + ((reaction_count || 0) * 0.5) + ((repost_count || 0) * 0.25)) - (report_count || 0);
     };
 
     const goBack = () => {
@@ -105,6 +117,8 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating, ..
                 events: location?.state?.events,
                 limit: location?.state?.limit
             }});
+        } else if (new RegExp(/\/d\//).test(previousUrl)) {
+            navigate(`${previousUrl}#${id}`);
         } else {
             navigate(-1);
         }
@@ -183,7 +197,7 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating, ..
                                         const score = calculateScore(id!);
                                         return score;
                                     case 'zap':
-                                        return stats && stats[id!] && stats[id!].zaps ? stats[id!].zaps.count : 0;
+                                        return stats && stats[id!] && stats[id!].zaps ? +stats[id!].zaps.msats : 0;
                                     case 'recent':
                                         return created_at;
                                 }
