@@ -2,7 +2,7 @@ This project is experimental. Use at your own risk!
 
 #### What is Swarmstr?
 
-Swarmstr is a q&a nostr web client.
+[Swarmstr](https://swarmstr.com) is a q&a nostr web client.
 
 React front-end is served by express.
 
@@ -70,4 +70,22 @@ Run
 
 ```
 node ./dist/server.js
+```
+
+### Links
+
+[Search](https://swarmstr.com?s=) 🔍
+
+[Recent questions](https://swarmstr.com/recent) 🗒
+
+[Nostr FAQ](https://swarmstr.com/d/nostr-faq)
+
+[Free nostr address](https://swarmstr.com/nostr-address)
+
+### Contact
+
+Nostr
+
+```
+npub178umpxtdflcm7a08nexvs4mu384kx0ngg9w8ltm5eut6q7lcp0vq05qrg4
 ```
