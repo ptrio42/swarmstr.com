@@ -342,13 +342,14 @@ server.get('/*', async (req, res) => {
         if (id) {
             // @ts-ignore
             const event = await redisClient.get(id);
+            console.log({id, event})
             if (event) {
                 try {
                     const { content } = JSON.parse(event);
                     let length = content;
                     let title = content.replace(/#\[([0-9]+)\]/g, '').slice(0, content.indexOf('?') > -1 ? content.indexOf('?') + 1 : content.length);
                     if (title.length > 150) title = `${title.slice(0, 150)}...`;
-                    // console.log('question title', { title } )
+                    console.log('question title', { title } )
                     helmet = {
                         ...helmet,
                         title: {
@@ -369,6 +370,8 @@ server.get('/*', async (req, res) => {
                 } catch (e) {
 
                 }
+            } else {
+                subscribe({ ids: [id] }, { closeOnEose: true, groupable: false })
             }
         }
     } catch (error) {

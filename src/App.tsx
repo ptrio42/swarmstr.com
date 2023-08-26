@@ -24,6 +24,7 @@ import {ThreadWrapper} from "./components/Nostr/ThreadWrapper/ThreadWrapper";
 import {RecentNotes} from "./components/Nostr/RecentNotes/RecentNotes";
 import {Nostr} from "./components/Nostr/Nostr";
 import {List} from "./components/Nostr/List/List";
+import {Profile} from "./components/Nostr/Profile/Profile";
 
 const theme = createTheme({
     typography: {
@@ -127,6 +128,7 @@ function App() {
                         <Route path="/recent" element={<RecentNotes/>} />
                         <Route path="/e/:nevent" element={<ThreadWrapper/>} />
                         <Route path="/d/:listName" element={<List/>} />
+                        <Route path="/p/:npub" element={<Profile/>} />
                     </Route>
                     <Route path="/nostr-address" element={<Nip05/>} />
                 </Routes>

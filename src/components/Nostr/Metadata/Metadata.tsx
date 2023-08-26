@@ -17,6 +17,8 @@ import {useNostrNoteContext} from "../../../providers/NostrNoteContextProvider";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
 import Tooltip from "@mui/material/Tooltip";
+import Box from "@mui/material/Box";
+import {noteContentToHtml} from "../../../services/note2html";
 
 interface QrCodeDialogProps {
     dialogOpen: boolean;
@@ -78,27 +80,16 @@ export interface Metadata {
     pubkey: string;
     name: string;
     displayName: string;
+    banner: string;
 }
 
 interface MetadataProps {
-    picture?: string;
-    lud06?: string;
-    lud16?: string;
-    // npub?: string;
-    nip05?: string;
-    name?: string;
-    supposedName?: string;
-    about?: string;
     handleCopyNpub?: (value: string) => any;
     variant?: 'full' | 'simplified' | 'link' | 'avatar';
-    data?: {
-        event?: any
-    };
-    isSkeleton?: boolean;
     pubkey: string;
 }
 
-export const Metadata = ({ pubkey, handleCopyNpub, supposedName, variant = 'full', data = {}, isSkeleton }: MetadataProps) => {
+export const Metadata = ({ pubkey, handleCopyNpub, variant = 'full' }: MetadataProps) => {
     if (!pubkey) {
         return <CircularProgress sx={{ width: '18px!important', height: '18px!important' }} />
     }
@@ -114,7 +105,6 @@ export const Metadata = ({ pubkey, handleCopyNpub, supposedName, variant = 'full
 
     const filter: NDKFilter = { kinds: [0], authors: [pubkey] };
 
-    // const event = events.find((e: NostrEvent) => e.pubkey === pubkey && e.kind === 0);
     const [event, loaded] = useLiveQuery(async () => {
         const event = await db.users
             .where({pubkey})
@@ -129,9 +119,6 @@ export const Metadata = ({ pubkey, handleCopyNpub, supposedName, variant = 'full
             subscribe(filter, { closeOnEose: true, groupableDelay: 1500 });
         }
     }, [pubkey, loaded]);
-
-    // useEffect(() => () => {
-    // }, []);
 
     useEffect(() => {
         if (event && event.content) {
@@ -163,6 +150,21 @@ export const Metadata = ({ pubkey, handleCopyNpub, supposedName, variant = 'full
                     <Avatar imgProps={{ height: '42' }} sx={{ width: '42px', height: '42px' }} alt="" src={metadata?.picture} />
                 </Tooltip>
             }
+            case 'full': {
+                return <Avatar
+                    imgProps={{ height: '64' }}
+                    sx={{
+                        width: '64px',
+                        height: '64px',
+                        border: '3px #000 solid',
+                        position: 'absolute',
+                        top: '-32px',
+                        left: '10px'
+                    }}
+                    alt=""
+                    src={metadata && metadata.picture}
+                />
+            }
             default: {
                 return <Avatar imgProps={{ height: '21' }} sx={{ width: '21px', height: '21px' }} alt="" src={metadata && metadata.picture} />
 
@@ -173,77 +175,105 @@ export const Metadata = ({ pubkey, handleCopyNpub, supposedName, variant = 'full
     return (
         <React.Fragment>
             {
-                pubkey && <Typography sx={{ display: 'inline-flex', alignItems: 'center', ...(variant === 'link' && { transform: 'translateY(4px)', fontWeight: '400!important' }) }} component="div">
-                    <ListItemAvatar sx={{minWidth: '0', marginRight: '2px'}}>
-                        { avatar }
-                    </ListItemAvatar>
+                pubkey && <React.Fragment>
                     {
-                        variant !== 'avatar' && <ListItemText
-                            primary={
-                                <React.Fragment>
-                                    <Typography sx={{ fontSize: '14px', fontWeight: 'bold' }}>
+                        variant === 'full' && <Box sx={{ minHeight: '121px', width: '100%', background: `url(${metadata?.banner})`, backgroundSize: '100%!important' }}>
 
-                                        <a target="_blank" href={'https://snort.social/p/' + nip19.npubEncode(pubkey)}>
-                                            {getProfileDisplayedName()}
-                                        </a>
-                                        {
-                                            variant !== 'link' &&
-                                            <React.Fragment>
-                                                <IconButton
-                                                    aria-controls={menuOpen ? 'account-menu' : undefined}
-                                                    aria-haspopup="true"
-                                                    aria-expanded={menuOpen ? 'true' : undefined}
-                                                    onClick={handleMenuOpen}
-                                                >
-                                                    <CopyAll sx={{ fontSize: 18 }} />
-                                                </IconButton>
-                                                <Menu
-                                                    anchorEl={menuAnchorEl}
-                                                    id="account-menu"
-                                                    open={menuOpen}
-                                                    onClose={handleMenuClose}
-                                                    onClick={handleMenuClose}
-                                                >
-                                                    <MenuItem onClick={(e) => {
-                                                        const pubkey = npub || event && nip19.npubEncode(event.pubkey);
-                                                        navigator.clipboard.writeText(pubkey || '');
-                                                        handleCopyNpub && handleCopyNpub(pubkey || '');
-                                                    }}>
-                                                        <CopyAll sx={{ fontSize: 18, marginRight: 1 }} /> Copy npub
-                                                    </MenuItem>
-                                                    <MenuItem onClick={() => { setDialogOpen(true) }}>
-                                                        <QrCodeScanner sx={{ fontSize: 18, marginRight: 1 }} /> Show QR
-                                                    </MenuItem>
-                                                    <MenuItem onClick={() => {
-                                                        const a = document.createElement('a');
-                                                        a.href = 'nostr:' + npub;
-                                                        a.click();
-                                                    }}>
-                                                        <Launch sx={{ fontSize: 18, marginRight: 1 }}/> Open in client
-                                                    </MenuItem>
-                                                </Menu>
-                                            </React.Fragment>
-                                        }
-                                    </Typography>
-                                </React.Fragment>
-                            }
-                            { ...(variant === 'full' && {'secondary':
+                        </Box>
+                    }
+                    <Typography
+                        sx={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            position: 'relative',
+                            width: '100%',
+                            ...(variant === 'link' && {
+                                    transform: 'translateY(4px)',
+                                    fontWeight: '400!important' }
+                            )
+                        }}
+                        component="div"
+                    >
+                        <ListItemAvatar sx={{minWidth: '0', marginRight: '2px'}}>
+                            { avatar }
+                        </ListItemAvatar>
+                        {
+                            variant !== 'avatar' && <ListItemText
+                                primary={
                                     <React.Fragment>
                                         <Typography
-                                            sx={{ display: 'inline' }}
-                                            component="span"
-                                            variant="body2"
-                                            color="text.primary"
+                                            sx={{
+                                                fontSize: '14px',
+                                                fontWeight: 'bold',
+                                                ...(variant === 'full' && {
+                                                    textAlign: 'left',
+                                                    textIndent: '84px'
+                                                })
+                                            }}
                                         >
-                                            { metadata && metadata.about }
+
+                                            <a target="_blank" href={`${process.env.BASE_URL}/p/${npub}`}>
+                                                {getProfileDisplayedName()}
+                                            </a>
+                                            {
+                                                variant !== 'link' &&
+                                                <React.Fragment>
+                                                    <IconButton
+                                                        aria-controls={menuOpen ? 'account-menu' : undefined}
+                                                        aria-haspopup="true"
+                                                        aria-expanded={menuOpen ? 'true' : undefined}
+                                                        onClick={handleMenuOpen}
+                                                    >
+                                                        <CopyAll sx={{ fontSize: 18 }} />
+                                                    </IconButton>
+                                                    <Menu
+                                                        anchorEl={menuAnchorEl}
+                                                        id="account-menu"
+                                                        open={menuOpen}
+                                                        onClose={handleMenuClose}
+                                                        onClick={handleMenuClose}
+                                                    >
+                                                        <MenuItem onClick={(e) => {
+                                                            const pubkey = npub || event && nip19.npubEncode(event.pubkey);
+                                                            navigator.clipboard.writeText(pubkey || '');
+                                                            handleCopyNpub && handleCopyNpub(pubkey || '');
+                                                        }}>
+                                                            <CopyAll sx={{ fontSize: 18, marginRight: 1 }} /> Copy npub
+                                                        </MenuItem>
+                                                        <MenuItem onClick={() => { setDialogOpen(true) }}>
+                                                            <QrCodeScanner sx={{ fontSize: 18, marginRight: 1 }} /> Show QR
+                                                        </MenuItem>
+                                                        <MenuItem onClick={() => {
+                                                            const a = document.createElement('a');
+                                                            a.href = 'nostr:' + npub;
+                                                            a.click();
+                                                        }}>
+                                                            <Launch sx={{ fontSize: 18, marginRight: 1 }}/> Open in client
+                                                        </MenuItem>
+                                                    </Menu>
+                                                </React.Fragment>
+                                            }
                                         </Typography>
                                     </React.Fragment>
-                            }) }
-                        />
-                    }
-                </Typography>
-            // <QrCodeDialog str={`nostr:${npub}` || ''} dialogOpen={dialogOpen} close={() => setDialogOpen(false)} />
+                                }
+                                { ...(variant === 'full' && {'secondary':
+                                        <React.Fragment>
+                                            <Typography
+                                                sx={{ display: 'inline' }}
+                                                component="span"
+                                                variant="body2"
+                                                color="text.primary"
+                                            >
+                                                { metadata && metadata.about }
+                                            </Typography>
+                                        </React.Fragment>
+                                }) }
+                            />
+                        }
+                    </Typography>
+                </React.Fragment>
             }
+            {/*<QrCodeDialog str={`nostr:${npub}` || ''} dialogOpen={dialogOpen} close={() => setDialogOpen(false)} />*/}
         </React.Fragment>
     );
 };

@@ -28,6 +28,7 @@ export const EventList = ({ events, floating = true }: EventListProps) => {
                         key={`${nevent}-thread`}
                         nevent={nevent}
                         state={{events}}
+                        expanded={false}
                     >
                         <NostrNoteContextProvider>
                             <Note key={`${nevent}-content`} event={event} nevent={nevent} floating={floating} state={{events}}/>
