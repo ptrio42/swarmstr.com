@@ -42,6 +42,7 @@ header {
 .newNote-button {
   transition: 0.5s ease-in-out !important;
   min-width: 32px;
+  width: 42px;
 }
 
 .newNote-button:hover {

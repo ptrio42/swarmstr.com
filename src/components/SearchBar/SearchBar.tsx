@@ -4,11 +4,10 @@ import Input from "@mui/material/Input";
 import InputAdornment from "@mui/material/InputAdornment";
 import { Search as SearchIcon, Cancel as CancelIcon } from '@mui/icons-material';
 import ListItem from "@mui/material/ListItem";
-import LinearProgress from "@mui/material/LinearProgress";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 
-interface SearchProps {
+interface SearchBarProps {
     query: string;
     resultsCount?: number;
     filteredResultsCount?: number;
@@ -16,7 +15,7 @@ interface SearchProps {
     isQuerying: boolean
 }
 
-export const Search = ({ query, resultsCount, filteredResultsCount, onQueryChange = () => {}, isQuerying }: SearchProps) => {
+export const SearchBar = ({ query, resultsCount, filteredResultsCount, onQueryChange = () => {}, isQuerying }: SearchBarProps) => {
     return (
         <List sx={{ width: '100%', paddingBottom: 0 }}>
             <ListItem key={'search-box'} className="guide-search">

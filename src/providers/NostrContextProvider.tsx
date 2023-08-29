@@ -101,7 +101,7 @@ export const NostrContextProvider = ({ children }: any) => {
         });
         sub.start()
             .then(() => {
-                console.log(`started subscription ${sub.subId} with filter: ${JSON.stringify(filter)} and relaySet: ${relayUrls.join(',')}`)
+                // console.log(`started subscription ${sub.subId} with filter: ${JSON.stringify(filter)} and relaySet: ${relayUrls.join(',')}`)
             });
         subs.current.push(sub);
         // subscription.current = sub;

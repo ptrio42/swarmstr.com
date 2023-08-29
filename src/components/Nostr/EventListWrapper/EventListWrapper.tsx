@@ -1,22 +1,22 @@
 import {Box} from "@mui/material";
 import React from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import {NostrEvent} from "@nostr-dev-kit/ndk";
+import {useNostrEventListContextProvider} from "../../../providers/NostrEventListContextProvider";
 
 interface EventListWrapperProps {
     children?: any;
-    results: NostrEvent[];
-    limit: number;
-    handleSetLimit: (limit: number) => void;
 }
 
-export const EventListWrapper = ({ children, results, limit, handleSetLimit }: EventListWrapperProps) => {
+export const EventListWrapper = ({ children }: EventListWrapperProps) => {
+    const { events, limit, setLimit } = useNostrEventListContextProvider();
+
     const onScrollEnd = () => {
-        handleSetLimit(limit + 3);
+        setLimit(limit + 3);
+        console.log('reached scroll end', limit);
     };
 
     return <InfiniteScroll
-        dataLength={results.length} //This is important field to render the next data
+        dataLength={events?.slice(0, limit).length || 0}
         next={onScrollEnd}
         hasMore={true}
         loader={<Box sx={{ display: 'none' }}>Loading...</Box>}

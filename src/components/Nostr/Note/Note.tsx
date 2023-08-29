@@ -159,8 +159,6 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
     }, [event]);
 
     useEffect(() => {
-        // console.log('note', {props: props.state?.events})
-        // console.log('note', {location: location.state?.events})
         if (noteVisible && loaded && !event) {
             console.log(`event ${id} was not found in db`);
             subscribe(filter, { closeOnEose: true });
@@ -189,7 +187,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
             setSubscribed(true);
         }
         if (!noteVisible && subscribed) {
-            console.log(`will stop subs for note ${id} in 3 seconds...`);
+            // console.log(`will stop subs for note ${id} in 3 seconds...`);
             setTimeout(() => {
                 subs && subs
                     .forEach((sub: NDKSubscription) => {

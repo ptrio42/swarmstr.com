@@ -12,12 +12,13 @@ import {EventListWrapper} from "../EventListWrapper/EventListWrapper";
 import {Box} from "@mui/material";
 import {request} from "../../../services/request";
 import {uniqBy, orderBy} from 'lodash';
-import {Search} from "../../Search/Search";
+import {SearchBar} from "../../SearchBar/SearchBar";
 import {SearchResults} from "../SearchResults/SearchResults";
 import {useSearchParams} from "react-router-dom";
 import Typography from "@mui/material/Typography";
 import {Backdrop} from "../../Backdrop/Backdrop";
 import {Helmet} from "react-helmet";
+import {NostrEventListContextProvider} from "../../../providers/NostrEventListContextProvider";
 
 export const List = () => {
 
@@ -115,7 +116,7 @@ export const List = () => {
             }
         </Typography>
         <SearchResults
-            search={<Search
+            search={<SearchBar
                 query={searchString || ''}
                 resultsCount={filteredEvents()?.length}
                 onQueryChange={(event: any) => {
@@ -124,12 +125,12 @@ export const List = () => {
                 isQuerying={false}
             />}
             results={filteredEvents() || []}
-            limit={filteredEvents()?.length || 10}
-            handleSetLimit={(l: number) => { }}
         >
-            <EventListWrapper results={filteredEvents() || []} limit={events?.length || 0} handleSetLimit={(limit: number) => { }}>
-                <EventList events={filteredEvents() || []} floating={false}/>
-            </EventListWrapper>
+            <NostrEventListContextProvider events={filteredEvents() || []}>
+                <EventListWrapper>
+                    <EventList floating={false}/>
+                </EventListWrapper>
+            </NostrEventListContextProvider>
         </SearchResults>
         <Backdrop open={!events} />
     </Box>;

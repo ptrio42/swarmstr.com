@@ -5,17 +5,17 @@ import Snackbar from "@mui/material/Snackbar";
 import {nip05, nip19} from 'nostr-tools';
 import {NostrEvent} from "@nostr-dev-kit/ndk";
 import {EventListWrapper} from "../EventListWrapper/EventListWrapper";
+import {NostrEventListContextProvider} from "../../../providers/NostrEventListContextProvider";
+import {EventList} from "../EventList/EventList";
 
 interface SearchResultsProps {
     children?: any;
     resultsCount?: number;
     search?: any;
     results: NostrEvent[];
-    limit: number;
-    handleSetLimit: (limit: number) => void;
 }
 
-export const SearchResults = ({ children, search, results, limit, handleSetLimit }: SearchResultsProps) => {
+export const SearchResults = ({ children, search, results }: SearchResultsProps) => {
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
     const [snackbarMessage, setSnackBarMessage] = useState<string>('');
 
@@ -34,9 +34,11 @@ export const SearchResults = ({ children, search, results, limit, handleSetLimit
             >
                 { search }
             </Box>
-            <EventListWrapper results={results} limit={limit} handleSetLimit={(limit: number) => handleSetLimit(limit)}>
-                { children }
-            </EventListWrapper>
+            <NostrEventListContextProvider events={results}>
+                <EventListWrapper>
+                    { children }
+                </EventListWrapper>
+            </NostrEventListContextProvider>
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={3000}
