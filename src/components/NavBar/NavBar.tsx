@@ -60,7 +60,7 @@ export const NavBar = () => {
                             <Button color="secondary" onClick={() => { navigate('/recent') }}>
                                 <Feed/> Recent
                             </Button>
-                            <Button color="secondary" onClick={() => { navigate('/?s=') }}>
+                            <Button color="secondary" onClick={() => { navigate('/search') }}>
                                 <Search/> Search
                             </Button>
                         </ButtonGroup>

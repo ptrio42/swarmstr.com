@@ -12,6 +12,7 @@ import {EventListWrapper} from "../EventListWrapper/EventListWrapper";
 import {containsTag} from "../../../utils/utils";
 import {Backdrop} from "../../Backdrop/Backdrop";
 import {sortBy} from 'lodash';
+import {NostrEventListContextProvider} from "../../../providers/NostrEventListContextProvider";
 
 interface ProfileProps {
     npub?: string
@@ -44,9 +45,13 @@ export const Profile = (props: ProfileProps) => {
 
     return <Box>
         <Metadata pubkey={pubkey as string} />
-        <EventListWrapper results={events?.slice(0, limit) || []} limit={limit} handleSetLimit={(limit: number) => { setLimit(limit) }}>
-            <EventList events={events?.slice(0, limit) || []} floating={false}/>
-        </EventListWrapper>
+
+        <NostrEventListContextProvider events={events || []}>
+            <EventListWrapper>
+                <EventList floating={false}/>
+            </EventListWrapper>
+        </NostrEventListContextProvider>
+
         <Backdrop open={!events} />
     </Box>;
 };

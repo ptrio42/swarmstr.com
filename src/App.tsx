@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Route, Routes, useLocation} from 'react-router-dom';
 import './App.css';
 import {Footer, NavBar} from "./components";
@@ -12,19 +12,15 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import {ThemeContext, themes} from "./contexts/ThemeContext";
 import {Nip05} from "./components/Nostr/Nip05/Nip05";
 import {ThemeContextWrapper} from "./theme/ThemeContextWrapper";
-import {NoteThread} from "./components/Nostr/Thread/Thread";
-import {Feed} from "./components/Nostr/Feed/Feed";
+import {Search} from "./components/Nostr/Search/Search";
 import {NostrFeedContextProvider} from "./providers/NostrFeedContextProvider";
-import {NostrNoteThreadContextProvider} from "./providers/NostrNoteThreadContextProvider";
-import {NostrNoteContextProvider} from "./providers/NostrNoteContextProvider";
-import {Note} from "./components/Nostr/Note/Note";
-import {NostrNoteThreadContext} from "./contexts/NostrNoteThreadContext";
 import {NostrContextProvider} from "./providers/NostrContextProvider";
 import {ThreadWrapper} from "./components/Nostr/ThreadWrapper/ThreadWrapper";
 import {RecentNotes} from "./components/Nostr/RecentNotes/RecentNotes";
 import {Nostr} from "./components/Nostr/Nostr";
 import {List} from "./components/Nostr/List/List";
 import {Profile} from "./components/Nostr/Profile/Profile";
+import {Home} from "./components/Nostr/Home/Home";
 
 const theme = createTheme({
     typography: {
@@ -124,7 +120,8 @@ function App() {
             <Box sx={{ maxWidth: '640px', margin: '0 auto' }}>
                 <Routes>
                     <Route path="/" element={<Nostr/>}>
-                        <Route path="/" element={<NostrFeedContextProvider><Feed/></NostrFeedContextProvider>}/>
+                        <Route path="/" element={<Home/>} />
+                        <Route path="/search/:searchString?" element={<NostrFeedContextProvider><Search/></NostrFeedContextProvider>}/>
                         <Route path="/recent" element={<RecentNotes/>} />
                         <Route path="/e/:nevent" element={<ThreadWrapper/>} />
                         <Route path="/d/:listName" element={<List/>} />

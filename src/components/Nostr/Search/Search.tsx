@@ -1,10 +1,7 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {NoteThread} from "../Thread/Thread";
-import {Note} from "../Note/Note";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import {Box} from "@mui/material";
-import {NostrNoteContextProvider} from "../../../providers/NostrNoteContextProvider";
 import {useNostrFeedContext} from "../../../providers/NostrFeedContextProvider";
-import {NDKFilter, NDKRelay, NDKSubscription, NDKTag, NostrEvent} from "@nostr-dev-kit/ndk";
+import {NDKFilter, NDKRelay, NDKSubscription, NDKTag} from "@nostr-dev-kit/ndk";
 import {nip19} from "nostr-tools";
 import {Link, useSearchParams} from "react-router-dom";
 import { containsTag } from "../../../utils/utils";
@@ -13,41 +10,29 @@ import {db} from "../../../db";
 import {groupBy, uniqBy, sortBy, uniq} from 'lodash'
 import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
-import {Search} from "../../Search/Search";
-import {NOTE_TYPE, NoteEvent, NoteType} from "../../../models/commons";
-import './Feed.css';
+import {SearchBar} from "../../SearchBar/SearchBar";
+import './Search.css';
 import {Backdrop} from "../../Backdrop/Backdrop";
-import Badge from "@mui/material/Badge";
-import Tooltip from "@mui/material/Tooltip";
-import IconButton from "@mui/material/IconButton";
-import {HelpOutline, Info} from "@mui/icons-material";
-import {Metadata} from "../Metadata/Metadata";
-import Divider from "@mui/material/Divider";
 import {Config} from "../../../resources/Config";
 import {Helmet} from "react-helmet";
-import {debounce} from 'lodash';
-import Button from "@mui/material/Button";
 import {ThreadDialog} from "../../../dialog/ThreadDialog";
 import {SearchResults} from "../SearchResults/SearchResults";
 import {EventList} from "../EventList/EventList";
+import {debounce} from 'lodash';
+import {useParams, useNavigate} from "react-router-dom";
 
-const filter: NDKFilter = {
-    kinds: [1, 30023],
-    '#t': [Config.HASHTAG]
-};
-
-export const Feed = () => {
+export const Search = () => {
     const { events, clearEvents, loading, query, setQuery, startSubs, stopSubs } = useNostrFeedContext();
+    const { searchString } = useParams();
+    const navigate = useNavigate();
 
     const [searchParams, setSearchParams] = useSearchParams();
-    const searchString = searchParams.get('s');
+    // const searchString = searchParams.get('s');
     const nevent = searchParams.get('e');
 
     const [subscribed, setSubscribed] = useState<boolean>(false);
 
     const [showPreloader, setShowPreloader] = useState<boolean>(true);
-
-    const [limit, setLimit] = useState<number>(10);
 
     const tags = useLiveQuery(async () => {
        const allEvents = await db.notes.toArray();
@@ -67,11 +52,8 @@ export const Feed = () => {
        return tags;
     });
 
-    const filteredEvents = useCallback(() =>
-        uniqBy(sortBy(events, 'created_at').reverse(), 'id')
-            .slice(0, limit), [events, limit]);
-
-    const contributors = Config.CONTRIBUTORS;
+    const filteredEvents = useMemo(() =>
+        uniqBy(sortBy(events, 'created_at').reverse(), 'id'), [events]);
 
     const explicitTags = Config.EXPLICIT_TAGS;
 
@@ -101,7 +83,7 @@ export const Feed = () => {
         if (!!nevent && !!nip19.decode(nevent).data) {
             stopSubs();
         } else {
-            startSubs({ search: query }, filteredEvents());
+            startSubs({ search: query }, filteredEvents);
         }
     }, [nevent]);
 
@@ -133,77 +115,21 @@ export const Feed = () => {
 
             </Helmet>
             <Box className="landingPage-boxContainer" ref={boxRef}>
-                {
-                    searchString === null && <React.Fragment>
-                        <Box className="landingPage-box">
-                        <Typography variant="h5" component="div">
-                            { Config.SLOGAN }
-                            <Tooltip title="Find out more">
-                                <IconButton className="aboutSwarmstr-button" onClick={() => {
-                                    const a = document.createElement('a');
-                                    a.target = '_blank';
-                                    a.href = `${process.env.BASE_URL}/e/nevent1qqsw9yrz4yzks5rns52aprghenapqfq0pep8zzcsmd6a8anala296aczyrclnvyed48lr0m4u70yejzh0jy7kce7dpq4cla0wn830grmlq9asku2zd0`;
-                                    a.click();
-                                }}>
-                                    <Info />
-                                </IconButton>
-                            </Tooltip>
-                        </Typography>
-                        <Typography component="div" variant="body1">
-                            <Button className="nav-button" variant="contained" color="primary" onClick={() => { setSearchParams({s: ''}) }}>
-                                Search
-                            </Button>
-                            <Button
-                                className="nav-button"
-                                variant="text"
-                                color="secondary"
-                                component={Link}
-                                to="/recent"
-                            >
-                                Recent questions
-                            </Button>
-                        </Typography>
-                    </Box>
-                        <Typography sx={{ marginBottom: '1em', marginTop: '1em' }} component="div" variant="h5">
-                            Contributors
-                            <Tooltip title={`People that helped in Swarmstr development.`}>
-                                <IconButton className="contributors-button">
-                                    <Info />
-                                </IconButton>
-                            </Tooltip>
-                        </Typography>
-                        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                            {
-                                contributors && <React.Fragment>
-                                    {
-                                        contributors.map((pubkey: string) => (
-                                            <Metadata variant={'avatar'} pubkey={pubkey} />
-                                        ))
-                                    }
-                                </React.Fragment>
-                            }
-                        </Box>
-                    </React.Fragment>
-                }
-
                 <SearchResults
-                    search={searchString !== null && <Search
+                    search={searchString !== null && <SearchBar
                         query={searchString || ''}
                         resultsCount={events.length}
                         onQueryChange={(event: any) => {
-                            setSearchParams({ s: event.target.value});
+                            navigate(`/search/${encodeURIComponent(event.target.value)}`);
                         }}
                         isQuerying={loading}
                     />}
-                    results={filteredEvents()}
-                    limit={limit}
-                    handleSetLimit={(l: number) => { setLimit(l) }}
+                    results={filteredEvents}
                 >
-
-                        <EventList events={filteredEvents()}/>
+                        <EventList/>
                 </SearchResults>
                 {
-                    (searchString !== null && (searchString === '' || searchString.length < 2)) &&
+                    (!searchString || (searchString && (searchString === '' || searchString.length < 2))) &&
                     <React.Fragment>
                         {
                             tags && <Box>
@@ -216,7 +142,7 @@ export const Feed = () => {
                                         label={tag}
                                         variant="outlined"
                                         onClick={() => {
-                                            setSearchParams({ s: tag })
+                                            navigate(`/search/${tag}`);
                                         }}
                                     />)
                                 }
@@ -227,7 +153,7 @@ export const Feed = () => {
                 <Backdrop open={showPreloader} />
             </Box>
             <ThreadDialog open={!!nevent && !!nip19.decode(nevent).data} nevent={nevent} onClose={() => {
-                setSearchParams({ e: '', ...(!!searchString && { s: searchString }) });
+                navigate(`/search/${searchString}?e=`);
             }}/>
         </React.Fragment>
     )

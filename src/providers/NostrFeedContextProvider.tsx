@@ -89,7 +89,7 @@ export const NostrFeedContextProvider = ({ children }: any) => {
     const clearEvents = () => {
         console.log(`clearing events...`);
         stopSubs();
-        console.log(`stopped ${subs.length} subs...`);
+        // console.log(`stopped ${subs.length} subs...`);
         setEvents([]);
     };
 

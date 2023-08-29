@@ -135,15 +135,15 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating, ..
                     <meta property="og:url" content={process.env.BASE_URL + '/e/' + nevent } />
                     <meta property="og:type" content="website" />
                     <meta property="og:title" content={`Thread ${ nevent } - Swarmstr.com`} />
-                    <meta property="og:image" content="" />
+                    <meta property="og:image" content={ Config.APP_IMAGE } />
                     <meta property="og:description" content={ Config.APP_DESCRIPTION } />
 
                     <meta itemProp="name" content={`${ nevent } - Swarmstr.com`} />
-                    <meta itemProp="image" content="" />
+                    <meta itemProp="image" content={ Config.APP_IMAGE } />
 
                     <meta name="twitter:title" content={`${ nevent } - Swarmstr.com`} />
                     <meta name="twitter:description" content={ Config.APP_DESCRIPTION } />
-                    <meta name="twitter:image" content="" />
+                    <meta name="twitter:image" content={ Config.APP_IMAGE } />
 
                 </Helmet>
             }

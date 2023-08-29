@@ -1,0 +1,25 @@
+.landingPage-box {
+    border: 1px solid rgb(240,230,140);
+    padding: 1em;
+    border-radius: 8px;
+    background-color: rgba(255,238,81,.05);
+    font-size: 32px;
+    max-width: 420px;
+    margin: 0 1em;
+}
+
+.landingPage-box .nav-button {
+    border-radius: 18px!important;
+    margin: 1.5em 0.5em;
+    text-transform: none!important;
+    font-size: 16px;
+}
+
+.theme--dark .aboutSwarmstr-button, .contributors-button {
+    color: rgba(255,255,255,.77);
+}
+
+.aboutSwarmstr-button, .contributors-button {
+    margin-top: -15px;
+    margin-left: -8px;
+}

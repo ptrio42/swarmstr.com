@@ -208,6 +208,9 @@ export const Metadata = ({ pubkey, handleCopyNpub, variant = 'full' }: MetadataP
                                                 ...(variant === 'full' && {
                                                     textAlign: 'left',
                                                     textIndent: '84px'
+                                                }),
+                                                ...(variant === 'link' && {
+                                                    textAlign: 'left'
                                                 })
                                             }}
                                         >

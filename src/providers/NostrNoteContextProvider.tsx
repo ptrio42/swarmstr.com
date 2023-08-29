@@ -70,7 +70,7 @@ export const NostrNoteContextProvider = ({ children }: NostrNoteContextProviderP
         });
             sub.start()
             .then(() => {
-                console.log(`${sub.subId} started with filter: ${JSON.stringify(filter)}...`);
+                // console.log(`${sub.subId} started with filter: ${JSON.stringify(filter)}...`);
             });
 
         subs.current.push(sub);

@@ -1,0 +1,31 @@
+.MuiChip-root {
+    height: 37px !important;
+    margin: 5px !important;
+}
+
+.MuiChip-root span {
+    color: #000;
+}
+
+.theme--dark .MuiChip-root span {
+    color: #fff;
+}
+
+.feedBrowse-button {
+    text-transform: lowercase !important;
+    font-size: 32px !important;
+    padding: 0 !important;
+    margin: 0;
+    transform: translateY(-2px);
+}
+
+.infinite-scroll-component__outerdiv {
+    width: 100%;
+}
+
+.landingPage-boxContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}

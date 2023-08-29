@@ -313,7 +313,7 @@ server.get('/api/cache/:value/:kind/:tag', async (req, res) => {
         // otherwise create subscription and cache the events
         subscribe(
             {[`#${tag || 'e'}`]: [value], kinds: [+kind || 1] },
-            { closeOnEose: true, groupable: false },
+            { closeOnEose: true, groupable: true, groupableDelay: 1000 },
             async (event: NDKEvent) => {
                 // console.log('got event: ', {event});
                 events.push(event.rawEvent());
@@ -355,7 +355,7 @@ server.get('/*', async (req, res) => {
                         title: {
                             ...helmet.title,
                             toString(): string {
-                                return `<title>${title} - Swarmstr.com</title>`
+                                return `<title>${title} - Swarmstr.com</title>`;
                             }
                         },
                         meta: {
@@ -363,7 +363,14 @@ server.get('/*', async (req, res) => {
                             toString(): string {
                                 return `<meta property="og:title" content="${title} - Swarmstr.com" />` +
                                     `<meta itemProp="name" content="${title} - Swarmstr.com" />` +
-                                    `<meta name="twitter:title" content="${title} - Swarmstr.com" />`;
+                                    `<meta name="twitter:title" content="${title} - Swarmstr.com" />` +
+                                    `<meta property="description" content="${content.slice(0, 500)}" />` +
+                                    `<meta property="og:description" content="${content.slice(0, 500)}" />` +
+                                    `<meta name="twitter:description" content="${content.slice(0, 500)}" />` +
+                                    `<meta property="og:url" content="${process.env.BASE_URL}/e/${nevent}" />` +
+                                    `<meta property="og:image" content="${Config.APP_IMAGE}" />` +
+                                    `<meta itemProp="image" content="${Config.APP_IMAGE}" />` +
+                                    `<meta name="twitter:image" content="${Config.APP_IMAGE}" />`;
                             }
                         }
                     };
