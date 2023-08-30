@@ -3,9 +3,16 @@ import {NoteThread} from "../Thread/Thread";
 import {NostrNoteContextProvider} from "../../../providers/NostrNoteContextProvider";
 import {Note} from "../Note/Note";
 import {NostrNoteThreadContextProvider} from "../../../providers/NostrNoteThreadContextProvider";
-import React from "react";
+import React, {useEffect, useState} from "react";
+import {Backdrop} from "../../Backdrop/Backdrop";
 
 export const ThreadWrapper = () => {
+    const [showPreloader, setShowPreloader] = useState<boolean>(true);
+
+    useEffect(() => {
+        setShowPreloader(false);
+    });
+
     return (
         <NostrNoteThreadContextProvider>
             <NostrNoteThreadContext.Consumer>
@@ -15,6 +22,7 @@ export const ThreadWrapper = () => {
                             key={`${nevent}-thread`}
                             nevent={nevent}
                             expanded={true}
+                            floating={false}
                         >
                             <NostrNoteContextProvider thread={true}>
                                 <Note key={`${nevent}-content`} nevent={nevent} expanded={true}/>
@@ -23,6 +31,7 @@ export const ThreadWrapper = () => {
                     )
                 }
             </NostrNoteThreadContext.Consumer>
+            <Backdrop open={showPreloader} />
         </NostrNoteThreadContextProvider>
     );
 };

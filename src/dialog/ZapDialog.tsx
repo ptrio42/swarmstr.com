@@ -72,6 +72,7 @@ export const ZapDialog = ({ open, event, npub, onClose }: ZapDialogProps) => {
                                     sx={{ background: selectedZapAmount === item.amount ? 'rgba(255,255,255,.33)!important' : 'transparent', margin: '3px', width: '80px' }}
                                     onClick={() => { handleSelectZapAmount(+item.amount) }}
                                     variant="outlined"
+                                    color="secondary"
                                     startIcon={<React.Fragment>{item.emoji}</React.Fragment>}
                                 >
                                     { nFormatter(item.amount, 0) }

@@ -54,7 +54,7 @@ export const NostrNoteContextProvider = ({ children }: NostrNoteContextProviderP
                         });
                     }
                     // handle zap
-                    if (nostrEvent.kind = 9375) {
+                    if (nostrEvent.kind === 9375) {
                         db.zaps.put({
                             ...nostrEvent,
                             // @ts-ignore
@@ -63,7 +63,17 @@ export const NostrNoteContextProvider = ({ children }: NostrNoteContextProviderP
                             zapper: JSON.parse(valueFromTag(nostrEvent, 'description'))?.pubkey,
                             amount: lightBolt11Decoder.decode(valueFromTag(nostrEvent, 'bolt11')).sections
                                 .find((section: any) => section.name === 'amount').value
-                        })
+                        });
+                    }
+
+                    // handle label
+                    if (nostrEvent.kind === 1985) {
+                        // console.log('kind 1985 event', {event});
+                        db.labels.put({
+                            ...nostrEvent,
+                            // @ts-ignore
+                            referencedEventId: valueFromTag(nostrEvent, 'e')
+                        });
                     }
                 } catch (error) {
                 }

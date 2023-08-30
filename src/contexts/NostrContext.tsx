@@ -1,5 +1,6 @@
 import NDK, {NDKEvent, NDKFilter, NDKSubscriptionOptions, NDKTag, NDKUser, NostrEvent} from '@nostr-dev-kit/ndk';
 import React, {createContext} from "react";
+import {NoteLabel} from "../dialog/NewLabelDialog";
 
 type NostrContextType = {
     ndk: NDK,
@@ -13,7 +14,7 @@ type NostrContextType = {
     setLoginDialogOpen: (open: boolean) => void,
     newNoteDialogOpen: boolean,
     setNewNoteDialogOpen: (open: boolean) => void,
-    label: (reaction: string, nostrEvent?: NostrEvent, pubkey?: string, content?: string, tag?: string) => void,
+    label: (label: NoteLabel, nostrEvent: NostrEvent, pubkey: string, content: string, callback?: () => void) => void,
     newLabelDialogOpen: boolean,
     setNewLabelDialogOpen: (open: boolean) => void,
     addReaction: (id: string, content: string) => void,

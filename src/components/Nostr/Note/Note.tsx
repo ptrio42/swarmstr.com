@@ -7,7 +7,7 @@ import {
     QrCodeScanner,
     ChatBubbleOutline,
     ElectricBolt,
-    Loop
+    Loop, Label, Share, KeyboardArrowUp, KeyboardArrowDown
 } from "@mui/icons-material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -30,7 +30,7 @@ import ReactPlayer from 'react-player';
 import {NDKFilter, NDKRelaySet, NDKSubscription, NostrEvent, NDKSubscriptionOptions} from "@nostr-dev-kit/ndk";
 import {useNostrNoteContext} from "../../../providers/NostrNoteContextProvider";
 import { intersection } from 'lodash';
-import {containsTag, nFormatter, noteIsVisible} from "../../../utils/utils";
+import {containsTag, nFormatter, noteIsVisible, valueFromTag} from "../../../utils/utils";
 import {useNostrContext} from "../../../providers/NostrContextProvider";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
@@ -43,24 +43,17 @@ import ReactTimeAgo from 'react-time-ago'
 import {NewLabelDialog} from "../../../dialog/NewLabelDialog";
 import {noteContentToHtml} from "../../../services/note2html";
 import {Config} from "../../../resources/Config";
+import {useParams} from "react-router-dom";
+import {useNostrNoteThreadContext} from "../../../providers/NostrNoteThreadContextProvider";
+import Box from "@mui/material/Box";
 
 interface NoteProps {
-    noteId?: string;
     pinned?: boolean;
-    handleThreadToggle?: (expanded: boolean) => any;
-    handleNoteToggle?: (expanded: boolean) => any;
-    isThreadExpanded?: boolean;
-    isCollapsable?: boolean;
-    handleUpReaction?: (noteId: string, reaction?: string) => void;
-    handleDownReaction?: (noteId: string, reaction?: string) => void;
     isRead?: boolean;
-    threadView?: boolean;
     nevent: string;
     context?: 'feed' | 'thread';
     expanded?: boolean;
     event?: NostrEvent
-
-    onSearchQuery?: (nevent: string, display: boolean) => void,
     floating?: boolean;
     state?: {
         events?: NostrEvent[]
@@ -69,8 +62,7 @@ interface NoteProps {
 
 const MetadataMemo = React.memo(Metadata);
 
-export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handleThreadToggle, isCollapsable, handleUpReaction,
-     handleDownReaction, isThreadExpanded, isRead, threadView = false, onSearchQuery, expanded, floating, ...props }: NoteProps
+export const Note = ({ nevent, context, pinned, isRead, expanded, floating, ...props }: NoteProps
 ) => {
 
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
@@ -87,22 +79,24 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
 
     const { id, author } = nip19.decode(nevent).data;
     const filter: NDKFilter = { ids: [id]};
-    const filter1: NDKFilter = { kinds: [1, 7, 9735, 30023, 6], '#e': [id]};
 
     const [subscribed, setSubscribed] = useState<boolean>(false);
 
-    const [searchParams, setSearchParams] = useSearchParams();
-    const searchString = searchParams.get('s');
+    const { searchString } = useParams();
 
     const navigate = useNavigate();
 
     const noteRef = useRef(null);
     const noteVisible = noteIsVisible(noteRef);
 
-    const { user, setLoginDialogOpen, newLabelDialogOpen, setNewLabelDialogOpen, addReaction, boost } = useNostrContext();
+    const { user, setLoginDialogOpen, addReaction, boost } = useNostrContext();
+    const { commentEvents } = useNostrNoteThreadContext();
 
     const [newReplyDialogOpen, setNewReplyDialogOpen] = useState<boolean>(false);
     const [zapDialogOpen, setZapDialogOpen] = useState<boolean>(false);
+    const [newLabelDialogOpen, setNewLabelDialogOpen] = useState<boolean>(false);
+
+    const [selectedLabelName, setSelectedLabelName] = useState<string|undefined>();
 
     const location = useLocation();
 
@@ -125,20 +119,24 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
         return reactionEvents;
     }, [id]);
 
-    const commentEvents = useLiveQuery(async () => {
-        const commentEvents = await db.notes
-            .where({ referencedEventId: id })
-            .toArray();
-        return commentEvents
-            .filter(({ content }) => !content.toLowerCase().includes('airdrop is live') && !content.toLowerCase().includes('claim your free $'));
-    }, [id]);
-
     const repostEvents = useLiveQuery(async () => {
         const repostEvents = await db.reposts
             .where({ repostedEventId: id })
             .toArray();
         return repostEvents;
     }, [id], []);
+
+    const overallScore = useLiveQuery(async () => {
+        const labels = await db.labels
+            .where({ referencedEventId: id })
+            .and(({ tags }) => containsTag(tags, ['l', 'note/useful', '#e']) || containsTag(tags, ['l', 'note/not_useful', '#e']))
+            .toArray();
+
+        return labels
+            .map(({tags}) => containsTag(tags, ['l', 'note/useful', '#e']) ? 1 : -1)
+            // @ts-ignore
+            .reduce((previous: number, current: number) => previous + current, 0);
+    }, [id], 0);
 
     useEffect(() => {
         return () => {
@@ -152,8 +150,17 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
 
     useEffect(() => {
         if (!!event?.content) {
+            let content = event!.content;
+            const referencedEventId = valueFromTag(event, 'e');
+            if (referencedEventId &&
+                containsTag(event!.tags, ['t', Config.HASHTAG]) &&
+                !(new RegExp(/nostr:note1([a-z0-9]+)/gm).test(event.content) ||
+                    new RegExp(/nostr:nevent1([a-z0-9]+)/gm).test(event.content))) {
+                const bech32Id = nip19.noteEncode(referencedEventId);
+                content = `${content}\nnostr:${bech32Id}`;
+            }
             // @ts-ignore
-            const _parsedContent = noteContentToHtml(event!.content, event!.tags, searchString, floating);
+            const _parsedContent = noteContentToHtml(content, event!.tags, searchString, floating);
             setParsedContent(_parsedContent);
         }
     }, [event]);
@@ -161,7 +168,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
     useEffect(() => {
         if (noteVisible && loaded && !event) {
             console.log(`event ${id} was not found in db`);
-            subscribe(filter, { closeOnEose: true });
+            subscribe(filter, { closeOnEose: true, groupableDelay: 500 });
         }
     }, [loaded]);
 
@@ -178,7 +185,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                 subscribe(filter);
             }
             const opts: NDKSubscriptionOptions = { groupableDelay: 1500, closeOnEose: false };
-            const kinds = [1, 7, 9735, 30023, 6];
+            const kinds = [1, 7, 9735, 30023, 6, 1985];
             // subscribe(filter1);
             for (let i = 0; i < kinds.length; i++) {
                 subscribe({ kinds: [kinds[i]], '#e': [id]}, opts);
@@ -271,13 +278,47 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
             sx={{
                 minWidth: 275,
                 marginBottom: '0.5em',
+                position: 'relative',
                 width: '100%',
                 ...(pinned && { backgroundColor: '#f1f1f1' }),
                 ...(containsTag(event?.tags || [], ['t', Config.REPLIES_HASHTAG]) && { backgroundColor: 'rgba(0,0,0,.01)' })
             }}
             className="note"
         >
-            <CardContent sx={{ paddingBottom: 0 }}>
+            <Box sx={{
+                width: '48px',
+                display: 'flex',
+                justifyContent: 'flex-start',
+                alignItems: 'center',
+                position: 'absolute',
+                height: '100%',
+                flexDirection: 'column',
+                paddingTop: '12px'
+            }}
+            >
+                <IconButton onClick={() => {
+                    if (user) {
+                        setSelectedLabelName('note/useful');
+                        setNewLabelDialogOpen(true);
+                    } else {
+                        setLoginDialogOpen(true);
+                    }
+                }}>
+                    <KeyboardArrowUp/>
+                </IconButton>
+                { overallScore }
+                <IconButton onClick={() => {
+                    if (user) {
+                        setSelectedLabelName('note/not_useful');
+                        setNewLabelDialogOpen(true);
+                    } else {
+                        setLoginDialogOpen(true);
+                    }
+                }}>
+                    <KeyboardArrowDown/>
+                </IconButton>
+            </Box>
+            <CardContent sx={{ paddingBottom: 0, paddingLeft: '50px' }}>
                 <Typography
                     sx={{
                         fontSize: '16px',
@@ -316,7 +357,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                     variant="body2"
                     component="div"
                     {...(!expanded && !floating && { onClick: () => { navigate(`/e/${nevent}`, { state: { events: props.state?.events, event, limit: props.state?.events?.length, previousUrl: location?.pathname} }) } })}
-                    {...(floating && { onClick: () => { setSearchParams({ e: nevent, ...(!!searchString && { s: searchString }) }) } })}
+                    {...(floating && { onClick: () => { navigate(`/search/${searchString}?e=${nevent}`) } })}
                 >
                     {
                         // @ts-ignore
@@ -427,7 +468,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                                             if (user) {
                                                 addReaction(id, reaction);
                                                 // if (reaction === 'shaka') {
-                                                    setNewLabelDialogOpen(true);
+                                                //     setNewLabelDialogOpen(true);
                                                 // }
                                             } else {
                                                 setLoginDialogOpen(true);
@@ -482,7 +523,10 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
                                         <MenuItem onClick={(event) => {
                                             handleShareAnswer(event);
                                         }}>
-                                            Share link
+                                            <Share sx={{ fontSize: 18, marginRight: 1 }}/> Share link
+                                        </MenuItem>
+                                        <MenuItem onClick={() => { setNewLabelDialogOpen(true) }}>
+                                            <Label sx={{ fontSize: 18, marginRight: 1 }}/> Label
                                         </MenuItem>
                                     </Menu>
                                 </React.Fragment>
@@ -500,7 +544,7 @@ export const Note = ({ nevent, context, noteId, pinned, handleNoteToggle, handle
         />
         <NewNoteDialog open={newReplyDialogOpen} onClose={() => setNewReplyDialogOpen(false)} noteId={id} replyTo={event && [event.pubkey]} explicitTags={[['t', Config.REPLIES_HASHTAG]]} label="Your reply..." />
         <ZapDialog open={zapDialogOpen} event={event} onClose={() => setZapDialogOpen(false)} npub={author && nip19.npubEncode(author)} />
-        { event && <NewLabelDialog open={newLabelDialogOpen} onClose={() => { setNewLabelDialogOpen(false) }} reaction={'shaka'} event={event} /> }
+        <NewLabelDialog open={newLabelDialogOpen} onClose={() => { setNewLabelDialogOpen(false) }} reaction={'shaka'} event={event} selectedLabelName={selectedLabelName} />
         <QrCodeDialog str={event && new RegExp(/([0123456789abcdef]{64})/).test(event!.id!) && `nostr:${nip19.noteEncode(event.id)}` || ''} dialogOpen={dialogOpen} close={() => setDialogOpen(false)} />
     </React.Fragment>);
 };

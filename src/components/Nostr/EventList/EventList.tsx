@@ -6,6 +6,9 @@ import {Note} from "../Note/Note";
 import React, {useEffect, useMemo} from "react";
 import {useLocation} from "react-router-dom";
 import {useNostrEventListContextProvider} from "../../../providers/NostrEventListContextProvider";
+import {Skeleton, Typography} from "@mui/material";
+import Box from "@mui/material/Box";
+import {NostrNoteThreadContextProvider} from "../../../providers/NostrNoteThreadContextProvider";
 
 interface EventListProps {
     floating?: boolean;
@@ -46,17 +49,26 @@ export const EventList = ({ floating = true }: EventListProps) => {
                     })
                 }))
                 .map(({event, nevent}) => (
-                    <NoteThread
-                        key={`${nevent}-thread`}
-                        nevent={nevent}
-                        state={{events}}
-                        expanded={false}
-                    >
-                        <NostrNoteContextProvider>
-                            <Note key={`${nevent}-content`} event={event} nevent={nevent} floating={floating} state={{events}}/>
-                        </NostrNoteContextProvider>
-                    </NoteThread>
+                    <NostrNoteThreadContextProvider nevent={nevent}>
+                        <NoteThread
+                            key={`${nevent}-thread`}
+                            nevent={nevent}
+                            state={{events}}
+                            expanded={false}
+                        >
+                            <NostrNoteContextProvider>
+                                <Note key={`${nevent}-content`} event={event} nevent={nevent} floating={floating} state={{events}}/>
+                            </NostrNoteContextProvider>
+                        </NoteThread>
+                    </NostrNoteThreadContextProvider>
                 ))
+        }
+        {
+            !events && <Box>
+                <Skeleton sx={{ width: '100%' }} animation="wave" />
+                <Skeleton sx={{ width: '100%' }} animation="wave" />
+                <Skeleton sx={{ width: '100%' }} animation="wave" />
+            </Box>
         }
     </React.Fragment>
 };
