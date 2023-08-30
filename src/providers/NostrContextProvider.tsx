@@ -22,6 +22,7 @@ import {containsTag, valueFromTag} from "../utils/utils";
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en.json'
 import {requestProvider, WebLNProvider} from "webln";
+import {NoteLabel} from "../dialog/NewLabelDialog";
 
 TimeAgo.addDefaultLocale(en);
 
@@ -257,94 +258,135 @@ export const NostrContextProvider = ({ children }: any) => {
             .catch()
     }, []);
 
-    const label = useCallback((reaction: string, nostrEvent?: NostrEvent, pubkey?: string, content?: string, tag?: string) => {
+    const label = useCallback((label: NoteLabel, nostrEvent: NostrEvent, pubkey: string, content: string, callback?: () => void) => {
         try {
+            const { reaction, name } = label;
             const event = new NDKEvent(ndk.current);
             event.kind = 1985;
             event.tags = [];
-            event.content = content || reaction;
+            event.content = content;
             event.pubkey = pubkey || '';
 
             switch (reaction) {
                 // DUPLICATE
                 // label question as a duplicate and reference the previous question
-                case 'expressionless':
-                case 'unamused':
+                case 'brain':
+                case 'shrug':
+                case 'fire':
+                case 'eyes':
+                case 'triangular_flag_on_post':
                 case 'garlic': {
-                    const review = {
-                        quality: 0.5
-                    };
                     event.tags.push(['L', '#e']);
-                    event.tags.push(['l', 'question/review', '#e', JSON.stringify(review)]);
-                    const id = nostrEvent?.id;
-                    if (id) event.tags.push(['e', id]);
+                    event.tags.push(['l', name, '#e']);
                 }
                 break;
                 // WORTH CHECKING
-                case 'eyes': {
-                    const review = {
-                        quality: 1
-                    };
-                    event.tags.push(['L', '#e']);
-                    event.tags.push(['l', 'question/review', '#e', JSON.stringify(review)]);
-                    const id = nostrEvent?.id;
-                    if (id) event.tags.push(['e', id]);
-                }
-                break;
+                // case 'eyes': {
+                //     const review = {
+                //         quality: 1
+                //     };
+                //     event.tags.push(['L', '#e']);
+                //     event.tags.push(['l', name, '#e']);
+                //     const id = nostrEvent?.id;
+                //     if (id) event.tags.push(['e', id]);
+                // }
+                // break;
                 // SUGGEST TAG
                 // suggest category eg. relays, clients etc.
                 case 'hash': {
-                    if (tag) {
-                        event.tags.push(['L', '#t']);
-                        event.tags.push((['l', tag, '#t']))
-                    }
-                    const id = nostrEvent?.id;
-                    if (id) event.tags.push(['e', id]);
-                }
-                break;
-                // HELPFUL ANSWER
-                // mark answer as helpful
-                case 'people_hugging':
-                case 'shaka': {
-                    const id = nostrEvent?.id;
-                    const review = {
-                        quality: 1
-                    };
-                    if (id) {
-                        event.tags.push(['L', '#e']);
-                        // event.tags.push(['l', id, '#e']);
-                        event.tags.push(['l', 'answer/review', '#e', JSON.stringify(review)])
-                        event.tags.push(['e', id]);
-                    }
-                }
-                break;
-                // SUGGEST EXPERT
-                case 'brain': {
-                    const id = nostrEvent?.id;
-                    if (id) {
-                        event.tags.push(['L', '#e']);
-                        if (pubkey) {
-                            event.tags.push(['l', id, '#e']);
-                            event.tags.push(['p', pubkey, ''])
+                    if (content) {
+                        const tags = content.match(/\B(\#[a-zA-Z0-9]+\b)(?!;)/g);
+                        if (tags && tags.length > 0) {
+                            event.tags.push(['L', '#t']);
+                            event.tags.push(
+                                ...tags!
+                                    .map((tag: string) => tag.replace('#', ''))
+                                    .map((tag: string) => (['l', tag, '#t']))
+                            );
                         }
                     }
                 }
                 break;
+                // HELPFUL ANSWER
+                // mark answer as helpful
+                // case 'people_hugging':
+                // case 'brain': {
+                    // const id = nostrEvent?.id;
+                    // const review = {
+                    //     quality: 1
+                    // };
+                    // if (id) {
+                    //     event.tags.push(['L', '#e']);
+                    //     event.tags.push(['l', name, '#e'])
+                    //     event.tags.push(['e', id]);
+                    // }
+                // }
+                // break;
+                // SUGGEST EXPERT
+                // case 'brain': {
+                //     const id = nostrEvent?.id;
+                //     if (id) {
+                //         event.tags.push(['L', '#e']);
+                //         if (pubkey) {
+                //             event.tags.push(['l', id, '#e']);
+                //             event.tags.push(['p', pubkey, ''])
+                //         }
+                //     }
+                // }
+                // break;
                 // SPAM
                 // mark entry as spam
-                case 'triangular_flag_on_post': {
-                    const id = nostrEvent?.id;
-                    const review = {
-                        quality: 0
-                    };
-                    if (id) {
-                        event.tags.push(['L', '#e']);
-                        event.tags.push(['l', 'question/review', '#e', JSON.stringify(review)]);
-                        event.tags.push(['e', id]);
-                    }
-                }
+                // case 'triangular_flag_on_post': {
+                //     const id = nostrEvent?.id;
+                //     const review = {
+                //         quality: 0
+                //     };
+                //     if (id) {
+                //         event.tags.push(['L', '#e']);
+                //         event.tags.push(['l', name, '#e']);
+                //         event.tags.push(['e', id]);
+                //     }
+                // }
+                // break;
+                // OFFER BOUNTY
+                // case 'zap': {
+                //     const id = nostrEvent?.id;
+                //     const review = {
+                //         quality: 0
+                //     };
+                //     if (id) {
+                //         event.tags.push(['L', '#e']);
+                //         event.tags.push(['l', 'question/bounty', '#e']);
+                //         event.tags.push(['e', id]);
+                //     }
+                // }
+                // break;
             }
+            const id = nostrEvent?.id;
+            if (id) event.tags.push(['e', id]);
+
             console.log({event});
+
+            ndk.current.assertSigner()
+                .then(() => {
+                    event.sign(ndk.current.signer!)
+                        .then(() => {
+                            event.publish()
+                                .then(() => {
+                                    console.log('label event published!');
+                                    callback && callback();
+                                })
+                                .catch((error) => {
+                                    console.error('unable to publish label event...')
+                                })
+                        })
+                        .catch((error) => {
+                            console.error('unable to sign label event...');
+                        })
+                })
+                .catch((error) => {
+                    console.error('unable to assert signer...')
+                });
 
         } catch (error) {
             console.error({error});

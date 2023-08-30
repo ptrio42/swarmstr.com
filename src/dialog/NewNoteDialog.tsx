@@ -239,21 +239,6 @@ export const NewNoteDialog = ({ open, onClose, noteId, replyTo, label, explicitT
                     Cancel
                 </Button>
                 <Button  sx={{ textTransform: 'capitalize', borderRadius: '18px' }} variant="contained" color="warning" onClick={() => {
-                    // find tags in content
-                    const tagsInContent = formik.values.content.match(/\B(\#[a-zA-Z0-9]+\b)(?!;)/gm)
-                        ?.map((match: string) => match.replace('#', ''))
-                        .map((tag: string) => ['t', tag]);
-                    // if (tagsInContent) {
-                    //     const diff = differenceWith(tagsInContent, tags, (t1, t2) => t1[0] === t2[0] && t1[1] === t2[1]);
-                    //     tags.current.push(...diff);
-                    // }
-                    // if (kind === 30023) {
-                    //     const index = tags.current.findIndex((tag: NDKTag) => tag[0] === 'title');
-                    //     if (index > -1) {
-                    //         tags.current.slice(index, 1);
-                    //     }
-                    //     tags.current.push(['title', formik.values.title]);
-                    // }
                     post(formik.values.content, tags, kind)
                         .then(() => {
                             formik.setFieldValue('content', '');

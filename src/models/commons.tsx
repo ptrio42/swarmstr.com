@@ -39,3 +39,7 @@ export interface RepostEvent extends NostrEvent {
 export interface ListEvent extends NostrEvent {
 }
 
+export interface LabelEvent extends NostrEvent {
+    referencedEventId?: string;
+}
+

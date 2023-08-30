@@ -20,7 +20,7 @@ export const NostrEventListContextProvider = ({ children, ...props }: NostrEvent
 
     const location = useLocation();
 
-    const [limit, setLimit] = useState<number>(location?.state?.events?.length || 10);
+    const [limit, setLimit] = useState<number>(props?.limit || location?.state?.events?.length || 10);
     const { subscribe } = useNostrContext();
 
     const mutedEventsByTagName = async (kind: number, tagName: string) => {
@@ -52,7 +52,7 @@ export const NostrEventListContextProvider = ({ children, ...props }: NostrEvent
 
     const events = useMemo(() => {
         if (!mutedPubkeys || !mutedEvents || !props.events) return;
-        console.log({propsEvents: props.events});
+        // console.log({propsEvents: props.events});
         return props?.events
             .filter(({id, kind, pubkey, tags}) =>
                 !mutedPubkeys.includes(pubkey) &&

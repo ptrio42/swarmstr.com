@@ -21,7 +21,7 @@ export const ThreadDialog = ({ open, onClose, nevent }: ThreadDialogProps) => {
     return (
         <Dialog fullWidth={true} fullScreen={fullScreen} open={open} onClose={() => onClose && onClose()}>
             {
-                !!nevent && <NostrNoteThreadContextProvider>
+                !!nevent && <NostrNoteThreadContextProvider nevent={nevent}>
                     <NoteThread
                         key={`${nevent}-thread`}
                         nevent={nevent}

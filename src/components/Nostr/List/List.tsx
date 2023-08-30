@@ -38,7 +38,6 @@ export const List = () => {
             .and((list: ListEvent) => !!listName && containsTag(list.tags, ['d', listName!] as NDKTag))
             .sortBy('created_at');
         const eventIds = list?.reverse()[0]?.tags?.filter((tag: NDKTag) => tag[0] === 'e')?.map((tag: NDKTag) => tag[1]) || [];
-        console.log({eventIds})
         const filteredNotes = await db.notes
             .filter((nostrEvent: NostrEvent) => eventIds.includes(nostrEvent.id!))
             .toArray();
@@ -57,8 +56,6 @@ export const List = () => {
         ) || [];
     };
 
-    const eventsMemo = useMemo(() => events, [!events]);
-
     useEffect(() => {
         subscribe({
             kinds: [30001],
@@ -72,23 +69,6 @@ export const List = () => {
                 db.notes.bulkPut(response.data.map((nostrEvent: NostrEvent) => ({...nostrEvent, type: NOTE_TYPE.QUESTION})));
             })
     }, []);
-
-    useEffect(() => {
-        console.log({pathname})
-        if (hash === '') {
-            window.scrollTo(0, 0);
-        }
-        else {
-            setTimeout(() => {
-                const id = hash.replace('#', '');
-                const element = document.getElementById(id);
-                // console.log({element})
-                if (element) {
-                    element.scrollIntoView();
-                }
-            });
-        }
-    }, [pathname, hash, key, eventsMemo]);
 
     return <Box>
         <Helmet>
@@ -126,7 +106,7 @@ export const List = () => {
             />}
             results={filteredEvents() || []}
         >
-            <NostrEventListContextProvider events={filteredEvents() || []}>
+            <NostrEventListContextProvider events={filteredEvents()}>
                 <EventListWrapper>
                     <EventList floating={false}/>
                 </EventListWrapper>

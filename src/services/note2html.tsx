@@ -15,17 +15,17 @@ export const noteContentToHtml = (text: string, tags?: string[][], searchString?
     let processedText = text || '';
     processedText = processedText
     .replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/nostr:npub1([a-z0-9]+)/gm, (result) => {
+    .replace(/nostr:npub1([a-z0-9]+)/gmi, (result) => {
         const npub = result.split(':')[1];
         return `<button class="metadata-btn">${npub}</button>`;
     })
-    .replace(/nostr:note1([a-z0-9]+)/gm, (result) => {
+    .replace(/nostr:note1([a-z0-9]+)/gmi, (result) => {
         const note1 = result.split(':')[1];
         const id = nip19.decode(note1).data;
         const nevent = nip19.neventEncode({ id });
         return `<button class="thread-btn">${nevent}</button>`;
     })
-    .replace(/nostr:nevent1([a-z0-9]+)/gm, (result) => {
+    .replace(/nostr:nevent1([a-z0-9]+)/gmi, (result) => {
         const nevent = result.split(':')[1];
         return `<button class="thread-btn">${nevent}</button>`;
     });

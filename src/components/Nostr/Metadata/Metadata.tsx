@@ -189,8 +189,9 @@ export const Metadata = ({ pubkey, handleCopyNpub, variant = 'full' }: MetadataP
                             width: '100%',
                             ...(variant === 'link' && {
                                     transform: 'translateY(4px)',
-                                    fontWeight: '400!important' }
-                            )
+                                    fontWeight: '400!important',
+                                    width: 'auto!important'
+                            })
                         }}
                         component="div"
                     >

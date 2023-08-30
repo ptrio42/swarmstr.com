@@ -22,7 +22,8 @@ export const Backdrop = ({ open }: any) => {
                          zIndex: 99999,
                          top: 0,
                          left: 0,
-                         background: '#000'
+                         backgroundColor: 'rgba(0,0,0,.9)',
+                         backdropFilter: 'blur(10px)'
                      }}>
             <Box className="swarmstrPreloaderLogoContainer">
                 <img alt={Config.APP_TITLE} src={Config.LOGO_IMG}/>

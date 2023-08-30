@@ -1,5 +1,5 @@
 import {Note} from "../Note/Note";
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {ListItem} from "@mui/material";
 import List from "@mui/material/List";
 import {Link, useNavigate, useLocation} from "react-router-dom";
@@ -21,6 +21,9 @@ import ButtonGroup from "@mui/material/ButtonGroup";
 import { orderBy, chunk, uniqBy } from 'lodash';
 import './Thread.css';
 import {Config} from "../../../resources/Config";
+import {EventListWrapper} from "../EventListWrapper/EventListWrapper";
+import {EventList} from "../EventList/EventList";
+import {NostrEventListContextProvider} from "../../../providers/NostrEventListContextProvider";
 
 interface ThreadProps {
     nevent?: string;
@@ -44,69 +47,38 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating, ..
 
     const filter: NDKFilter = { kinds: [1], '#e': [id] };
 
-    const { subscribe } = useNostrNoteThreadContext();
+    const { subscribe, commentEvents, stats } = useNostrNoteThreadContext();
 
     const navigate = useNavigate();
 
-    const [cachedEvents, setCachedEvents] = useState<NostrEvent[]>();
-
-    const events = useLiveQuery(async () => {
-       const events = await db.notes
-           .where({ referencedEventId: id })
-           // filter spam notes
-           .filter(({ content }) =>
-               !content.toLowerCase().includes('airdrop is live') &&
-               !content.toLowerCase().includes('claim $') &&
-               !content.toLowerCase().includes('claim your free $'))
-           .toArray();
-       return uniqBy([...events, ...cachedEvents || []], 'id');
-    }, [id, cachedEvents], cachedEvents);
-
-    const [stats, setStats] = useState<any>({});
     const [sort, setSort] = useState<'score' | 'zap' | 'recent'>('score');
 
     const location = useLocation();
 
-
-    useEffect(() => {
-        if (events && events.length > 0) {
-            const ids = events!.map((e: NostrEvent) => e.id);
-            ids && chunk(ids, 10)
-                // @ts-ignore
-                .forEach((_ids: string[]) => {
-                    request({
-                        url: `https://api.nostr.band/v0/stats/event/batch?objects=${_ids.join(',')}`,
-                        method: 'GET'
-                    }).then((response) => {
-                        setStats({
-                            ...stats,
-                            ...response.data.stats
-                        });
-                    })
-                });
-        }
-    }, [events]);
-
-    useEffect(() => {
-        subscribe(filter);
-    }, []);
-
-    useEffect(() => {
-        if (!id) return;
-        request({ url: `${process.env.BASE_URL}/api/cache/${id}/1/e` })
-            .then(response => {
-                setCachedEvents(response.data);
-                db.notes.bulkPut(response.data);
-            })
-
-    }, [id]);
-
-    const calculateScore = (id: string) => {
+    const calculateScore = useCallback((id: string) => {
         if (!stats) return 0;
 
         const { zaps , reaction_count, repost_count, report_count } = stats[id] || { zaps: { count: 0 }, reaction_count: 0, repost_count: 0, report_count: 0 };
         return ((+zaps?.msats/10000 || 0) + ((reaction_count || 0) * 0.5) + ((repost_count || 0) * 0.25)) - (report_count || 0);
-    };
+    }, [stats]);
+
+    const filteredCommentEvents = useMemo(() => {
+        return (orderBy(commentEvents, ({id, created_at}) => {
+            switch (sort) {
+                case 'score':
+                    const score = calculateScore(id!);
+                    return score;
+                case 'zap':
+                    return stats && stats[id!] && stats[id!].zaps ? +stats[id!].zaps.msats : 0;
+                case 'recent':
+                    return created_at;
+            }
+        }, (sort === 'score' || sort === 'zap') ? 'desc' : 'asc') || [])
+    }, [commentEvents, sort, stats]);
+
+    useEffect(() => {
+        subscribe(filter);
+    }, []);
 
     const goBack = () => {
         const previousUrl = location?.state?.previousUrl;
@@ -188,30 +160,14 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating, ..
                 }
                 {
                     expanded && <List key={`${nevent}-answers`} sx={{ width: '90%', margin: 'auto' }}>
-                        { !events && <Typography className="thread-repliesPlaceholder" component="div" variant="body1">Loading answers...</Typography> }
-                        { (events && events.length === 0) && <Typography className="thread-repliesPlaceholder" component="div" variant="body1">No answers yet...</Typography> }
-                        {
-                            (orderBy(events, ({id, created_at}) => {
-                                switch (sort) {
-                                    case 'score':
-                                        const score = calculateScore(id!);
-                                        return score;
-                                    case 'zap':
-                                        return stats && stats[id!] && stats[id!].zaps ? +stats[id!].zaps.msats : 0;
-                                    case 'recent':
-                                        return created_at;
-                                }
-                            }, (sort === 'score' || sort === 'zap') ? 'desc' : 'asc') || [])
-                                .map((event: NostrEvent) => ({
-                                    _nevent: nip19.neventEncode({ id: event.id, author: event.pubkey }),
-                                    event
-                                    }))
-                                .map(({_nevent, event}) => (
-                                    <NostrNoteContextProvider thread={true}>
-                                        <Note key={`${_nevent}-content`} nevent={_nevent} event={event} floating={floating} />
-                                    </NostrNoteContextProvider>
-                                ))
-                        }
+                        { !commentEvents && <Typography className="thread-repliesPlaceholder" component="div" variant="body1">Loading answers...</Typography> }
+                        { (commentEvents && commentEvents.length === 0) && <Typography className="thread-repliesPlaceholder" component="div" variant="body1">No answers yet...</Typography> }
+
+                        <NostrEventListContextProvider limit={5} events={filteredCommentEvents}>
+                            <EventListWrapper>
+                                <EventList floating={floating}/>
+                            </EventListWrapper>
+                        </NostrEventListContextProvider>
                     </List>
                 }
             </List>
