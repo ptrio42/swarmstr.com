@@ -25,7 +25,7 @@ export const NostrNoteThreadContextProvider = ({children, ...props}: any) => {
     const { ndk } = useNostrContext();
     const [searchParams, setSearchParams] = useSearchParams();
     const { nevent } = (props.nevent && { nevent: props.nevent }) || useParams() || (searchParams.get('e') && { nevent: searchParams.get('e') });
-    const { id } = nevent && nip19.decode(nevent).data;
+    const { id } = nevent && nip19.decode(nevent)?.data;
 
     const [stats, setStats] = useState<any>({});
 
@@ -45,11 +45,14 @@ export const NostrNoteThreadContextProvider = ({children, ...props}: any) => {
     }, [id, cachedEvents], [cachedEvents, false]);
 
     useEffect(() => {
-        if (!id) return;
+        if (!id || loaded) return;
         request({ url: `${process.env.BASE_URL}/api/cache/${id}/1/e` })
             .then(response => {
-                setCachedEvents(response.data);
-                db.notes.bulkPut(response.data);
+                if (response.status === 200) {
+                    // console.log({response})
+                    setCachedEvents(response.data);
+                    db.notes.bulkPut(response.data);
+                }
             })
 
     }, [id]);
@@ -74,7 +77,7 @@ export const NostrNoteThreadContextProvider = ({children, ...props}: any) => {
     }, [commentEvents]);
 
     const subscribe = useCallback((filter: NDKFilter, relaySet?: NDKRelaySet) => {
-        const sub = ndk.subscribe(filter, {closeOnEose: false, groupableDelay: 1000}, relaySet);
+        const sub = ndk.subscribe(filter, {closeOnEose: false, groupableDelay: 200}, relaySet);
         sub.on('event', async (event: NDKEvent) => {
             // console.log({event});
             try {

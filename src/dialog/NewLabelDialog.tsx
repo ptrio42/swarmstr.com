@@ -162,7 +162,7 @@ export const NewLabelDialog = ({ open, onClose, selectedLabelName, ...props }: N
                 </Stack>
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => { onClose && onClose() }}>
+                <Button color="secondary" onClick={() => { onClose && onClose() }}>
                     Close
                 </Button>
                 <Button

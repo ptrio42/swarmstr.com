@@ -18,9 +18,11 @@ type NostrContextType = {
     newLabelDialogOpen: boolean,
     setNewLabelDialogOpen: (open: boolean) => void,
     addReaction: (id: string, content: string) => void,
-    zap: (nostrEvent: NostrEvent, amount: number, callback?: () => void) => void,
+    zap: (nostrEvent: NostrEvent, amount: number, callback?: () => void, comment?: string) => void,
     boost: (nostrEvent: NostrEvent) => void,
-    payInvoice: (paymentRequest: string) => void
+    payInvoice: (paymentRequest: string) => void,
+    writeRelays: string[],
+    readRelays: string[]
 }
 
 export const NostrContext = createContext<NostrContextType>({
@@ -40,5 +42,7 @@ export const NostrContext = createContext<NostrContextType>({
     addReaction: () => {},
     zap: () => {},
     boost: () => {},
-    payInvoice: () => {}
+    payInvoice: () => {},
+    writeRelays: [],
+    readRelays: []
 });

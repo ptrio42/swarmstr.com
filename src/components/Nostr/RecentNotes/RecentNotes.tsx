@@ -40,12 +40,14 @@ export const RecentNotes = () => {
             return [events, true];
         }, [], [location?.state?.events, false]);
 
-     const { subscribe, setNewNoteDialogOpen, user, setLoginDialogOpen } = useNostrContext();
+     const { subscribe, setNewNoteDialogOpen, user, setLoginDialogOpen, readRelays } = useNostrContext();
 
      useEffect(() => {
-         const relayUrls = Config.CLIENT_READ_RELAYS;
-         subscribe(filter, { closeOnEose: false, groupable: false }, relayUrls);
-     }, []);
+         if (!loaded) return;
+         // const relayUrls = Config.CLIENT_READ_RELAYS;
+         // console.log(`events loaded or readRelaysChanged`)
+         subscribe(filter, { closeOnEose: false, groupable: false }, readRelays);
+     }, [loaded, readRelays]);
 
     return <Box>
         <Helmet>

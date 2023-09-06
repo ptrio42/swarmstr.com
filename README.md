@@ -74,7 +74,7 @@ node ./dist/server.js
 
 ### Links
 
-[Search](https://swarmstr.com?s=) 🔍
+[Search](https://swarmstr.com/search) 🔍
 
 [Recent questions](https://swarmstr.com/recent) 🗒
 

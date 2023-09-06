@@ -64,3 +64,20 @@ pre {
         height: 360px !important;
     }
 }
+
+.theme--dark .noteScore {
+    color: rgba(255,255,255,.77);
+}
+
+.theme--dark .noteScore button {
+    color: inherit;
+}
+
+.showMoreLess-button {
+    text-transform: capitalize!important;
+    padding-left: 0!important;
+}
+
+.showMoreLess-button svg {
+    margin-left: -6px!important;
+}

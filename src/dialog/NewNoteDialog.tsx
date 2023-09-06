@@ -130,7 +130,7 @@ export const NewNoteDialog = ({ open, onClose, noteId, replyTo, label, explicitT
             .map(({data}) => ['e', data?.id || data]);
 
         const tTags = content.match(/\B(\#[a-zA-Z0-9]+\b)(?!;)/gm)?.map((match: string) => ['t', match.replace('#', '')]);
-        console.log({tags: [eTags, tTags, explicitTags]})
+        // console.log({tags: [eTags, tTags, explicitTags]})
         // @ts-ignore
         setTags(uniqBy(
             [
@@ -148,12 +148,12 @@ export const NewNoteDialog = ({ open, onClose, noteId, replyTo, label, explicitT
     }, [tags])
 
     const handleClose = () => {
-        console.log('close');
+        // console.log('close');
         onClose && onClose();
     };
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-        console.log({newValue});
+        // console.log({newValue});
         setTabIndex(newValue);
     };
 

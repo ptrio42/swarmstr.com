@@ -24,6 +24,7 @@ import {Config} from "../../../resources/Config";
 import {EventListWrapper} from "../EventListWrapper/EventListWrapper";
 import {EventList} from "../EventList/EventList";
 import {NostrEventListContextProvider} from "../../../providers/NostrEventListContextProvider";
+import {EventPointer} from "nostr-tools/lib/nip19";
 
 interface ThreadProps {
     nevent?: string;
@@ -42,8 +43,18 @@ interface ThreadProps {
     }
 }
 
+export const decodeNevent = (nevent: string): EventPointer => {
+    // console.log('decodeNevent', {nevent})
+    let decoded: EventPointer = { id: '' };
+    try {
+        decoded = nevent && nip19.decode(nevent).data
+    } catch (error) {}
+    return decoded;
+};
+
 export const NoteThread = ({ nevent, data = {}, children, expanded, floating, ...props }: ThreadProps) => {
-    const { id } = nevent && nip19.decode(nevent).data;
+    // @ts-ignore
+    const { id } = nevent && decodeNevent(nevent);
 
     const filter: NDKFilter = { kinds: [1], '#e': [id] };
 
@@ -163,7 +174,7 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating, ..
                         { !commentEvents && <Typography className="thread-repliesPlaceholder" component="div" variant="body1">Loading answers...</Typography> }
                         { (commentEvents && commentEvents.length === 0) && <Typography className="thread-repliesPlaceholder" component="div" variant="body1">No answers yet...</Typography> }
 
-                        <NostrEventListContextProvider limit={5} events={filteredCommentEvents}>
+                        <NostrEventListContextProvider limit={10} events={filteredCommentEvents}>
                             <EventListWrapper>
                                 <EventList floating={floating}/>
                             </EventListWrapper>

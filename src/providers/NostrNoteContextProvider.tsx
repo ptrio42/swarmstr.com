@@ -54,7 +54,8 @@ export const NostrNoteContextProvider = ({ children }: NostrNoteContextProviderP
                         });
                     }
                     // handle zap
-                    if (nostrEvent.kind === 9375) {
+                    if (nostrEvent.kind === 9735) {
+                        // console.log('kind 9735', {nostrEvent})
                         db.zaps.put({
                             ...nostrEvent,
                             // @ts-ignore

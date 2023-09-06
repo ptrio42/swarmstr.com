@@ -43,3 +43,6 @@ export interface LabelEvent extends NostrEvent {
     referencedEventId?: string;
 }
 
+export interface ContactListEvent extends NostrEvent {
+}
+

@@ -6,7 +6,6 @@ import {nip05, nip19} from 'nostr-tools';
 import {NostrEvent} from "@nostr-dev-kit/ndk";
 import {EventListWrapper} from "../EventListWrapper/EventListWrapper";
 import {NostrEventListContextProvider} from "../../../providers/NostrEventListContextProvider";
-import {EventList} from "../EventList/EventList";
 
 interface SearchResultsProps {
     children?: any;

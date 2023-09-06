@@ -13,11 +13,16 @@ import NDK, {
     NDKFilter, NDKRelay, NDKRelaySet, NDKSubscription,
     NDKSubscriptionCacheUsage,
     NDKSubscriptionOptions, NDKTag,
-    NostrEvent
+    NostrEvent, NDKPrivateKeySigner
 } from '@nostr-dev-kit/ndk';
 import RedisAdapter from '@nostr-dev-kit/ndk-cache-redis';
 import {uniqBy, groupBy, forOwn, debounce} from 'lodash';
 import {containsTag, valueFromTag} from "../src/utils/utils";
+const { Configuration, OpenAIApi } = require("openai");
+const openAIConfig = new Configuration({
+    apiKey: process.env.OPENAI_API_KEY,
+});
+const openai = new OpenAIApi(openAIConfig);
 
 const redis = require("redis");
 // @ts-ignore
@@ -124,6 +129,8 @@ const handleHashTagEvent = (event: NDKEvent) => {
             ids.push(referencedEventId);
             debouncedSub();
         } else {
+            addAISimplifiedVersionOfQuestionLabel(nostrEvent);
+
             // event is a question
             // publish the event to search pseudo relay
             publishToSearchRelay(nostrEvent)
@@ -142,6 +149,8 @@ const handleHashTagEvent = (event: NDKEvent) => {
                 });
         }
     } else {
+        addAISimplifiedVersionOfQuestionLabel(nostrEvent);
+
         // event doesn't contain the asknostr tag
         // but it was hinted by a quote event
         // publish the event to search pseudo relay
@@ -241,6 +250,69 @@ const isNoteValid = (id: string): boolean => {
 
     }
     return false;
+};
+
+const findFirstUpperCaseIndex = (str: string): number => {
+    for (let i = 0; i < str.length; i++) {
+        if (!new RegExp(/[a-zA-Z0-9]/).test(str[i])) continue;
+        if (str[i] === str[i].toUpperCase()) {
+            return i; // Return the index of the first uppercase letter
+        }
+    }
+    return -1; // Return -1 if no uppercase letter is found
+};
+
+const addAISimplifiedVersionOfQuestionLabel = async (nostrEvent: NostrEvent) => {
+    const {content, id} = nostrEvent;
+    // do not summarize the question if it's length is 250 chars or less
+    if (content.length <= 250 || !process.env.SWARMSTR_BOT_PRIVATE_KEY) return;
+    try {
+        const result = await openai.createChatCompletion({
+            model: "gpt-3.5-turbo",
+            messages: [
+                {
+                    role: 'user',
+                    content: `turn this text into a simple question: ${content}`
+                }
+            ],
+            temperature: 0.4,
+            // max_tokens: 50,
+        });
+
+        let botReply = result.data.choices[0].message.content.trim();
+        const index = findFirstUpperCaseIndex(botReply);
+        if (index !== -1) {
+            botReply = botReply.slice(index);
+        }
+        // console.log({botReply}, {message: nostrEvent.content});
+
+        // create new nostr kind 1985 event
+        const event = new NDKEvent(ndk);
+        event.kind = 1985;
+        event.tags = [
+                ['L', '#e'],
+                ['l', 'question/summary', '#e'],
+                ['e', id!]
+            ];
+        event.content = botReply;
+
+        // get private key from dotenv file
+        let privateKey = process.env.SWARMSTR_BOT_PRIVATE_KEY;
+        // if it's an nsec, convert to hex
+        if (privateKey!.indexOf('nsec') > -1) {
+            privateKey = nip19.decode(privateKey!).data;
+        }
+        const signer = new NDKPrivateKeySigner(privateKey!);
+        const user = await signer.user();
+        event.pubkey = user?.hexpubkey();
+
+        await event.sign(signer);
+        event.publish();
+        // res.send({ reply: botReply });
+    } catch (error) {
+        console.error('botReply error', error);
+        // res.status(500).send({ error: 'An error occurred' });
+    }
 };
 
 server.get('/.well-known/nostr.json', async (req, res) => {

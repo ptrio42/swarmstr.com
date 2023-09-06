@@ -43,10 +43,10 @@ export const NostrFeedContextProvider = ({ children }: any) => {
 
     const startSubs = useCallback((filter: NDKFilter, _events?: NostrEvent[]) => {
         const activeSubs = ndk.current.pool.relays.entries().next().value?.activeSubscriptions?.size() || 0;
-        console.log({activeSubs, relay: ndk.current.pool.relays.entries().next().value})
+        // console.log({activeSubs, relay: ndk.current.pool.relays.entries().next().value})
         if (activeSubs === 0) {
             const { created_at } = _events && _events.length > 0 && sortBy(_events, 'created_at')?.[0] || { created_at: null };
-            console.log({created_at}, {_events});
+            // console.log({created_at}, {_events});
             subscribe({
                 ...filter,
                 ...(!!created_at && { until: created_at })
