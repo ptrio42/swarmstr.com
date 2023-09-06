@@ -9,6 +9,7 @@ import Tooltip from "@mui/material/Tooltip";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import './Home.css';
+import Divider from "@mui/material/Divider";
 
 export const Home = () => {
    const contributors = Config.CONTRIBUTORS;
@@ -17,16 +18,8 @@ export const Home = () => {
       <Box className="landingPage-box">
          <Typography variant="h5" component="div">
             { Config.SLOGAN }
-            <Tooltip title="Learn more about Swarmstr">
-               <IconButton className="aboutSwarmstr-button" onClick={() => {
-                  const a = document.createElement('a');
-                  a.target = '_blank';
-                  a.href = `${process.env.BASE_URL}/e/nevent1qqsyuhzx9h787y6kxc5m7qehqdzhrwnx0ztzcua9e9s878ug73hf6uqpz3mhxue69uhhyetvv9ujuerpd46hxtnfdulvpefd`;
-                  a.click();
-               }}>
-                  <Info />
-               </IconButton>
-            </Tooltip>
+            {/*<Tooltip title="Learn more about Swarmstr">*/}
+            {/*</Tooltip>*/}
          </Typography>
          <Typography component="div" variant="body1">
             <Button className="nav-button" variant="contained" color="primary" component={Link} to="/search">
@@ -61,6 +54,15 @@ export const Home = () => {
                </React.Fragment>
             }
          </Box>
+         <Divider sx={{ margin: '0.4em' }}/>
+         <Button
+             className="aboutSwarmstr-button"
+             color="secondary"
+             component={Link}
+             to={`${process.env.BASE_URL}/e/nevent1qqsyuhzx9h787y6kxc5m7qehqdzhrwnx0ztzcua9e9s878ug73hf6uqpz3mhxue69uhhyetvv9ujuerpd46hxtnfdulvpefd`}
+         >
+            <Info /> Learn more about Swarmstr
+         </Button>
       </Box>
    </React.Fragment>;
 };

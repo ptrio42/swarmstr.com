@@ -7,7 +7,7 @@ import {
     QrCodeScanner,
     ChatBubbleOutline,
     ElectricBolt,
-    Loop, Label, Share, KeyboardArrowUp, KeyboardArrowDown
+    Loop, Label, Share, KeyboardArrowUp, KeyboardArrowDown, UnfoldLess, UnfoldMore
 } from "@mui/icons-material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -46,6 +46,7 @@ import {Config} from "../../../resources/Config";
 import {useParams} from "react-router-dom";
 import {useNostrNoteThreadContext} from "../../../providers/NostrNoteThreadContextProvider";
 import Box from "@mui/material/Box";
+import {decodeNevent} from "../Thread/Thread";
 
 interface NoteProps {
     pinned?: boolean;
@@ -76,8 +77,8 @@ export const Note = ({ nevent, context, pinned, isRead, expanded, floating, ...p
     const [parsedContent, setParsedContent] = useState<any>();
 
     const { subscribe, subs } = useNostrNoteContext();
-
-    const { id, author } = nip19.decode(nevent).data;
+    // @ts-ignore
+    const { id, author } = decodeNevent(nevent);
     const filter: NDKFilter = { ids: [id]};
 
     const [subscribed, setSubscribed] = useState<boolean>(false);
@@ -97,6 +98,7 @@ export const Note = ({ nevent, context, pinned, isRead, expanded, floating, ...p
     const [newLabelDialogOpen, setNewLabelDialogOpen] = useState<boolean>(false);
 
     const [selectedLabelName, setSelectedLabelName] = useState<string|undefined>();
+    const [showFullText, setShowFullText] = useState<boolean>(false);
 
     const location = useLocation();
 
@@ -138,6 +140,16 @@ export const Note = ({ nevent, context, pinned, isRead, expanded, floating, ...p
             .reduce((previous: number, current: number) => previous + current, 0);
     }, [id], 0);
 
+    const questionSummary = useLiveQuery(
+        async () => {
+            const label = await db.labels
+                .where({ referencedEventId: id })
+                .and(({tags}) => containsTag(tags, ['l', 'question/summary', '#e']))
+                .first();
+            return label?.content || '';
+        }
+    , [id], '');
+
     useEffect(() => {
         return () => {
             subs && subs
@@ -151,6 +163,7 @@ export const Note = ({ nevent, context, pinned, isRead, expanded, floating, ...p
     useEffect(() => {
         if (!!event?.content) {
             let content = event!.content;
+            if (!expanded && !showFullText && content.length > 250) content = content.slice(0, 250) + '...';
             const referencedEventId = valueFromTag(event, 'e');
             if (referencedEventId &&
                 containsTag(event!.tags, ['t', Config.HASHTAG]) &&
@@ -163,7 +176,7 @@ export const Note = ({ nevent, context, pinned, isRead, expanded, floating, ...p
             const _parsedContent = noteContentToHtml(content, event!.tags, searchString, floating);
             setParsedContent(_parsedContent);
         }
-    }, [event]);
+    }, [event, showFullText, expanded]);
 
     useEffect(() => {
         if (noteVisible && loaded && !event) {
@@ -184,7 +197,7 @@ export const Note = ({ nevent, context, pinned, isRead, expanded, floating, ...p
             if (!event) {
                 subscribe(filter);
             }
-            const opts: NDKSubscriptionOptions = { groupableDelay: 1500, closeOnEose: false };
+            const opts: NDKSubscriptionOptions = { groupableDelay: 500, closeOnEose: false };
             const kinds = [1, 7, 9735, 30023, 6, 1985];
             // subscribe(filter1);
             for (let i = 0; i < kinds.length; i++) {
@@ -285,7 +298,9 @@ export const Note = ({ nevent, context, pinned, isRead, expanded, floating, ...p
             }}
             className="note"
         >
-            <Box sx={{
+            <Box
+                className="noteScore"
+                sx={{
                 width: '48px',
                 display: 'flex',
                 justifyContent: 'flex-start',
@@ -360,10 +375,23 @@ export const Note = ({ nevent, context, pinned, isRead, expanded, floating, ...p
                     {...(floating && { onClick: () => { navigate(`/search/${searchString}?e=${nevent}`) } })}
                 >
                     {
+                        questionSummary && questionSummary !== '' && <Tooltip title="This summary was automatically generated based on the note text.">
+                            <Box sx={{ fontWeight: 'bold', marginBottom: '7px' }}>{questionSummary}</Box>
+                        </Tooltip>
+                    }
+                    {
                         // @ts-ignore
                         parsedContent
                     }
                 </Typography>
+                {
+                    !expanded && event?.content?.length > 250 && <Box>
+                        <Button className="showMoreLess-button" color="secondary" variant="text" onClick={() => { setShowFullText(!showFullText) }}>
+                            { showFullText ? <React.Fragment><UnfoldLess/>Show less</React.Fragment> :
+                                <React.Fragment><UnfoldMore/>Show more</React.Fragment> }
+                        </Button>
+                    </Box>
+                }
                 {
                     (!event || !parsedContent) && <React.Fragment>
                         <Skeleton sx={{ width: '100%' }} animation="wave" />

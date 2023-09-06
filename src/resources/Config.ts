@@ -2,12 +2,14 @@ const API_COINGECKO_BASE_URL = 'https://api.coingecko.com/api/v3';
 const API_LIGHTNING_GIFTS_BASE_URL = 'https://api.lightning.gifts';
 const API_BLOCKCHAIN_INFO_BASE_URL = 'https://blockchain.info';
 const NOSTR_BUILD_BASE_URL = 'https://nostr.build';
+const OPEN_AI_API_URL = 'https://api.openai.com/v1/engines/davinci-codex/completions';
 
 export const Config = {
   API_COINGECKO_BASE_URL,
   API_LIGHTNING_GIFTS_BASE_URL,
   API_BLOCKCHAIN_INFO_BASE_URL,
   NOSTR_BUILD_BASE_URL,
+  OPEN_AI_API_URL,
   NOSTR_CLIENT: {
     MIN_RELAYS: 3,
     RELAY_TIMEOUT: 10000,
@@ -56,21 +58,22 @@ export const Config = {
   CLIENT_READ_RELAYS: [
     'wss://nos.lol',
     'wss://relay.nostr.band',
-    'wss://q.swarmstr.com',
     'wss://relay.damus.io',
+    'wss://nostr.wine',
     'wss://nostr-pub.wellorder.net',
     'wss://relay.f7z.io',
     'wss://nostr.mom',
     'wss://offchain.pub/',
-    'wss://nostr.wine',
+    'wss://q.swarmstr.com',
   ],
   CLIENT_WRITE_RELAYS: [
     'wss://nos.lol',
     'wss://relay.nostr.band',
     'wss://q.swarmstr.com',
     'wss://relay.damus.io',
-    'wss://nostr-pub.wellorder.net',
-    'wss://blastr.f7z.xyz'
+    // 'wss://nostr-pub.wellorder.net',
+    'wss://blastr.f7z.xyz',
+    'wss://relay.f7z.io'
   ],
   EXPLICIT_TAGS: [
     'relays', 'nips', 'badges', 'lightning', 'snort', 'primal', 'keys', 'education',

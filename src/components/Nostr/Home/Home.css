@@ -22,4 +22,5 @@
 .aboutSwarmstr-button, .contributors-button {
     margin-top: -15px;
     margin-left: -8px;
+    text-transform: capitalize!important;
 }

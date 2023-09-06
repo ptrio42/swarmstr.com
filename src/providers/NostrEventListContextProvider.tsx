@@ -47,7 +47,7 @@ export const NostrEventListContextProvider = ({ children, ...props }: NostrEvent
     }, [mutedEvents]);
 
     useEffect(() => {
-        console.log(`current limit: ${limit}`)
+        // console.log(`current limit: ${limit}`)
     }, [limit]);
 
     const events = useMemo(() => {
@@ -71,7 +71,10 @@ export const NostrEventListContextProvider = ({ children, ...props }: NostrEvent
         }, { closeOnEose: false, groupable: false }, Config.SERVER_RELAYS);
         subscribe({
             kinds: [10000],
-            authors: ['000003a2c8076423148fe15e3ff5f182e0304cff6de499a3f54f5adfe3b014e6']
+            authors: [
+                '000003a2c8076423148fe15e3ff5f182e0304cff6de499a3f54f5adfe3b014e6',
+                '8387b34f1af0e114062552303c3f7bcab7c0acbc35232253e22706b0ae2b234f'
+            ]
         }, { closeOnEose: false, groupable: false }, Config.SERVER_RELAYS);
     }, []);
 

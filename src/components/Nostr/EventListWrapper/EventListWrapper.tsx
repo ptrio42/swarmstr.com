@@ -12,7 +12,7 @@ export const EventListWrapper = ({ children }: EventListWrapperProps) => {
 
     const onScrollEnd = () => {
         setLimit(limit + 3);
-        console.log('reached scroll end', limit);
+        // console.log('reached scroll end', limit);
     };
 
     return <InfiniteScroll

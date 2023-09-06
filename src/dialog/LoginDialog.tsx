@@ -66,7 +66,7 @@ export const LoginDialog = ({ open, onClose }: LoginDialogProps) => {
                 </Stack>
             </DialogContent>
             <DialogActions>
-                <Button autoFocus onClick={handleClose}>
+                <Button color="secondary" autoFocus onClick={handleClose}>
                     Close
                 </Button>
             </DialogActions>

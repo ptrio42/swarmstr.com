@@ -81,7 +81,7 @@ export const noteContentToHtml = (text: string, tags?: string[][], searchString?
                         return `<a href="${process.env.BASE_URL}/e/${nip19.noteEncode(tag[1])}" target="_blank">@${nip19.noteEncode(tag[1])}</a>`
                     }
                     case 't': {
-                        return `<a href="${process.env.BASE_URL}/?s=${tag[1].replace(/(<([^>]+)>)/gi, '')}">#${tag[1]}</a>`;
+                        return `<a href="${process.env.BASE_URL}/search/${tag[1].replace(/(<([^>]+)>)/gi, '')}">#${tag[1]}</a>`;
                     }
                 }
             }
@@ -91,11 +91,11 @@ export const noteContentToHtml = (text: string, tags?: string[][], searchString?
     })
     .replace(/(?<!\'\")\B(\#[a-zA-Z0-9]+\b)(?!;)(?![\w\s]*[\'\"])/gm, (result) => {
         const hashtag = result.replace('#', '');
-        return `<a href="${process.env.BASE_URL}/?s=${hashtag.replace(/(<([^>]+)>)/gi, '')}">#${hashtag}</a>`
+        return `<a href="${process.env.BASE_URL}/search/${hashtag.replace(/(<([^>]+)>)/gi, '')}">#${hashtag}</a>`
     })
     .replace(/(#<a?:.+?:\d{18}>|#\p{Extended_Pictographic})/gu, (result) => {
         const hashtag = result.replace('#', '');
-        return `<a href="${process.env.BASE_URL}/?s=${hashtag.replace(/(<([^>]+)>)/gi, '')}">#${hashtag}</a>`
+        return `<a href="${process.env.BASE_URL}/search/${hashtag.replace(/(<([^>]+)>)/gi, '')}">#${hashtag}</a>`
     });
     // @ts-ignore
     return parse(

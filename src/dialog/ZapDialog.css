@@ -1,0 +1,8 @@
+.customZapAmountBtn .MuiInput-root {
+    padding: 0!important;
+    border: none!important;
+}
+
+.customZapAmountBtn .MuiInput-root input {
+    padding: 0!important;
+}

@@ -71,7 +71,7 @@ export const Search = () => {
     useEffect(() => {
         clearEvents();
         setSubscribed(false);
-        setQuery(searchString || '');
+        setQuery(searchString?.replace('?', '') || '');
     }, [searchString]);
 
     useEffect(() => {
@@ -120,7 +120,7 @@ export const Search = () => {
                         query={searchString || ''}
                         resultsCount={events.length}
                         onQueryChange={(event: any) => {
-                            navigate(`/search/${encodeURIComponent(event.target.value)}`);
+                            navigate(`/search/${encodeURIComponent(event.target.value?.replace('?', ''))}`);
                         }}
                         isQuerying={loading}
                     />}
