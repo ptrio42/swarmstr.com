@@ -22,7 +22,11 @@ type NostrContextType = {
     boost: (nostrEvent: NostrEvent) => void,
     payInvoice: (paymentRequest: string) => void,
     writeRelays: string[],
-    readRelays: string[]
+    readRelays: string[],
+    query: string,
+    setQuery: (query: string) => void,
+    loading: boolean,
+    setLoading: (loading: boolean) => void,
 }
 
 export const NostrContext = createContext<NostrContextType>({
@@ -44,5 +48,9 @@ export const NostrContext = createContext<NostrContextType>({
     boost: () => {},
     payInvoice: () => {},
     writeRelays: [],
-    readRelays: []
+    readRelays: [],
+    query: '',
+    setQuery: () => {},
+    loading: false,
+    setLoading: () => {}
 });

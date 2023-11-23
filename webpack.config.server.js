@@ -27,7 +27,7 @@ module.exports = {
         }
     },
     externals: [nodeExternals({
-        allowlist: [/\.css$/, 'nostr-mux', 'domhandler', 'nostr-hooks']
+        allowlist: [/\.css$/, 'nostr-mux', 'domhandler', 'nostr-hooks', 'nostr-tools']
     })],
     externalsPresets: {
         node: true

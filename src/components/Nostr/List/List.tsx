@@ -97,6 +97,7 @@ export const List = () => {
         </Typography>
         <SearchResults
             search={<SearchBar
+                placeholder={'Filter list...'}
                 query={searchString || ''}
                 resultsCount={filteredEvents()?.length}
                 onQueryChange={(event: any) => {

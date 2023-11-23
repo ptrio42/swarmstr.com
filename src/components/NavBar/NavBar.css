@@ -18,12 +18,8 @@
   color: #faefcc;
   text-shadow: 1px 1px #000;
   min-width: fit-content;
-  width: 120px;
+  /*width: 120px;*/
   height: 56px;
-}
-
-.logo img {
-  transform: translateY(-5px);
 }
 
 .logo-text {

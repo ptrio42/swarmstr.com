@@ -26,7 +26,7 @@ export const NostrFeedContextProvider = ({ children }: any) => {
 
     const subscribe = useCallback((
         filter: NDKFilter,
-        opts: NDKSubscriptionOptions = {closeOnEose: false, groupable: false}
+        opts: NDKSubscriptionOptions = {closeOnEose: true, groupable: false}
     ) => {
         const sub = ndk.current.subscribe(filter, opts);
         sub.on('event', onEvent);

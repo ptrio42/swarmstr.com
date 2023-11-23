@@ -10,6 +10,17 @@ import ReactPlayer from 'react-player';
 import { Element, isTag } from 'domhandler';
 import {keywordsFromString} from "../utils/utils";
 
+const bech32Prefixes = ['note', 'npub'];
+const bech32PrefixesTlv = ['nprofile', 'nevent', 'naddr', 'nrelay'];
+
+const replaceNostrUriSchemes = (text: string) => {
+    const prefixes = [...bech32Prefixes, ...bech32PrefixesTlv];
+    let replacedText = '';
+    for (let i = 0; i < prefixes.length; i++) {
+        replacedText
+    }
+}
+
 // this method processes notes content, adds html, handles markup, etc.
 export const noteContentToHtml = (text: string, tags?: string[][], searchString?: string, floating?: boolean): string => {
     let processedText = text || '';
@@ -21,9 +32,13 @@ export const noteContentToHtml = (text: string, tags?: string[][], searchString?
     })
     .replace(/nostr:note1([a-z0-9]+)/gmi, (result) => {
         const note1 = result.split(':')[1];
-        const id = nip19.decode(note1).data;
-        const nevent = nip19.neventEncode({ id });
-        return `<button class="thread-btn">${nevent}</button>`;
+        try {
+            const id = nip19.decode(note1).data;
+            const nevent = nip19.neventEncode({ id });
+            return `<button class="thread-btn">${nevent}</button>`;
+        } catch (e) {
+            return note1;
+        }
     })
     .replace(/nostr:nevent1([a-z0-9]+)/gmi, (result) => {
         const nevent = result.split(':')[1];

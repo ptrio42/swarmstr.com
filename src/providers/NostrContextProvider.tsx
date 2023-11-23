@@ -28,6 +28,7 @@ import {NoteLabel} from "../dialog/NewLabelDialog";
 import { uniq, groupBy, isEqual } from 'lodash';
 import lightBolt11Decoder from "light-bolt11-decoder";
 import {useNavigate} from 'react-router-dom';
+import {signAndPublishEvent} from "../services/nostr";
 
 TimeAgo.addDefaultLocale(en);
 
@@ -57,6 +58,9 @@ export const NostrContextProvider = ({ children }: any) => {
             return getUserRelays(lists[0]);
         }
     , [user?.hexpubkey()], DEFAULT_RELAYS);
+
+    const [query, setQuery] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(false);
 
     // useEffect(() => {
     //     console.log({userContactList})
@@ -144,6 +148,11 @@ export const NostrContextProvider = ({ children }: any) => {
             if (event.kind === 30000 || event.kind === 10000 || event.kind === 30001) db.lists.put(event.rawEvent());
 
             if (event.kind === 3) db.contactLists.put(event.rawEvent());
+
+            if (event.kind === 1985) {
+                db.labels.put(event.rawEvent());
+                console.log('similar question: ', {event})
+            }
         });
         sub.on('eose', () => {
            console.log('received eose')
@@ -206,26 +215,37 @@ export const NostrContextProvider = ({ children }: any) => {
     }, []);
 
     const post = useCallback(async (content: string, tags: NDKTag[], kind: number = 1) => {
+
+        await signAndPublishEvent({
+            content,
+            tags,
+            kind,
+            created_at: 0,
+            pubkey: ''
+        }, relayUrls.write, ndk.current);
+
+        console.log('done!')
+
         // try {
-        const event = new NDKEvent(ndk.current);
-        event.kind = kind;
-        event.content = content;
-        event.tags = tags;
-        event.created_at = Math.floor(Date.now() / 1000) + 5;
-        console.log(`signing & publishing new event`, {event})
-        // console.log({writeRelays: relayUrls.write})
-        ndk.current.assertSigner()
-            .then(() => {
-                event.sign(ndk.current.signer!)
-                    .then(() => {
-                        event.publish(NDKRelaySet.fromRelayUrls(relayUrls.write, ndk.current))
-                            .then(() => {
-                                console.log('question published!');
-                            })
-                    })
-                    .catch((e) => {})
-            })
-            .catch((e) => {});
+        // const event = new NDKEvent(ndk.current);
+        // event.kind = kind;
+        // event.content = content;
+        // event.tags = tags;
+        // event.created_at = Math.floor(Date.now() / 1000) + 5;
+        // console.log(`signing & publishing new event`, {event})
+        // // console.log({writeRelays: relayUrls.write})
+        // ndk.current.assertSigner()
+        //     .then(() => {
+        //         event.sign(ndk.current.signer!)
+        //             .then(() => {
+        //                 event.publish(NDKRelaySet.fromRelayUrls(relayUrls.write, ndk.current))
+        //                     .then(() => {
+        //                         console.log('question published!');
+        //                     })
+        //             })
+        //             .catch((e) => {})
+        //     })
+        //     .catch((e) => {});
     }, [relayUrls]);
 
     const addReaction = useCallback((id: string, content: string) => {
@@ -455,7 +475,8 @@ export const NostrContextProvider = ({ children }: any) => {
                         ndk: ndk.current, user, subscribe, signIn, post, loginDialogOpen,
                         setLoginDialogOpen, newNoteDialogOpen, setNewNoteDialogOpen, label, newLabelDialogOpen,
                         setNewLabelDialogOpen, boost, payInvoice, addReaction, zap, unsubscribe,
-                        writeRelays: relayUrls.write, readRelays: relayUrls.read
+                        writeRelays: relayUrls.write, readRelays: relayUrls.read, query, setQuery,
+                        loading, setLoading
                     }}>
                     {children}
                 </NostrContext.Provider>

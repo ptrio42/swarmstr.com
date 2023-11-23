@@ -42,7 +42,8 @@ export const Config = {
     'wss://nostr.bitcoiner.social',
     'wss://relay.nostr.bg',
     'wss://nostr.mutinywallet.com',
-    'wss://purplepag.es'
+    'wss://purplepag.es',
+    'wss://q.swarmstr.com',
   ],
   CLIENT_RELAYS: [
     'wss://nos.lol',

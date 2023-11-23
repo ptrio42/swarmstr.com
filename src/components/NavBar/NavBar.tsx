@@ -13,12 +13,29 @@ import {LoginDialog} from "../../dialog/LoginDialog";
 import {Config} from "../../resources/Config";
 import {NewNoteDialog} from "../../dialog/NewNoteDialog";
 import {ButtonGroup} from "@mui/material";
+import {SearchBar} from "../SearchBar/SearchBar";
+import {useParams} from "react-router";
+import {useNostrFeedContext} from "../../providers/NostrFeedContextProvider";
 
 
 export const NavBar = () => {
-    const { user, loginDialogOpen, setLoginDialogOpen, newNoteDialogOpen, setNewNoteDialogOpen } = useNostrContext();
+    const { user, loginDialogOpen, setLoginDialogOpen, newNoteDialogOpen, setNewNoteDialogOpen, query, loading } = useNostrContext();
     const [newNoteButtonText, setNewNoteButtonText] = useState<string>('');
     const navigate = useNavigate();
+
+    const { searchString } = useParams();
+
+    const handleNewNoteButtonClick = () => {
+        if (user) {
+            setNewNoteDialogOpen(true);
+        } else {
+            setLoginDialogOpen(true);
+        }
+    };
+
+    useEffect(() => {
+        console.log({query})
+    }, [query]);
 
     return (
         <Box sx={{ flexGrow: 1 }}>
@@ -30,30 +47,44 @@ export const NavBar = () => {
                     <Link className="logo" to="/">
                         <img width="64px" height="64px" alt={Config.APP_TITLE} src={Config.LOGO_IMG}/>
                     </Link>
-                    <Box className="navbarMenu" sx={{ display: 'flex' }}>
-                        <ButtonGroup variant="outlined">
-                            <Button color="secondary" onClick={() => { navigate('/recent') }}>
-                                <Feed/> Recent
-                            </Button>
-                            <Button color="secondary" onClick={() => { navigate('/search') }}>
-                                <Search/> Search
-                            </Button>
-                        </ButtonGroup>
+                    <Box className="navbarMenu" sx={{ width: '100%', display: 'flex' }}>
+                        {/*<ButtonGroup variant="outlined">*/}
+                            {/*<Button color="secondary" onClick={() => { navigate('/recent') }}>*/}
+                                {/*<Feed/> Recent*/}
+                            {/*</Button>*/}
+                            {/*<Button color="secondary" onClick={() => { navigate('/search') }}>*/}
+                                {/*<Search/> Search*/}
+                            {/*</Button>*/}
+                        {/*</ButtonGroup>*/}
+
+                        <SearchBar
+                            placeholder={`Search #${Config.HASHTAG}...`}
+                            isQuerying={loading}
+                            query={decodeURIComponent(query)}
+                            onQueryChange={(event: any) => {
+                                navigate(`/search/${encodeURIComponent(event.target.value?.replace('?', '%3F'))}`);
+                            }}
+                        />
                     </Box>
 
-                    <Box sx={{ width: '114px', display: 'flex', justifyContent: 'flex-end', marginRight: '8px' }}>
+                    <Box sx={{
+                        width: '114px',
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        marginRight: '8px'
+                    }}>
                         <Button
                             className="newNote-button"
-                            sx={{ textTransform: 'math-auto', fontWeight: '400', fontSize: '16px', borderRadius: '18px!important', padding: '5px 8px', width: 'auto' }}
+                            sx={{
+                                textTransform: 'math-auto',
+                                fontWeight: '400',
+                                fontSize: '16px',
+                                borderRadius: '18px!important',
+                                padding: '5px 8px', width: 'auto'
+                            }}
                             color="warning"
                             variant="contained"
-                            onClick={() => {
-                                if (user) {
-                                    setNewNoteDialogOpen(true);
-                                } else {
-                                    setLoginDialogOpen(true);
-                                }
-                            }}
+                            onClick={handleNewNoteButtonClick}
                             onMouseEnter={() => {
                                 setNewNoteButtonText(`#${Config.HASHTAG}`)
                             }}

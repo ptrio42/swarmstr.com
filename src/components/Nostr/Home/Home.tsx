@@ -18,12 +18,10 @@ export const Home = () => {
       <Box className="landingPage-box">
          <Typography variant="h5" component="div">
             { Config.SLOGAN }
-            {/*<Tooltip title="Learn more about Swarmstr">*/}
-            {/*</Tooltip>*/}
          </Typography>
          <Typography component="div" variant="body1">
-            <Button className="nav-button" variant="contained" color="primary" component={Link} to="/search">
-               Search
+            <Button className="nav-button" variant="contained" color="primary" component={Link} to="/d/nostr-faq">
+               Nostr FAQ
             </Button>
             <Button
                 className="nav-button"
@@ -59,7 +57,7 @@ export const Home = () => {
              className="aboutSwarmstr-button"
              color="secondary"
              component={Link}
-             to={`${process.env.BASE_URL}/e/nevent1qqsyuhzx9h787y6kxc5m7qehqdzhrwnx0ztzcua9e9s878ug73hf6uqpz3mhxue69uhhyetvv9ujuerpd46hxtnfdulvpefd`}
+             to={`/e/nevent1qqsyuhzx9h787y6kxc5m7qehqdzhrwnx0ztzcua9e9s878ug73hf6uqpz3mhxue69uhhyetvv9ujuerpd46hxtnfdulvpefd`}
          >
             <Info /> Learn more about Swarmstr
          </Button>
