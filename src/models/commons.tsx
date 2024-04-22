@@ -1,11 +1,12 @@
 import {NostrEvent} from "@nostr-dev-kit/ndk";
 
-export type NoteType = 'question' | 'answer' | 'question_quote' | undefined;
+export type NoteType = 'question' | 'answer' | 'question_quote' | 'note' | undefined;
 
 export const NOTE_TYPE: { [key: string]: NoteType } = {
     QUESTION: 'question',
     ANSWER: 'answer',
-    HINT: 'question_quote'
+    HINT: 'question_quote',
+    NOTE: 'note'
 };
 
 export interface NoteEvent extends NostrEvent {

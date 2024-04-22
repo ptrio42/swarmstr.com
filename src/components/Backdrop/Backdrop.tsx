@@ -22,11 +22,12 @@ export const Backdrop = ({ open }: any) => {
                          zIndex: 99999,
                          top: 0,
                          left: 0,
-                         backgroundColor: 'rgba(0,0,0,.9)',
-                         backdropFilter: 'blur(10px)'
+                         backgroundColor: 'rgb(0,0,0)',
+                         scroll: 'none'
+                         // backdropFilter: 'blur(10px)'
                      }}>
             <Box className="swarmstrPreloaderLogoContainer">
-                <img alt={Config.APP_TITLE} src={Config.LOGO_IMG}/>
+                <img alt={Config.APP_TITLE} src={`${process.env.BASE_URL}/images/loading.gif`}/>
             </Box>
         </Box>
     );

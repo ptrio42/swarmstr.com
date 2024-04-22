@@ -15,6 +15,11 @@ code {
 
 .App {
   text-align: center;
+  height: 100vh;
+}
+
+.AppContent {
+  min-height: calc(100% - 277px);
 }
 
 .theme--dark {

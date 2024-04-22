@@ -60,8 +60,8 @@ export const List = () => {
         subscribe({
             kinds: [30001],
             authors: ['000003a2c8076423148fe15e3ff5f182e0304cff6de499a3f54f5adfe3b014e6'],
-            '#d': [listName]
-        }, { closeOnEose: false, groupable: false }, Config.SERVER_RELAYS);
+            '#d': [listName!]
+        }, { closeOnEose: false, groupable: false });
 
         request({ url: `${process.env.BASE_URL}/api/cache/${listName}/30001/d` })
             .then(response => {
@@ -97,6 +97,7 @@ export const List = () => {
         </Typography>
         <SearchResults
             search={<SearchBar
+                placeholder={'Filter list...'}
                 query={searchString || ''}
                 resultsCount={filteredEvents()?.length}
                 onQueryChange={(event: any) => {

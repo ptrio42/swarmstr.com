@@ -19,7 +19,7 @@ import {Config} from "../resources/Config";
 interface NewLabelDialogProps {
     open: boolean;
     onClose?: () => void;
-    reaction: string;
+    reaction?: string;
     event?: NostrEvent;
     selectedLabelName?: string;
 }
@@ -56,10 +56,10 @@ const LABELS: NoteLabel[] = [
     }
 ];
 
-export const NewLabelDialog = ({ open, onClose, selectedLabelName, ...props }: NewLabelDialogProps) => {
-    const [event, setEvent] = useState<NostrEvent|undefined>(props?.event);
+export const NewLabelDialog = ({ open, onClose, selectedLabelName, event, ...props }: NewLabelDialogProps) => {
+    // const [event, setEvent] = useState<NostrEvent|undefined>(props?.event);
 
-    const { label, user } = useNostrContext();
+    const { label, user, setEvent } = useNostrContext();
 
     const [selectedLabel, setSelectedLabel] = useState<NoteLabel>();
     const [content, setContent] = useState<string>('');
@@ -92,6 +92,11 @@ export const NewLabelDialog = ({ open, onClose, selectedLabelName, ...props }: N
             return placeholder;
         }
     };
+
+    if (!selectedLabelName || !event) {
+        console.log('null', {selectedLabelName, event})
+        return null;
+    }
 
     return (
         <Dialog open={open} onClose={() => onClose && onClose()}>
@@ -170,8 +175,9 @@ export const NewLabelDialog = ({ open, onClose, selectedLabelName, ...props }: N
                     variant="contained"
                     onClick={() => {
                         // console.log({selectedLabel})
-                        if (user) label(selectedLabel!, event! as NostrEvent, user.hexpubkey(), content, () => {
+                        if (user) label(selectedLabel!, event! as NostrEvent, user!.pubkey, content, () => {
                             setContent('');
+                            setEvent(undefined);
                             onClose && onClose();
                         });
 

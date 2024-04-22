@@ -8,7 +8,7 @@ import TextField from "@mui/material/TextField";
 import { nip19 } from 'nostr-tools';
 import {checkName, createInvoice, getInvoiceStatus, registerName} from '../../../services/invoices';
 import Button from "@mui/material/Button";
-import {QrCodeDialog} from "../Metadata/Metadata";
+// import {QrCodeDialog} from "../Metadata/Metadata";
 import {Helmet} from "react-helmet";
 import './Nip05.css';
 import {Config} from "../../../resources/Config";

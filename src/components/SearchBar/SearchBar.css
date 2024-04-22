@@ -1,0 +1,11 @@
+.theme--dark .MuiInputAdornment-positionEnd .MuiIconButton-colorWarning svg {
+    color: #F0E68C;
+}
+
+.searchOptions {
+    position: absolute;
+    z-index: 9999;
+    background: #fff;
+    width: 100%;
+    box-shadow: 1px 5px 4px rgba(0, 0, 0, .4);
+}

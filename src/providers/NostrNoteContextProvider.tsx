@@ -12,9 +12,10 @@ import {NostrNoteContext} from "../contexts/NostrNoteContext";
 import {useNostrContext} from "./NostrContextProvider";
 import {requestProvider, WebLNProvider} from "webln";
 import {db} from "../db";
-import {valueFromTag} from "../utils/utils";
+import {containsTag, valueFromTag} from "../utils/utils";
 import {nip19} from "nostr-tools";
 import lightBolt11Decoder from 'light-bolt11-decoder';
+import {NOTE_TYPE} from "../models/commons";
 
 interface NostrNoteContextProviderProps {
     children: any;
@@ -24,10 +25,11 @@ interface NostrNoteContextProviderProps {
 export const NostrNoteContextProvider = ({ children }: NostrNoteContextProviderProps) => {
     const subs = useRef<NDKSubscription[]>([]);
 
-    const { ndk } = useNostrContext();
+    const { ndk, readRelays, connected } = useNostrContext();
 
     const subscribe = useCallback((filter: NDKFilter, opts?: NDKSubscriptionOptions) => {
-        const sub = ndk.subscribe(filter, opts);
+        console.log(`NostrNoteContextProvider: subscribe to relays: ${readRelays.join(',')}`)
+        const sub = ndk.subscribe(filter, opts, NDKRelaySet.fromRelayUrls(readRelays, ndk));
         sub
             .on('event',  (event: NDKEvent) => {
                 try {
@@ -36,6 +38,11 @@ export const NostrNoteContextProvider = ({ children }: NostrNoteContextProviderP
                         kind: event.kind,
                         ...(filter?.ids?.length === 1 && { id: filter.ids[0] })
                     };
+                    // handle note
+                    if (nostrEvent.kind === 1 || nostrEvent.kind === 30023) {
+                        db.notes.put({ ...event.rawEvent(), type: NOTE_TYPE.Note, ...(valueFromTag(nostrEvent, 'e') && { referencedEventId: valueFromTag(nostrEvent, 'e') }) });
+                    }
+
                     // handle reaction
                     if (nostrEvent.kind === 7) {
                         db.reactions.put({
@@ -85,10 +92,10 @@ export const NostrNoteContextProvider = ({ children }: NostrNoteContextProviderP
             });
 
         subs.current.push(sub);
-    }, []);
+    }, [readRelays, connected]);
 
     return (
-        <NostrNoteContext.Provider value={{ subscribe, subs: subs.current }}>
+        <NostrNoteContext.Provider value={{ subscribe, subs: subs.current, connected }}>
             {children}
         </NostrNoteContext.Provider>
     );

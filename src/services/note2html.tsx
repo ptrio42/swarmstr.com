@@ -10,10 +10,23 @@ import ReactPlayer from 'react-player';
 import { Element, isTag } from 'domhandler';
 import {keywordsFromString} from "../utils/utils";
 
+const bech32Prefixes = ['note', 'npub'];
+const bech32PrefixesTlv = ['nprofile', 'nevent', 'naddr', 'nrelay'];
+
+// const replaceNostrUriSchemes = (text: string) => {
+//     const prefixes = [...bech32Prefixes, ...bech32PrefixesTlv];
+//     let replacedText = '';
+//     for (let i = 0; i < prefixes.length; i++) {
+//         replacedText
+//     }
+// }
+
 // this method processes notes content, adds html, handles markup, etc.
 export const noteContentToHtml = (text: string, tags?: string[][], searchString?: string, floating?: boolean): string => {
     let processedText = text || '';
     processedText = processedText
+    // remove any tag from the text that is listed in Config.NOSTR_TAGS
+    .replace(new RegExp(`s(?=${tags?.map((t) => `#${t[1]}`).join('|')})`, 'gi'), '')
     .replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/nostr:npub1([a-z0-9]+)/gmi, (result) => {
         const npub = result.split(':')[1];
@@ -21,9 +34,13 @@ export const noteContentToHtml = (text: string, tags?: string[][], searchString?
     })
     .replace(/nostr:note1([a-z0-9]+)/gmi, (result) => {
         const note1 = result.split(':')[1];
-        const id = nip19.decode(note1).data;
-        const nevent = nip19.neventEncode({ id });
-        return `<button class="thread-btn">${nevent}</button>`;
+        try {
+            const id = nip19.decode(note1).data;
+            const nevent = nip19.neventEncode({ id });
+            return `<button class="thread-btn">${nevent}</button>`;
+        } catch (e) {
+            return note1;
+        }
     })
     .replace(/nostr:nevent1([a-z0-9]+)/gmi, (result) => {
         const nevent = result.split(':')[1];
@@ -44,7 +61,14 @@ export const noteContentToHtml = (text: string, tags?: string[][], searchString?
     // image urls and not those used in markdown
     .replace(/(?<!\]\()(https?:\/\/.*\.(?:png|jpg|jpeg|gif|svg|webp)).*(?<!\))/gm, (result) => {
         const multilink = result.split(' ');
-        if (multilink.length > 1 ) return multilink.filter((str: string) => new RegExp(/http/).test(str)).map((url: string) => `<img width="100%" src="${url}" style="max-width:512px;" />`).join('<br/>');
+        if (multilink.length > 1 ) {
+            return multilink
+                .filter((str: string) => new RegExp(/http/g).test(str))
+                .map((url: string) => new RegExp(/(jpg|jpeg|png|gif|svg|webp)/g).test(url)
+                    ? `\n<img width="100%" src="${url}" style="max-width:512px;" />\n`
+                    : `<a class="test" href=${url} target="_blank">${text}</a>`)
+                .join('<br/>');
+        }
         return `<img width="100%" src="${result}" style="max-width:512px;" />`
     })
     // image urls in markdown
@@ -81,7 +105,7 @@ export const noteContentToHtml = (text: string, tags?: string[][], searchString?
                         return `<a href="${process.env.BASE_URL}/e/${nip19.noteEncode(tag[1])}" target="_blank">@${nip19.noteEncode(tag[1])}</a>`
                     }
                     case 't': {
-                        return `<a href="${process.env.BASE_URL}/search/${tag[1].replace(/(<([^>]+)>)/gi, '')}">#${tag[1]}</a>`;
+                        return `<a href="${process.env.BASE_URL}/recent/${tag[1].replace(/(<([^>]+)>)/gi, '')}">#${tag[1]}</a>`;
                     }
                 }
             }
@@ -89,13 +113,13 @@ export const noteContentToHtml = (text: string, tags?: string[][], searchString?
             return tags && tags[+id];
         }
     })
-    .replace(/(?<!\'\")\B(\#[a-zA-Z0-9]+\b)(?!;)(?![\w\s]*[\'\"])/gm, (result) => {
+    .replace(/(?<!\'\")\B(\#[a-zA-Z0-9\-]+\b)(?!;)(?![\w\s]*[\'\"])/gm, (result) => {
         const hashtag = result.replace('#', '');
-        return `<a href="${process.env.BASE_URL}/search/${hashtag.replace(/(<([^>]+)>)/gi, '')}">#${hashtag}</a>`
+        return `<a href="${process.env.BASE_URL}/recent/${hashtag.replace(/(<([^>]+)>)/gi, '')}">#${hashtag}</a>`
     })
     .replace(/(#<a?:.+?:\d{18}>|#\p{Extended_Pictographic})/gu, (result) => {
         const hashtag = result.replace('#', '');
-        return `<a href="${process.env.BASE_URL}/search/${hashtag.replace(/(<([^>]+)>)/gi, '')}">#${hashtag}</a>`
+        return `<a href="${process.env.BASE_URL}/recent/${hashtag.replace(/(<([^>]+)>)/gi, '')}">#${hashtag}</a>`
     });
     // @ts-ignore
     return parse(

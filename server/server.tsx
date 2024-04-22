@@ -15,14 +15,47 @@ import NDK, {
     NDKSubscriptionOptions, NDKTag,
     NostrEvent, NDKPrivateKeySigner
 } from '@nostr-dev-kit/ndk';
-import RedisAdapter from '@nostr-dev-kit/ndk-cache-redis';
-import {uniqBy, groupBy, forOwn, debounce} from 'lodash';
-import {containsTag, valueFromTag} from "../src/utils/utils";
+import NDKRedisCacheAdapter from "@nostr-dev-kit/ndk-cache-redis";
+import {uniqBy, groupBy, forOwn, debounce, sortBy} from 'lodash';
+import {containsAnyTag, containsTag, valueFromTag} from "../src/utils/utils";
+import { HfInference } from "@huggingface/inference";
+import {request} from "../src/services/request";
+import {Buffer} from "buffer";
+
 const { Configuration, OpenAIApi } = require("openai");
 const openAIConfig = new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(openAIConfig);
+const hf = new HfInference(process.env.HF_ACCESS_TOKEN);
+
+(global as any).WebSocket = require('ws');
+
+
+import WebSocket, { WebSocketServer } from 'ws';
+
+const wss = new WebSocketServer({ port: 8082 });
+const websocket = new WebSocket('ws://localhost:8082');
+
+wss.on('connection', (ws) => {
+    console.log('websocket');
+    ws.on('websocket error', console.error);
+
+    ws.on('message', (data, isBinary) => {
+        // ws.send(data);
+        console.log('received: %s', data);
+        wss.clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(data, { binary: isBinary });
+            }
+        });
+    });
+
+    ws.send('hello!')
+    ws.send('you have connected to the websocket server...');
+});
+
+process.env.DEBUG = 'ndk:*';
 
 const redis = require("redis");
 // @ts-ignore
@@ -45,6 +78,13 @@ const pool = new Pool({
     password: process.env.PG_PWD,
     port: process.env.PG_PORT
 });
+
+(async () => {
+    await pool.query('CREATE TABLE IF NOT EXISTS ' +
+        'searches (query VARCHAR(255) NOT NULL, hits INT DEFAULT 0)');
+    // await pool.query('CREATE TABLE IF NOT EXISTS ' +
+    //     'caches ()')
+})();
 
 const bodyParser = require('body-parser');
 const baseUrl = process.env.BASE_URL;
@@ -72,7 +112,7 @@ const assets = JSON.parse(manifest);
 // default 7 days
 const EVENTS_SINCE = Math.floor(Date.now() / 1000 - 7 * 24 * 60 * 60);
 
-const cacheAdapter = new RedisAdapter({ expirationTime: 365 * 60 * 60 * 24 });
+const cacheAdapter = new NDKRedisCacheAdapter({ expirationTime: 365 * 60 * 60 * 24 });
 
 // ndk instance used to subscribe to events with a given HASHTAG
 // @ts-ignore
@@ -120,16 +160,17 @@ const handleHashTagEvent = (event: NDKEvent) => {
     const nostrEvent = event.rawEvent();
     const { tags } = nostrEvent;
     const referencedEventId = valueFromTag(nostrEvent, 'e');
-    const referencedEventId1 = valueFromTag(event, 'e');
-    // console.log({referencedEventId, referencedEventId1})
-    if (containsTag(tags, ['t', Config.HASHTAG])) {
+    if (containsAnyTag(tags, Config.NOSTR_TAGS.map((t: string) => ['t', t]))) {
+        console.log('handleHashTagEvent: ', { tags: Config.NOSTR_TAGS.map((t: string) => ['t', t]) });
+        console.log({tags})
         // if event contains referenced event tag, it serves at question hint
         // thus gotta fetch the referenced event
         if (!!referencedEventId) {
             ids.push(referencedEventId);
             debouncedSub();
         } else {
-            addAISimplifiedVersionOfQuestionLabel(nostrEvent);
+            // TODO: enable labelling
+            // addAISimplifiedVersionOfQuestionLabel(nostrEvent);
 
             // event is a question
             // publish the event to search pseudo relay
@@ -149,11 +190,14 @@ const handleHashTagEvent = (event: NDKEvent) => {
                 });
         }
     } else {
-        addAISimplifiedVersionOfQuestionLabel(nostrEvent);
+        // TODO: enable labelling
+        // addAISimplifiedVersionOfQuestionLabel(nostrEvent);
 
         // event doesn't contain the asknostr tag
         // but it was hinted by a quote event
         // publish the event to search pseudo relay
+
+        // TODO: label as hinted
         publishToSearchRelay(nostrEvent)
             .then(() => {
                 console.log(`event published to search relay (hinted)!`);
@@ -218,9 +262,9 @@ ndk.pool.on('flapping', (flapping) => {
 // initially subscribe to hashtag events
 subscribe({
     kinds: [1, 30023],
-    '#t': [Config.HASHTAG],
+    '#t': Config.NOSTR_TAGS,
     since: EVENTS_SINCE,
-}, { closeOnEose: false, groupable: false, cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST });
+}, { closeOnEose: false, groupable: false, cacheUsage: NDKSubscriptionCacheUsage.PARALLEL });
 
 const isNameAvailable = async (name: string): Promise<boolean> => {
     if (!(new RegExp(/([a-z0-9_.]+)/, 'gi').test(name)) || name.length < 1) return false;
@@ -262,6 +306,31 @@ const findFirstUpperCaseIndex = (str: string): number => {
     return -1; // Return -1 if no uppercase letter is found
 };
 
+const createNewLabel = async (id: string, label: string, relayUrls?: string[]) => {
+    const event = new NDKEvent(ndk);
+    event.kind = 1985;
+    event.tags = [
+        ['L', '#e'],
+        ['l', label, '#e'],
+        ['e', id!]
+    ];
+    event.content = '';
+
+    // get private key from dotenv file
+    let privateKey = process.env.SWARMSTR_BOT_PRIVATE_KEY;
+    // if it's an nsec, convert to hex
+    if (privateKey!.indexOf('nsec') > -1) {
+        privateKey = nip19.decode(privateKey!).data;
+    }
+    const signer = new NDKPrivateKeySigner(privateKey!);
+    const user = await signer.user();
+    event.pubkey = user?.pubkey;
+
+    await event.sign(signer);
+    console.log('new event', {event})
+    event.publish(NDKRelaySet.fromRelayUrls(relayUrls || [], ndk));
+};
+
 const addAISimplifiedVersionOfQuestionLabel = async (nostrEvent: NostrEvent) => {
     const {content, id} = nostrEvent;
     // do not summarize the question if it's length is 250 chars or less
@@ -284,35 +353,121 @@ const addAISimplifiedVersionOfQuestionLabel = async (nostrEvent: NostrEvent) => 
         if (index !== -1) {
             botReply = botReply.slice(index);
         }
-        // console.log({botReply}, {message: nostrEvent.content});
+        console.log({botReply}, {message: nostrEvent.content});
 
         // create new nostr kind 1985 event
-        const event = new NDKEvent(ndk);
-        event.kind = 1985;
-        event.tags = [
-                ['L', '#e'],
-                ['l', 'question/summary', '#e'],
-                ['e', id!]
-            ];
-        event.content = botReply;
-
-        // get private key from dotenv file
-        let privateKey = process.env.SWARMSTR_BOT_PRIVATE_KEY;
-        // if it's an nsec, convert to hex
-        if (privateKey!.indexOf('nsec') > -1) {
-            privateKey = nip19.decode(privateKey!).data;
-        }
-        const signer = new NDKPrivateKeySigner(privateKey!);
-        const user = await signer.user();
-        event.pubkey = user?.hexpubkey();
-
-        await event.sign(signer);
-        event.publish();
+        if (id) await createNewLabel(id, 'question/summary', Config.SERVER_RELAYS);
         // res.send({ reply: botReply });
     } catch (error) {
         console.error('botReply error', error);
         // res.status(500).send({ error: 'An error occurred' });
     }
+};
+
+const dotProduct = (a: number[], b: number[]): number => {
+    let result = 0;
+    for (let i = 0; i < a.length; i++) {
+        result += a[i] * b[i];
+    }
+    return result;
+};
+
+const getAIQuestionsSuggestions = (search: string, tags?: string[]): Promise<string[]> => {
+    return new Promise<string[]>((resolve, reject) => {
+        const filter = {
+            search,
+            limit: 10000,
+            ...(tags && tags.length > 0 && { '#t': tags })
+        };
+        console.log('getAIQuestionsSuggestions: ', {tags}, {filter})
+        const events: NDKEvent[] = [];
+        // websocket.send('nostr: searching for notes...');
+        const sub = ndkSearchnos
+            .subscribe(filter, { closeOnEose: true });
+
+        sub
+            .on('event', async (event: NDKEvent) => {
+                events.push(event);
+                if (events.length % (Math.floor(Math.random()*10) + 1) === 0) {
+                    websocket.send(`nostr: ${events.length} notes related to search found...`)
+                }
+            })
+            .on('eose', async () => {
+                // websocket.send('nostr: all notes received...');
+                let content: string = `given array of objects `;
+                const questions = events
+                    .filter(({ content }) => content.length <= 1000)
+                    .map(({ id, content }) => ({ id, content }))
+                // .slice(0, 20);
+                content += JSON.stringify(questions);
+                content += `, find the ones with content most relevant to ${search}`;
+                content += '; return ids only';
+                // .join(`,`);
+                console.log('eventsLength2511',{eventsLength: events.length})
+
+                let msg = 'ai: extracting most relevant notes';
+                let dots = '';
+                const intervalId = setInterval(() => {
+                    if (dots.length === 3) {
+                        dots = '';
+                    } else {
+                        dots += '.';
+                    }
+                    websocket.send(`${msg}${dots}`);
+                }, 500);
+                if (questions.length === 0) resolve([]);
+                try {
+                    let similarities = [];
+                    const result = await hf.featureExtraction({
+                        model: 'sentence-transformers/all-MiniLM-L6-v2',
+                        inputs: search
+                    });
+
+                    websocket.send(`${msg}${dots}`);
+                    const result1 = await hf.featureExtraction({
+                        model: 'sentence-transformers/all-MiniLM-L6-v2',
+                        inputs: questions.map(({content}) => content)
+                    });
+                    clearInterval(intervalId);
+
+                    // console.log({result, result1})
+
+                    for (let i = 0; i < result1.length; i++) {
+                        //@ts-ignore
+                        const similarity = dotProduct(result, result1[i]);
+                        console.log(`${similarity} between: ${search} and ${questions[i].content}`)
+                        similarities.push({ similarity, content: questions[i].content, id: questions[i].id })
+                    }
+                    if (similarities.length > 1) {
+                        similarities = sortBy(similarities, 'similarity').reverse()
+                            .filter(({similarity}) => similarities.length <= 21 ? similarity >= 0.4 : similarity >= 0.7);
+                    }
+                    console.log({similarities});
+                    // return new Promise.resolve(similarities.map(({content}) => content))
+
+                    // try {
+                    //     const ids = similarities.map(({id}) => id);
+                    //     ids.forEach((id: string) => {
+                    //         createNewLabel(id, `search/${encodeURIComponent(search)}`, Config.SERVER_RELAYS)
+                    //     });
+                    // } catch (error) {
+                    //     console.log('unable to parse response')
+                    // }
+                    websocket.send('done')
+
+                    resolve(similarities.map(({id}) => id))
+                    // console.log({result, result1})
+                } catch (e) {
+                    clearInterval(intervalId);
+                    websocket.send('ai: failed')
+                    if (questions.length <= 100) {
+                        resolve(questions.map(({ id }) => id));
+                    }
+                    console.error({e})
+                }
+            });
+        // resolve([]);
+    })
 };
 
 server.get('/.well-known/nostr.json', async (req, res) => {
@@ -384,7 +539,7 @@ server.get('/api/cache/:value/:kind/:tag', async (req, res) => {
         const events: NostrEvent[] = [];
         // otherwise create subscription and cache the events
         subscribe(
-            {[`#${tag || 'e'}`]: [value], kinds: [+kind || 1] },
+            {[`#${tag! || 'e'}`]: [value!], kinds: [+kind || 1] } as NDKFilter,
             { closeOnEose: true, groupable: true, groupableDelay: 1000 },
             async (event: NDKEvent) => {
                 // console.log('got event: ', {event});
@@ -401,6 +556,138 @@ server.get('/api/cache/:value/:kind/:tag', async (req, res) => {
             });
         res.sendStatus(204);
     }
+});
+
+// const textFromImage = async () => {
+//     // const imageUrl = 'https://image.nostr.build/020e88bd1e096f93dbfd391e15ca597643185153ed653fe7ea99c7b2f0b2c51f.jpg';
+//     // const imageUrl = 'https://m.media-amazon.com/images/M/MV5BYjA2MDM2YjctYzNhNC00NGEzLWFmYWEtODExODFkNmUyOGE2XkEyXkFqcGdeQXVyODk2NDQ3MTA@._V1_.jpg';
+//     // const imageUrl = 'https://image.nostr.build/937a78a42a29f32f547183b3add5363654a82aaae61afd8c27c36c1fdb59857c.jpg';
+//     // const imageUrl = 'https://image.nostr.build/f2dbe4c617c090c4c03e5b738cd24f61ba2def8fe8b0b4102dd7ed9c068aac3f.jpg';
+//     // const imageUrl = 'https://cdn.nostr.build/i/b5c598b4d6a57d99b937263e9338fdc21bf294d27adbbebdd0dd949bdcd31f3d.jpg';
+//     // const imageUrl = 'https://www.rd.com/wp-content/uploads/2020/04/DogMeme16.jpg';
+//     // const imageUrl = 'https://image.nostr.build/59e8da1b71194bb1d41a2ee7f3de6b6472745c3efeaead290a2b798e85117b9a.jpg';
+//     // const imageUrl = 'https://image.nostr.build/eb4e686e74a9d9a6f2ac8fbff88602d695de97ad01caa432c01b62e8ef19db0d.jpg';
+//     // const imageUrl = 'https://image.nostr.build/1b5fae747b17ceeaa7c43684404e30a973b717309cd8954bf927e425565f45db.jpg'
+//     // const imageUrl = 'https://image.nostr.build/596a9153e3e977c3bf34ac2b8a3a6594b8dbd700314a99061e43eefac560a880.jpg';
+//     // const imageUrl = 'https://image.nostr.build/bc9ab09b1287afcb20854250ef26d00f7d98970587827016f717ee8315341bd6.jpg';
+//     // const imageUrl = 'https://image.nostr.build/9ba896c4f595763c802214a384ab5866f56dce418b6c6bd2d05d704dd7d20514.jpg';
+//     const imageUrl = 'https://static.wikia.nocookie.net/onepiece/images/e/e1/Kinoko_Island_Infobox.png/revision/latest?cb=20191102104753&path-prefix=pl'
+//     const response = await request({ url: imageUrl, responseType: 'blob' });
+//
+//
+//     const image: any = fs.readFileSync(
+//         path.join(__dirname, '../public/images/420-gang-team-logo.png'),
+//         'utf-8'
+//     );
+//     console.log({response})
+//     const buffer: any = Buffer.from(response.data);
+//     const imageBlob = new Uint8Array(buffer).buffer
+//     console.log({imageBlob});
+//
+//     // const result = await hf.featureExtraction({
+//     //     model: 'deepset/roberta-base-squad2',
+//     //     inputs: 'what is the meaning of life?'
+//     // });
+//
+//     // console.log('roberta', {result})
+//
+//
+//     const result = await hf.imageToText({
+//         // model: 'nlpconnect/vit-gpt2-image-captioning',
+//         model: 'Salesforce/blip-image-captioning-base',
+//         data: await (await fetch(imageUrl)).blob()
+//     });
+//
+//     console.log('textFromImage', {result})
+// };
+//
+// server.get('/text-from-image', async (req, res) => {
+//    await textFromImage();
+//    res.sendStatus(204);
+// });
+
+server.get('/search-suggestions/:search', async (req, res) => {
+    let { search } = req.params;
+    search = search.replace(/([.?\-,_=])/gm, '');
+
+    const response = await pool.query('SELECT * FROM searches');
+    if (response.rows.length > 0) {
+        const searches = response.rows.filter(({query}: any) => query !== search);
+        const searchRecord = response.rows.find(({query}: any) => query === search);
+        if (searchRecord) {
+            const { query, hits } = searchRecord;
+            await pool.query('UPDATE searches SET hits = $1 WHERE query = $2', [hits+1, query]);
+        } else {
+            await pool.query('INSERT INTO searches (query, hits) VALUES ($1, $2)', [search, 1]);
+        }
+        try {
+            let similarities = [];
+            const result = await hf.featureExtraction({
+                model: 'sentence-transformers/all-MiniLM-L6-v2',
+                inputs: search
+            });
+
+            const result1 = await hf.featureExtraction({
+                model: 'sentence-transformers/all-MiniLM-L6-v2',
+                inputs: searches.map(({query}: any) => query.replace(`#${Config.HASHTAG}`, ''))
+            });
+
+            // console.log({result, result1})
+
+            for (let i = 0; i < result1.length; i++) {
+                //@ts-ignore
+                const similarity = dotProduct(result, result1[i]);
+                console.log(`${similarity} between: ${search} and ${searches[i].query}`)
+                similarities.push({ similarity, query: searches[i].query, hits: searches[i].hits })
+            }
+
+            similarities = sortBy(similarities, 'similarity').reverse()
+                .filter(({similarity}) => similarity >= 0.7);
+            console.log(`### similar searches for ${search}`,{similarities});
+            res.json(similarities)
+
+            // try {
+            //     const ids = similarities.map(({id}) => id);
+            //     ids.forEach((id: string) => {
+            //         createNewLabel(id, `search/${encodeURIComponent(search)}`)
+            //     });
+            //     // const questions = events
+            //     //     .filter(({id}) => ids.includes(id))
+            //     //     .map(({content}) => content);
+            //     // console.log({questions})
+            // } catch (error) {
+            //     console.log('unable to parse response')
+            // }
+
+            // console.log({result, result1})
+        } catch (e) {
+            console.error({e})
+        }
+    } else {
+        await pool.query('INSERT INTO searches (query, hits) VALUES ($1, $2)', [search, 1]);
+        res.sendStatus(204);
+    }
+});
+
+server.get('/search-api/:search', async (req, res) => {
+    let { search } = req.params;
+    const {tags} = req.query;
+    console.log('server.tsx: ', {tags})
+    search = search.replace(/([.?\-,_=])/gm, '');
+    console.log({search});
+
+    if (search) {
+        const results = await getAIQuestionsSuggestions(search, (tags as string).split(','));
+        res.json(results);
+    } else {
+        res.sendStatus(204);
+    }
+});
+
+server.get('/popular-searches', async (req, res) => {
+    const response = await pool.query('SELECT * FROM searches ORDER BY hits DESC LIMIT 10');
+    const searches = response.rows;
+    res.json(searches);
 });
 
 server.get('/*', async (req, res) => {

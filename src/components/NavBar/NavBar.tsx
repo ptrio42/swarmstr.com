@@ -1,24 +1,45 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import Box from '@mui/material/Box';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
-import {Link, useSearchParams, useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import Button from '@mui/material/Button';
 import {
-    Create, Search, Feed,
+    Create
 } from '@mui/icons-material';
 import './NavBar.css';
 import {useNostrContext} from "../../providers/NostrContextProvider";
-import {LoginDialog} from "../../dialog/LoginDialog";
 import {Config} from "../../resources/Config";
-import {NewNoteDialog} from "../../dialog/NewNoteDialog";
-import {ButtonGroup} from "@mui/material";
-
+import {SearchBar} from "../SearchBar/SearchBar";
+import {Badge} from "@mui/material";
+import Avatar from "@mui/material/Avatar";
+import { Metadata } from '../Nostr/Metadata/Metadata';
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import {nip19} from 'nostr-tools';
 
 export const NavBar = () => {
-    const { user, loginDialogOpen, setLoginDialogOpen, newNoteDialogOpen, setNewNoteDialogOpen } = useNostrContext();
-    const [newNoteButtonText, setNewNoteButtonText] = useState<string>('');
+    const { user, setLoginDialogOpen, setNewNoteDialogOpen, query, loading, ndk, setRelayListDialogOpen } = useNostrContext();
     const navigate = useNavigate();
+
+    const [userMenuAnchorEl, setUserMenuAnchorEl] = React.useState<null | HTMLElement>(null);
+    const open = Boolean(userMenuAnchorEl);
+
+    const handleNewNoteButtonClick = () => {
+        if (user) {
+            setNewNoteDialogOpen(true);
+        } else {
+            setLoginDialogOpen(true);
+        }
+    };
+
+    const handleUserMenuClose = () => {
+        setUserMenuAnchorEl(null);
+    };
+
+    const handleUserMenuOpen = (event: React.MouseEvent<any>) => {
+        setUserMenuAnchorEl(event.currentTarget);
+    };
 
     return (
         <Box sx={{ flexGrow: 1 }}>
@@ -27,55 +48,72 @@ export const NavBar = () => {
                 position="static"
             >
                 <Toolbar sx={{ justifyContent: 'space-between', width: '100%', maxWidth: '640px', margin: 'auto', padding: 0 }}>
-                    <Link className="logo" to="/">
-                        <img width="64px" height="64px" alt={Config.APP_TITLE} src={Config.LOGO_IMG}/>
-                    </Link>
-                    <Box className="navbarMenu" sx={{ display: 'flex' }}>
-                        <ButtonGroup variant="outlined">
-                            <Button color="secondary" onClick={() => { navigate('/recent') }}>
-                                <Feed/> Recent
-                            </Button>
-                            <Button color="secondary" onClick={() => { navigate('/search') }}>
-                                <Search/> Search
-                            </Button>
-                        </ButtonGroup>
+                    {/*<Badge>*/}
+                        <Link className="logo" to="/">
+                            <img width="64px" height="64px" alt={Config.APP_TITLE} src={Config.LOGO_IMG}/>
+                        </Link>
+                    {/*</Badge>*/}
+                    <Box className="navbarMenu" sx={{ width: '100%', display: 'flex' }}>
+                        <SearchBar
+                            placeholder={`Search...`}
+                            isQuerying={loading}
+                            query={decodeURIComponent(query)}
+                            onQueryChange={(event: any) => {
+                                navigate(`/search/${encodeURIComponent(event.target.value?.replace('?', '%3F'))}`);
+                            }}
+                        />
                     </Box>
 
-                    <Box sx={{ width: '114px', display: 'flex', justifyContent: 'flex-end', marginRight: '8px' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', paddingTop: '7px' }}>
+                        <Badge badgeContent={`${ndk.pool.stats().connected}/${ndk.pool.stats().total}`} color={ndk.pool.stats().connected > 0 ? 'success' : 'error'}>
+                            <Button variant="text" onClick={handleUserMenuOpen}>
+                                {
+                                    !user && <Avatar alt="Not logged in" src={`${process.env.BASE_URL}/images/nostr-logo.webp`} />
+                                }
+                                {
+                                    user && <Metadata variant="avatar" pubkey={user.pubkey} />
+                                }
+                            </Button>
+                        </Badge>
+
+                    </Box>
+
+                    <Box sx={{
+                        width: '64px',
+                        minWidth: '64px!important',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        marginTop: '7px'
+                    }}>
                         <Button
                             className="newNote-button"
-                            sx={{ textTransform: 'math-auto', fontWeight: '400', fontSize: '16px', borderRadius: '18px!important', padding: '5px 8px', width: 'auto' }}
+                            sx={{
+                                textTransform: 'math-auto',
+                                fontWeight: '400',
+                                fontSize: '16px',
+                                borderRadius: '18px!important',
+                                padding: '5px 8px', width: 'auto'
+                            }}
                             color="warning"
                             variant="contained"
-                            onClick={() => {
-                                if (user) {
-                                    setNewNoteDialogOpen(true);
-                                } else {
-                                    setLoginDialogOpen(true);
-                                }
-                            }}
-                            onMouseEnter={() => {
-                                setNewNoteButtonText(`#${Config.HASHTAG}`)
-                            }}
-                            onMouseLeave={() => {
-                                setNewNoteButtonText('');
-                            }}
+                            onClick={handleNewNoteButtonClick}
                         >
-                            { `${newNoteButtonText} ` }<Create sx={{ paddingLeft: '2px'}} />
+                            <Create sx={{ paddingLeft: '2px'}} />
                         </Button>
                     </Box>
+
+                    <Menu
+                        id="user-menu"
+                        anchorEl={userMenuAnchorEl}
+                        open={open}
+                        onClose={handleUserMenuClose}
+                    >
+                        { !user && <MenuItem onClick={() => { setLoginDialogOpen(true); handleUserMenuClose(); }}>Login</MenuItem> }
+                        { user && <MenuItem onClick={() => { handleUserMenuClose(); navigate(`/p/${nip19.npubEncode(user.pubkey)}`) }}>Profile</MenuItem> }
+                        <MenuItem onClick={() => { handleUserMenuClose(); setRelayListDialogOpen(true) }}>Relays</MenuItem>
+                    </Menu>
                 </Toolbar>
             </AppBar>
-            <LoginDialog open={loginDialogOpen}
-                         onClose={() => {
-                setLoginDialogOpen(false)
-            }} />
-            <NewNoteDialog
-                open={newNoteDialogOpen}
-                onClose={() => setNewNoteDialogOpen(false)}
-                label="What's your question?"
-                explicitTags={[['t', Config.HASHTAG]]}
-            />
         </Box>
     );
 };

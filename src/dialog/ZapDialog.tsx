@@ -19,7 +19,6 @@ interface ZapDialogProps {
     open: boolean,
     event?: NostrEvent,
     onClose?: () => void,
-    npub?: string,
 }
 
 const ZAP_AMOUNTS = [
@@ -61,7 +60,7 @@ const ZAP_AMOUNTS = [
     }
 ];
 
-export const ZapDialog = ({ open, event, npub, onClose }: ZapDialogProps) => {
+export const ZapDialog = ({ open, event, onClose }: ZapDialogProps) => {
 
     const [selectedZapAmount, setSelectedZapAmount] = useState<number>(21);
 
@@ -76,6 +75,10 @@ export const ZapDialog = ({ open, event, npub, onClose }: ZapDialogProps) => {
     const handleSelectZapAmount = (amount: number) => {
         setSelectedZapAmount(amount);
     };
+
+    if (!event) {
+        return null;
+    }
 
     return (
         <Dialog open={open} onClose={handleClose}>
@@ -143,6 +146,7 @@ export const ZapDialog = ({ open, event, npub, onClose }: ZapDialogProps) => {
                 <Button
                     variant="contained"
                     onClick={() => {
+                        console.log('zapDialog', {event});
                         event && zap(event!, selectedZapAmount, () => handleClose(), zapComment)
                     }}
                 >

@@ -26,7 +26,7 @@ export const NostrFeedContextProvider = ({ children }: any) => {
 
     const subscribe = useCallback((
         filter: NDKFilter,
-        opts: NDKSubscriptionOptions = {closeOnEose: false, groupable: false}
+        opts: NDKSubscriptionOptions = {closeOnEose: true, groupable: false}
     ) => {
         const sub = ndk.current.subscribe(filter, opts);
         sub.on('event', onEvent);
@@ -96,18 +96,18 @@ export const NostrFeedContextProvider = ({ children }: any) => {
     const memoValue = useMemo(() => ({ subscribe, loading, events, clearEvents, query, setQuery, startSubs, stopSubs }), [events, query, loading]);
 
     const connectToRelays = useCallback(async () => {
-        try {
-            ndk.current.pool.relays
-                .forEach((relay: NDKRelay) => relay
-                    .activeSubscriptions
-                    .forEach((subscription: NDKSubscription) => subscription.stop()));
-
-            const connected = await ndk.current.connect(5000);
-            return connected;
-
-        } catch (error) {
-            console.error('cannot connect to relays')
-        }
+        // try {
+        //     ndk.current.pool.relays
+        //         .forEach((relay: NDKRelay) => relay
+        //             .activeSubscriptions
+        //             .forEach((subscription: NDKSubscription) => subscription.stop()));
+        //
+        //     const connected = await ndk.current.connect(5000);
+        //     return connected;
+        //
+        // } catch (error) {
+        //     console.error('cannot connect to relays')
+        // }
     }, []);
 
     useEffect(() => {

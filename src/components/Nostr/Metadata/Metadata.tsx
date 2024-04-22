@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from "react";
-import {Bolt, CopyAll, Launch, QrCodeScanner} from "@mui/icons-material";
+import {Bolt, CopyAll, ElectricBolt, Launch, QrCodeScanner} from "@mui/icons-material";
 import {ListItemAvatar} from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import ListItemText from "@mui/material/ListItemText";
@@ -18,58 +18,7 @@ import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
 import Tooltip from "@mui/material/Tooltip";
 import Box from "@mui/material/Box";
-import {noteContentToHtml} from "../../../services/note2html";
-
-interface QrCodeDialogProps {
-    dialogOpen: boolean;
-    str: string;
-    close?: () => void;
-    fee?: number;
-    status?: string;
-    lnbc?: string
-}
-
-export const QrCodeDialog = ({ dialogOpen, str, close, fee, status, lnbc }: QrCodeDialogProps) => {
-
-    return <Dialog open={dialogOpen} onClose={close} >
-        <DialogTitle>
-            Scan QR Code
-            <IconButton
-                aria-label="close"
-                onClick={close}
-                sx={{
-                    position: 'absolute',
-                    right: 8,
-                    top: 8,
-                    color: (theme) => theme.palette.grey[500],
-                }}
-            >
-                <CloseIcon />
-            </IconButton>
-        </DialogTitle>
-        {
-            fee && <Typography sx={{ textAlign: 'center' }}>
-                Pay {fee} sats
-            </Typography>
-        }
-        <Typography sx={{ padding: '1em' }}>
-        </Typography>
-        {
-            status && <Typography sx={{ textAlign: 'center' }}>
-                {
-                    status === 'pending' && <Typography sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '-3em' }}>
-                        <CircularProgress sx={{ marginRight: '0.33em', marginBottom: '0.33em' }} color="secondary" /> Pending
-                    </Typography>
-                }
-                {
-                    status === 'completed' && <Typography sx={{ color: 'green', marginTop: '-3em' }}>
-                        Payment {status}!
-                    </Typography>
-                }
-            </Typography>
-        }
-    </Dialog>
-};
+import {useNostrContext} from "../../../providers/NostrContextProvider";
 
 export interface Metadata {
     nip05: string;
@@ -101,7 +50,7 @@ export const Metadata = ({ pubkey, handleCopyNpub, variant = 'full' }: MetadataP
 
     const [metadata, setMetadata] = useState<Metadata | undefined>(undefined);
 
-    const { subscribe } = useNostrNoteContext();
+    const { subscribe, connected } = useNostrContext();
 
     const filter: NDKFilter = { kinds: [0], authors: [pubkey] };
 
@@ -110,15 +59,17 @@ export const Metadata = ({ pubkey, handleCopyNpub, variant = 'full' }: MetadataP
             .where({pubkey})
             .first();
         return [event, true];
-    }, [pubkey], [undefined, false]);
+    }, [pubkey, connected], [undefined, false]);
 
     const npub = pubkey && nip19.npubEncode(pubkey);
 
     useEffect(() => {
-        if (loaded && !event) {
-            subscribe(filter, { closeOnEose: true, groupableDelay: 1500 });
+        console.log('Metadata: ', {loaded, connected, event})
+        if (loaded && connected && !event) {
+            console.log('Metadata: starting subscription: ', {filter})
+            subscribe(filter, { closeOnEose: true, groupable: true, groupableDelay: 1500 });
         }
-    }, [pubkey, loaded]);
+    }, [pubkey, loaded, connected]);
 
     useEffect(() => {
         if (event && event.content) {
@@ -275,6 +226,11 @@ export const Metadata = ({ pubkey, handleCopyNpub, variant = 'full' }: MetadataP
                             />
                         }
                     </Typography>
+                    {
+                        metadata && (metadata.lud06 || metadata.lud16) && <IconButton>
+                            <ElectricBolt sx={{ fontSize: 18 }} />
+                        </IconButton>
+                    }
                 </React.Fragment>
             }
             {/*<QrCodeDialog str={`nostr:${npub}` || ''} dialogOpen={dialogOpen} close={() => setDialogOpen(false)} />*/}

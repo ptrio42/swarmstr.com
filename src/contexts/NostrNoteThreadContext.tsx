@@ -1,13 +1,14 @@
-import NDK, {NDKFilter, NDKRelaySet, NostrEvent} from "@nostr-dev-kit/ndk";
+import NDK, {NDKFilter, NDKRelaySet, NostrEvent, NDKSubscriptionOptions} from "@nostr-dev-kit/ndk";
 import React, {createContext} from "react";
 
 type NostrNoteThreadContextType = {
     events: NostrEvent[],
-    subscribe: (filter: NDKFilter, relaySet?: NDKRelaySet) => void,
+    subscribe: (filter: NDKFilter, opts?: NDKSubscriptionOptions) => void,
     nevent: string,
     commentEvents?: NostrEvent[],
     loaded: boolean,
-    stats: any
+    stats: any,
+    connected: boolean
 }
 
 export const NostrNoteThreadContext = createContext<NostrNoteThreadContextType>({
@@ -15,5 +16,6 @@ export const NostrNoteThreadContext = createContext<NostrNoteThreadContextType>(
     subscribe: () => {},
     nevent: '',
     loaded: false,
-    stats: {}
+    stats: {},
+    connected: false
 });

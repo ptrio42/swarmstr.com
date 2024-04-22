@@ -21,6 +21,7 @@ import {Nostr} from "./components/Nostr/Nostr";
 import {List} from "./components/Nostr/List/List";
 import {Profile} from "./components/Nostr/Profile/Profile";
 import {Home} from "./components/Nostr/Home/Home";
+import {ImageCreator} from "./components/ImageCreator/ImageCreator";
 
 const theme = createTheme({
     typography: {
@@ -117,15 +118,17 @@ function App() {
     <div className="App">
         <ThemeProvider theme={theme}>
             <NavBar />
-            <Box sx={{ maxWidth: '640px', margin: '0 auto' }}>
+            <Box className="AppContent" sx={{ maxWidth: '640px', margin: '0 auto' }}>
                 <Routes>
                     <Route path="/" element={<Nostr/>}>
                         <Route path="/" element={<Home/>} />
                         <Route path="/search/:searchString?" element={<NostrFeedContextProvider><Search/></NostrFeedContextProvider>}/>
-                        <Route path="/recent" element={<RecentNotes/>} />
+                        <Route path="/recent/:explicitTag?" element={<RecentNotes/>} />
                         <Route path="/e/:nevent" element={<ThreadWrapper/>} />
                         <Route path="/d/:listName" element={<List/>} />
                         <Route path="/p/:npub" element={<Profile/>} />
+                        <Route path="/image-creator" element={<ImageCreator/>} />
+
                     </Route>
                     <Route path="/nostr-address" element={<Nip05/>} />
                 </Routes>
