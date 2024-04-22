@@ -1,6 +1,6 @@
 {
   "name": "swarmstr.com",
-  "version": "0.29.0",
+  "version": "0.30.0",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.10.6",

@@ -177,6 +177,8 @@ export const NostrContextProvider = ({ children }: any) => {
             // console.log('NostrContextProvider: event', {event})
             // if (event.kind === 0) console.log('NostrContextProvider: kind 0')
             // if (event.kind === 0) db.users.put(event.rawEvent());
+            // handle user
+            if (event.kind === 0) db.users.put(event.rawEvent());
             if (event.kind === 1 || event.kind === 30023) db.notes.put({ ...event.rawEvent(), type: NOTE_TYPE.QUESTION });
             if (event.kind === 30000 || event.kind === 10000 || event.kind === 30001) db.lists.put(event.rawEvent());
 

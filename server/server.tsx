@@ -110,7 +110,7 @@ const assets = JSON.parse(manifest);
 
 // only subscribe to events since given timestamp
 // default 7 days
-const EVENTS_SINCE = Math.floor(Date.now() / 1000 - 1 * 1 * 60 * 60);
+const EVENTS_SINCE = Math.floor(Date.now() / 1000 - 7 * 24 * 60 * 60);
 
 const cacheAdapter = new NDKRedisCacheAdapter({ expirationTime: 365 * 60 * 60 * 24 });
 
@@ -460,6 +460,9 @@ const getAIQuestionsSuggestions = (search: string, tags?: string[]): Promise<str
                 } catch (e) {
                     clearInterval(intervalId);
                     websocket.send('ai: failed')
+                    if (questions.length <= 100) {
+                        resolve(questions.map(({ id }) => id));
+                    }
                     console.error({e})
                 }
             });

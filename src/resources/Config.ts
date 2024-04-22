@@ -19,7 +19,7 @@ export const Config = {
   APP_IMAGE: `${process.env.BASE_URL}/images/swarmstr_cover-image.png`,
   APP_KEYWORDS: 'nostr, asknostr, questions, answers, q&a, nostr clients, zaps, relays, nips, bitcoin, lightning',
   HASHTAG: 'asknostr',
-  NOSTR_TAGS: ['asknostr', 'bookstr', 'biblestr', 'memestr', 'foodstr', 'grownostr', 'coffeechain', 'plebchain', 'catstr', 'dogstr'],
+  NOSTR_TAGS: ['swarmstr', 'asknostr','memestr', 'bookstr', 'biblestr', 'foodstr', 'grownostr', 'coffeechain', 'plebchain', 'zapathon'],
   REPLIES_HASHTAG: 'asknostr-reply',
   // SLOGAN: 'Find answers to your questions. Assist others in resolving theirs.',
   SLOGAN: 'Welcome to SWARMSTR, free and open source web nostr client.',

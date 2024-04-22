@@ -18,6 +18,7 @@ import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
 import Tooltip from "@mui/material/Tooltip";
 import Box from "@mui/material/Box";
+import {useNostrContext} from "../../../providers/NostrContextProvider";
 
 export interface Metadata {
     nip05: string;
@@ -49,7 +50,7 @@ export const Metadata = ({ pubkey, handleCopyNpub, variant = 'full' }: MetadataP
 
     const [metadata, setMetadata] = useState<Metadata | undefined>(undefined);
 
-    const { subscribe, connected } = useNostrNoteContext();
+    const { subscribe, connected } = useNostrContext();
 
     const filter: NDKFilter = { kinds: [0], authors: [pubkey] };
 

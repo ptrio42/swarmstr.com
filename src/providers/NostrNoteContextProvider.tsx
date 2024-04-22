@@ -38,9 +38,6 @@ export const NostrNoteContextProvider = ({ children }: NostrNoteContextProviderP
                         kind: event.kind,
                         ...(filter?.ids?.length === 1 && { id: filter.ids[0] })
                     };
-                    // handle user
-                    if (event.kind === 0) db.users.put(event.rawEvent());
-
                     // handle note
                     if (nostrEvent.kind === 1 || nostrEvent.kind === 30023) {
                         db.notes.put({ ...event.rawEvent(), type: NOTE_TYPE.Note, ...(valueFromTag(nostrEvent, 'e') && { referencedEventId: valueFromTag(nostrEvent, 'e') }) });

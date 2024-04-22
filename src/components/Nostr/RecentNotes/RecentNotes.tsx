@@ -27,8 +27,8 @@ const to =  Math.floor(Date.now() / 1000 + 24 * 60 * 60);
 
 export const RecentNotes = () => {
     const location = useLocation();
-    const { explicitTag } = useParams();
-    const filter = { kinds: [1, 30023], "#t": [explicitTag || Config.HASHTAG], since };
+    const { explicitTag } = useParams() || { explicitTag: Config.HASHTAG };
+    const filter = { kinds: [1, 30023], "#t": [explicitTag!], since };
     const [events, loaded] = useLiveQuery(
         async () => {
             const events = await db.notes.where('created_at')
@@ -81,12 +81,12 @@ export const RecentNotes = () => {
         <Typography sx={{ display: 'flex', marginBottom: '0.5em', marginTop: '0.5em', textAlign: 'left', marginLeft: '15px' }} component="div" variant="body1">
             <Select
                 id="select-tag"
-                value={explicitTag || Config.HASHTAG}
+                value={explicitTag!}
                 label="Tag"
                 onChange={(event: SelectChangeEvent) => { navigate(`/recent/${event.target.value as string}`) }}
             >
                 {
-                    Config.NOSTR_TAGS.map((tag: string) => <MenuItem value={tag}>#{tag}</MenuItem>)
+                    uniq([...Config.NOSTR_TAGS, explicitTag!]).map((tag: string) => <MenuItem value={tag}>#{tag}</MenuItem>)
                 }
             </Select>
             {/*<Box>*/}
@@ -98,6 +98,9 @@ export const RecentNotes = () => {
                 <EventList floating={false}/>
             </EventListWrapper>
         </NostrEventListContextProvider>
+        {
+            !loading && loaded && (!events || events.length === 0) && <Box>No recent notes.</Box>
+        }
         <Backdrop open={!loaded} />
     </Box>
 };

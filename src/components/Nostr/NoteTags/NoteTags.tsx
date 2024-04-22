@@ -18,6 +18,7 @@ interface NoteTagsProps {
 const DEFAULT_MAX_TAGS = 3;
 
 export const TAG_EMOJIS: { [key: string]: string } = {
+    'swarmstr': '🐝',
     'coffeechain': '☕️',
     'plebchain': '🫂',
     'bookstr': '📚',
@@ -26,8 +27,7 @@ export const TAG_EMOJIS: { [key: string]: string } = {
     'memestr': '🐸',
     'foodstr': '🥩',
     'grownostr': '🌱',
-    'dogstr': '🐶',
-    'catstr': '🐱'
+    'zapathon': '⚡️',
 };
 
 export const NoteTags = ({ tags = [], path = 'recent', ...props }: NoteTagsProps) => {

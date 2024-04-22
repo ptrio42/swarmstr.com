@@ -13,3 +13,7 @@
     padding: 1em;
     cursor: pointer;
 }
+
+.theme--dark .MuiSelect-select {
+    color: #fff !important;
+}
