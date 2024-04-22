@@ -89,8 +89,8 @@ export const SearchBar = ({ resultsCount, filteredResultsCount, onQueryChange = 
                     endAdornment={
                         <InputAdornment position="end">
                             {
-                                query !== '' && <IconButton onClick={() => { setQuery('') }}>
-                                    <CancelIcon />
+                                query !== '' && <IconButton>
+                                    <Link to={`/search`}><CancelIcon /></Link>
                                 </IconButton>
                             }
                             <IconButton color="warning" onClick={(event: any) => { event.preventDefault(); toggleSearchOptions(); onQueryChange({ target: { value: query } }) }}>

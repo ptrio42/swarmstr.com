@@ -14,7 +14,7 @@ export const LoadingAnimation = ({ isLoading, loadingText }: LoadingAnimationPro
 
     return (
         <Box className="animationContainer" sx={{ margin: '1em' }}>
-            <Box className="animationImageContainer" sx={{ width: '128px' }}>
+            <Box className="animationImageContainer">
                 <img
                     width="72px"
                     className="loadingImage"

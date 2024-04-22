@@ -40,14 +40,14 @@ export const RecentNotes = () => {
             return [events, true];
         }, [explicitTag], [location?.state?.events, false]);
 
-     const { subscribe, readRelays } = useNostrContext();
+     const { subscribe, readRelays, connected } = useNostrContext();
 
      const navigate = useNavigate();
 
      const [loading, setLoading] = useState(false);
 
      useEffect(() => {
-         if (!loaded) return;
+         if (!loaded || !connected) return;
          console.log('RecentNotes: events loaded')
          setLoading(true);
          subscribe(
@@ -56,7 +56,7 @@ export const RecentNotes = () => {
              () => {
                  setLoading(false);
              });
-     }, [loaded, readRelays]);
+     }, [loaded, readRelays, connected]);
 
     return <Box>
         <Helmet>

@@ -65,6 +65,13 @@ export const Search = () => {
         }
     });
 
+    // const suggestedEventIds = useLiveQuery(async () =>
+    //     {
+    //         const labels = await db.labels.where(({ tags }) => containsTag(tags, ['l', searchString, '#e'])).toArray();
+    //         return labels.map((event: LabelEvent) => valueFromTag(event, 'e')).flat(2);
+    //     }
+    // , []);
+
     const [messageHistory, setMessageHistory] = useState([]);
 
     const connectionStatus = {
@@ -108,20 +115,22 @@ export const Search = () => {
         uniqBy(sortBy(events, 'created_at').reverse(), 'id'), [events]);
 
     const bestResultsSuggestions = useLiveQuery(
-        async () => {
+        async (): Promise<string[]> => {
             const labels = await db.labels
-                .filter(({tags}) => containsTag(tags, ['l', `search/${encodeURIComponent(query)}`, '#e']))
+                .filter(({tags}) => containsTag(tags, ['l', `search/${encodeURIComponent(decodeURIComponent(query).toLowerCase().replace(/([.?\-,_=])/gm, ''))}`, '#e']))
                 .toArray();
-            return labels.map((event: LabelEvent) => valueFromTag(event, 'e'))
+            console.log('Search: labels: ', {labels});
+            // @ts-ignore
+            return uniq(labels.map((event: LabelEvent) => valueFromTag(event, 'e')))
         }
     , [query], []);
 
     const bestResults = useLiveQuery(
-        async () => searchApiResults.length > 0 ? db.notes
+        async () => searchApiResults.length > 0 || bestResultsSuggestions.length > 0 ? db.notes
             // @ts-ignore
             .where('id').anyOf(uniq([...searchApiResults, ...bestResultsSuggestions].filter((id) => !!id)!))
             .toArray() : []
-    , [searchApiResults], []);
+    , [searchApiResults, bestResultsSuggestions], []);
 
     const explicitTags = Config.EXPLICIT_TAGS;
 
@@ -156,7 +165,7 @@ export const Search = () => {
 
                 subscribe({
                     kinds: [1985],
-                    '#l': [`search/${encodeURIComponent(query)}`, '#e']
+                    '#l': [`search/${encodeURIComponent(decodeURIComponent(query).toLowerCase().replace(/([.?\-,_=])/gm, ''))}`, '#e']
                 }, {closeOnEose: false, groupable: false});
             }
         }, 1000)
@@ -165,11 +174,11 @@ export const Search = () => {
     useEffect(() => {
         subscribe({
                 kinds: [1],
-                ids: [...searchApiResults]
+                ids: uniq([...searchApiResults, ...bestResultsSuggestions].filter((e: string) => !!e))
             },
             { closeOnEose: true, groupable: false })
 
-    }, [searchApiResults]);
+    }, [searchApiResults, bestResultsSuggestions]);
 
     useEffect(() => {
         clearEvents();
@@ -210,12 +219,12 @@ export const Search = () => {
     },[]);
 
     useEffect(() => {
-        console.log({bestResults});
-    }, [bestResults]);
+        console.log({bestResultsSuggestions, searchApiResults});
+    }, [bestResultsSuggestions, searchApiResults]);
 
-    // useEffect(() => {
-    //     console.log({loading})
-    // }, [loading])
+    useEffect(() => {
+        console.log({q: query, query: decodeURIComponent(query).toLowerCase().replace(/([.?\-,_=])/gm, '')})
+    }, [query])
 
     return (
         <React.Fragment>
@@ -240,16 +249,12 @@ export const Search = () => {
             </Helmet>
             <Box className="landingPage-boxContainer" ref={boxRef}>
                 {
-                    !loading && hasErrors && <Typography className="searchResults-apiTimeout" component="div" variant="body1">
+                    !loading && bestResultsSuggestions.length === 0 && hasErrors && <Typography className="searchResults-apiTimeout" component="div" variant="body1">
                         Timeout. Please try again.
                         <IconButton color="error" size="small" onClick={() => { debouncedQuery(query); setLoading(true); }}><Refresh fontSize="inherit"/></IconButton>
                     </Typography>
                 }
-                {
-                    loading && <Typography className="searchResults-loadingResults" component="div" variant="body1">
-                        <LoadingAnimation isLoading={loading} loadingText={searchStatus || ''}/>
-                    </Typography>
-                }
+                <LoadingAnimation isLoading={loading}/>
                 {
                     !loading && !hasErrors && bestResults.length > 0 && <Typography component="div" variant="body1">{bestResults.length} results</Typography>
                 }

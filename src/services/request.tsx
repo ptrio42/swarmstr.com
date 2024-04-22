@@ -11,7 +11,7 @@ type ApiRequest = {
 
 export const request = async (request: ApiRequest, headers?: AxiosRequestHeaders) => {
     try {
-        const { method = 'GET', endpoint, url, body, responseType = 'json', timeout = 10000 } = request;
+        const { method = 'GET', endpoint, url, body, responseType = 'json', timeout = 60000 } = request;
 
         const axiosRequest = {
             timeout,
