@@ -56,6 +56,11 @@ export const containsTag = (tags: NDKTag[], tag: NDKTag): boolean => {
   return tags && tags.findIndex((t: string[]) => t[0] === tag[0] && t[1] === tag[1]) > -1
 };
 
+// tags any of the given tags
+export const containsAnyTag = (tags: NDKTag[], tagsToCheck: NDKTag[]): boolean => {
+  return tags && tags.some((t: string[]) => tagsToCheck.findIndex((t1: string[]) => t[0] === t1[0] && t[1] === t1[1]))
+};
+
 // component is visible on the device
 export const noteIsVisible = (ref: any) => {
   const [isIntersecting, setIntersecting] = useState(false);

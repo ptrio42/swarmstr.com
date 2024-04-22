@@ -6,9 +6,9 @@ import {Note} from "../Note/Note";
 import React, {useEffect, useMemo} from "react";
 import {useLocation} from "react-router-dom";
 import {useNostrEventListContextProvider} from "../../../providers/NostrEventListContextProvider";
-import {Skeleton, Typography} from "@mui/material";
 import Box from "@mui/material/Box";
 import {NostrNoteThreadContextProvider} from "../../../providers/NostrNoteThreadContextProvider";
+import {EventSkeleton} from "../EventSkeleton/EventSkeleton";
 
 interface EventListProps {
     floating?: boolean;
@@ -65,9 +65,7 @@ export const EventList = ({ floating = true }: EventListProps) => {
         }
         {
             !events && <Box>
-                <Skeleton sx={{ width: '100%' }} animation="wave" />
-                <Skeleton sx={{ width: '100%' }} animation="wave" />
-                <Skeleton sx={{ width: '100%' }} animation="wave" />
+                <EventSkeleton visible={!events}/>
             </Box>
         }
     </React.Fragment>

@@ -15,9 +15,9 @@ import NDK, {
     NDKSubscriptionOptions, NDKTag,
     NostrEvent, NDKPrivateKeySigner
 } from '@nostr-dev-kit/ndk';
-import RedisAdapter from '@nostr-dev-kit/ndk-cache-redis';
+import NDKRedisCacheAdapter from "@nostr-dev-kit/ndk-cache-redis";
 import {uniqBy, groupBy, forOwn, debounce, sortBy} from 'lodash';
-import {containsTag, valueFromTag} from "../src/utils/utils";
+import {containsAnyTag, containsTag, valueFromTag} from "../src/utils/utils";
 import { HfInference } from "@huggingface/inference";
 import {request} from "../src/services/request";
 import {Buffer} from "buffer";
@@ -28,6 +28,34 @@ const openAIConfig = new Configuration({
 });
 const openai = new OpenAIApi(openAIConfig);
 const hf = new HfInference(process.env.HF_ACCESS_TOKEN);
+
+(global as any).WebSocket = require('ws');
+
+
+import WebSocket, { WebSocketServer } from 'ws';
+
+const wss = new WebSocketServer({ port: 8082 });
+const websocket = new WebSocket('ws://localhost:8082');
+
+wss.on('connection', (ws) => {
+    console.log('websocket');
+    ws.on('websocket error', console.error);
+
+    ws.on('message', (data, isBinary) => {
+        // ws.send(data);
+        console.log('received: %s', data);
+        wss.clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(data, { binary: isBinary });
+            }
+        });
+    });
+
+    ws.send('hello!')
+    ws.send('you have connected to the websocket server...');
+});
+
+process.env.DEBUG = 'ndk:*';
 
 const redis = require("redis");
 // @ts-ignore
@@ -50,6 +78,13 @@ const pool = new Pool({
     password: process.env.PG_PWD,
     port: process.env.PG_PORT
 });
+
+(async () => {
+    await pool.query('CREATE TABLE IF NOT EXISTS ' +
+        'searches (query VARCHAR(255) NOT NULL, hits INT DEFAULT 0)');
+    // await pool.query('CREATE TABLE IF NOT EXISTS ' +
+    //     'caches ()')
+})();
 
 const bodyParser = require('body-parser');
 const baseUrl = process.env.BASE_URL;
@@ -77,7 +112,7 @@ const assets = JSON.parse(manifest);
 // default 7 days
 const EVENTS_SINCE = Math.floor(Date.now() / 1000 - 1 * 1 * 60 * 60);
 
-const cacheAdapter = new RedisAdapter({ expirationTime: 365 * 60 * 60 * 24 });
+const cacheAdapter = new NDKRedisCacheAdapter({ expirationTime: 365 * 60 * 60 * 24 });
 
 // ndk instance used to subscribe to events with a given HASHTAG
 // @ts-ignore
@@ -125,14 +160,17 @@ const handleHashTagEvent = (event: NDKEvent) => {
     const nostrEvent = event.rawEvent();
     const { tags } = nostrEvent;
     const referencedEventId = valueFromTag(nostrEvent, 'e');
-    if (containsTag(tags, ['t', Config.HASHTAG])) {
+    if (containsAnyTag(tags, Config.NOSTR_TAGS.map((t: string) => ['t', t]))) {
+        console.log('handleHashTagEvent: ', { tags: Config.NOSTR_TAGS.map((t: string) => ['t', t]) });
+        console.log({tags})
         // if event contains referenced event tag, it serves at question hint
         // thus gotta fetch the referenced event
         if (!!referencedEventId) {
             ids.push(referencedEventId);
             debouncedSub();
         } else {
-            addAISimplifiedVersionOfQuestionLabel(nostrEvent);
+            // TODO: enable labelling
+            // addAISimplifiedVersionOfQuestionLabel(nostrEvent);
 
             // event is a question
             // publish the event to search pseudo relay
@@ -152,11 +190,14 @@ const handleHashTagEvent = (event: NDKEvent) => {
                 });
         }
     } else {
-        addAISimplifiedVersionOfQuestionLabel(nostrEvent);
+        // TODO: enable labelling
+        // addAISimplifiedVersionOfQuestionLabel(nostrEvent);
 
         // event doesn't contain the asknostr tag
         // but it was hinted by a quote event
         // publish the event to search pseudo relay
+
+        // TODO: label as hinted
         publishToSearchRelay(nostrEvent)
             .then(() => {
                 console.log(`event published to search relay (hinted)!`);
@@ -221,9 +262,9 @@ ndk.pool.on('flapping', (flapping) => {
 // initially subscribe to hashtag events
 subscribe({
     kinds: [1, 30023],
-    '#t': [Config.HASHTAG],
+    '#t': Config.NOSTR_TAGS,
     since: EVENTS_SINCE,
-}, { closeOnEose: false, groupable: false, cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST });
+}, { closeOnEose: false, groupable: false, cacheUsage: NDKSubscriptionCacheUsage.PARALLEL });
 
 const isNameAvailable = async (name: string): Promise<boolean> => {
     if (!(new RegExp(/([a-z0-9_.]+)/, 'gi').test(name)) || name.length < 1) return false;
@@ -283,7 +324,7 @@ const createNewLabel = async (id: string, label: string, relayUrls?: string[]) =
     }
     const signer = new NDKPrivateKeySigner(privateKey!);
     const user = await signer.user();
-    event.pubkey = user?.hexpubkey();
+    event.pubkey = user?.pubkey;
 
     await event.sign(signer);
     console.log('new event', {event})
@@ -331,17 +372,28 @@ const dotProduct = (a: number[], b: number[]): number => {
     return result;
 };
 
-const getAIQuestionsSuggestions = (search: string): Promise<string[]> => {
+const getAIQuestionsSuggestions = (search: string, tags?: string[]): Promise<string[]> => {
     return new Promise<string[]>((resolve, reject) => {
+        const filter = {
+            search,
+            limit: 10000,
+            ...(tags && tags.length > 0 && { '#t': tags })
+        };
+        console.log('getAIQuestionsSuggestions: ', {tags}, {filter})
         const events: NDKEvent[] = [];
+        // websocket.send('nostr: searching for notes...');
         const sub = ndkSearchnos
-            .subscribe({ search, limit: 1000 }, { closeOnEose: true });
+            .subscribe(filter, { closeOnEose: true });
 
         sub
             .on('event', async (event: NDKEvent) => {
                 events.push(event);
+                if (events.length % (Math.floor(Math.random()*10) + 1) === 0) {
+                    websocket.send(`nostr: ${events.length} notes related to search found...`)
+                }
             })
             .on('eose', async () => {
+                // websocket.send('nostr: all notes received...');
                 let content: string = `given array of objects `;
                 const questions = events
                     .filter(({ content }) => content.length <= 1000)
@@ -351,73 +403,19 @@ const getAIQuestionsSuggestions = (search: string): Promise<string[]> => {
                 content += `, find the ones with content most relevant to ${search}`;
                 content += '; return ids only';
                 // .join(`,`);
-                console.log({eventsLength: events.length})
-                console.log({ content })
+                console.log('eventsLength2511',{eventsLength: events.length})
 
-                // try {
-                //     const result = await openai.createChatCompletion({
-                //         model: "gpt-3.5-turbo",
-                //         messages: [
-                //             {
-                //                 role: 'user',
-                //                 content: `${content}`
-                //             }
-                //         ],
-                //         temperature: 0.4,
-                //         // max_tokens: 50,
-                //     });
-                //
-                //     let botReply = result.data.choices[0].message.content.trim();
-                //     console.log({botReply})
-                //     try {
-                //         const ids = JSON.parse(botReply);
-                //         ids.forEach((id: string) => {
-                //             createNewLabel(id, `search/${encodeURIComponent(search)}`)
-                //         });
-                //         const questions = events
-                //             .filter(({id}) => ids.includes(id))
-                //             .map(({content}) => content);
-                //         console.log({questions})
-                //     } catch (error) {
-                //         console.log('unable to parse response')
-                //     }
-                // } catch (error) {
-                // }
-
-                // try {
-                //     const result = await openai.createChatCompletion({
-                //         model: "gpt-3.5-turbo",
-                //         messages: [
-                //             {
-                //                 role: 'user',
-                //                 content: `if singular rephrase for plural, for singular otherwise: ${search}; (only when certain it exists)`
-                //             }
-                //         ],
-                //         temperature: 0.4,
-                //         // max_tokens: 50,
-                //     });
-                //
-                //     let botReply = result.data.choices[0].message.content.trim();
-                //     console.log({answer: botReply});
-                // } catch (e) {}
-
-                // try {
-                //     const result = await openai.createChatCompletion({
-                //         model: "gpt-3.5-turbo",
-                //         messages: [
-                //             {
-                //                 role: 'user',
-                //                 content: `strip question words: ${search}`
-                //             }
-                //         ],
-                //         temperature: 0.4,
-                //         // max_tokens: 50,
-                //     });
-                //
-                //     let botReply = result.data.choices[0].message.content.trim();
-                //     console.log({answer: botReply});
-                // } catch (e) {}
-
+                let msg = 'ai: extracting most relevant notes';
+                let dots = '';
+                const intervalId = setInterval(() => {
+                    if (dots.length === 3) {
+                        dots = '';
+                    } else {
+                        dots += '.';
+                    }
+                    websocket.send(`${msg}${dots}`);
+                }, 500);
+                if (questions.length === 0) resolve([]);
                 try {
                     let similarities = [];
                     const result = await hf.featureExtraction({
@@ -425,10 +423,12 @@ const getAIQuestionsSuggestions = (search: string): Promise<string[]> => {
                         inputs: search
                     });
 
+                    websocket.send(`${msg}${dots}`);
                     const result1 = await hf.featureExtraction({
                         model: 'sentence-transformers/all-MiniLM-L6-v2',
                         inputs: questions.map(({content}) => content)
                     });
+                    clearInterval(intervalId);
 
                     // console.log({result, result1})
 
@@ -438,24 +438,28 @@ const getAIQuestionsSuggestions = (search: string): Promise<string[]> => {
                         console.log(`${similarity} between: ${search} and ${questions[i].content}`)
                         similarities.push({ similarity, content: questions[i].content, id: questions[i].id })
                     }
-
-                    similarities = sortBy(similarities, 'similarity').reverse()
-                        .filter(({similarity}) => similarities.length < 3 ? similarity >= 0.65 : similarity >= 0.7);
+                    if (similarities.length > 1) {
+                        similarities = sortBy(similarities, 'similarity').reverse()
+                            .filter(({similarity}) => similarities.length <= 21 ? similarity >= 0.4 : similarity >= 0.7);
+                    }
                     console.log({similarities});
                     // return new Promise.resolve(similarities.map(({content}) => content))
 
-                    try {
-                        const ids = similarities.map(({id}) => id);
-                        ids.forEach((id: string) => {
-                            createNewLabel(id, `search/${encodeURIComponent(search)}`, Config.SERVER_RELAYS)
-                        });
-                    } catch (error) {
-                        console.log('unable to parse response')
-                    }
+                    // try {
+                    //     const ids = similarities.map(({id}) => id);
+                    //     ids.forEach((id: string) => {
+                    //         createNewLabel(id, `search/${encodeURIComponent(search)}`, Config.SERVER_RELAYS)
+                    //     });
+                    // } catch (error) {
+                    //     console.log('unable to parse response')
+                    // }
+                    websocket.send('done')
 
                     resolve(similarities.map(({id}) => id))
                     // console.log({result, result1})
                 } catch (e) {
+                    clearInterval(intervalId);
+                    websocket.send('ai: failed')
                     console.error({e})
                 }
             });
@@ -532,7 +536,7 @@ server.get('/api/cache/:value/:kind/:tag', async (req, res) => {
         const events: NostrEvent[] = [];
         // otherwise create subscription and cache the events
         subscribe(
-            {[`#${tag || 'e'}`]: [value], kinds: [+kind || 1] },
+            {[`#${tag! || 'e'}`]: [value!], kinds: [+kind || 1] } as NDKFilter,
             { closeOnEose: true, groupable: true, groupableDelay: 1000 },
             async (event: NDKEvent) => {
                 // console.log('got event: ', {event});
@@ -599,79 +603,88 @@ server.get('/api/cache/:value/:kind/:tag', async (req, res) => {
 //    res.sendStatus(204);
 // });
 
-// server.get('/search-suggestions/:search', async (req, res) => {
-//     let { search } = req.params;
-//     search = search.replace(/([.?\-,_=])/gm, '');
-//     const response = await pool.query('SELECT * FROM searches');
-//     if (response.rows.length > 0) {
-//         const searches = response.rows.filter(({query}: any) => query !== search);
-//         const searchRecord = response.rows.find(({query}: any) => query === search);
-//         if (searchRecord) {
-//             const { query, hits } = searchRecord;
-//             await pool.query('UPDATE searches SET hits = $1 WHERE query = $2', [hits+1, query]);
-//         } else {
-//             await pool.query('INSERT INTO searches (query, hits) VALUES ($1, $2)', [search, 1]);
-//         }
-//         try {
-//             let similarities = [];
-//             const result = await hf.featureExtraction({
-//                 model: 'sentence-transformers/all-MiniLM-L6-v2',
-//                 inputs: search
-//             });
-//
-//             const result1 = await hf.featureExtraction({
-//                 model: 'sentence-transformers/all-MiniLM-L6-v2',
-//                 inputs: searches.map(({query}: any) => query.replace(`#${Config.HASHTAG}`, ''))
-//             });
-//
-//             // console.log({result, result1})
-//
-//             for (let i = 0; i < result1.length; i++) {
-//                 //@ts-ignore
-//                 const similarity = dotProduct(result, result1[i]);
-//                 console.log(`${similarity} between: ${search} and ${searches[i].query}`)
-//                 similarities.push({ similarity, query: searches[i].query, hits: searches[i].hits })
-//             }
-//
-//             similarities = sortBy(similarities, 'similarity').reverse()
-//                 .filter(({similarity}) => similarity >= 0.7);
-//             console.log(`### similar searches for ${search}`,{similarities});
-//             res.json(similarities)
-//
-//             // try {
-//             //     const ids = similarities.map(({id}) => id);
-//             //     ids.forEach((id: string) => {
-//             //         createNewLabel(id, `search/${encodeURIComponent(search)}`)
-//             //     });
-//             //     // const questions = events
-//             //     //     .filter(({id}) => ids.includes(id))
-//             //     //     .map(({content}) => content);
-//             //     // console.log({questions})
-//             // } catch (error) {
-//             //     console.log('unable to parse response')
-//             // }
-//
-//             // console.log({result, result1})
-//         } catch (e) {
-//             console.error({e})
-//         }
-//     } else {
-//         await pool.query('INSERT INTO searches (query, hits) VALUES ($1, $2)', [search, 1]);
-//         res.sendStatus(204);
-//     }
-// });
+server.get('/search-suggestions/:search', async (req, res) => {
+    let { search } = req.params;
+    search = search.replace(/([.?\-,_=])/gm, '');
+
+    const response = await pool.query('SELECT * FROM searches');
+    if (response.rows.length > 0) {
+        const searches = response.rows.filter(({query}: any) => query !== search);
+        const searchRecord = response.rows.find(({query}: any) => query === search);
+        if (searchRecord) {
+            const { query, hits } = searchRecord;
+            await pool.query('UPDATE searches SET hits = $1 WHERE query = $2', [hits+1, query]);
+        } else {
+            await pool.query('INSERT INTO searches (query, hits) VALUES ($1, $2)', [search, 1]);
+        }
+        try {
+            let similarities = [];
+            const result = await hf.featureExtraction({
+                model: 'sentence-transformers/all-MiniLM-L6-v2',
+                inputs: search
+            });
+
+            const result1 = await hf.featureExtraction({
+                model: 'sentence-transformers/all-MiniLM-L6-v2',
+                inputs: searches.map(({query}: any) => query.replace(`#${Config.HASHTAG}`, ''))
+            });
+
+            // console.log({result, result1})
+
+            for (let i = 0; i < result1.length; i++) {
+                //@ts-ignore
+                const similarity = dotProduct(result, result1[i]);
+                console.log(`${similarity} between: ${search} and ${searches[i].query}`)
+                similarities.push({ similarity, query: searches[i].query, hits: searches[i].hits })
+            }
+
+            similarities = sortBy(similarities, 'similarity').reverse()
+                .filter(({similarity}) => similarity >= 0.7);
+            console.log(`### similar searches for ${search}`,{similarities});
+            res.json(similarities)
+
+            // try {
+            //     const ids = similarities.map(({id}) => id);
+            //     ids.forEach((id: string) => {
+            //         createNewLabel(id, `search/${encodeURIComponent(search)}`)
+            //     });
+            //     // const questions = events
+            //     //     .filter(({id}) => ids.includes(id))
+            //     //     .map(({content}) => content);
+            //     // console.log({questions})
+            // } catch (error) {
+            //     console.log('unable to parse response')
+            // }
+
+            // console.log({result, result1})
+        } catch (e) {
+            console.error({e})
+        }
+    } else {
+        await pool.query('INSERT INTO searches (query, hits) VALUES ($1, $2)', [search, 1]);
+        res.sendStatus(204);
+    }
+});
 
 server.get('/search-api/:search', async (req, res) => {
     let { search } = req.params;
+    const {tags} = req.query;
+    console.log('server.tsx: ', {tags})
     search = search.replace(/([.?\-,_=])/gm, '');
     console.log({search});
 
     if (search) {
-        const results = await getAIQuestionsSuggestions(search);
+        const results = await getAIQuestionsSuggestions(search, (tags as string).split(','));
         res.json(results);
     } else {
         res.sendStatus(204);
     }
+});
+
+server.get('/popular-searches', async (req, res) => {
+    const response = await pool.query('SELECT * FROM searches ORDER BY hits DESC LIMIT 10');
+    const searches = response.rows;
+    res.json(searches);
 });
 
 server.get('/*', async (req, res) => {

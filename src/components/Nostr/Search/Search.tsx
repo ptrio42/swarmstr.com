@@ -28,10 +28,16 @@ import {getSearchResults} from "../../../services/search";
 import Button from "@mui/material/Button";
 import {Refresh} from "@mui/icons-material";
 import IconButton from "@mui/material/IconButton";
+import {useWebSocket} from "react-use-websocket/dist/lib/use-websocket";
+import {ReadyState} from "react-use-websocket";
+import {LoadingAnimation} from "../../LoadingAnimation/LoadingAnimation";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+// import WebSocket from 'ws';
 
 export const Search = () => {
     const { events, clearEvents } = useNostrFeedContext();
-    const { subscribe, query, setQuery, loading, setLoading } = useNostrContext();
+    const { subscribe, query, setQuery, loading, setLoading, tags } = useNostrContext();
     const { searchString } = useParams();
     const navigate = useNavigate();
 
@@ -50,6 +56,35 @@ export const Search = () => {
     const [searchSuggestions, setSearchSuggestions] = useState<any[]>([]);
 
     const [hasErrors, setHasErrors] = useState<boolean>(false);
+
+    // const ws = useRef(new WebSocket('ws://localhost:8082'));
+
+    const { sendMessage, lastMessage, readyState,  } = useWebSocket('ws://localhost:8082', {
+        onMessage: (message) => {
+            console.log('websocket: onMessage', message)
+        }
+    });
+
+    const [messageHistory, setMessageHistory] = useState([]);
+
+    const connectionStatus = {
+        [ReadyState.CONNECTING]: 'Connecting',
+        [ReadyState.OPEN]: 'Open',
+        [ReadyState.CLOSING]: 'Closing',
+        [ReadyState.CLOSED]: 'Closed',
+        [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
+    }[readyState];
+
+    const [searchStatus, setSearchStatus] = useState<string>('idle');
+
+    useEffect(() => {
+        if (lastMessage !== null) {
+            //@ts-ignore
+            setMessageHistory((prev) => prev.concat(lastMessage));
+            console.log(`webSocket message: ${lastMessage.data}`, lastMessage)
+            setSearchStatus(lastMessage.data)
+        }
+    }, [lastMessage, setMessageHistory]);
 
     // const tags = useLiveQuery(async () => {
     //    const allEvents = await db.notes.toArray();
@@ -95,13 +130,15 @@ export const Search = () => {
     const debouncedQuery = useMemo(() =>
         debounce((query: string) => {
             if (query && query.length > 2) {
-                // request({ url: `${process.env.BASE_URL}/search-suggestions/${query}` })
-                //     .then((response) => {
-                //         setSearchSuggestions(response.data);
-                //         console.log({suggestions: response.data})
-                //     })
+                request({ url: `${process.env.BASE_URL}/search-suggestions/${query}` })
+                    .then((response) => {
+                        setSearchSuggestions(response.data);
+                        console.log({suggestions: response.data})
+                    })
 
-                getSearchResults(query)
+                console.log({tags})
+
+                getSearchResults(query, tags)
                     .then((ids?: string[]|void) => {
                         // const ids = response.data;
                         if (!!ids) {
@@ -120,18 +157,17 @@ export const Search = () => {
                 subscribe({
                     kinds: [1985],
                     '#l': [`search/${encodeURIComponent(query)}`, '#e']
-                }, {closeOnEose: false, groupable: false}, Config.CLIENT_READ_RELAYS);
+                }, {closeOnEose: false, groupable: false});
             }
         }, 1000)
-    , []);
+    , [tags]);
 
     useEffect(() => {
         subscribe({
                 kinds: [1],
                 ids: [...searchApiResults]
             },
-            { closeOnEose: true, groupable: false },
-            Config.CLIENT_READ_RELAYS)
+            { closeOnEose: true, groupable: false })
 
     }, [searchApiResults]);
 
@@ -161,10 +197,16 @@ export const Search = () => {
         }
     }, [nevent]);
 
-    useEffect(()=>{
+    useEffect(()=> {
         setTimeout(() => {
             setShowPreloader(false);
         }, 2100);
+
+        // ws.current.on('message', (message: any) => {
+        //     console.log(`webSocket message: ${message}`)
+        // })
+
+        sendMessage(`websocket: Hello from Search.tsx!`)
     },[]);
 
     useEffect(() => {
@@ -204,7 +246,9 @@ export const Search = () => {
                     </Typography>
                 }
                 {
-                    loading && <Typography className="searchResults-loadingResults" component="div" variant="body1">Getting best results...</Typography>
+                    loading && <Typography className="searchResults-loadingResults" component="div" variant="body1">
+                        <LoadingAnimation isLoading={loading} loadingText={searchStatus || ''}/>
+                    </Typography>
                 }
                 {
                     !loading && !hasErrors && bestResults.length > 0 && <Typography component="div" variant="body1">{bestResults.length} results</Typography>
@@ -217,58 +261,22 @@ export const Search = () => {
                         <EventList floating={false}/>
                     </EventListWrapper>
                 </NostrEventListContextProvider>
-                {/*<SearchResults*/}
-                    {/*// search={searchString !== null && <SearchBar*/}
-                    {/*//     query={searchString || ''}*/}
-                    {/*//     resultsCount={bestResults!.length}*/}
-                    {/*//     onQueryChange={(event: any) => {*/}
-                    {/*//         navigate(`/search/${encodeURIComponent(event.target.value?.replace('?', '%3F'))}`);*/}
-                    {/*//     }}*/}
-                    {/*//     isQuerying={isLoading}*/}
-                    {/*//     searchSuggestions={searchSuggestions}*/}
-                    {/*// />}*/}
-                    {/*// results={bestResults}*/}
-                {/*>*/}
-                    {/*{*/}
-                        {/*bestResults && <React.Fragment>*/}
-                            {/*<Typography component="div" variant="h6">Best matches</Typography>*/}
-                            {/*<NostrEventListContextProvider events={bestResults}>*/}
-                                {/*<EventListWrapper>*/}
-                                    {/*<EventList floating={false}/>*/}
-                                {/*</EventListWrapper>*/}
-                            {/*</NostrEventListContextProvider>*/}
-                        {/*</React.Fragment>*/}
-                    {/*}*/}
-                    {/*{ !loading && <Typography component="div" variant="h6">All results</Typography> }*/}
-                    {/*<EventList/>*/}
-                {/*// </SearchResults>*/}
-                {/*{*/}
-                    {/*(!searchString || (searchString && (searchString === '' || searchString.length < 2))) &&*/}
-                    {/*<React.Fragment>*/}
-                        {/*{*/}
-                            {/*tags && <Box>*/}
-                                {/*<Typography sx={{ marginBottom: '1em' }} component="div" variant="h6">*/}
-                                    {/*or explore questions by topics*/}
-                                {/*</Typography>*/}
-                                {/*{*/}
-                                    {/*uniq([...tags, ...explicitTags]).map((tag: string) => <Chip*/}
-                                        {/*sx={{ color: '#fff' }}*/}
-                                        {/*label={tag}*/}
-                                        {/*variant="outlined"*/}
-                                        {/*onClick={() => {*/}
-                                            {/*navigate(`/search/${tag}`);*/}
-                                        {/*}}*/}
-                                    {/*/>)*/}
-                                {/*}*/}
-                            {/*</Box>*/}
-                        {/*}*/}
-                    {/*</React.Fragment>*/}
-                {/*}*/}
                 <Backdrop open={showPreloader} />
             </Box>
-            {/*<ThreadDialog open={!!nevent && !!nip19.decode(nevent).data} nevent={nevent} onClose={() => {*/}
-                {/*navigate(`/search/${searchString}?e=`);*/}
-            {/*}}/>*/}
+            {
+                searchSuggestions && searchSuggestions.length > 0 && <Box>
+                    <Typography component="div" variant="body1">Similar searches</Typography>
+                    { searchSuggestions
+                        .slice(0, 3)
+                        .map((s: any) =>
+                            <Box><Link to={`/search/${encodeURIComponent(s.query)}`}>{ s.query }</Link></Box>
+                        )
+                    }
+                </Box>
+            }
+            {
+                loaded && bestResults.length === 0 && <img width="39%" alt={`No results`} src={`${process.env.BASE_URL}/images/nostrnaut3.png`}/>
+            }
         </React.Fragment>
     )
 };

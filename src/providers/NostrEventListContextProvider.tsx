@@ -68,14 +68,14 @@ export const NostrEventListContextProvider = ({ children, ...props }: NostrEvent
             kinds: [30000],
             authors: ['f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8'],
             '#d': ['mute']
-        }, { closeOnEose: false, groupable: false }, Config.SERVER_RELAYS);
+        }, { closeOnEose: false, groupable: false });
         subscribe({
             kinds: [10000],
             authors: [
                 '000003a2c8076423148fe15e3ff5f182e0304cff6de499a3f54f5adfe3b014e6',
                 '8387b34f1af0e114062552303c3f7bcab7c0acbc35232253e22706b0ae2b234f'
             ]
-        }, { closeOnEose: false, groupable: false }, Config.SERVER_RELAYS);
+        }, { closeOnEose: false, groupable: false });
     }, []);
 
     return <NostrEventListContext.Provider value={{ events, limit, setLimit }}>

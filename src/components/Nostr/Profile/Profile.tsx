@@ -40,7 +40,7 @@ export const Profile = (props: ProfileProps) => {
             kinds: [1, 30023],
             authors: [pubkey],
             '#t': [Config.HASHTAG]
-        }, {closeOnEose: false, groupable: false}, Config.SERVER_RELAYS);
+        }, {closeOnEose: false, groupable: false});
     }, []);
 
     return <Box>

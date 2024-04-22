@@ -37,14 +37,15 @@ header {
 
 .newNote-button {
   transition: 0.5s ease-in-out !important;
-  min-width: 32px!important;
+  min-width: 42px!important;
   width: 42px!important;
+  height: 42px!important;
 }
 
-.newNote-button:hover {
-  width: 128px!important;
-  background-color: #f59649;
-}
+/*.newNote-button:hover {*/
+  /*width: 128px!important;*/
+  /*background-color: #f59649;*/
+/*}*/
 
 .navbarMenu button {
   color: rgba(0,0,0,.77);

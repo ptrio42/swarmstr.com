@@ -9,30 +9,28 @@ import NDK, {
     NDKSubscriptionOptions,
     NDKTag,
     NDKUser,
-    NostrEvent
+    NostrEvent,
+    NDKSubscriptionCacheUsage
 } from "@nostr-dev-kit/ndk";
-import {Config, CLIENT_RELAYS} from "../resources/Config";
+import {Config} from "../resources/Config";
 import {NostrContext} from "../contexts/NostrContext";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../db";
-import axios from "axios";
 import {nip19} from "nostr-tools";
 import {intersection, difference} from 'lodash';
-import DexieAdapter from "../caches/dexie";
-import {ContactListEvent, NOTE_TYPE, NoteEvent} from "../models/commons";
-import {containsTag, valueFromTag} from "../utils/utils";
+import {ContactListEvent, NOTE_TYPE} from "../models/commons";
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en.json'
 import {requestProvider, WebLNProvider} from "webln";
 import {NoteLabel} from "../dialog/NewLabelDialog";
 import { uniq, groupBy, isEqual } from 'lodash';
-import lightBolt11Decoder from "light-bolt11-decoder";
-import {useNavigate} from 'react-router-dom';
 import {signAndPublishEvent} from "../services/nostr";
+import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";
 
 TimeAgo.addDefaultLocale(en);
 
-const cacheAdapter = new DexieAdapter();
+const cacheAdapter = new NDKCacheAdapterDexie({ dbName: 'swarmstrDB_cache' });
+const signer = new NDKNip07Signer();
 
 const DEFAULT_RELAYS = { readRelays: Config.CLIENT_READ_RELAYS, writeRelays: Config.CLIENT_WRITE_RELAYS };
 
@@ -42,66 +40,98 @@ interface RelayUrls {
 }
 
 export const NostrContextProvider = ({ children }: any) => {
-    const ndk = useRef<NDK>(new NDK({ explicitRelayUrls: uniq(Object.values(DEFAULT_RELAYS).flat(2)), cacheAdapter }));
-    // const navigate = useNavigate();
-    const [user, setUser] = useState<NDKUser>();
 
-    const [relayUrls, setRelayUrls] = useState<RelayUrls>({ read: [], write: [] });
+    const ndk = useRef<NDK>(new NDK({ explicitRelayUrls: uniq(Object.values(DEFAULT_RELAYS).flat(2)) }));
+
+    const [user, setUser] = useState<NDKUser>();
 
     const { readRelays, writeRelays } = useLiveQuery(
         async () => {
             if (!user) return DEFAULT_RELAYS;
             const lists = await db.contactLists
-                .where({ pubkey: user.hexpubkey() })
+                .where({ pubkey: user.pubkey })
                 .reverse()
                 .sortBy('created_at');
             return getUserRelays(lists[0]);
         }
-    , [user?.hexpubkey()], DEFAULT_RELAYS);
+    , [user?.pubkey], DEFAULT_RELAYS);
 
     const [query, setQuery] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
 
-    // useEffect(() => {
-    //     console.log({userContactList})
-    //     // @ts-ignore
-    //     getUserRelays(userContactList)
-    // }, [!userContactList]);
+    const [loginDialogOpen, setLoginDialogOpen] = useState<boolean>(false);
+    const [newNoteDialogOpen, setNewNoteDialogOpen] = useState<boolean>(false);
+    const [newLabelDialogOpen, setNewLabelDialogOpen] = useState<boolean>(false);
+    const [newReplyDialogOpen, setNewReplyDialogOpen] = useState<boolean>(false);
+    const [zapDialogOpen, setZapDialogOpen] = useState<boolean>(false);
+    const [relayListDialogOpen, setRelayListDialogOpen] = useState<boolean>(false);
+
+    const [currentEvent, setCurrentEvent] = useState<NostrEvent|undefined>();
+    const [selectedLabelName, setSelectedLabelName] = useState<string|undefined>();
+
+    const [ tags, setTags ] = useState([Config.HASHTAG]);
+
+    const subs = useRef<NDKSubscription[]>([]);
+
+    const [connected, setConnected] = useState(false);
 
     useEffect(() => {
-        console.log({readRelays, writeRelays})
-        if (!isEqual(readRelays, relayUrls.read) || isEqual(writeRelays, relayUrls.write)) {
-            setRelayUrls({
-                read: readRelays,
-                write: writeRelays
-            })
-        }
-    }, [readRelays, writeRelays]);
-
-    useEffect(() => {
-        if (relayUrls.read.length > 0) {
+        console.log('NostrContextProvider: relayUrls changed', {writeRelays, readRelays});
+        if (writeRelays.length > 0 && readRelays.length > 0) {
             // console.log({relayUrls})
-            const { signer } = ndk.current;
-            ndk.current = new NDK({ explicitRelayUrls: uniq([...relayUrls.read, ...relayUrls.write]), cacheAdapter });
-            ndk.current.signer = signer;
+            // const { signer } = ndk.current;
+            const explicitRelayUrls = uniq([...writeRelays, ...readRelays]);
+            ndk.current = new NDK({
+                explicitRelayUrls,
+                cacheAdapter,
+                ...(user?.pubkey && { signer })
+            });
             ndk.current.connect(5000)
                 .then(() => {
                     console.log(`Connected to user relays...`);
+                    setConnected(true);
                     // navigate(0);
                 })
                 .catch(error => {
                     console.error('unable to connect', {error})
                 });
         }
-    }, [relayUrls]);
+    }, [readRelays, writeRelays]);
 
-    const [loginDialogOpen, setLoginDialogOpen] = useState<boolean>(false);
-    const [newNoteDialogOpen, setNewNoteDialogOpen] = useState<boolean>(false);
-    const [newLabelDialogOpen, setNewLabelDialogOpen] = useState<boolean>(false);
+    useEffect(() => {
+    //     console.log('NostrContextProvider: connecting to relays');
+    //     // connect to read relays
+    //     ndk.current.connect(5000)
+    //         .then(() => {
+    //             console.log(`Connected to read relays...`);
+    //         })
+    //         .catch(error => {
+    //             console.error('unable to connect', {error})
+    //         });
+    //
+        return () => {
+            console.log(`unsubscribing...`);
+            // subscription.current?.stop();
+            unsubscribe();
+        }
+    }, []);
 
-    const subs = useRef<NDKSubscription[]>([]);
+    const addTag = (tag: string) => {
+        setTags([
+            ...tags.filter((t) => t !== tag),
+            tag
+        ]);
+    };
+
+    const removeTag = (tag: string) => {
+        setTags([
+            ...tags.filter((t) => t !== tag)
+        ])
+    };
+
 
     const getUserRelays = useCallback((contactList: ContactListEvent) => {
+        console.log({contactList})
         try {
             const relayList = JSON.parse(contactList.content);
             let relays: any = groupBy(Object.keys(relayList)
@@ -137,13 +167,16 @@ export const NostrContextProvider = ({ children }: any) => {
     const subscribe = useCallback((
         filter: NDKFilter,
         opts: NDKSubscriptionOptions = {closeOnEose: false, groupable: false},
-        relayUrls: string[]
+        onEose?: () => void
     ) => {
-        const notesReadRelays: NDKRelaySet = NDKRelaySet.fromRelayUrls(relayUrls, ndk.current);
-        // notesReadRelays.values().forEach((relay: NDKRelay) => relay.connect())
-        const sub = ndk.current.subscribe(filter, opts, notesReadRelays);
+        const notesReadRelays: NDKRelaySet = NDKRelaySet.fromRelayUrls(readRelays, ndk.current);
+        // notesReadRelays.values().forEach((relay: NDKRelay) => relay.connect()
+        const sub = ndk.current.subscribe(filter, {...opts, cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY}, notesReadRelays);
         // sub.on('event', onEvent);
         sub.on('event', (event: NDKEvent) => {
+            // console.log('NostrContextProvider: event', {event})
+            // if (event.kind === 0) console.log('NostrContextProvider: kind 0')
+            // if (event.kind === 0) db.users.put(event.rawEvent());
             if (event.kind === 1 || event.kind === 30023) db.notes.put({ ...event.rawEvent(), type: NOTE_TYPE.QUESTION });
             if (event.kind === 30000 || event.kind === 10000 || event.kind === 30001) db.lists.put(event.rawEvent());
 
@@ -155,7 +188,8 @@ export const NostrContextProvider = ({ children }: any) => {
             }
         });
         sub.on('eose', () => {
-           console.log('received eose')
+           console.log('NostrContextPRovider: received eose');
+           onEose && onEose();
         });
         sub.start()
             .then(() => {
@@ -163,7 +197,7 @@ export const NostrContextProvider = ({ children }: any) => {
             });
         subs.current.push(sub);
         // subscription.current = sub;
-    }, []);
+    }, [readRelays]);
 
     const unsubscribe = useCallback(() => {
         subs.current.forEach((sub: NDKSubscription) => sub.stop());
@@ -172,45 +206,48 @@ export const NostrContextProvider = ({ children }: any) => {
     const signIn = useCallback(async (delay: number = 0) => {
         if (user) {
             console.log({user});
-            return user!.hexpubkey();
+            return user!.pubkey;
         }
-        if (delay > 5000) {
+        if (delay >= 100) {
             console.log('no nip-07 extension...');
             return;
         }
         if (window.nostr) {
             console.log(`trying to login...`)
             try {
-                ndk.current.signer = new NDKNip07Signer();
+                // ndk.current.signer = new NDKNip07Signer();
 
-                const signedInUser: NDKUser = await ndk.current.signer.user();
+                // ndk.current.signer = signer;
+                const signedInUser: NDKUser = await signer.user();
                 if (signedInUser) {
                     !user && setUser(signedInUser);
                     signedInUser.ndk = ndk.current;
                     const profile = await signedInUser.fetchProfile();
-                    console.log(`logged in as ${signedInUser.npub}`, {signedInUser});
+                    console.log(`NostrContextProvider: logged in as ${signedInUser.npub}`, {signedInUser});
                     console.log({profile});
 
                     subscribe({
                         kinds: [3],
-                        authors: [signedInUser.hexpubkey()]
-                    }, { closeOnEose: true }, [...Config.CLIENT_READ_RELAYS]);
+                        authors: [signedInUser.pubkey]
+                    }, { closeOnEose: true });
 
                     subscribe({
                         kinds: [10002],
-                        authors: [signedInUser.hexpubkey()]
-                    }, { closeOnEose: true }, [...Config.CLIENT_READ_RELAYS]);
+                        authors: [signedInUser.pubkey]
+                    }, { closeOnEose: true });
 
-                    return signedInUser.hexpubkey();
+                    return signedInUser.pubkey;
                 }
             } catch (error) {
                 console.error('no browser extension available for signing in...', {error});
             }
         } else {
-            delay += 100;
-            setTimeout(() => {
-                signIn(delay);
-            }, delay);
+            delay = 100;
+            return;
+            // delay += 100;
+            // setTimeout(() => {
+            //     signIn(delay);
+            // }, delay);
         }
     }, []);
 
@@ -222,7 +259,7 @@ export const NostrContextProvider = ({ children }: any) => {
             kind,
             created_at: 0,
             pubkey: ''
-        }, relayUrls.write, ndk.current);
+        }, writeRelays, ndk.current);
 
         console.log('done!')
 
@@ -246,7 +283,7 @@ export const NostrContextProvider = ({ children }: any) => {
         //             .catch((e) => {})
         //     })
         //     .catch((e) => {});
-    }, [relayUrls]);
+    }, [writeRelays]);
 
     const addReaction = useCallback((id: string, content: string) => {
         const event = new NDKEvent(ndk.current);
@@ -255,25 +292,28 @@ export const NostrContextProvider = ({ children }: any) => {
         event.tags = [
             ['e', id]
         ];
-        ndk.current.assertSigner()
-            .then(() => {
-                event.sign(ndk.current.signer!)
-                    .then(() => {
-                        event.publish(NDKRelaySet.fromRelayUrls(relayUrls.write, ndk.current))
+        // ndk.current.assertSigner()
+        //     .then(() => {
+        //         event.sign(ndk.current.signer!)
+        //             .then(() => {
+                        event.publish(NDKRelaySet.fromRelayUrls(writeRelays, ndk.current))
                             .then(() => {
                                 console.log('reaction added!');
                             })
-                    })
-                    .catch((e) => {})
-            })
-            .catch((e) => {})
-    }, [relayUrls]);
+                            .catch((error: any) => {
+                                console.error({error})
+                            })
+            //         })
+            //         .catch((e) => {})
+            // })
+            // .catch((e) => {})
+    }, [writeRelays]);
 
     const zap = useCallback((nostrEvent: NostrEvent, amount: number, callback?: () => void, comment?: string) => {
         const event = new NDKEvent(ndk.current, nostrEvent);
 
-        ndk.current.assertSigner()
-            .then(() => {
+        // ndk.current.assertSigner()
+        //     .then(() => {
                 event.zap(amount * 1000, comment)
                     .then((paymentRequest: string|null) => {
                         console.log('zap request...', {paymentRequest});
@@ -286,6 +326,7 @@ export const NostrContextProvider = ({ children }: any) => {
                                 webln.sendPayment(paymentRequest)
                                     .then(() => {
                                         console.log('zapped');
+                                        setCurrentEvent(undefined);
                                         callback && callback();
                                     })
                                     .catch((error) => {
@@ -295,20 +336,20 @@ export const NostrContextProvider = ({ children }: any) => {
                                         a.click();
                                     })
                             })
-                            .catch((error) => {
+                            .catch((error: any) => {
                                 console.error(`unable to request ln provider`)
                                 const a = document.createElement('a');
                                 a.href = `lightning:${paymentRequest}`;
                                 a.click();
                             })
                     })
-                    .catch((error) => {
+                    .catch((error: any) => {
                         console.error(`problem getting zap request`)
                     })
-            })
-            .catch((error) => {
-                console.error('unable to assert signer...');
-            })
+            // })
+            // .catch((error) => {
+            //     console.error('unable to assert signer...');
+            // })
     }, []);
 
     const boost = useCallback((nostrEvent: NostrEvent) => {
@@ -319,33 +360,33 @@ export const NostrContextProvider = ({ children }: any) => {
             ['e', nostrEvent.id!, 'wss://relay.damus.io'],
             ['p', nostrEvent.pubkey]
         ];
-        event.created_at = Math.floor(Date.now() / 1000) + 5;
-        ndk.current.assertSigner()
-            .then(() => {
-                event.sign(ndk.current.signer!)
-                    .then(() => {
-                        event.publish(NDKRelaySet.fromRelayUrls(relayUrls.write, ndk.current))
+        // event.created_at = Math.floor(Date.now() / 1000) + 5;
+        // ndk.current.assertSigner()
+        //     .then(() => {
+        //         event.sign(ndk.current.signer!)
+        //             .then(() => {
+                        event.publish(NDKRelaySet.fromRelayUrls(writeRelays, ndk.current))
                             .then(() => {
                                 console.log('repost event published!');
                             })
-                            .catch((error) => {
+                            .catch((error: any) => {
                                 console.error('unable to publish repost event...')
                             })
-                    })
-                    .catch((error) => {
-                        console.error('unable to sign repost event...');
-                    })
-            })
-            .catch((error) => {
-                console.error('unable to assert signer...')
-            });
-    }, [relayUrls]);
+                    // })
+                    // .catch((error) => {
+                    //     console.error('unable to sign repost event...');
+                    // })
+            // })
+            // .catch((error: any) => {
+            //     console.error('unable to assert signer...')
+            // });
+    }, [writeRelays]);
 
     const payInvoice = useCallback((paymentRequest: string) => {
-        ndk
-            .current
-            .assertSigner()
-            .then(() => {
+        // ndk
+        //     .current
+        //     .assertSigner()
+        //     .then(() => {
                 requestProvider()
                     .then((webln: WebLNProvider) => {
                         webln.sendPayment(paymentRequest)
@@ -356,18 +397,18 @@ export const NostrContextProvider = ({ children }: any) => {
                                 a.href = `lightning:${paymentRequest}`;
                                 a.click();
                             })
-                            .catch((error) => {
+                            .catch((error: any) => {
                                 console.error(`unable to zap`)
                             })
                     })
-                    .catch((error) => {
+                    .catch((error: any) => {
                         console.error(`unable to request ln provider`)
                         const a = document.createElement('a');
                         a.href = `lightning:${paymentRequest}`;
                         a.click();
                     })
-            })
-            .catch()
+            // })
+            // .catch()
     }, []);
 
     const label = useCallback((label: NoteLabel, nostrEvent: NostrEvent, pubkey: string, content: string, callback?: () => void) => {
@@ -410,11 +451,11 @@ export const NostrContextProvider = ({ children }: any) => {
 
             console.log({event});
 
-            ndk.current.assertSigner()
-                .then(() => {
-                    event.sign(ndk.current.signer!)
-                        .then(() => {
-                            event.publish(NDKRelaySet.fromRelayUrls(relayUrls.write, ndk.current))
+            // ndk.current.assertSigner()
+            //     .then(() => {
+            //         event.sign(ndk.current.signer!)
+            //             .then(() => {
+                            event.publish(NDKRelaySet.fromRelayUrls(writeRelays, ndk.current))
                                 .then(() => {
                                     console.log('label event published!');
                                     // db.labels.put({
@@ -424,47 +465,22 @@ export const NostrContextProvider = ({ children }: any) => {
                                     // });
                                     callback && callback();
                                 })
-                                .catch((error) => {
+                                .catch((error: any) => {
                                     console.error('unable to publish label event...')
                                 })
-                        })
-                        .catch((error) => {
-                            console.error('unable to sign label event...');
-                        })
-                })
-                .catch((error) => {
-                    console.error('unable to assert signer...')
-                });
+                //         })
+                //         .catch((error) => {
+                //             console.error('unable to sign label event...');
+                //         })
+                // })
+                // .catch((error) => {
+                //     console.error('unable to assert signer...')
+                // });
 
-        } catch (error) {
+        } catch (error: any) {
             console.error({error});
         }
-    }, [relayUrls]);
-
-    useEffect(() => {
-
-        // connect to read relays
-        ndk.current.connect(5000)
-            .then(() => {
-                console.log(`Connected to read relays...`);
-            })
-            .catch(error => {
-                console.error('unable to connect', {error})
-            });
-
-        setTimeout(() => {
-            signIn()
-                .then(() => {
-                    console.log('sign in');
-                })
-        });
-
-        return () => {
-            console.log(`unsubscribing...`);
-            // subscription.current?.stop();
-            unsubscribe();
-        }
-    }, []);
+    }, [writeRelays]);
 
     return (
         <React.Fragment>
@@ -475,8 +491,10 @@ export const NostrContextProvider = ({ children }: any) => {
                         ndk: ndk.current, user, subscribe, signIn, post, loginDialogOpen,
                         setLoginDialogOpen, newNoteDialogOpen, setNewNoteDialogOpen, label, newLabelDialogOpen,
                         setNewLabelDialogOpen, boost, payInvoice, addReaction, zap, unsubscribe,
-                        writeRelays: relayUrls.write, readRelays: relayUrls.read, query, setQuery,
-                        loading, setLoading
+                        writeRelays, readRelays, query, setQuery,
+                        loading, setLoading, zapDialogOpen, setZapDialogOpen, newReplyDialogOpen, setNewReplyDialogOpen,
+                        event: currentEvent, setEvent: setCurrentEvent, selectedLabelName, setSelectedLabelName,
+                        addTag, removeTag, tags, connected, relayListDialogOpen, setRelayListDialogOpen
                     }}>
                     {children}
                 </NostrContext.Provider>

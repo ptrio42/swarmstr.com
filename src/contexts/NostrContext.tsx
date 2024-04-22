@@ -6,7 +6,7 @@ type NostrContextType = {
     ndk: NDK,
     user?: NDKUser,
     events?: NostrEvent[],
-    subscribe: (filter: NDKFilter, opts: NDKSubscriptionOptions, relayUrls: string[]) => any,
+    subscribe: (filter: NDKFilter, opts: NDKSubscriptionOptions, onEose?: () => void) => any,
     unsubscribe: () => void,
     signIn: () => Promise<string|undefined>
     post: (content: string, tags: NDKTag[], kind?: number) => Promise<void>,
@@ -27,6 +27,20 @@ type NostrContextType = {
     setQuery: (query: string) => void,
     loading: boolean,
     setLoading: (loading: boolean) => void,
+    zapDialogOpen: boolean,
+    setZapDialogOpen: (open: boolean) => void,
+    newReplyDialogOpen: boolean,
+    setNewReplyDialogOpen: (open: boolean) => void,
+    event?: NostrEvent,
+    setEvent: (event?: NostrEvent) => void,
+    selectedLabelName?: string,
+    setSelectedLabelName: (labelName: string) => void,
+    tags: string[],
+    addTag: (tag: string) => void,
+    removeTag: (tag: string) => void,
+    connected: boolean,
+    relayListDialogOpen: boolean,
+    setRelayListDialogOpen: (open: boolean) => void
 }
 
 export const NostrContext = createContext<NostrContextType>({
@@ -52,5 +66,17 @@ export const NostrContext = createContext<NostrContextType>({
     query: '',
     setQuery: () => {},
     loading: false,
-    setLoading: () => {}
+    setLoading: () => {},
+    zapDialogOpen: false,
+    setZapDialogOpen: () => {},
+    newReplyDialogOpen: false,
+    setNewReplyDialogOpen: () => {},
+    setEvent: () => {},
+    setSelectedLabelName: () => {},
+    tags: [],
+    addTag: () => {},
+    removeTag: () => {},
+    connected: false,
+    relayListDialogOpen: false,
+    setRelayListDialogOpen: () => {}
 });

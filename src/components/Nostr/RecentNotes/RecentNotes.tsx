@@ -1,52 +1,61 @@
 import {EventListWrapper} from "../EventListWrapper/EventListWrapper";
 import {useNostrContext} from "../../../providers/NostrContextProvider";
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useState} from "react";
 import {Config} from "../../../resources/Config";
 import * as React from "react";
-import {Box} from "@mui/material";
-import {ReactMarkdown} from "react-markdown/lib/react-markdown";
-import children = ReactMarkdown.propTypes.children;
+import {Box, SelectChangeEvent} from "@mui/material";
 import {EventList} from "../EventList/EventList";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
 import {containsTag} from "../../../utils/utils";
 import Typography from "@mui/material/Typography";
 import {Backdrop} from "../../Backdrop/Backdrop";
-import Chip from "@mui/material/Chip";
 import './RecentNotes.css';
-import {PsychologyAlt, Search} from "@mui/icons-material";
-import Button from "@mui/material/Button";
-import {useLocation} from "react-router-dom";
-import {ListEvent} from "../../../models/commons";
-import {NDKTag} from "@nostr-dev-kit/ndk";
+import {useLocation, useParams, useNavigate} from "react-router-dom";
 import {uniq} from 'lodash';
 import {Helmet} from "react-helmet";
 import {NostrEventListContextProvider} from "../../../providers/NostrEventListContextProvider";
+import {NDKSubscriptionCacheUsage, NostrEvent} from '@nostr-dev-kit/ndk';
+import {NoteEvent} from "../../../models/commons";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import InputLabel from "@mui/material/InputLabel";
+import {LoadingAnimation} from "../../LoadingAnimation/LoadingAnimation";
 
-const since =  Math.floor(Date.now() / 1000 - 24 * 60 * 60);
+const since =  Math.floor(Date.now() / 1000 - 2 * 24 * 60 * 60);
 const to =  Math.floor(Date.now() / 1000 + 24 * 60 * 60);
-
-const filter = { kinds: [1, 30023], "#t": [Config.HASHTAG], since };
 
 export const RecentNotes = () => {
     const location = useLocation();
+    const { explicitTag } = useParams();
+    const filter = { kinds: [1, 30023], "#t": [explicitTag || Config.HASHTAG], since };
     const [events, loaded] = useLiveQuery(
         async () => {
             const events = await db.notes.where('created_at')
                 .between(since, to, true, true)
-                .and(({tags}) => containsTag(tags, ['t', Config.HASHTAG]))
+                .and(({tags}: NoteEvent) => containsTag(tags, ['t', explicitTag || Config.HASHTAG]))
                 .reverse()
                 .sortBy('created_at');
+            console.log('events', events)
             return [events, true];
-        }, [], [location?.state?.events, false]);
+        }, [explicitTag], [location?.state?.events, false]);
 
-     const { subscribe, setNewNoteDialogOpen, user, setLoginDialogOpen, readRelays } = useNostrContext();
+     const { subscribe, readRelays } = useNostrContext();
+
+     const navigate = useNavigate();
+
+     const [loading, setLoading] = useState(false);
 
      useEffect(() => {
          if (!loaded) return;
-         // const relayUrls = Config.CLIENT_READ_RELAYS;
-         // console.log(`events loaded or readRelaysChanged`)
-         subscribe(filter, { closeOnEose: false, groupable: false }, readRelays);
+         console.log('RecentNotes: events loaded')
+         setLoading(true);
+         subscribe(
+             filter,
+             { closeOnEose: false, groupable: false, cacheUsage: NDKSubscriptionCacheUsage.PARALLEL },
+             () => {
+                 setLoading(false);
+             });
      }, [loaded, readRelays]);
 
     return <Box>
@@ -69,23 +78,20 @@ export const RecentNotes = () => {
             <meta name="twitter:image" content={ Config.APP_IMAGE }  />
 
         </Helmet>
-        <Box className="addNewNote-box">
-            <Chip
-                icon={<PsychologyAlt/>}
-                variant="outlined"
-                label={`What's your question?`}
-                size="medium"
-                onClick={() => {
-                    if (user) {
-                        setNewNoteDialogOpen(true);
-                    } else {
-                        setLoginDialogOpen(true);
-                    }}
+        <Typography sx={{ display: 'flex', marginBottom: '0.5em', marginTop: '0.5em', textAlign: 'left', marginLeft: '15px' }} component="div" variant="body1">
+            <Select
+                id="select-tag"
+                value={explicitTag || Config.HASHTAG}
+                label="Tag"
+                onChange={(event: SelectChangeEvent) => { navigate(`/recent/${event.target.value as string}`) }}
+            >
+                {
+                    Config.NOSTR_TAGS.map((tag: string) => <MenuItem value={tag}>#{tag}</MenuItem>)
                 }
-            />
-        </Box>
-        <Typography sx={{ marginBottom: '1em', marginTop: '1em' }} component="div" variant="h6">
-            Recent questions
+            </Select>
+            {/*<Box>*/}
+                <LoadingAnimation isLoading={loading}/>
+            {/*</Box>*/}
         </Typography>
         <NostrEventListContextProvider events={events}>
             <EventListWrapper>

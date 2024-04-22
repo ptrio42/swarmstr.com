@@ -58,7 +58,7 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating, ..
 
     const filter: NDKFilter = { kinds: [1], '#e': [id] };
 
-    const { subscribe, commentEvents, stats } = useNostrNoteThreadContext();
+    const { subscribe, commentEvents, stats, connected } = useNostrNoteThreadContext();
 
     const navigate = useNavigate();
 
@@ -74,7 +74,9 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating, ..
     }, [stats]);
 
     const filteredCommentEvents = useMemo(() => {
-        return (orderBy(commentEvents, ({id, created_at}) => {
+        console.log('NoteThread: commentEvents', {commentEvents})
+        // @ts-ignore
+        return (orderBy(commentEvents.filter((e) => !!e), ({id, created_at}: NostrEvent) => {
             switch (sort) {
                 case 'score':
                     const score = calculateScore(id!);
@@ -85,11 +87,11 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating, ..
                     return created_at;
             }
         }, (sort === 'score' || sort === 'zap') ? 'desc' : 'asc') || [])
-    }, [commentEvents, sort, stats]);
+    }, [commentEvents, sort, stats, connected]);
 
     useEffect(() => {
-        subscribe(filter);
-    }, []);
+        if (connected) subscribe(filter, { groupable: false, closeOnEose: false });
+    }, [connected]);
 
     const goBack = () => {
         const previousUrl = location?.state?.previousUrl;

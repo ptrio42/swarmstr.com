@@ -3,9 +3,11 @@ import NDK, {NDKFilter, NDKRelaySet, NDKSubscription, NDKSubscriptionOptions, No
 
 type NostrNoteContextType = {
     subscribe: (filter: NDKFilter, opts?: NDKSubscriptionOptions) => void,
-    subs?: NDKSubscription[]
+    subs?: NDKSubscription[],
+    connected: boolean
 }
 
 export const NostrNoteContext = createContext<NostrNoteContextType>({
-    subscribe: () => {}
+    subscribe: () => {},
+    connected: false
 });
