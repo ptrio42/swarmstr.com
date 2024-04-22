@@ -90,7 +90,9 @@ export const RecentNotes = () => {
                 }
             </Select>
             {/*<Box>*/}
-                <LoadingAnimation isLoading={loading}/>
+            {
+                loading && <Typography component="div" variant="body1"><LoadingAnimation isLoading={loading}/></Typography>
+            }
             {/*</Box>*/}
         </Typography>
         <NostrEventListContextProvider events={events}>

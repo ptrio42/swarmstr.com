@@ -254,7 +254,11 @@ export const Search = () => {
                         <IconButton color="error" size="small" onClick={() => { debouncedQuery(query); setLoading(true); }}><Refresh fontSize="inherit"/></IconButton>
                     </Typography>
                 }
-                <LoadingAnimation isLoading={loading}/>
+                {
+                    loading && <Typography className="searchResults-loadingResults" component="div" variant="body1">
+                        <LoadingAnimation isLoading={loading}/>
+                    </Typography>
+                }
                 {
                     !loading && !hasErrors && bestResults.length > 0 && <Typography component="div" variant="body1">{bestResults.length} results</Typography>
                 }
