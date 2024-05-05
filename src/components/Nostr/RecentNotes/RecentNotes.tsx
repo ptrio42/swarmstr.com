@@ -17,12 +17,9 @@ import {Helmet} from "react-helmet";
 import {NostrEventListContextProvider} from "../../../providers/NostrEventListContextProvider";
 import {NDKSubscriptionCacheUsage, NostrEvent} from '@nostr-dev-kit/ndk';
 import {NoteEvent} from "../../../models/commons";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import InputLabel from "@mui/material/InputLabel";
-import {LoadingAnimation} from "../../LoadingAnimation/LoadingAnimation";
+import {TagSelect} from "../TagSelect/TagSelect";
 
-const since =  Math.floor(Date.now() / 1000 - 2 * 24 * 60 * 60);
+const since =  Math.floor(Date.now() / 1000 - 7 * 24 * 60 * 60);
 const to =  Math.floor(Date.now() / 1000 + 24 * 60 * 60);
 
 export const RecentNotes = () => {
@@ -40,11 +37,9 @@ export const RecentNotes = () => {
             return [events, true];
         }, [explicitTag], [location?.state?.events, false]);
 
-     const { subscribe, readRelays, connected } = useNostrContext();
+     const { subscribe, readRelays, connected, loading, setLoading } = useNostrContext();
 
      const navigate = useNavigate();
-
-     const [loading, setLoading] = useState(false);
 
      useEffect(() => {
          if (!loaded || !connected) return;
@@ -78,22 +73,15 @@ export const RecentNotes = () => {
             <meta name="twitter:image" content={ Config.APP_IMAGE }  />
 
         </Helmet>
-        <Typography sx={{ display: 'flex', marginBottom: '0.5em', marginTop: '0.5em', textAlign: 'left', marginLeft: '15px' }} component="div" variant="body1">
-            <Select
-                id="select-tag"
-                value={explicitTag!}
-                label="Tag"
-                onChange={(event: SelectChangeEvent) => { navigate(`/recent/${event.target.value as string}`) }}
-            >
-                {
-                    uniq([...Config.NOSTR_TAGS, explicitTag!]).map((tag: string) => <MenuItem value={tag}>#{tag}</MenuItem>)
-                }
-            </Select>
-            {/*<Box>*/}
-            {
-                loading && <Typography component="div" variant="body1"><LoadingAnimation isLoading={loading}/></Typography>
-            }
-            {/*</Box>*/}
+        <Typography sx={{ display: 'flex', marginBottom: '0.5em', marginTop: '0.5em', textAlign: 'left', marginLeft: '15px', justifyContent: 'flex-end', marginRight: '1em' }} component="div" variant="body1">
+
+            <TagSelect
+                tags={uniq([...Config.NOSTR_TAGS, explicitTag!])}
+                selectedTag={explicitTag}
+                onTagSelect={(event: SelectChangeEvent) => {
+                    navigate(`/recent/${event.target.value as string}`);
+                }}
+            />
         </Typography>
         <NostrEventListContextProvider events={events}>
             <EventListWrapper>

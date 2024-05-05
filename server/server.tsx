@@ -16,7 +16,7 @@ import NDK, {
     NostrEvent, NDKPrivateKeySigner
 } from '@nostr-dev-kit/ndk';
 import NDKRedisCacheAdapter from "@nostr-dev-kit/ndk-cache-redis";
-import {uniqBy, groupBy, forOwn, debounce, sortBy} from 'lodash';
+import {uniqBy, groupBy, forOwn, debounce, sortBy, isArray} from 'lodash';
 import {containsAnyTag, containsTag, valueFromTag} from "../src/utils/utils";
 import { HfInference } from "@huggingface/inference";
 import {request} from "../src/services/request";
@@ -110,7 +110,7 @@ const assets = JSON.parse(manifest);
 
 // only subscribe to events since given timestamp
 // default 7 days
-const EVENTS_SINCE = Math.floor(Date.now() / 1000 - 7 * 24 * 60 * 60);
+const EVENTS_SINCE = Math.floor(Date.now() / 1000 - 1 * 1 * 60 * 60);
 
 const cacheAdapter = new NDKRedisCacheAdapter({ expirationTime: 365 * 60 * 60 * 24 });
 
@@ -395,6 +395,7 @@ const getAIQuestionsSuggestions = (search: string, tags?: string[]): Promise<str
                 }
             })
             .on('eose', async () => {
+                if (events.length === 1) return resolve([events[0].id]);
                 // websocket.send('nostr: all notes received...');
                 let content: string = `given array of objects `;
                 const questions = events
@@ -442,7 +443,7 @@ const getAIQuestionsSuggestions = (search: string, tags?: string[]): Promise<str
                     }
                     if (similarities.length > 1) {
                         similarities = sortBy(similarities, 'similarity').reverse()
-                            .filter(({similarity}) => similarities.length <= 21 ? similarity >= 0.4 : similarity >= 0.7);
+                            .filter(({similarity}) => /\s/g.test(search) ? (similarities.length <= 21 ? similarity >= 0.4 : similarity >= 0.7) : similarity >= 0.2);
                     }
                     console.log({similarities});
                     // return new Promise.resolve(similarities.map(({content}) => content))
@@ -676,7 +677,7 @@ server.get('/search-api/:search', async (req, res) => {
     let { search } = req.params;
     const {tags} = req.query;
     console.log('server.tsx: ', {tags})
-    search = search.toLowerCase().replace(/([.?\-,_=])/gm, '');
+    search = search.toLowerCase().replace(/([.?\-,_=:!])/gm, ' ').trim();
     console.log({search});
 
     if (search) {

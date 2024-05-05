@@ -28,6 +28,7 @@ export const TAG_EMOJIS: { [key: string]: string } = {
     'foodstr': '🥩',
     'grownostr': '🌱',
     'zapathon': '⚡️',
+    'bountstr': '💰'
 };
 
 export const NoteTags = ({ tags = [], path = 'recent', ...props }: NoteTagsProps) => {

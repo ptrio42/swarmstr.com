@@ -37,11 +37,12 @@ import MenuItem from "@mui/material/MenuItem";
 
 export const Search = () => {
     const { events, clearEvents } = useNostrFeedContext();
-    const { subscribe, query, setQuery, loading, setLoading, tags } = useNostrContext();
+    const { subscribe, query, setQuery, loading, setLoading, tags, setTags } = useNostrContext();
     const { searchString } = useParams();
     const navigate = useNavigate();
 
     const [searchParams, setSearchParams] = useSearchParams();
+    const searchTags = searchParams.get('tags');
     // const searchString = searchParams.get('s');
     const nevent = searchParams.get('e');
 
@@ -126,7 +127,7 @@ export const Search = () => {
     , [query], []);
 
     const bestResults = useLiveQuery(
-        async () => searchApiResults.length > 0 || bestResultsSuggestions.length > 0 ? db.notes
+        async () => loaded && (searchApiResults.length > 0 || bestResultsSuggestions.length > 0) ? db.notes
             // @ts-ignore
             .where('id').anyOf(uniq([...searchApiResults, ...bestResultsSuggestions].filter((id) => !!id)!))
             .toArray() : []
@@ -183,18 +184,20 @@ export const Search = () => {
     useEffect(() => {
         clearEvents();
         setSubscribed(false);
-        setLoading(true);
         setLoaded(false);
         setHasErrors(false);
         setSearchSuggestions([]);
         setSearchApiResults([]);
+        if (searchString && searchString.length > 2) {
+            setLoading(true);
+        }
         setQuery(searchString?.replace('?', '%3F') || '');
-    }, [searchString]);
+    }, [searchString, tags]);
 
     useEffect(() => {
         debouncedQuery(query);
-        console.log('change:', {query})
-    }, [query]);
+        console.log('change:', {query, tags})
+    }, [query, tags]);
 
     useEffect(() => {
         if (!!nevent && !!nip19.decode(nevent).data) {
@@ -206,10 +209,23 @@ export const Search = () => {
         }
     }, [nevent]);
 
+    useEffect(() => {
+        console.log({searchTags});
+
+        const _tags: string[] | undefined = searchTags?.split(',');
+        if (tags?.length > 0) {
+            setTags(_tags!);
+        } else {
+            setTags(Config.NOSTR_TAGS);
+        }
+    }, [searchTags]);
+
     useEffect(()=> {
         setTimeout(() => {
             setShowPreloader(false);
-        }, 2100);
+        }, 200);
+
+        setTags(Config.NOSTR_TAGS);
 
         // ws.current.on('message', (message: any) => {
         //     console.log(`webSocket message: ${message}`)
@@ -249,16 +265,16 @@ export const Search = () => {
             </Helmet>
             <Box className="landingPage-boxContainer" ref={boxRef}>
                 {
-                    !loading && bestResultsSuggestions.length === 0 && hasErrors && <Typography className="searchResults-apiTimeout" component="div" variant="body1">
+                    !loading && bestResults.length === 0 && hasErrors && <Typography className="searchResults-apiTimeout" component="div" variant="body1">
                         Timeout. Please try again.
                         <IconButton color="error" size="small" onClick={() => { debouncedQuery(query); setLoading(true); }}><Refresh fontSize="inherit"/></IconButton>
                     </Typography>
                 }
-                {
-                    loading && <Typography className="searchResults-loadingResults" component="div" variant="body1">
-                        <LoadingAnimation isLoading={loading}/>
-                    </Typography>
-                }
+                {/*{*/}
+                    {/*loading && <Typography className="searchResults-loadingResults" component="div" variant="body1">*/}
+                        {/*<LoadingAnimation isLoading={loading}/>*/}
+                    {/*</Typography>*/}
+                {/*}*/}
                 {
                     !loading && !hasErrors && bestResults.length > 0 && <Typography component="div" variant="body1">{bestResults.length} results</Typography>
                 }

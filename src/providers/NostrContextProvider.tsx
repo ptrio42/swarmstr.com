@@ -35,11 +35,6 @@ const signer = new NDKNip07Signer();
 
 const DEFAULT_RELAYS = { readRelays: Config.CLIENT_READ_RELAYS, writeRelays: Config.CLIENT_WRITE_RELAYS };
 
-interface RelayUrls {
-    write: string[];
-    read: string[];
-}
-
 export const NostrContextProvider = ({ children }: any) => {
 
     const ndk = useRef<NDK>(new NDK({ explicitRelayUrls: uniq(Object.values(DEFAULT_RELAYS).flat(2)) }));
@@ -67,10 +62,12 @@ export const NostrContextProvider = ({ children }: any) => {
     const [zapDialogOpen, setZapDialogOpen] = useState<boolean>(false);
     const [relayListDialogOpen, setRelayListDialogOpen] = useState<boolean>(false);
 
+    const [imageCreatorDialogOpen, setImageCreatorDialogOpen] = useState(false);
+
     const [currentEvent, setCurrentEvent] = useState<NostrEvent|undefined>();
     const [selectedLabelName, setSelectedLabelName] = useState<string|undefined>();
 
-    const [ tags, setTags ] = useState([Config.HASHTAG]);
+    const [ tags, setTags ] = useState(Config.NOSTR_TAGS);
 
     const subs = useRef<NDKSubscription[]>([]);
 
@@ -119,7 +116,7 @@ export const NostrContextProvider = ({ children }: any) => {
 
     const addTag = (tag: string) => {
         setTags([
-            ...tags.filter((t) => t !== tag),
+            ...(tags || []).filter((t) => t !== tag),
             tag
         ]);
     };
@@ -497,7 +494,8 @@ export const NostrContextProvider = ({ children }: any) => {
                         writeRelays, readRelays, query, setQuery,
                         loading, setLoading, zapDialogOpen, setZapDialogOpen, newReplyDialogOpen, setNewReplyDialogOpen,
                         event: currentEvent, setEvent: setCurrentEvent, selectedLabelName, setSelectedLabelName,
-                        addTag, removeTag, tags, connected, relayListDialogOpen, setRelayListDialogOpen
+                        addTag, removeTag, tags, connected, relayListDialogOpen, setRelayListDialogOpen, setImageCreatorDialogOpen,
+                        imageCreatorDialogOpen, setTags
                     }}>
                     {children}
                 </NostrContext.Provider>

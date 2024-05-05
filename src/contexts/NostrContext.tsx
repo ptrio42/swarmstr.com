@@ -40,7 +40,10 @@ type NostrContextType = {
     removeTag: (tag: string) => void,
     connected: boolean,
     relayListDialogOpen: boolean,
-    setRelayListDialogOpen: (open: boolean) => void
+    setRelayListDialogOpen: (open: boolean) => void,
+    imageCreatorDialogOpen: boolean,
+    setImageCreatorDialogOpen: (open: boolean) => void,
+    setTags: (tags: string[]) => void
 }
 
 export const NostrContext = createContext<NostrContextType>({
@@ -78,5 +81,8 @@ export const NostrContext = createContext<NostrContextType>({
     removeTag: () => {},
     connected: false,
     relayListDialogOpen: false,
-    setRelayListDialogOpen: () => {}
+    setRelayListDialogOpen: () => {},
+    imageCreatorDialogOpen: false,
+    setImageCreatorDialogOpen: () => {},
+    setTags: () => {}
 });

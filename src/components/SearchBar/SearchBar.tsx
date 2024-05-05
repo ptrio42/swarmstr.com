@@ -57,7 +57,7 @@ export const SearchBar = ({ resultsCount, filteredResultsCount, onQueryChange = 
     const handleKeyDown = (event: any): void => {
         // if (!tagsMenuOpen) handleTagsMenuOpen(event);
         if (event.key === 'Enter') {
-            toggleSearchOptions();
+            if (searchOptionsOpen) toggleSearchOptions();
             onQueryChange({ target: { value: query } });
         }
     };
@@ -76,16 +76,16 @@ export const SearchBar = ({ resultsCount, filteredResultsCount, onQueryChange = 
                     onKeyDown={handleKeyDown}
                     autoComplete="off"
                     autoFocus={true}
-                    startAdornment={
-                        <InputAdornment position="start">
-                            {
-                                !isQuerying && <PsychologyAlt sx={{ fontSize: 21 }} />
-                            }
-                            {
-                                isQuerying && <CircularProgress sx={{ width: '18px!important', height: '18px!important', marginLeft: '3px' }} />
-                            }
-                        </InputAdornment>
-                    }
+                    // startAdornment={
+                    //     <InputAdornment position="start">
+                    //         {
+                    //             !isQuerying && <PsychologyAlt sx={{ fontSize: 21 }} />
+                    //         }
+                    //         {
+                    //             isQuerying && <CircularProgress sx={{ width: '18px!important', height: '18px!important', marginLeft: '3px' }} />
+                    //         }
+                    //     </InputAdornment>
+                    // }
                     endAdornment={
                         <InputAdornment position="end">
                             {
@@ -93,7 +93,7 @@ export const SearchBar = ({ resultsCount, filteredResultsCount, onQueryChange = 
                                     <CancelIcon />
                                 </IconButton>
                             }
-                            <IconButton color="warning" onClick={(event: any) => { event.preventDefault(); toggleSearchOptions(); onQueryChange({ target: { value: query } }) }}>
+                            <IconButton color="warning" onClick={(event: any) => { event.preventDefault(); if (searchOptionsOpen) toggleSearchOptions(); onQueryChange({ target: { value: query } }) }}>
                                 <SearchIcon/>
                             </IconButton>
                         </InputAdornment>
@@ -101,7 +101,7 @@ export const SearchBar = ({ resultsCount, filteredResultsCount, onQueryChange = 
                 />
             </ListItem>
             {
-                searchOptionsOpen && <ClickAwayListener onClickAway={() => { toggleSearchOptions(); }}><Box className="searchOptions">
+                searchOptionsOpen && <ClickAwayListener onClickAway={() => { if (searchOptionsOpen) toggleSearchOptions(); }}><Box className="searchOptions">
                     <MenuItem sx={{ justifyContent: 'right' }}><CancelIcon sx={{ fontSize: 18 }} onClick={() => { toggleSearchOptions(); }} /></MenuItem>
                     {
                         // @ts-ignore
