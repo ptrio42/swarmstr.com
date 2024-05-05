@@ -25,6 +25,7 @@
 .animationContainer {
     display: flex;
     align-items: center;
+    max-width: 94px;
 }
 
 .animationImageContainer {

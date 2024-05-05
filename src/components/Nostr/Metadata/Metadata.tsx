@@ -227,7 +227,7 @@ export const Metadata = ({ pubkey, handleCopyNpub, variant = 'full' }: MetadataP
                         }
                     </Typography>
                     {
-                        metadata && (metadata.lud06 || metadata.lud16) && <IconButton>
+                        metadata && variant !== 'avatar' && (metadata.lud06 || metadata.lud16) && <IconButton>
                             <ElectricBolt sx={{ fontSize: 18 }} />
                         </IconButton>
                     }

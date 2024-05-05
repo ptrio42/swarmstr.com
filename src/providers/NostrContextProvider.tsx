@@ -26,6 +26,7 @@ import {NoteLabel} from "../dialog/NewLabelDialog";
 import { uniq, groupBy, isEqual } from 'lodash';
 import {signAndPublishEvent} from "../services/nostr";
 import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";
+import {valueFromTag} from "../utils/utils";
 
 TimeAgo.addDefaultLocale(en);
 
@@ -185,7 +186,7 @@ export const NostrContextProvider = ({ children }: any) => {
             if (event.kind === 3) db.contactLists.put(event.rawEvent());
 
             if (event.kind === 1985) {
-                db.labels.put(event.rawEvent());
+                db.labels.put({ ...event.rawEvent(), referencedEventId: valueFromTag(event.rawEvent(), 'e') });
                 console.log('similar question: ', {event})
             }
         });

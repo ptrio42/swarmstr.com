@@ -374,6 +374,8 @@ const dotProduct = (a: number[], b: number[]): number => {
 
 const getAIQuestionsSuggestions = (search: string, tags?: string[]): Promise<string[]> => {
     return new Promise<string[]>((resolve, reject) => {
+        // TODO: find labels which point to notes previously considered accurate by ai
+        // TODO: get the latest note and use it's timestamp to construct after filter
         const filter = {
             search,
             limit: 10000,
@@ -445,14 +447,15 @@ const getAIQuestionsSuggestions = (search: string, tags?: string[]): Promise<str
                     console.log({similarities});
                     // return new Promise.resolve(similarities.map(({content}) => content))
 
-                    // try {
-                    //     const ids = similarities.map(({id}) => id);
-                    //     ids.forEach((id: string) => {
-                    //         createNewLabel(id, `search/${encodeURIComponent(search)}`, Config.SERVER_RELAYS)
-                    //     });
-                    // } catch (error) {
-                    //     console.log('unable to parse response')
-                    // }
+                    // TODO: create labels
+                    try {
+                        const ids = similarities.map(({id}) => id);
+                        ids.forEach((id: string) => {
+                            createNewLabel(id, `search/${encodeURIComponent(search)}`, Config.SERVER_RELAYS)
+                        });
+                    } catch (error) {
+                        console.log('unable to parse response')
+                    }
                     websocket.send('done')
 
                     resolve(similarities.map(({id}) => id))
@@ -608,7 +611,7 @@ server.get('/api/cache/:value/:kind/:tag', async (req, res) => {
 
 server.get('/search-suggestions/:search', async (req, res) => {
     let { search } = req.params;
-    search = search.replace(/([.?\-,_=])/gm, '');
+    search = search.toLowerCase().replace(/([.?\-,_=])/gm, '');
 
     const response = await pool.query('SELECT * FROM searches');
     if (response.rows.length > 0) {
@@ -646,18 +649,18 @@ server.get('/search-suggestions/:search', async (req, res) => {
             console.log(`### similar searches for ${search}`,{similarities});
             res.json(similarities)
 
-            // try {
-            //     const ids = similarities.map(({id}) => id);
-            //     ids.forEach((id: string) => {
-            //         createNewLabel(id, `search/${encodeURIComponent(search)}`)
-            //     });
-            //     // const questions = events
-            //     //     .filter(({id}) => ids.includes(id))
-            //     //     .map(({content}) => content);
-            //     // console.log({questions})
-            // } catch (error) {
-            //     console.log('unable to parse response')
-            // }
+            try {
+                // const ids = similarities.map(({id}) => id);
+                // similarities.map((s: any) => ).forEach((id: string) => {
+                //     createNewLabel(id, `search/${encodeURIComponent(search)}`)
+                // });
+                // const questions = events
+                //     .filter(({id}) => ids.includes(id))
+                //     .map(({content}) => content);
+                // console.log({questions})
+            } catch (error) {
+                console.log('unable to parse response')
+            }
 
             // console.log({result, result1})
         } catch (e) {
@@ -673,7 +676,7 @@ server.get('/search-api/:search', async (req, res) => {
     let { search } = req.params;
     const {tags} = req.query;
     console.log('server.tsx: ', {tags})
-    search = search.replace(/([.?\-,_=])/gm, '');
+    search = search.toLowerCase().replace(/([.?\-,_=])/gm, '');
     console.log({search});
 
     if (search) {
