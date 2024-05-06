@@ -29,7 +29,7 @@ export const Profile = (props: ProfileProps) => {
     const events = useLiveQuery(async () => {
         const events = await db.notes
             .where({ pubkey })
-            .and(({ tags }) => containsTag(tags, ['t', Config.HASHTAG]))
+            // .and(({ tags }) => containsTag(tags, ['t', Config.HASHTAG]))
             .toArray();
 
         return sortBy(events, 'created_at').reverse();
@@ -39,7 +39,8 @@ export const Profile = (props: ProfileProps) => {
         subscribe({
             kinds: [1, 30023],
             authors: [pubkey],
-            '#t': [Config.HASHTAG]
+            limit: 1000
+            // '#t': [Config.HASHTAG]
         }, {closeOnEose: false, groupable: false});
     }, []);
 

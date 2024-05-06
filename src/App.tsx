@@ -22,6 +22,7 @@ import {List} from "./components/Nostr/List/List";
 import {Profile} from "./components/Nostr/Profile/Profile";
 import {Home} from "./components/Nostr/Home/Home";
 import {ImageCreator} from "./components/ImageCreator/ImageCreator";
+import {ImageCreatorDialog} from "./dialog/ImageCreatorDialog";
 
 const theme = createTheme({
     typography: {
@@ -127,7 +128,7 @@ function App() {
                         <Route path="/e/:nevent" element={<ThreadWrapper/>} />
                         <Route path="/d/:listName" element={<List/>} />
                         <Route path="/p/:npub" element={<Profile/>} />
-                        <Route path="/image-creator" element={<ImageCreator/>} />
+                        {/*<Route path="/image-creator" element={<ImageCreator/>} />*/}
 
                     </Route>
                     <Route path="/nostr-address" element={<Nip05/>} />

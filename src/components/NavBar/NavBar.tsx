@@ -17,6 +17,7 @@ import { Metadata } from '../Nostr/Metadata/Metadata';
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import {nip19} from 'nostr-tools';
+import {LoadingAnimation} from "../LoadingAnimation/LoadingAnimation";
 
 export const NavBar = () => {
     const { user, setLoginDialogOpen, setNewNoteDialogOpen, query, loading, ndk, setRelayListDialogOpen } = useNostrContext();
@@ -47,10 +48,14 @@ export const NavBar = () => {
                 className="navbar"
                 position="static"
             >
-                <Toolbar sx={{ justifyContent: 'space-between', width: '100%', maxWidth: '640px', margin: 'auto', padding: 0 }}>
+                <Toolbar sx={{ justifyContent: 'space-between', width: '100%', maxWidth: '640px', margin: 'auto', padding: 0, position: 'relative' }}>
                     {/*<Badge>*/}
                         <Link className="logo" to="/">
-                            <img width="64px" height="64px" alt={Config.APP_TITLE} src={Config.LOGO_IMG}/>
+                            {/*<img width="64px" height="64px" alt={Config.APP_TITLE} src={Config.LOGO_IMG}/>*/}
+                            {/*<Box sx={{ width: '64px', height: '64px', overflow: 'visible', display: 'flex' }}><LoadingAnimation isLoading={true}/></Box>*/}
+                            {/*{*/}
+                                <Box sx={{ width: '64px', height: '64px' }}><LoadingAnimation isLoading={loading}/></Box>
+                            {/*}*/}
                         </Link>
                     {/*</Badge>*/}
                     <Box className="navbarMenu" sx={{ width: '100%', display: 'flex' }}>

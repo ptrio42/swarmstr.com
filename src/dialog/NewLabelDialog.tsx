@@ -15,6 +15,7 @@ import Input from "@mui/material/Input";
 import Box from "@mui/material/Box";
 import InputAdornment from "@mui/material/InputAdornment";
 import {Config} from "../resources/Config";
+import {LoadingDialog} from "./LoadingDialog";
 
 interface NewLabelDialogProps {
     open: boolean;
@@ -63,6 +64,8 @@ export const NewLabelDialog = ({ open, onClose, selectedLabelName, event, ...pro
 
     const [selectedLabel, setSelectedLabel] = useState<NoteLabel>();
     const [content, setContent] = useState<string>('');
+
+    const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
         if (selectedLabelName) {
@@ -165,6 +168,7 @@ export const NewLabelDialog = ({ open, onClose, selectedLabelName, event, ...pro
                         </Box>
                     }
                 </Stack>
+                <LoadingDialog open={loading}/>
             </DialogContent>
             <DialogActions>
                 <Button color="secondary" onClick={() => { onClose && onClose() }}>
@@ -175,10 +179,14 @@ export const NewLabelDialog = ({ open, onClose, selectedLabelName, event, ...pro
                     variant="contained"
                     onClick={() => {
                         // console.log({selectedLabel})
+                        setLoading(true);
                         if (user) label(selectedLabel!, event! as NostrEvent, user!.pubkey, content, () => {
                             setContent('');
                             setEvent(undefined);
+                            setLoading(false);
                             onClose && onClose();
+                        }, () => {
+                            setLoading(false);
                         });
 
                     }}

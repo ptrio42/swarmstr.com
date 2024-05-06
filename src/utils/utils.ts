@@ -1,4 +1,4 @@
-import { useEffect, useState} from "react";
+import React, { useEffect, useState} from "react";
 import {nip19} from "nostr-tools";
 import {NDKEvent, NDKTag, NostrEvent} from "@nostr-dev-kit/ndk";
 import {request} from "../services/request";
@@ -99,4 +99,25 @@ export const getRelayInformationDocument = async (url: string) => {
     url
   }, { 'Accept': 'application/nostr+json' });
   return response.data;
+};
+
+interface useMousePositionProps {
+  el?: any;
+}
+
+export const useMousePosition = () => {
+  const [
+    mousePosition,
+    setMousePosition
+  ] = useState({ x: 0, y: 0 });
+  useEffect(() => {
+    const updateMousePosition = (e: any) => {
+      setMousePosition({ x: e.clientX, y: e.clientY});
+    };
+    window.addEventListener('mousemove', updateMousePosition);
+    return () => {
+      window.removeEventListener('mousemove', updateMousePosition);
+    };
+  }, []);
+  return mousePosition;
 };

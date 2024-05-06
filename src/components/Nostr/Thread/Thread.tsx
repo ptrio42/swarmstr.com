@@ -1,6 +1,6 @@
 import {Note} from "../Note/Note";
 import React, {useCallback, useEffect, useMemo, useState} from "react";
-import {ListItem} from "@mui/material";
+import {ListItem, SelectChangeEvent} from "@mui/material";
 import List from "@mui/material/List";
 import {Link, useNavigate, useLocation} from "react-router-dom";
 import { nip19 } from 'nostr-tools';
@@ -25,6 +25,7 @@ import {EventListWrapper} from "../EventListWrapper/EventListWrapper";
 import {EventList} from "../EventList/EventList";
 import {NostrEventListContextProvider} from "../../../providers/NostrEventListContextProvider";
 import {EventPointer} from "nostr-tools/lib/nip19";
+import {TagSelect} from "../TagSelect/TagSelect";
 
 interface ThreadProps {
     nevent?: string;
@@ -136,7 +137,7 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating, ..
             <List id={id}>
 
                 {
-                    expanded && <ListItem key={'nostr-resources-nav-back'}>
+                    expanded && <ListItem key={'nostr-resources-nav-back'} sx={{ justifyContent: 'space-between' }}>
                         <Button sx={{ textTransform: 'capitalize', fontSize: '16px', borderRadius: '18px' }} color="secondary" variant="outlined" onClick={() =>
                             // @ts-ignore
                             goBack()
@@ -144,6 +145,12 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating, ..
                             <ArrowBack sx={{ fontSize: 18, marginRight: 1 }} />
                             Back
                         </Button>
+                        <TagSelect
+                            tags={Config.NOSTR_TAGS}
+                            onTagSelect={(event: SelectChangeEvent) => {
+                                navigate(`/recent/${event.target.value as string}`);
+                            }}
+                        />
                         {/*{*/}
                             {/*floating && <React.Fragment>*/}
                                 {/*<Button component={Link} to={`/e/${nevent}`}>Open</Button>*/}

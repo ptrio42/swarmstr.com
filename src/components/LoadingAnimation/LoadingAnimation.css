@@ -9,7 +9,7 @@
 .loadingImage {
     animation: tilt-shaking 0.21s infinite;
     position: absolute;
-    top: -14px;
+    /*top: -14px;*/
     left: -14px;
 }
 
@@ -22,17 +22,39 @@
     }
 }
 
-.animationContainer {
+.animationContainer, .staticImageContainer {
     display: flex;
     align-items: center;
     max-width: 94px;
 }
 
+.staticImageContainer {
+    position: absolute;
+    left: 0;
+}
+
 .animationImageContainer {
-    animation: pulse-animation 2s infinite;
-    border-radius: 50%;
     width: 44px;
     height: 44px;
     overflow: visible;
+    position: relative;
+}
+
+.dataSyncInProgress {
+    animation: pulse-animation 2s infinite;
+    border-radius: 50%;
+    top: 14px;
+    left: 8px;
+}
+
+.dataSyncInProgress img {
+    animation: tilt-shaking 0.21s infinite;
+    left: -14px;
+    top: -14px;
+}
+
+.staticLogoContainer {
+    width: 44px;
+    height: 44px;
     position: relative;
 }

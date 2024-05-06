@@ -7,12 +7,17 @@ import {ZapDialog} from "../../dialog/ZapDialog";
 import {useNostrContext} from "../../providers/NostrContextProvider";
 import {NewLabelDialog} from "../../dialog/NewLabelDialog";
 import {RelayListDialog} from "../../dialog/RelayListDialog";
+import {ImageCreatorDialog} from "../../dialog/ImageCreatorDialog";
+import {ThemeProvider} from "@mui/material";
+import Snackbar from "@mui/material/Snackbar";
 
 export const Nostr = () => {
 
     const { loginDialogOpen, setLoginDialogOpen, newNoteDialogOpen, setNewNoteDialogOpen, zapDialogOpen,
         setZapDialogOpen, newReplyDialogOpen, setNewReplyDialogOpen, newLabelDialogOpen, setNewLabelDialogOpen,
-        selectedLabelName, event, relayListDialogOpen, setRelayListDialogOpen } = useNostrContext();
+        selectedLabelName, event, relayListDialogOpen, setRelayListDialogOpen, imageCreatorDialogOpen, setImageCreatorDialogOpen,
+        snackbarMessage, setSnackbarMessage
+    } = useNostrContext();
 
     return <React.Fragment>
         <Outlet/>
@@ -47,6 +52,13 @@ export const Nostr = () => {
         <RelayListDialog
             open={relayListDialogOpen}
             onClose={() => { setRelayListDialogOpen(false) }}
+        />
+        <Snackbar
+            // sx={{ ...(!!snackbarMessage && {backgroundColor: snackbarMessage?.type === 'error' ? '#e40505' : '#5d9f12'}) }}
+            open={!!snackbarMessage}
+            autoHideDuration={3000}
+            onClose={() => setSnackbarMessage(undefined)}
+            message={snackbarMessage?.message}
         />
     </React.Fragment>;
 };
