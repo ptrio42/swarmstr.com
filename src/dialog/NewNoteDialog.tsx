@@ -93,7 +93,7 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
         }
     });
 
-    const { post, setEvent, setImageCreatorDialogOpen, imageCreatorDialogOpen } = useNostrContext();
+    const { post, setEvent, setImageCreatorDialogOpen, imageCreatorDialogOpen, setSnackbarMessage } = useNostrContext();
 
     const [tags, setTags] = useState<NDKTag[]>([]);
 

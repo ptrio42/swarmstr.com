@@ -35,6 +35,13 @@ const signer = new NDKNip07Signer();
 
 const DEFAULT_RELAYS = { readRelays: Config.CLIENT_READ_RELAYS, writeRelays: Config.CLIENT_WRITE_RELAYS };
 
+type SnackbarMessageType = 'error' | 'success';
+
+export interface SnackbarMessage {
+    type?: SnackbarMessageType,
+    message: string
+}
+
 export const NostrContextProvider = ({ children }: any) => {
 
     const ndk = useRef<NDK>(new NDK({ explicitRelayUrls: uniq(Object.values(DEFAULT_RELAYS).flat(2)) }));
@@ -72,6 +79,8 @@ export const NostrContextProvider = ({ children }: any) => {
     const subs = useRef<NDKSubscription[]>([]);
 
     const [connected, setConnected] = useState(false);
+
+    const [snackbarMessage, setSnackbarMessage] = useState<SnackbarMessage|undefined>();
 
     useEffect(() => {
         console.log('NostrContextProvider: relayUrls changed', {writeRelays, readRelays});
@@ -259,7 +268,11 @@ export const NostrContextProvider = ({ children }: any) => {
             kind,
             created_at: 0,
             pubkey: ''
-        }, writeRelays, ndk.current);
+        }, writeRelays, ndk.current, 0, () => {
+            setSnackbarMessage({ message: 'Note posted!' });
+        }, (error: any) => {
+            setSnackbarMessage({ message: error.message });
+        });
 
         console.log('done!')
 
@@ -309,7 +322,14 @@ export const NostrContextProvider = ({ children }: any) => {
             // .catch((e) => {})
     }, [writeRelays]);
 
-    const zap = useCallback((nostrEvent: NostrEvent, amount: number, callback?: () => void, comment?: string) => {
+    const zap = useCallback(
+        (
+            nostrEvent: NostrEvent,
+            amount: number,
+            callback?: () => void,
+            onError?: (error: any) => void,
+            comment?: string
+        ) => {
         const event = new NDKEvent(ndk.current, nostrEvent);
 
         // ndk.current.assertSigner()
@@ -318,6 +338,7 @@ export const NostrContextProvider = ({ children }: any) => {
                     .then((paymentRequest: string|null) => {
                         console.log('zap request...', {paymentRequest});
                         if (!paymentRequest) {
+                            onError && onError({ message: 'No payment request received.' });
                             return;
                         }
 
@@ -330,6 +351,7 @@ export const NostrContextProvider = ({ children }: any) => {
                                         callback && callback();
                                     })
                                     .catch((error) => {
+                                        onError && onError(error);
                                         console.error(`unable to zap`);
                                         const a = document.createElement('a');
                                         a.href = `lightning:${paymentRequest}`;
@@ -337,6 +359,7 @@ export const NostrContextProvider = ({ children }: any) => {
                                     })
                             })
                             .catch((error: any) => {
+                                onError && onError(error);
                                 console.error(`unable to request ln provider`)
                                 const a = document.createElement('a');
                                 a.href = `lightning:${paymentRequest}`;
@@ -344,6 +367,7 @@ export const NostrContextProvider = ({ children }: any) => {
                             })
                     })
                     .catch((error: any) => {
+                        onError && onError(error);
                         console.error(`problem getting zap request`)
                     })
             // })
@@ -411,7 +435,14 @@ export const NostrContextProvider = ({ children }: any) => {
             // .catch()
     }, []);
 
-    const label = useCallback((label: NoteLabel, nostrEvent: NostrEvent, pubkey: string, content: string, callback?: () => void) => {
+    const label = useCallback((
+        label: NoteLabel,
+        nostrEvent: NostrEvent,
+        pubkey: string,
+        content: string,
+        callback?: () => void,
+        onError?: (error: any) => void
+    ) => {
         try {
             const { reaction, name } = label;
             const event = new NDKEvent(ndk.current);
@@ -463,10 +494,13 @@ export const NostrContextProvider = ({ children }: any) => {
                                     //     // @ts-ignore
                                     //     referencedEventId: valueFromTag(nostrEvent, 'e')
                                     // });
+                                    setSnackbarMessage({ message: 'Voted!' });
                                     callback && callback();
                                 })
                                 .catch((error: any) => {
-                                    console.error('unable to publish label event...')
+                                    console.error('unable to publish label event...');
+                                    onError && onError(error);
+                                    setSnackbarMessage({ message: error.message });
                                 })
                 //         })
                 //         .catch((error) => {
@@ -479,6 +513,8 @@ export const NostrContextProvider = ({ children }: any) => {
 
         } catch (error: any) {
             console.error({error});
+            onError && onError(error);
+            setSnackbarMessage({ message: error.message });
         }
     }, [writeRelays]);
 
@@ -495,7 +531,7 @@ export const NostrContextProvider = ({ children }: any) => {
                         loading, setLoading, zapDialogOpen, setZapDialogOpen, newReplyDialogOpen, setNewReplyDialogOpen,
                         event: currentEvent, setEvent: setCurrentEvent, selectedLabelName, setSelectedLabelName,
                         addTag, removeTag, tags, connected, relayListDialogOpen, setRelayListDialogOpen, setImageCreatorDialogOpen,
-                        imageCreatorDialogOpen, setTags
+                        imageCreatorDialogOpen, setTags, snackbarMessage, setSnackbarMessage
                     }}>
                     {children}
                 </NostrContext.Provider>

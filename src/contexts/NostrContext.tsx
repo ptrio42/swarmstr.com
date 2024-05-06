@@ -1,6 +1,7 @@
 import NDK, {NDKEvent, NDKFilter, NDKSubscriptionOptions, NDKTag, NDKUser, NostrEvent} from '@nostr-dev-kit/ndk';
 import React, {createContext} from "react";
 import {NoteLabel} from "../dialog/NewLabelDialog";
+import {SnackbarMessage} from "../providers/NostrContextProvider";
 
 type NostrContextType = {
     ndk: NDK,
@@ -14,11 +15,11 @@ type NostrContextType = {
     setLoginDialogOpen: (open: boolean) => void,
     newNoteDialogOpen: boolean,
     setNewNoteDialogOpen: (open: boolean) => void,
-    label: (label: NoteLabel, nostrEvent: NostrEvent, pubkey: string, content: string, callback?: () => void) => void,
+    label: (label: NoteLabel, nostrEvent: NostrEvent, pubkey: string, content: string, callback?: () => void, onError?: (error: any) => void) => void,
     newLabelDialogOpen: boolean,
     setNewLabelDialogOpen: (open: boolean) => void,
     addReaction: (id: string, content: string) => void,
-    zap: (nostrEvent: NostrEvent, amount: number, callback?: () => void, comment?: string) => void,
+    zap: (nostrEvent: NostrEvent, amount: number, callback?: () => void, onError?: (error: any) => void, comment?: string) => void,
     boost: (nostrEvent: NostrEvent) => void,
     payInvoice: (paymentRequest: string) => void,
     writeRelays: string[],
@@ -43,7 +44,9 @@ type NostrContextType = {
     setRelayListDialogOpen: (open: boolean) => void,
     imageCreatorDialogOpen: boolean,
     setImageCreatorDialogOpen: (open: boolean) => void,
-    setTags: (tags: string[]) => void
+    setTags: (tags: string[]) => void,
+    snackbarMessage?: SnackbarMessage,
+    setSnackbarMessage: (message?: SnackbarMessage) => void
 }
 
 export const NostrContext = createContext<NostrContextType>({
@@ -84,5 +87,6 @@ export const NostrContext = createContext<NostrContextType>({
     setRelayListDialogOpen: () => {},
     imageCreatorDialogOpen: false,
     setImageCreatorDialogOpen: () => {},
-    setTags: () => {}
+    setTags: () => {},
+    setSnackbarMessage: () => {}
 });

@@ -14,7 +14,7 @@ export const LoadingDialog = ({ open }: LoadingDialogProps) => {
     };
 
     return <Dialog open={open} onClose={handleClose}>
-        <Box className="dialogAnimation-container" sx={{ width: '128px', height: '128px', display: 'flex', justifyContent: 'center', marginLeft: '-16px', overflow: 'visible' }}>
+        <Box className="dialogAnimation-container" sx={{ width: '128px', height: '112px', display: 'flex', justifyContent: 'center', marginLeft: '-16px', marginTop: '-27px', overflow: 'visible' }}>
             <LoadingAnimation isLoading={true}/>
         </Box>
     </Dialog>
