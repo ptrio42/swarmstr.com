@@ -10,18 +10,28 @@ interface LoadingAnimationProps {
 }
 
 export const LoadingAnimation = ({ isLoading, loadingText }: LoadingAnimationProps) => {
-    if (!isLoading) return <div></div>;
-
     return (
-        <Box className="animationContainer" sx={{ margin: '1em' }}>
-            <Box className="animationImageContainer">
-                <img
-                    width="72px"
-                    className="loadingImage"
-                    alt={'Loading...'}
-                    src={Config.LOGO_IMG}
-                />
-            </Box>
+        <Box className={ isLoading ? 'animationContainer' : 'staticImageContainer' }>
+            {/*{*/}
+                {/*isLoading &&*/}
+                <Box className={`animationImageContainer ${isLoading ? 'dataSyncInProgress' : '' }`}>
+                    <img
+                        width="72px"
+                        alt={isLoading ? 'Syncing data...' : 'Swarmstr'}
+                        src={Config.LOGO_IMG}
+                    />
+                </Box>
+            {/*}*/}
+            {/*{*/}
+                {/*!isLoading && <Box className="staticLogoContainer">*/}
+                        {/*<img*/}
+                            {/*width="72px"*/}
+                            {/*className="staticImage"*/}
+                            {/*alt={'Swarmstr'}*/}
+                            {/*src={Config.LOGO_IMG}*/}
+                        {/*/>*/}
+                    {/*</Box>*/}
+            {/*}*/}
             {
                 loadingText && loadingText !== '' && <Typography
                     sx={{ paddingLeft: '21px' }}

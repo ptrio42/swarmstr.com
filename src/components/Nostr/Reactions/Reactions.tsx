@@ -101,6 +101,11 @@ export const REACTIONS = [
         type: ReactionType.UP,
         content: '👀',
         name: 'eyes'
+    },
+    {
+        type: ReactionType.UP,
+        content: '🫡',
+        name: ''
     }
 ];
 

@@ -22,6 +22,7 @@ import {List} from "./components/Nostr/List/List";
 import {Profile} from "./components/Nostr/Profile/Profile";
 import {Home} from "./components/Nostr/Home/Home";
 import {ImageCreator} from "./components/ImageCreator/ImageCreator";
+import {ImageCreatorDialog} from "./dialog/ImageCreatorDialog";
 
 const theme = createTheme({
     typography: {
@@ -98,16 +99,17 @@ function App() {
 
   useEffect(() => {
     if (hash === '') {
-      window.scrollTo(0, 0);
+        return;
+      // window.scrollTo(0, 0);
     }
     else {
-      setTimeout(() => {
-        const id = hash.replace('#', '');
-        const element = document.getElementById(id);
-        if (element) {
-          element.scrollIntoView();
-        }
-      }, 0);
+      // setTimeout(() => {
+      //   const id = hash.replace('#', '');
+      //   const element = document.getElementById(id);
+      //   if (element) {
+      //     element.scrollIntoView();
+      //   }
+      // }, 500);
     }
   }, [pathname, hash, key]);
 
@@ -127,7 +129,7 @@ function App() {
                         <Route path="/e/:nevent" element={<ThreadWrapper/>} />
                         <Route path="/d/:listName" element={<List/>} />
                         <Route path="/p/:npub" element={<Profile/>} />
-                        <Route path="/image-creator" element={<ImageCreator/>} />
+                        {/*<Route path="/image-creator" element={<ImageCreator/>} />*/}
 
                     </Route>
                     <Route path="/nostr-address" element={<Nip05/>} />

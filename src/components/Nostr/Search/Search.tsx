@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import {Box} from "@mui/material";
 import {useNostrFeedContext} from "../../../providers/NostrFeedContextProvider";
-import {NDKFilter, NDKRelay, NDKSubscription, NDKTag} from "@nostr-dev-kit/ndk";
+import {NDKFilter, NDKRelay, NDKSubscription, NDKTag, NDKEvent, NostrEvent} from "@nostr-dev-kit/ndk";
 import {nip19} from "nostr-tools";
 import {Link, useSearchParams} from "react-router-dom";
 import {containsTag, valueFromTag} from "../../../utils/utils";
@@ -37,11 +37,12 @@ import MenuItem from "@mui/material/MenuItem";
 
 export const Search = () => {
     const { events, clearEvents } = useNostrFeedContext();
-    const { subscribe, query, setQuery, loading, setLoading, tags } = useNostrContext();
+    const { subscribe, query, setQuery, loading, setLoading, tags, setTags, ndk } = useNostrContext();
     const { searchString } = useParams();
     const navigate = useNavigate();
 
     const [searchParams, setSearchParams] = useSearchParams();
+    const searchTags = searchParams.get('tags');
     // const searchString = searchParams.get('s');
     const nevent = searchParams.get('e');
 
@@ -57,7 +58,7 @@ export const Search = () => {
 
     const [hasErrors, setHasErrors] = useState<boolean>(false);
 
-    // const ws = useRef(new WebSocket('ws://localhost:8082'));
+    const subIds = useRef<string[]>([]);
 
     const { sendMessage, lastMessage, readyState,  } = useWebSocket('ws://localhost:8082', {
         onMessage: (message) => {
@@ -83,6 +84,19 @@ export const Search = () => {
     }[readyState];
 
     const [searchStatus, setSearchStatus] = useState<string>('idle');
+
+    const unsubscribe = () => {
+        ndk.pool.connectedRelays().forEach((relay: NDKRelay) => {
+            relay.activeSubscriptions().forEach((subs: NDKSubscription[]) => {
+                subs.forEach((sub: NDKSubscription) => {
+                    if (subIds.current.includes(sub.internalId)) {
+                        sub.stop();
+                        console.log(`Stopping sub ${sub.internalId}`);
+                    }
+                })
+            })
+        });
+    };
 
     useEffect(() => {
         if (lastMessage !== null) {
@@ -114,25 +128,27 @@ export const Search = () => {
     const filteredEvents = useMemo(() =>
         uniqBy(sortBy(events, 'created_at').reverse(), 'id'), [events]);
 
-    const bestResultsSuggestions = useLiveQuery(
-        async (): Promise<string[]> => {
+    const [bestResultsSuggestions, suggestionsLoaded] = useLiveQuery(
+        async (): Promise<[string[], boolean]> => {
             const labels = await db.labels
                 .filter(({tags}) => containsTag(tags, ['l', `search/${encodeURIComponent(decodeURIComponent(query).toLowerCase().replace(/([.?\-,_=])/gm, ''))}`, '#e']))
                 .toArray();
             console.log('Search: labels: ', {labels});
             // @ts-ignore
-            return uniq(labels.map((event: LabelEvent) => valueFromTag(event, 'e')))
+            return [uniq(labels.map((event: LabelEvent) => valueFromTag(event, 'e'))), true];
         }
-    , [query], []);
+    , [query], [[], false]);
 
     const bestResults = useLiveQuery(
-        async () => searchApiResults.length > 0 || bestResultsSuggestions.length > 0 ? db.notes
+        async () => (searchApiResults.length > 0 || bestResultsSuggestions.length > 0) ? db.notes
             // @ts-ignore
             .where('id').anyOf(uniq([...searchApiResults, ...bestResultsSuggestions].filter((id) => !!id)!))
             .toArray() : []
     , [searchApiResults, bestResultsSuggestions], []);
 
     const explicitTags = Config.EXPLICIT_TAGS;
+
+    const [userSuggestions, setUserSuggestions] = useState<NostrEvent[]>([]);
 
     const boxRef = useRef();
 
@@ -147,7 +163,10 @@ export const Search = () => {
 
                 console.log({tags})
 
-                getSearchResults(query, tags)
+                const latestSuggestion = bestResults && bestResults.length > 0 &&
+                    sortBy(bestResults, ['created_at']).reverse()[0].created_at;
+
+                getSearchResults(query, tags, latestSuggestion || 0)
                     .then((ids?: string[]|void) => {
                         // const ids = response.data;
                         if (!!ids) {
@@ -163,38 +182,57 @@ export const Search = () => {
                         setLoading(false);
                     });
 
-                subscribe({
+                const subId = subscribe({
                     kinds: [1985],
                     '#l': [`search/${encodeURIComponent(decodeURIComponent(query).toLowerCase().replace(/([.?\-,_=])/gm, ''))}`, '#e']
                 }, {closeOnEose: false, groupable: false});
+
+                const sub1Id = subscribe({
+                    kinds: [0],
+                    search: query
+                }, {closeOnEose: true, groupable: false}, () => {}, (ev: NDKEvent) => {
+                    setUserSuggestions((prevState) => uniqBy([
+                        ...prevState,
+                        ev.rawEvent()
+                    ], 'pubkey'));
+                }, [Config.SEARCH_RELAY]);
+                subIds.current.push(subId, sub1Id);
             }
         }, 1000)
-    , [tags]);
+    , [tags, bestResults]);
 
     useEffect(() => {
-        subscribe({
+        const subId = subscribe({
                 kinds: [1],
                 ids: uniq([...searchApiResults, ...bestResultsSuggestions].filter((e: string) => !!e))
             },
-            { closeOnEose: true, groupable: false })
+            { closeOnEose: true, groupable: false });
+        subIds.current.push(subId);
 
     }, [searchApiResults, bestResultsSuggestions]);
 
     useEffect(() => {
+        console.log('Search: userSuggestions: ', {userSuggestions})
+    }, [userSuggestions]);
+
+    useEffect(() => {
         clearEvents();
         setSubscribed(false);
-        setLoading(true);
         setLoaded(false);
         setHasErrors(false);
         setSearchSuggestions([]);
         setSearchApiResults([]);
+        unsubscribe();
+        if (searchString && searchString.length > 2) {
+            setLoading(true);
+        }
         setQuery(searchString?.replace('?', '%3F') || '');
-    }, [searchString]);
+    }, [searchString, tags]);
 
     useEffect(() => {
         debouncedQuery(query);
-        console.log('change:', {query})
-    }, [query]);
+        console.log('change:', {query, tags})
+    }, [query, tags]);
 
     useEffect(() => {
         if (!!nevent && !!nip19.decode(nevent).data) {
@@ -206,16 +244,33 @@ export const Search = () => {
         }
     }, [nevent]);
 
+    useEffect(() => {
+        console.log({searchTags});
+
+        const _tags: string[] | undefined = searchTags?.split(',');
+        if (tags?.length > 0) {
+            setTags(_tags!);
+        } else {
+            setTags(Config.NOSTR_TAGS);
+        }
+    }, [searchTags]);
+
     useEffect(()=> {
         setTimeout(() => {
             setShowPreloader(false);
-        }, 2100);
+        }, 200);
+
+        setTags(Config.NOSTR_TAGS);
 
         // ws.current.on('message', (message: any) => {
         //     console.log(`webSocket message: ${message}`)
         // })
 
         sendMessage(`websocket: Hello from Search.tsx!`)
+
+        return () => {
+            unsubscribe();
+        }
     },[]);
 
     useEffect(() => {
@@ -249,16 +304,16 @@ export const Search = () => {
             </Helmet>
             <Box className="landingPage-boxContainer" ref={boxRef}>
                 {
-                    !loading && bestResultsSuggestions.length === 0 && hasErrors && <Typography className="searchResults-apiTimeout" component="div" variant="body1">
+                    !loading && bestResults.length === 0 && hasErrors && <Typography className="searchResults-apiTimeout" component="div" variant="body1">
                         Timeout. Please try again.
                         <IconButton color="error" size="small" onClick={() => { debouncedQuery(query); setLoading(true); }}><Refresh fontSize="inherit"/></IconButton>
                     </Typography>
                 }
-                {
-                    loading && <Typography className="searchResults-loadingResults" component="div" variant="body1">
-                        <LoadingAnimation isLoading={loading}/>
-                    </Typography>
-                }
+                {/*{*/}
+                    {/*loading && <Typography className="searchResults-loadingResults" component="div" variant="body1">*/}
+                        {/*<LoadingAnimation isLoading={loading}/>*/}
+                    {/*</Typography>*/}
+                {/*}*/}
                 {
                     !loading && !hasErrors && bestResults.length > 0 && <Typography component="div" variant="body1">{bestResults.length} results</Typography>
                 }

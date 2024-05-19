@@ -9,6 +9,7 @@ import React from "react";
 import ReactPlayer from 'react-player';
 import { Element, isTag } from 'domhandler';
 import {keywordsFromString} from "../utils/utils";
+import {EventPointer} from "nostr-tools/lib/types/nip19";
 
 const bech32Prefixes = ['note', 'npub'];
 const bech32PrefixesTlv = ['nprofile', 'nevent', 'naddr', 'nrelay'];
@@ -26,7 +27,7 @@ export const noteContentToHtml = (text: string, tags?: string[][], searchString?
     let processedText = text || '';
     processedText = processedText
     // remove any tag from the text that is listed in Config.NOSTR_TAGS
-    .replace(new RegExp(`s(?=${tags?.map((t) => `#${t[1]}`).join('|')})`, 'gi'), '')
+    .replace(new RegExp(`(?=${tags?.map((t) => `#${t[1]}`).join('|')})`, 'gi'), '')
     .replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/nostr:npub1([a-z0-9]+)/gmi, (result) => {
         const npub = result.split(':')[1];
@@ -36,7 +37,9 @@ export const noteContentToHtml = (text: string, tags?: string[][], searchString?
         const note1 = result.split(':')[1];
         try {
             const id = nip19.decode(note1).data;
-            const nevent = nip19.neventEncode({ id });
+
+            // @ts-ignore
+            const nevent = nip19.neventEncode({ id }) as string;
             return `<button class="thread-btn">${nevent}</button>`;
         } catch (e) {
             return note1;
@@ -113,7 +116,7 @@ export const noteContentToHtml = (text: string, tags?: string[][], searchString?
             return tags && tags[+id];
         }
     })
-    .replace(/(?<!\'\")\B(\#[a-zA-Z0-9\-]+\b)(?!;)(?![\w\s]*[\'\"])/gm, (result) => {
+    .replace(/(?<!\'\")\B(\#[a-zA-Z0-9\-]+\b)(?!;)(?![\w\s]*[\'\"])/gmi, (result) => {
         const hashtag = result.replace('#', '');
         return `<a href="${process.env.BASE_URL}/recent/${hashtag.replace(/(<([^>]+)>)/gi, '')}">#${hashtag}</a>`
     })

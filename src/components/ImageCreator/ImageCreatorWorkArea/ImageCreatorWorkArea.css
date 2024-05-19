@@ -1,0 +1,25 @@
+.imageCreator-workArea {
+    background: transparent;
+    position: relative;
+}
+
+.workArea-anchorElement {
+    position: absolute;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    width: 1px;
+    height: 1px;
+}
+
+.workArea-itemsOptions {
+    margin: 8px;
+    padding: 8px;
+    border: 1px solid rgba(0,0,0,.3);
+    border-radius: 4px;
+    max-width: 400px;
+}
+
+.theme--dark .workArea-itemsOptions {
+    border: 1px solid rgba(255,255,255,.1);
+}

@@ -1,7 +1,7 @@
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import Box from "@mui/material/Box";
-import {useFormik} from "formik";
+import {useFormik, useFormikContext} from "formik";
 import React, {lazy, useEffect, useRef, useState, Suspense} from "react";
 import TextField from "@mui/material/TextField";
 import './NewNoteDialog.css';
@@ -28,19 +28,15 @@ import {Config} from "../resources/Config";
 import {TAG_EMOJIS} from "../components/Nostr/NoteTags/NoteTags";
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
+import CompareIcon from '@mui/icons-material/Compare';
+import {TagChipSelect} from "../components/Nostr/TagChipSelect/TagChipSelect";
+import {ImageCreatorDialog} from "./ImageCreatorDialog";
+import DialogContent from "@mui/material/DialogContent";
+import {LoadingDialog} from "./LoadingDialog";
+
+const SWARMSTR_SUB_TAGS: NDKTag[] = [['t', 'enhancement'], ['t', 'bug'], ['t', 'announcement']];
 
 const MDEditor = lazy(() => import('@uiw/react-md-editor'));
-
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-    PaperProps: {
-        style: {
-            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-            width: 250,
-        },
-    },
-};
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -86,7 +82,18 @@ interface NewNoteDialogProps {
 
 export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNoteDialogProps) => {
 
-    const { post, setEvent } = useNostrContext();
+    const formik = useFormik({
+        // enableReinitialize: true,
+        initialValues: {
+            content: '',
+            title: ''
+        },
+        onSubmit: (values) => {
+            console.log(`form submit`, {values});
+        }
+    });
+
+    const { post, setEvent, setImageCreatorDialogOpen, imageCreatorDialogOpen, setSnackbarMessage } = useNostrContext();
 
     const [tags, setTags] = useState<NDKTag[]>([]);
 
@@ -102,15 +109,11 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
 
     const [explicitTags, setExplicitTags] = useState<NDKTag[]>(props.explicitTags || []);
 
-    const formik = useFormik({
-        initialValues: {
-            content: '',
-            title: ''
-        },
-        onSubmit: (values) => {
-            console.log(`form submit`, {values});
-        }
-    });
+    const [imageUrl, setImageUrl] = useState<string>();
+
+    const [content, setContent] = useState<string>('');
+
+    const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
         // const diff = replyTo && differenceWith(replyTo.map((pubkey: string) => (['p', pubkey])), tags, (t1, t2) => t1[0] === t2[0] && t1[1] === t2[1]);
@@ -128,15 +131,17 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
     }, [tabIndex]);
 
     useEffect(() => {
-        const { content } = formik.values;
-        // console.log(`content change`, {content});
-        if (!content) return;
+        // const { content } = formik.values;
+        console.log(`content change`, {content}, formik.values.content);
+        setContent(formik.values.content);
+        if (!formik.values.content) return;
 
         const eTags: NDKTag[] = [
             ...(content.match(/nostr:note1([a-z0-9]+)/gm) || []),
             ...(content.match(/nostr:nevent1([a-z0-9]+)/gm) || [])
         ]?.filter((e) => !!e)
             .map((match: string) => nip19.decode(match.split(':')[1]))
+            // @ts-ignore
             .map(({data}) => ['e', data?.id || data]);
 
         const tTags = content.match(/\B(\#[a-zA-Z0-9]+\b)(?!;)/gm)
@@ -161,7 +166,17 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
 
     useEffect(() => {
         // console.log({tags})
-    }, [tags])
+    }, [tags]);
+
+    useEffect(() => {
+        // if (!imageUrl) return;
+        // console.log({imageUrl});
+        // setTimeout(() => {
+        //     formik.setFieldValue('content', formik.values.content + `\n${imageUrl}`, false);
+        //     formik.setFieldTouched('content', true, false);
+        // }, 1000);
+        // setImageUrl(undefined);
+    }, [imageUrl]);
 
     const handleClose = () => {
         // console.log('close');
@@ -206,9 +221,13 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
                     <Tabs value={tabIndex} onChange={handleChange} aria-label="Choose note type">
                         <Tab className="newNote-tab" label={event?.id ? 'Short reply' : 'New Note'} {...a11yProps(0)} />
                         <Tab className="newNote-tab" label={ event?.id ? 'Create reply' : 'Create Post' } {...a11yProps(1)} />
+                        <Button sx={{ textTransform: 'capitalize', margin: '8px' }} color="warning" variant="outlined" onClick={() => { setImageCreatorDialogOpen(true) }}>
+                            <CompareIcon sx={{ fontSize: 32 }}/> Create Image
+                        </Button>
                     </Tabs>
                 </Box>
             </DialogTitle>
+        <DialogContent>
             <Box sx={{ height: '90%' }} className="newNote-form">
                 <form onSubmit={formik.handleSubmit}>
                     <TabPanel index={0} value={tabIndex}>
@@ -219,8 +238,11 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
                             label={ label || 'Post' }
                             multiline
                             rows={10}
-                            value={formik.values.content}
+                            value={content}
                             onChange={(event: any) => {
+                                console.log('content event', {event}, formik.values.content)
+                                // formik.setFieldValue('content', event.target.value);
+                                // setContent(event.target.value);
                                 formik.handleChange(event);
                             }}
                         />
@@ -238,7 +260,7 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
                             }} />
                         <Suspense fallback={'Loading...'}>
                             <MDEditor
-                                value={formik.values.content}
+                                value={content}
                                 onChange={(value: string | undefined) => {
                                     formik.setFieldValue('content', value);
                                 }}
@@ -247,39 +269,84 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
                     </TabPanel>
                 </form>
             </Box>
-            <Box sx={{ marginLeft: '24px' }}>
-                <FormControl>
-                <InputLabel id="tags-chip-label">Select tags</InputLabel>
-                <Select
-                    sx={{ width: '94%' }}
-                    labelId="tags-chip-label"
-                    id="tags-chip"
-                    label={'Tags'}
-                    multiple
-                    color={'primary'}
-                    value={explicitTags.map((t: NDKTag) => t[1])}
-                    onChange={handleTagsSelectChange}
-                    input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
-                    renderValue={(selected) => (
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                            {selected.map((value) => (
-                                <Chip size={'small'} key={value} label={`${TAG_EMOJIS[value]} ${value}`} />
-                            ))}
-                        </Box>
-                    )}
-                    MenuProps={MenuProps}
-                >
-                    {Config.NOSTR_TAGS.map((tag) => (
-                        <MenuItem
-                            key={tag}
-                            value={tag}
-                        >
-                            {tag}
-                        </MenuItem>
-                    ))}
-                </Select>
-                </FormControl>
-            </Box>
+            <TagChipSelect
+                tags={Config.NOSTR_TAGS}
+                selectedTags={explicitTags.map((t: NDKTag) => t[1])}
+                onTagSelect={handleTagsSelectChange}
+            />
+
+        {/*{*/}
+            {/*explicitTags.findIndex((tag: NDKTag) => tag[0] === 't' && tag[1] === 'swarmstr') && <TagChipSelect*/}
+                {/*tags={SWARMSTR_SUB_TAGS.map((t: NDKTag) => t[1])}*/}
+                {/*selectedTags={explicitTags.filter((t: NDKTag) => SWARMSTR_SUB_TAGS.includes(t)).map((t: NDKTag) => t[1])}*/}
+                {/*onTagSelect={handleTagsSelectChange}*/}
+            {/*/>*/}
+        {/*}*/}
+            {/*<Box sx={{ marginLeft: '24px' }}>*/}
+                {/*<FormControl>*/}
+                {/*<InputLabel id="tags-chip-label">Select tags</InputLabel>*/}
+                {/*<Select*/}
+                    {/*sx={{ width: '94%' }}*/}
+                    {/*labelId="tags-chip-label"*/}
+                    {/*id="tags-chip"*/}
+                    {/*label={'Tags'}*/}
+                    {/*multiple*/}
+                    {/*color={'primary'}*/}
+                    {/*value={explicitTags.map((t: NDKTag) => t[1])}*/}
+                    {/*onChange={handleTagsSelectChange}*/}
+                    {/*input={<OutlinedInput id="select-multiple-chip" label="Chip" />}*/}
+                    {/*renderValue={(selected) => (*/}
+                        {/*<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>*/}
+                            {/*{selected.map((value) => (*/}
+                                {/*<Chip size={'small'} key={value} label={`${TAG_EMOJIS[value]} ${value}`} />*/}
+                            {/*))}*/}
+                        {/*</Box>*/}
+                    {/*)}*/}
+                    {/*MenuProps={MenuProps}*/}
+                {/*>*/}
+                    {/*{Config.NOSTR_TAGS.map((tag) => (*/}
+                        {/*<MenuItem*/}
+                            {/*key={tag}*/}
+                            {/*value={tag}*/}
+                        {/*>*/}
+                            {/*{tag}*/}
+                        {/*</MenuItem>*/}
+                    {/*))}*/}
+                {/*</Select>*/}
+                {/*</FormControl>*/}
+            {/*</Box>*/}
+            <ImageCreatorDialog
+                open={imageCreatorDialogOpen}
+                formik={formik}
+                onClose={(image?: any, _formik?: any) => {
+                    setLoading(true);
+                    // console.log({imageUrl});
+                    // setImageUrl(imageUrl);
+
+                    if (image) {
+                        // fileInputRef.current!.value = image;
+                        // fileInputRef.current?.click();
+                        uploadToNostrCheckMe(image)
+                            .then((url: string) => {
+                                console.log({content: formik.values.content, url});
+                                formik.setFieldValue('content', formik.values.content + `\n${url}`);
+                                setLoading(false);
+                            })
+                    } else {
+                        setLoading(false);
+                    }
+                    // {
+                    //     setTimeout(() => {
+                    //         formik.setFieldValue('content', formik.values.content + `\n${imageUrl}`);
+                    //         setFieldValue('content', formik.values.content + `\ngfy`);
+                    //         formik.handleChange('content');
+                    //         console.log({content: formik.values.content, imageUrl})
+                    //     }, 1);
+                    // }
+                    setImageCreatorDialogOpen(false);
+                }}
+            />
+        </DialogContent>
             <DialogActions>
                 <form>
                     <input
@@ -292,10 +359,12 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
                         onChange={(event: any) => {
                             const files = (event.currentTarget as HTMLInputElement).files;
                             if (files && files.length > 0) {
+                                setLoading(true);
                                 uploadToNostrCheckMe(files[0])
                                     .then((url: string) => {
                                         console.log('uploaded')
                                         formik.setFieldValue('content', formik.values.content + `\n${url}`);
+                                        setLoading(false);
                                     });
                             }
                         }} />
@@ -306,6 +375,7 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
                             <ImageIcon sx={{ fontSize: 32 }}/>
                         </Button>
                 </form>
+
                 <Button color="warning" onClick={() => {
                     setGifDialogOpen(true);
                 }}>
@@ -315,11 +385,13 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
                     Cancel
                 </Button>
                 <Button  sx={{ textTransform: 'capitalize', borderRadius: '18px' }} variant="contained" color="warning" onClick={() => {
+                    setLoading(true);
                     post(formik.values.content, tags, kind)
                         .then(() => {
                             formik.setFieldValue('content', '');
                             formik.setFieldValue('title', '');
                             setEvent(undefined);
+                            setLoading(false);
                             onClose && onClose();
                         })
                 }} autoFocus>
@@ -331,5 +403,6 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
             if (gifUrl) formik.setFieldValue('content', formik.values.content + `\n${gifUrl}`);
             setGifDialogOpen(false);
         }} />
+        <LoadingDialog open={loading}/>
     </React.Fragment>
 };

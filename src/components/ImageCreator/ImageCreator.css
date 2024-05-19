@@ -35,3 +35,12 @@
 .ReactCrop__child-wrapper {
     width: max-content;
 }
+
+.downloaded-image:hover {
+    text-decoration: none;
+}
+
+.imageCreator-image:hover {
+    text-decoration: none;
+    border: none;
+}

@@ -19,6 +19,7 @@ import {db} from "../../../db";
 import Tooltip from "@mui/material/Tooltip";
 import Box from "@mui/material/Box";
 import {useNostrContext} from "../../../providers/NostrContextProvider";
+import {Link} from "react-router-dom";
 
 export interface Metadata {
     nip05: string;
@@ -167,9 +168,9 @@ export const Metadata = ({ pubkey, handleCopyNpub, variant = 'full' }: MetadataP
                                             }}
                                         >
 
-                                            <a target="_blank" href={`${process.env.BASE_URL}/p/${npub}`}>
+                                            <Link to={`/p/${npub}`}>
                                                 {getProfileDisplayedName()}
-                                            </a>
+                                            </Link>
                                             {
                                                 variant !== 'link' &&
                                                 <React.Fragment>

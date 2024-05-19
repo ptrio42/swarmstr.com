@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Box from '@mui/material/Box';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -17,6 +17,11 @@ import { Metadata } from '../Nostr/Metadata/Metadata';
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import {nip19} from 'nostr-tools';
+import {LoadingAnimation} from "../LoadingAnimation/LoadingAnimation";
+import {useLiveQuery} from "dexie-react-hooks";
+import {db} from "../../db";
+import {NostrEvent} from "@nostr-dev-kit/ndk";
+import {uniqBy} from "lodash";
 
 export const NavBar = () => {
     const { user, setLoginDialogOpen, setNewNoteDialogOpen, query, loading, ndk, setRelayListDialogOpen } = useNostrContext();
@@ -24,6 +29,25 @@ export const NavBar = () => {
 
     const [userMenuAnchorEl, setUserMenuAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(userMenuAnchorEl);
+
+    const [userSearchString, setUserSearchString] = useState<string>('');
+
+    const searchSuggestions = useLiveQuery(
+        () => userSearchString.length > 2 ? db.users
+            .filter(({content}: NostrEvent) => {
+                try {
+                    const metadata = JSON.parse(content);
+                    // console.log('NavBar: metadata: ', {metadata}, {userSearchString})
+                    return new RegExp(userSearchString, 'gi')
+                        .test(`${metadata.name}:${metadata.displayName}:${metadata.display_name}:${metadata.username}`)
+                } catch (e) {
+                    return false;
+                }
+            })
+            .distinct()
+            .limit(5)
+            .toArray() : []
+        , [userSearchString], []);
 
     const handleNewNoteButtonClick = () => {
         if (user) {
@@ -47,10 +71,14 @@ export const NavBar = () => {
                 className="navbar"
                 position="static"
             >
-                <Toolbar sx={{ justifyContent: 'space-between', width: '100%', maxWidth: '640px', margin: 'auto', padding: 0 }}>
+                <Toolbar sx={{ justifyContent: 'space-between', width: '100%', maxWidth: '640px', margin: 'auto', padding: 0, position: 'relative' }}>
                     {/*<Badge>*/}
                         <Link className="logo" to="/">
-                            <img width="64px" height="64px" alt={Config.APP_TITLE} src={Config.LOGO_IMG}/>
+                            {/*<img width="64px" height="64px" alt={Config.APP_TITLE} src={Config.LOGO_IMG}/>*/}
+                            {/*<Box sx={{ width: '64px', height: '64px', overflow: 'visible', display: 'flex' }}><LoadingAnimation isLoading={true}/></Box>*/}
+                            {/*{*/}
+                                <Box sx={{ width: '64px', height: '64px' }}><LoadingAnimation isLoading={loading}/></Box>
+                            {/*}*/}
                         </Link>
                     {/*</Badge>*/}
                     <Box className="navbarMenu" sx={{ width: '100%', display: 'flex' }}>
@@ -61,6 +89,10 @@ export const NavBar = () => {
                             onQueryChange={(event: any) => {
                                 navigate(`/search/${encodeURIComponent(event.target.value?.replace('?', '%3F'))}`);
                             }}
+                            onSilentQueryChange={({ target: {value} }) => {
+                                setUserSearchString(decodeURIComponent(value))
+                            }}
+                            searchSuggestions={uniqBy(searchSuggestions.map(({pubkey}) => pubkey), 'pubkey')}
                         />
                     </Box>
 

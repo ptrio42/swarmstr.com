@@ -59,3 +59,11 @@ header {
   color: rgba(255,255,255,.77);
   border-color: rgba(255,255,255,.2);
 }
+
+.logo .animationContainer {
+  margin: 0!important;
+}
+
+.logo img {
+  position: absolute;
+}

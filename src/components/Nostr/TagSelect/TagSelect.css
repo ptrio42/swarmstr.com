@@ -1,0 +1,12 @@
+.select-tag.MuiInputBase-root {
+    padding: 0!important;
+}
+
+.select-tag.MuiInputBase-root div {
+    padding-top: 8px!important;
+    padding-bottom: 8px!important;
+}
+
+#select-tag-label {
+    margin-top: -7px!important;
+}

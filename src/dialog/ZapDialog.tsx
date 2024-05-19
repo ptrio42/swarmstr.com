@@ -14,6 +14,7 @@ import Box from "@mui/material/Box";
 import InputAdornment from "@mui/material/InputAdornment";
 import Input from "@mui/material/Input";
 import './ZapDialog.css';
+import {LoadingDialog} from "./LoadingDialog";
 
 interface ZapDialogProps {
     open: boolean,
@@ -64,9 +65,11 @@ export const ZapDialog = ({ open, event, onClose }: ZapDialogProps) => {
 
     const [selectedZapAmount, setSelectedZapAmount] = useState<number>(21);
 
-    const { zap } = useNostrContext();
+    const { zap, setSnackbarMessage } = useNostrContext();
 
     const [zapComment, setZapComment] = useState<string>('');
+
+    const [loading, setLoading] = useState<boolean>(false);
 
     const handleClose = () => {
         onClose && onClose();
@@ -138,6 +141,7 @@ export const ZapDialog = ({ open, event, onClose }: ZapDialogProps) => {
                         />
                     </Box>
                 </Stack>
+                <LoadingDialog open={loading}/>
             </DialogContent>
             <DialogActions>
                 <Button color="secondary" onClick={handleClose}>
@@ -146,8 +150,17 @@ export const ZapDialog = ({ open, event, onClose }: ZapDialogProps) => {
                 <Button
                     variant="contained"
                     onClick={() => {
+                        setLoading(true);
                         console.log('zapDialog', {event});
-                        event && zap(event!, selectedZapAmount, () => handleClose(), zapComment)
+                        event && zap(event!, selectedZapAmount, () => {
+                            setLoading(false);
+                            setSnackbarMessage({ type: 'success', message: 'Zapped!' });
+                            handleClose();
+                        }, (error: any) => {
+                            console.error('ZapDialog', {error});
+                            setLoading(false);
+                            setSnackbarMessage({ type: 'error', message: error.message });
+                        }, zapComment);
                     }}
                 >
                     Zap { nFormatter(selectedZapAmount, 0) || '???' } sats!

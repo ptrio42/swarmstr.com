@@ -1,0 +1,62 @@
+.rotating-text {
+    font-family: Lato, sans-serif;
+    font-weight: 600;
+    font-size: 36px;
+    color: white;
+    margin-top: 1em;
+    /*background: #faefcc;*/
+    text-align: left;
+    padding: 8px 16px;
+    /*border-radius: 16px;*/
+    /*border: 1px solid palevioletred;*/
+}
+.rotating-text p {
+    display: inline-flex;
+    margin: 0;
+    vertical-align: top;
+    color: #000;
+}
+
+.rotating-text p:first-child {
+    text-indent: 35px;
+}
+
+.rotating-text p .word {
+    position: absolute;
+    display: flex;
+    opacity: 0;
+}
+.letter {
+    transform-origin: center center 25px;
+}
+
+.letter.out {
+     transform: rotateX(90deg);
+     transition: 0.32s cubic-bezier(0.6, 0, 0.7, 0.2);
+ }
+.letter.in {
+     transition: 0.38s ease;
+ }
+.letter.behind {
+     transform: rotateX(-90deg);
+ }
+
+.alizarin {
+    color: #e74c3c;
+}
+
+.wisteria {
+    color: #8e44ad;
+}
+
+.peter-river {
+    color: #3498db;
+}
+
+.emerald {
+    color: #2ecc71;
+}
+
+.sun-flower {
+    color: #f1c40f;
+}

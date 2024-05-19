@@ -15,8 +15,9 @@ import NDK, {
     NDKSubscriptionOptions, NDKTag,
     NostrEvent, NDKPrivateKeySigner
 } from '@nostr-dev-kit/ndk';
-import NDKRedisCacheAdapter from "@nostr-dev-kit/ndk-cache-redis";
-import {uniqBy, groupBy, forOwn, debounce, sortBy} from 'lodash';
+import RedisAdapter from '@nostr-dev-kit/ndk'
+// import RedisAdapter from "@nostr-dev-kit/ndk-cache-redis";
+import {uniqBy, groupBy, forOwn, debounce, sortBy, isArray} from 'lodash';
 import {containsAnyTag, containsTag, valueFromTag} from "../src/utils/utils";
 import { HfInference } from "@huggingface/inference";
 import {request} from "../src/services/request";
@@ -32,28 +33,45 @@ const hf = new HfInference(process.env.HF_ACCESS_TOKEN);
 (global as any).WebSocket = require('ws');
 
 
-import WebSocket, { WebSocketServer } from 'ws';
 
-const wss = new WebSocketServer({ port: 8082 });
-const websocket = new WebSocket('ws://localhost:8082');
+// import WebSocket, { WebSocketServer } from 'ws';
+import {searchImageDatabase} from "../src/services/pixabay";
+// import {Relay} from "nostr-tools";
+// import {useWebSocketImplementation} from "nostr-tools";
+// import RedisAdapter from "@nostr-dev-kit/ndk-cache-redis/dist/cjs";
 
-wss.on('connection', (ws) => {
-    console.log('websocket');
-    ws.on('websocket error', console.error);
+// useWebSocketImplementation(WebSocket);
 
-    ws.on('message', (data, isBinary) => {
-        // ws.send(data);
-        console.log('received: %s', data);
-        wss.clients.forEach((client) => {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(data, { binary: isBinary });
-            }
-        });
-    });
+// const wss = new WebSocketServer({ port: 8082 });
+// const websocket = new WebSocket(Config.SEARCH_RELAY_PUBLISH);
 
-    ws.send('hello!')
-    ws.send('you have connected to the websocket server...');
-});
+
+
+// websocket.on('error', (err: any) => {
+//     console.log('websocket error', {err})
+// })
+
+// websocket.on('open', () => {
+
+// })
+
+// wss.on('connection', (ws) => {
+//     console.log('websocket');
+//     ws.on('websocket error', console.error);
+//
+//     ws.on('message', (data, isBinary) => {
+//         // ws.send(data);
+//         console.log('websocket: received:', {data});
+//         // wss.clients.forEach((client) => {
+//         //     if (client.readyState === WebSocket.OPEN) {
+//         //         client.send(data, { binary: isBinary });
+//         //     }
+//         // });
+//     });
+//
+//     ws.send('hello!')
+//     ws.send('you have connected to the websocket server...');
+// });
 
 process.env.DEBUG = 'ndk:*';
 
@@ -110,35 +128,36 @@ const assets = JSON.parse(manifest);
 
 // only subscribe to events since given timestamp
 // default 7 days
-const EVENTS_SINCE = Math.floor(Date.now() / 1000 - 7 * 24 * 60 * 60);
+const EVENTS_SINCE = Math.floor(Date.now() / 1000 - 1 * 24 * 60 * 60);
 
-const cacheAdapter = new NDKRedisCacheAdapter({ expirationTime: 365 * 60 * 60 * 24 });
+const cacheAdapter = new RedisAdapter();
+// const cacheAdapter = new NDKRedisCacheAdapter({ expirationTime: 365 * 60 * 60 * 24 });
 
 // ndk instance used to subscribe to events with a given HASHTAG
 // @ts-ignore
-const ndk = new NDK({ explicitRelayUrls: SERVER_RELAYS, cacheAdapter });
+const ndk = new NDK({ explicitRelayUrls: [...SERVER_RELAYS, Config.SEARCH_RELAY_PUBLISH, Config.SEARCH_RELAY] });
 
 // ndk instance used to publish events to search relay
-const ndkSearchnos = new NDK({ explicitRelayUrls: [Config.SEARCH_RELAY_PUBLISH] });
+// const ndkSearchnos = new NDK({ explicitRelayUrls: [Config.SEARCH_RELAY_PUBLISH] });
 
-const publish = async (nostrEvent: NostrEvent, relayUrls?: string[], _ndk?: NDK) => {
-    try {
-        const event = new NDKEvent(_ndk || ndk, nostrEvent);
-        // console.log(`publishing new event`, {event});
-        try {
-            // @ts-ignore
-            const result = await event.publish(NDKRelaySet.fromRelayUrls(relayUrls, _ndk || ndk), 5000);
-            console.log(`event ${event.id} published!`, {result});
-        } catch (error) {
-            console.error(`unable to publish event ${nostrEvent.id}, ${JSON.stringify(nostrEvent)}`);
-            // setTimeout(() => {
-            //     publish(nostrEvent, relayUrls, _ndk || ndk)
-            // }, 500);
-        }
-    } catch (error) {
-        console.error(`unable to create NDKEvent from event ${nostrEvent.id}`);
-    }
-};
+// const publish = async (nostrEvent: NostrEvent, relayUrls?: string[]) => {
+//     try {
+//         const event = new NDKEvent(ndk, nostrEvent);
+//         // console.log(`publishing new event`, {event});
+//         try {
+//             // @ts-ignore
+//             const result = await event.publish(NDKRelaySet.fromRelayUrls(relayUrls, _ndk || ndk), 5000);
+//             console.log(`event ${event.id} published!`, {result});
+//         } catch (error) {
+//             console.error(`unable to publish event ${nostrEvent.id}, ${JSON.stringify(nostrEvent)}`);
+//             // setTimeout(() => {
+//             //     publish(nostrEvent, relayUrls, _ndk || ndk)
+//             // }, 500);
+//         }
+//     } catch (error) {
+//         console.error(`unable to create NDKEvent from event ${nostrEvent.id}`);
+//     }
+// };
 
 let ids: string[] = [];
 
@@ -148,21 +167,22 @@ const debouncedSub = debounce(() => {
     ids = [];
 }, 2000);
 
-const publishToSearchRelay = async (nostrEvent: NostrEvent) => {
-    try {
-        await publish(nostrEvent, [Config.SEARCH_RELAY_PUBLISH], ndkSearchnos)
-    } catch (e) {
-        console.error('Unable to publish to search relay');
-    }
-};
+// const publishToSearchRelay = async (nostrEvent: NostrEvent) => {
+//     try {
+//         await publish(nostrEvent, [Config.SEARCH_RELAY_PUBLISH], ndk)
+//     } catch (e) {
+//         console.error('Unable to publish to search relay');
+//     }
+// };
 
-const handleHashTagEvent = (event: NDKEvent) => {
+const handleHashTagEvent = async (event: NDKEvent) => {
     const nostrEvent = event.rawEvent();
     const { tags } = nostrEvent;
     const referencedEventId = valueFromTag(nostrEvent, 'e');
     if (containsAnyTag(tags, Config.NOSTR_TAGS.map((t: string) => ['t', t]))) {
         console.log('handleHashTagEvent: ', { tags: Config.NOSTR_TAGS.map((t: string) => ['t', t]) });
         console.log({tags})
+        console.log(`handleHashTagEvent: connectedRelays: ${ndk.pool.connectedRelays().map(({url}) => url).join(',')}`)
         // if event contains referenced event tag, it serves at question hint
         // thus gotta fetch the referenced event
         if (!!referencedEventId) {
@@ -174,19 +194,22 @@ const handleHashTagEvent = (event: NDKEvent) => {
 
             // event is a question
             // publish the event to search pseudo relay
-            publishToSearchRelay(nostrEvent)
+            event.publish(NDKRelaySet.fromRelayUrls([`${Config.SEARCH_RELAY_PUBLISH}/`], ndk))
                 .then(() => {
                     console.log(`event published to search relay (direct)!`);
                 })
                 .catch((e) => {
                     // retry in 5 secs
-                    setTimeout(() => {
-                        publishToSearchRelay(nostrEvent);
-                    }, 5000);
+                    // setTimeout(() => {
+                    //     publishToSearchRelay(nostrEvent);
+                    // }, 5000);
                 });
-            publish(nostrEvent, ['wss://q.swarmstr.com'])
+
+            event.publish(NDKRelaySet.fromRelayUrls(['wss://q.swarmstr.com/'], ndk))
+            // publish(nostrEvent, ['wss://q.swarmstr.com'])
                 .then((response) => {
                     console.log(`event published to question relay (direct)!`, {response});
+                    console.log(`handleHashtagEvent: event: publish: response: ${JSON.stringify(response)}`)
                 });
         }
     } else {
@@ -198,7 +221,7 @@ const handleHashTagEvent = (event: NDKEvent) => {
         // publish the event to search pseudo relay
 
         // TODO: label as hinted
-        publishToSearchRelay(nostrEvent)
+        event.publish(NDKRelaySet.fromRelayUrls([`${Config.SEARCH_RELAY_PUBLISH}/`], ndk))
             .then(() => {
                 console.log(`event published to search relay (hinted)!`);
             })
@@ -208,11 +231,15 @@ const handleHashTagEvent = (event: NDKEvent) => {
             //         publishToSearchRelay(nostrEvent);
             //     }, 5000);
             });
-        publish(nostrEvent, ['wss://q.swarmstr.com'])
+        event.publish(NDKRelaySet.fromRelayUrls(['wss://q.swarmstr.com/'], ndk))
             .then((response) => {
                 console.log(`event published to question relay (hinted)!`, {response});
             });
     }
+};
+
+const handleMetadataEvent = (event: NDKEvent) => {
+
 };
 
 const subscribe = (
@@ -221,15 +248,22 @@ const subscribe = (
     onEvent?: (event: NDKEvent) => void,
     onEose?: () => void
 ) => {
-    const sub = ndk.subscribe(filter, opts);
+    const sub = ndk
+        .subscribe(filter, opts, NDKRelaySet.fromRelayUrls(Config.SERVER_RELAYS, ndk));
 
     console.log(`new sub created...`);
 
     sub
-        .on('event', onEvent || handleHashTagEvent)
-        .on('eose', onEose || (() =>  {
+        .on('event',  async (e: NDKEvent) => {
+            console.log('server.tsx: subscribe: ', JSON.stringify(e.rawEvent()))
+            onEvent ? onEvent(e) : handleHashTagEvent(e);
+            // handleMetadataEvent(event);
+            // onEvent &&
+        })
+        .on('eose', () =>  {
             console.log(`server client: eose received`);
-        }))
+            onEose && onEose();
+        })
         .on('close', () => {
             console.log(`the sub was closed...`);
         });
@@ -238,14 +272,15 @@ const subscribe = (
 // connect to relays
 ndk.connect(2100)
     .then(() => {
-        console.log(`Connected to relays`);
+        console.log(`server.tsx: Connected to relays`);
+
     });
 
 // connect to search relay
-ndkSearchnos.connect(2100)
-    .then(() => {
-        console.log(`Connected to search relay`);
-    });
+// ndkSearchnos.connect(2100)
+//     .then(() => {
+//         console.log(`Connected to search relay`);
+//     });
 
 setInterval(() => {
     console.log(`relays: ${ndk.pool.stats().connected}/${ndk.pool.stats().total}`);
@@ -259,12 +294,59 @@ ndk.pool.on('flapping', (flapping) => {
     console.log(`some relays flapping`);
 });
 
-// initially subscribe to hashtag events
-subscribe({
-    kinds: [1, 30023],
-    '#t': Config.NOSTR_TAGS,
-    since: EVENTS_SINCE,
-}, { closeOnEose: false, groupable: false, cacheUsage: NDKSubscriptionCacheUsage.PARALLEL });
+(async () => {
+    //initially subscribe to hashtag events
+    subscribe({
+        kinds: [1, 30023],
+        '#t': Config.NOSTR_TAGS,
+        since: EVENTS_SINCE,
+    }, { closeOnEose: false, groupable: false });
+
+    // const searchRelay = await Relay.connect(Config.SEARCH_RELAY_PUBLISH)
+    // console.log('server.tsx: connected to search relay')
+
+    subscribe({
+        kinds: [0],
+        limit: 500
+        // authors: ["8387b34f1af0e114062552303c3f7bcab7c0acbc35232253e22706b0ae2b234f", "f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8"],
+        // ids: ["57f2c044dd4446a42127b4e7e9e6c13889d1d260a058b2cd02ce14a8957fbe3d", "4f3a20184073b2a461e32c8038bffef67d1c208f94f138a9f1db4779b2f8fc53"]
+    }, { closeOnEose: true, groupable: true, cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY }, async (_event: NDKEvent) => {
+        // const ev = _event;
+        const validate = _event.validate();
+        // const verifySignature = _event.verifySignature(true);
+        // console.log('server.tsx: kind 0 event validate', {validate, verifySignature})
+        // console.log('server.tsx: event', JSON.stringify(_event.rawEvent()), JSON.stringify(ev.rawEvent()))
+
+        // _event.toNostrEvent(_event.pubkey)
+        //     .then((event: NostrEvent) => console.log('server.tsx: toNostrEvent: ', JSON.stringify(event)))
+
+        // const e = new NDKEvent(ndk, _event.rawEvent());
+
+        // @ts-ignore
+        // delete _event.isReplaceable;
+        // _event.isReplaceable = () => false;
+        // console.log('server.tsx: event is ephemeral', _event.isReplaceable())
+
+        // websocket.send('["EVENT",' + JSON.stringify(_event.rawEvent()) + ']');
+        console.log(`server.tsx: metadataEvent: connectedRelays: ${ndk.pool.connectedRelays().map(({url}) => url).join(',')}`)
+
+        //@ts-ignore
+        _event.publish(NDKRelaySet.fromRelayUrls([`${Config.SEARCH_RELAY_PUBLISH}/`], ndk))
+            .then((relays: any) => {
+                console.log('server.tsx: search: ', {ev: _event.rawEvent(), sig: _event.sig, sig2: _event.rawEvent().sig})
+                console.log(`event published to search relay (direct)!`, { relays: JSON.stringify(relays) });
+            })
+            .catch((e: any) => {
+                console.error('server.tsx: error: ', {e})
+                // retry in 5 secs
+                // setTimeout(() => {
+                //     publishToSearchRelay(ev);
+                // }, 5000);
+            });
+    });
+})();
+
+
 
 const isNameAvailable = async (name: string): Promise<boolean> => {
     if (!(new RegExp(/([a-z0-9_.]+)/, 'gi').test(name)) || name.length < 1) return false;
@@ -320,6 +402,7 @@ const createNewLabel = async (id: string, label: string, relayUrls?: string[]) =
     let privateKey = process.env.SWARMSTR_BOT_PRIVATE_KEY;
     // if it's an nsec, convert to hex
     if (privateKey!.indexOf('nsec') > -1) {
+        // @ts-ignore
         privateKey = nip19.decode(privateKey!).data;
     }
     const signer = new NDKPrivateKeySigner(privateKey!);
@@ -372,29 +455,32 @@ const dotProduct = (a: number[], b: number[]): number => {
     return result;
 };
 
-const getAIQuestionsSuggestions = (search: string, tags?: string[]): Promise<string[]> => {
+const getAIQuestionsSuggestions = (search: string, tags?: string[], since?: number): Promise<string[]> => {
     return new Promise<string[]>((resolve, reject) => {
         // TODO: find labels which point to notes previously considered accurate by ai
         // TODO: get the latest note and use it's timestamp to construct after filter
         const filter = {
             search,
+            kinds: [1, 30023],
             limit: 10000,
-            ...(tags && tags.length > 0 && { '#t': tags })
+            ...(tags && tags.length > 0 && { '#t': tags }),
+            ...(since && since > 0 && { since })
         };
         console.log('getAIQuestionsSuggestions: ', {tags}, {filter})
         const events: NDKEvent[] = [];
         // websocket.send('nostr: searching for notes...');
-        const sub = ndkSearchnos
-            .subscribe(filter, { closeOnEose: true });
+        const sub = ndk
+            .subscribe(filter, { closeOnEose: true }, NDKRelaySet.fromRelayUrls([`${Config.SEARCH_RELAY}/`], ndk));
 
         sub
             .on('event', async (event: NDKEvent) => {
                 events.push(event);
                 if (events.length % (Math.floor(Math.random()*10) + 1) === 0) {
-                    websocket.send(`nostr: ${events.length} notes related to search found...`)
+                    // websocket.send(`nostr: ${events.length} notes related to search found...`)
                 }
             })
             .on('eose', async () => {
+                if (events.length === 1) return resolve([events[0].id]);
                 // websocket.send('nostr: all notes received...');
                 let content: string = `given array of objects `;
                 const questions = events
@@ -415,7 +501,7 @@ const getAIQuestionsSuggestions = (search: string, tags?: string[]): Promise<str
                     } else {
                         dots += '.';
                     }
-                    websocket.send(`${msg}${dots}`);
+                    // websocket.send(`${msg}${dots}`);
                 }, 500);
                 if (questions.length === 0) resolve([]);
                 try {
@@ -425,7 +511,7 @@ const getAIQuestionsSuggestions = (search: string, tags?: string[]): Promise<str
                         inputs: search
                     });
 
-                    websocket.send(`${msg}${dots}`);
+                    // websocket.send(`${msg}${dots}`);
                     const result1 = await hf.featureExtraction({
                         model: 'sentence-transformers/all-MiniLM-L6-v2',
                         inputs: questions.map(({content}) => content)
@@ -442,7 +528,7 @@ const getAIQuestionsSuggestions = (search: string, tags?: string[]): Promise<str
                     }
                     if (similarities.length > 1) {
                         similarities = sortBy(similarities, 'similarity').reverse()
-                            .filter(({similarity}) => similarities.length <= 21 ? similarity >= 0.4 : similarity >= 0.7);
+                            .filter(({similarity}) => /\s/g.test(search) ? (similarities.length <= 21 ? similarity >= 0.4 : similarity >= 0.7) : similarity >= 0.2);
                     }
                     console.log({similarities});
                     // return new Promise.resolve(similarities.map(({content}) => content))
@@ -456,13 +542,13 @@ const getAIQuestionsSuggestions = (search: string, tags?: string[]): Promise<str
                     } catch (error) {
                         console.log('unable to parse response')
                     }
-                    websocket.send('done')
+                    // websocket.send('done')
 
                     resolve(similarities.map(({id}) => id))
                     // console.log({result, result1})
                 } catch (e) {
                     clearInterval(intervalId);
-                    websocket.send('ai: failed')
+                    // websocket.send('ai: failed')
                     if (questions.length <= 100) {
                         resolve(questions.map(({ id }) => id));
                     }
@@ -674,13 +760,13 @@ server.get('/search-suggestions/:search', async (req, res) => {
 
 server.get('/search-api/:search', async (req, res) => {
     let { search } = req.params;
-    const {tags} = req.query;
+    const {tags, since} = req.query;
     console.log('server.tsx: ', {tags})
-    search = search.toLowerCase().replace(/([.?\-,_=])/gm, '');
+    search = search.toLowerCase().replace(/([.?\-,_=:!])/gm, ' ').trim();
     console.log({search});
 
     if (search) {
-        const results = await getAIQuestionsSuggestions(search, (tags as string).split(','));
+        const results = await getAIQuestionsSuggestions(search, (tags as string).split(','), +(since || 0));
         res.json(results);
     } else {
         res.sendStatus(204);
@@ -693,6 +779,16 @@ server.get('/popular-searches', async (req, res) => {
     res.json(searches);
 });
 
+server.get('/api/images/:search/:page', async (req, res) => {
+    let {search, page} = req.params;
+    try {
+        const images = await searchImageDatabase(search, +page);
+        res.json(images);
+    } catch (e) {
+        res.sendStatus(404);
+    }
+});
+
 server.get('/*', async (req, res) => {
     let helmet = Helmet.renderStatic();
     const path = req.originalUrl;
@@ -700,6 +796,7 @@ server.get('/*', async (req, res) => {
     const nevent = pathArr && pathArr[pathArr.length - 1];
     try {
         const eventPointer = nip19.decode(nevent);
+        // @ts-ignore
         const { id } = eventPointer?.data;
         if (id) {
             // @ts-ignore
