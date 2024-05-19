@@ -9,12 +9,12 @@ import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
 import {Config} from "../../../resources/Config";
 import {useParams} from "react-router-dom";
-import {decodeNevent} from "../Thread/Thread";
 import {NoteActions} from "../NoteActions/NoteActions";
 import {NoteContent} from "../NoteContent/NoteContent";
 import {NoteScoreBox} from "../NoteScoreBox/NoteScoreBox";
 import {NoteWrapper} from "../NoteWrapper/NoteWrapper";
 import {NoteTags} from "../NoteTags/NoteTags";
+import {decodeEventPointer} from "../../../providers/NostrNoteThreadContextProvider";
 
 interface NoteProps {
     pinned?: boolean;
@@ -25,7 +25,8 @@ interface NoteProps {
     event?: NostrEvent
     floating?: boolean;
     state?: {
-        events?: NostrEvent[]
+        events?: NostrEvent[],
+        limit?: number
     };
     children?: any;
 }
@@ -33,7 +34,7 @@ interface NoteProps {
 export const Note = ({ nevent, context, pinned, isRead, expanded, floating, children, ...props }: NoteProps
 ) => {
         // @ts-ignore
-    const { id } = decodeNevent(nevent);
+    const { id } = decodeEventPointer(nevent);
     const { searchString } = useParams();
     const location = useLocation();
 
@@ -41,8 +42,6 @@ export const Note = ({ nevent, context, pinned, isRead, expanded, floating, chil
         const event = await db.notes.get({ id });
         return [event || props?.event, true];
     }, [id], [props?.event || (!!id && location?.state?.event?.id === id && location?.state?.event), false]);
-
-
 
     return <NoteWrapper id={id} event={event} loaded={loaded}>
         <NoteScoreBox id={id} event={event}/>

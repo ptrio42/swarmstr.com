@@ -99,16 +99,17 @@ function App() {
 
   useEffect(() => {
     if (hash === '') {
-      window.scrollTo(0, 0);
+        return;
+      // window.scrollTo(0, 0);
     }
     else {
-      setTimeout(() => {
-        const id = hash.replace('#', '');
-        const element = document.getElementById(id);
-        if (element) {
-          element.scrollIntoView();
-        }
-      }, 0);
+      // setTimeout(() => {
+      //   const id = hash.replace('#', '');
+      //   const element = document.getElementById(id);
+      //   if (element) {
+      //     element.scrollIntoView();
+      //   }
+      // }, 500);
     }
   }, [pathname, hash, key]);
 

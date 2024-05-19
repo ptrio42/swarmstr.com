@@ -24,13 +24,14 @@ interface TagChipSelectProps {
     tags?: string[],
     // selectedTag?: string,
     selectedTags?: string[],
-    onTagSelect?: (event: SelectChangeEvent<string|string[]>) => void
+    onTagSelect?: (event: SelectChangeEvent<string|string[]>) => void,
+    label?: string
 }
 
-export const TagChipSelect = ({ tags = [], onTagSelect = (event: SelectChangeEvent<string|string[]>) => {}, selectedTags = [] }: TagChipSelectProps) => {
-    return <Box sx={{ marginLeft: '24px' }}>
+export const TagChipSelect = ({ tags = [], label = 'Select tags', onTagSelect = (event: SelectChangeEvent<string|string[]>) => {}, selectedTags = [] }: TagChipSelectProps) => {
+    return <Box sx={{ marginLeft: '24px', minWidth: '360px' }}>
         <FormControl>
-            <InputLabel id="tags-chip-label">Select tags</InputLabel>
+            <InputLabel id="tags-chip-label">{label}</InputLabel>
             <Select
                 sx={{ width: '94%' }}
                 labelId="tags-chip-label"

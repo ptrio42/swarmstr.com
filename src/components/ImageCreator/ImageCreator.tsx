@@ -266,27 +266,6 @@ export const ImageCreator = ({
         }
     });
 
-    // const toggleIncludeLightningGift = () => {
-    //     setIncludeLightningGift(!includeLightningGift);
-    // };
-
-    // const handleSetCopies = (copies: number) => {
-    //     if (copies === 0) {
-    //         copies = 1;
-    //     }
-    //
-    //     if (copies > imageProps.config.maxCopies) {
-    //         copies = imageProps.config.maxCopies;
-    //     }
-    //
-    //     copies = +copies;
-    //
-    //     setImageProps({
-    //         ...imageProps,
-    //         copies
-    //     });
-    // };
-
     const handleNewBackgroundImageDialogOpen = (event: any) => {
         // console.log('display add image dialog')
         setNewBackgroundImageDialogOpen(true);
@@ -402,7 +381,7 @@ export const ImageCreator = ({
                 // backgroundPositionY: imageProps.type === ImageFormat.Bookmark ? '2in' : '0',
                 // backgroundPosition: '-2px -2px',
                 borderRadius: '0px',
-                border: !imageProps.backgroundImage ? '1px dashed #3c3c3c' : 'none',
+                border: imageProps.backgroundImage?.src ? 'none' : '1px dashed #3c3c3c',
                 boxShadow: 'none!important',
                 position: 'relative',
                 transition: 'none!important',
@@ -416,20 +395,6 @@ export const ImageCreator = ({
                         >
                             { imageProps.backgroundImage ? 'Edit': 'Add' } background
                         </ImageActionButton>
-
-                        {/*<ImageActionButton*/}
-                            {/*position={{ left: imageProps.mainImage ? '37%' : '36%', bottom: '86%' }}*/}
-                            {/*onAction={handleNewForegroundImageDialogOpen}*/}
-                        {/*>*/}
-                            {/*{ imageProps.mainImage ? 'Edit': 'Add' } image*/}
-                        {/*</ImageActionButton>*/}
-
-                        {/*<ImageActionButton*/}
-                            {/*position={{ left: '75%', bottom: '10px' }}*/}
-                            {/*onAction={handleNewTextDialogOpen}*/}
-                        {/*>*/}
-                            {/*{ imageProps.slogan ? 'Edit': 'Add' } text*/}
-                        {/*</ImageActionButton>*/}
                     </React.Fragment>
                 }
 
@@ -443,21 +408,21 @@ export const ImageCreator = ({
                     justifyContent: imageProps.type === ImageFormat.BusinessCard ? 'center' : 'flex-start' }}
                 >
                     <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                        <CardMedia
-                            component="img"
-                            sx={{
-                                position: 'absolute',
-                                zIndex: 999,
-                                width: `43%`,
-                                // height: `${imageProps.config.primaryImageFormat[1] * getScale()}%`,
-                                objectFit: 'fill',
-                                left: imagePosition.x,
-                                top: imagePosition.y,
-                                transform: 'translate(-50%, -50%)'
-                            }}
-                            image={imageProps.mainImage}
-                            // onClick={handleEditImage}
-                        />
+                        {/*<CardMedia*/}
+                            {/*component="img"*/}
+                            {/*sx={{*/}
+                                {/*position: 'absolute',*/}
+                                {/*zIndex: 999,*/}
+                                {/*width: `43%`,*/}
+                                {/*// height: `${imageProps.config.primaryImageFormat[1] * getScale()}%`,*/}
+                                {/*objectFit: 'fill',*/}
+                                {/*left: imagePosition.x,*/}
+                                {/*top: imagePosition.y,*/}
+                                {/*transform: 'translate(-50%, -50%)'*/}
+                            {/*}}*/}
+                            {/*image={imageProps.mainImage}*/}
+                            {/*// onClick={handleEditImage}*/}
+                        {/*/>*/}
                         {/*{*/}
                             {/*(includeLightningGift || (imageProps.type === CardType.Sticker && imageProps.receiveAddress && imageProps.receiveAddress !== '')) &&*/}
                             {/*<Box*/}
@@ -503,8 +468,7 @@ export const ImageCreator = ({
                     <CardContent sx={{ display: 'flex', justifyContent: 'center' }}>
                         {
                             workItems
-                                .filter(({type}) => type === 'text')
-                                .map((workItem: ImageCreatorWorkItem, i: number) =>
+                                .map((workItem: ImageCreatorWorkItem, i: number) => workItem.type === 'text' ?
                                     <Typography
                                         sx={{
                                             position: 'absolute',
@@ -516,10 +480,12 @@ export const ImageCreator = ({
                                             overflow: 'hidden', overflowWrap: 'break-word',
                                             textShadow: workItem.styles?.textShadow,
                                             transform: 'translate(-50%, -50%)',
-                                            width: '90%',
+                                            width: '100%',
                                             textAlign: 'center',
                                             border: (selectedWorkItem && selectedWorkItem.id === workItem.id) ? '2px solid #F0E68C' : 'none',
-                                            borderRadius: '3px'
+                                            borderRadius: '3px',
+                                            background: workItem.styles?.background || 'transparent',
+                                            padding: '0 1em'
                                         }}
                                         onClick={() => {
                                             (selectedWorkItem && selectedWorkItem.id === workItem.id) ? addOrEditWorkItem({
@@ -531,29 +497,32 @@ export const ImageCreator = ({
                                 {
                                     workItem.content
                                 }
-                            </Typography>)
+                            </Typography> : <Box sx={{
+                                        position: 'absolute',
+                                        zIndex: 1000 + i,
+                                        width: workItem.styles?.width,
+                                        transform: 'translate(-50%, -50%)',
+                                        border: workItem.content === '' ? '1px #000 solid' : '',
+                                        left: (selectedWorkItem && selectedWorkItem.id === workItem.id) ? selectedWorkItem.position.x : workItem.position.x,
+                                        top: (selectedWorkItem && selectedWorkItem.id === workItem.id) ? selectedWorkItem.position.y : workItem.position.y,
+                                    }}
+                                                 onClick={() => {
+                                                     (selectedWorkItem && selectedWorkItem.id === workItem.id) ? addOrEditWorkItem({
+                                                         ...selectedWorkItem,
+                                                         selected: false
+                                                     }) : selectWorkItem(workItem)
+                                                 }}
+                                                 onMouseEnter={() => {
+                                                     console.log('ImageCreator: enter')
+                                                 }}
+                                                 onMouseLeave={() => {
+                                                     console.log('ImageCreator: leave')
+                                                 }}
+                                    >
+                                        <img src={workItem.content} width="100%" />
+                                    </Box>
+                                )
                         }
-                        {/*<Typography*/}
-                            {/*sx={{*/}
-                                {/*position: 'absolute',*/}
-                                {/*zIndex: 999,*/}
-                                {/*fontSize: `${imageProps.sloganFontSize}px`,*/}
-                                {/*color: imageProps.sloganColor,*/}
-                                {/*left: textPosition.x,*/}
-                                {/*top: textPosition.y,*/}
-                                {/*// maxWidth: `90%`,*/}
-                                {/*// width: '90%',*/}
-                                {/*overflow: 'hidden', overflowWrap: 'break-word',*/}
-                                {/*textShadow: imageProps.sloganTextShadow ? `1px 1px ${imageProps.sloganTextShadowColor}` : 'none',*/}
-                                {/*transform: 'translate(-50%, -50%)'*/}
-                            {/*}}*/}
-                            {/*gutterBottom*/}
-                            {/*variant="h5"*/}
-                            {/*component="div"*/}
-                            {/*// onClick={handleEditText}*/}
-                        {/*>*/}
-                            {/*{imageProps.slogan}*/}
-                        {/*</Typography>*/}
                     </CardContent>
                     <CardActions>
                         <Typography sx={{ fontSize: `${imageProps.footerFontSize * getScale()}px`, color: imageProps.footerColor }}>

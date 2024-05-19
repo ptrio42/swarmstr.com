@@ -3,7 +3,7 @@ import {ListEvent} from "../models/commons";
 import {NDKTag, NostrEvent} from "@nostr-dev-kit/ndk";
 import {useLiveQuery} from "dexie-react-hooks";
 import React, {useContext, useEffect, useMemo, useState} from "react";
-import {containsTag} from "../utils/utils";
+import {containsTag, useManageSubs} from "../utils/utils";
 import {Config} from "../resources/Config";
 import {useNostrContext} from "./NostrContextProvider";
 import {NostrEventListContext} from "../contexts/NostrEventListContext";
@@ -20,8 +20,9 @@ export const NostrEventListContextProvider = ({ children, ...props }: NostrEvent
 
     const location = useLocation();
 
-    const [limit, setLimit] = useState<number>(props?.limit || location?.state?.events?.length || 10);
-    const { subscribe } = useNostrContext();
+    const [limit, setLimit] = useState<number>(props?.limit || location?.state?.limit || 10);
+    const { ndk, subscribe } = useNostrContext();
+    const manageSubs = useManageSubs({ndk, subscribe});
 
     const mutedEventsByTagName = async (kind: number, tagName: string) => {
         const muteLists = await db.lists.where({ kind }).toArray();
@@ -64,18 +65,22 @@ export const NostrEventListContextProvider = ({ children, ...props }: NostrEvent
     useEffect(() => {
         // subscribe to mute lists
         // muted events or events from muted pubkeys will not be displayed throughout the app
-        subscribe({
+        manageSubs.addSub({
             kinds: [30000],
             authors: ['f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8'],
             '#d': ['mute']
-        }, { closeOnEose: false, groupable: false });
-        subscribe({
+        }, { closeOnEose: false, groupable: false })
+        manageSubs.addSub({
             kinds: [10000],
             authors: [
                 '000003a2c8076423148fe15e3ff5f182e0304cff6de499a3f54f5adfe3b014e6',
                 '8387b34f1af0e114062552303c3f7bcab7c0acbc35232253e22706b0ae2b234f'
             ]
         }, { closeOnEose: false, groupable: false });
+
+        return () => {
+            manageSubs.stopAllSubs();
+        }
     }, []);
 
     return <NostrEventListContext.Provider value={{ events, limit, setLimit }}>

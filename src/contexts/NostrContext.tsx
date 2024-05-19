@@ -1,13 +1,13 @@
-import NDK, {NDKEvent, NDKFilter, NDKSubscriptionOptions, NDKTag, NDKUser, NostrEvent} from '@nostr-dev-kit/ndk';
+import NDK, {NDKEvent, NDKFilter, NDKSubscriptionOptions, NDKSubscription, NDKTag, NDKUser, NostrEvent} from '@nostr-dev-kit/ndk';
 import React, {createContext} from "react";
-import {NoteLabel} from "../dialog/NewLabelDialog";
+import {NoteLabel, Thumb} from "../dialog/NewLabelDialog";
 import {SnackbarMessage} from "../providers/NostrContextProvider";
 
 type NostrContextType = {
     ndk: NDK,
     user?: NDKUser,
     events?: NostrEvent[],
-    subscribe: (filter: NDKFilter, opts: NDKSubscriptionOptions, onEose?: () => void) => any,
+    subscribe: (filter: NDKFilter, opts: NDKSubscriptionOptions, onEose?: () => void, onEvent?: (event: NDKEvent) => void, relayUrls?: string[]) => any,
     unsubscribe: () => void,
     signIn: () => Promise<string|undefined>
     post: (content: string, tags: NDKTag[], kind?: number) => Promise<void>,
@@ -15,7 +15,7 @@ type NostrContextType = {
     setLoginDialogOpen: (open: boolean) => void,
     newNoteDialogOpen: boolean,
     setNewNoteDialogOpen: (open: boolean) => void,
-    label: (label: NoteLabel, nostrEvent: NostrEvent, pubkey: string, content: string, callback?: () => void, onError?: (error: any) => void) => void,
+    label: (thumb: Thumb, label: NoteLabel, nostrEvent: NostrEvent, pubkey: string, content: string, additionalLabels?: string[], callback?: () => void, onError?: (error: any) => void) => void,
     newLabelDialogOpen: boolean,
     setNewLabelDialogOpen: (open: boolean) => void,
     addReaction: (id: string, content: string) => void,
@@ -46,7 +46,8 @@ type NostrContextType = {
     setImageCreatorDialogOpen: (open: boolean) => void,
     setTags: (tags: string[]) => void,
     snackbarMessage?: SnackbarMessage,
-    setSnackbarMessage: (message?: SnackbarMessage) => void
+    setSnackbarMessage: (message?: SnackbarMessage) => void,
+    subs: NDKSubscription[]
 }
 
 export const NostrContext = createContext<NostrContextType>({
@@ -88,5 +89,6 @@ export const NostrContext = createContext<NostrContextType>({
     imageCreatorDialogOpen: false,
     setImageCreatorDialogOpen: () => {},
     setTags: () => {},
-    setSnackbarMessage: () => {}
+    setSnackbarMessage: () => {},
+    subs: []
 });

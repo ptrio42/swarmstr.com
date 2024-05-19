@@ -141,6 +141,7 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
             ...(content.match(/nostr:nevent1([a-z0-9]+)/gm) || [])
         ]?.filter((e) => !!e)
             .map((match: string) => nip19.decode(match.split(':')[1]))
+            // @ts-ignore
             .map(({data}) => ['e', data?.id || data]);
 
         const tTags = content.match(/\B(\#[a-zA-Z0-9]+\b)(?!;)/gm)

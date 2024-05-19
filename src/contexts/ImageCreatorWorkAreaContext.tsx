@@ -1,7 +1,7 @@
 import {
     DEFAULT_ITEM_POSITION,
     ImageCreatorWorkItem,
-    ImageCreatorWorkItemPosition
+    ImageCreatorWorkItemPosition, ImageCreatorWorkItemType
 } from "../components/ImageCreator/ImageCreatorWorkArea/ImageCreatorWorkArea";
 import {createContext, SetStateAction} from "react";
 
@@ -10,7 +10,7 @@ type ImageCreatorWorkAreaContextType = {
     setWorkItems: (workItems: SetStateAction<ImageCreatorWorkItem[]>) => void;
     selectedWorkItem?: ImageCreatorWorkItem;
     selectWorkItem: (workItem: ImageCreatorWorkItem) => void;
-    createNewWorkItem: (position: ImageCreatorWorkItemPosition) => ImageCreatorWorkItem;
+    createNewWorkItem: (position: ImageCreatorWorkItemPosition, type?: ImageCreatorWorkItemType, styles?: any) => ImageCreatorWorkItem;
     addOrEditWorkItem: (workItem: ImageCreatorWorkItem) => void;
     removeWorkItem: (workItem: ImageCreatorWorkItem) => void;
     mousePosition?: ImageCreatorWorkItemPosition;

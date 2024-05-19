@@ -3,7 +3,7 @@ import {
     DEFAULT_ITEM_COLOR,
     DEFAULT_ITEM_FONT_SIZE,
     DEFAULT_ITEM_TEXT, DEFAULT_ITEM_TEXT_SHADOW_COLOR,
-    ImageCreatorWorkItem, ImageCreatorWorkItemPosition
+    ImageCreatorWorkItem, ImageCreatorWorkItemPosition, ImageCreatorWorkItemType
 } from "../components/ImageCreator/ImageCreatorWorkArea/ImageCreatorWorkArea";
 import {ImageCreatorWorkAreaContext} from "../contexts/ImageCreatorWorkAreaContext";
 
@@ -51,16 +51,12 @@ export const ImageCreatorWorkAreaContextProvider = ({ children, onSaveImage = ()
         return Math.random().toString(length);
     };
 
-    const createNewWorkItem = (position: ImageCreatorWorkItemPosition): ImageCreatorWorkItem => ({
+    const createNewWorkItem = (position: ImageCreatorWorkItemPosition, type?: ImageCreatorWorkItemType, styles?: any): ImageCreatorWorkItem => ({
         id: getRandomInputKey(12),
-        type: 'text',
-        content: DEFAULT_ITEM_TEXT,
+        type: type || 'text',
+        content: type === 'text' ? `${DEFAULT_ITEM_TEXT} #${workItems?.length || 0}` : type === 'image' ? `` : '',
         position,
-        styles: {
-            fontSize: DEFAULT_ITEM_FONT_SIZE,
-            color: DEFAULT_ITEM_COLOR,
-            textShadow: `1px 1px 2px ${DEFAULT_ITEM_TEXT_SHADOW_COLOR}`
-        }
+        ...(styles && {styles})
     });
 
     return <ImageCreatorWorkAreaContext.Provider value={{

@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {FormControl} from "@mui/material";
 import Button from "@mui/material/Button";
-import {Info} from "@mui/icons-material";
+import {Cancel, Info} from "@mui/icons-material";
 import FormLabel from "@mui/material/FormLabel";
 import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
@@ -12,6 +12,8 @@ import DialogContent from "@mui/material/DialogContent";
 import Slider from "@mui/material/Slider";
 import ReactCrop, {Crop} from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
+import Box from "@mui/material/Box";
+import {ImageDatabaseDialog} from "../../../dialog/ImageDatabaseDialog";
 
 const DEFAULT_IMAGE_SIZE = 100;
 
@@ -38,6 +40,8 @@ export const NewImageDialog = ({
     const [size, setSize] = useState<number>(DEFAULT_IMAGE_SIZE);
     const [scale, setScale] = useState(1);
     const [crop, setCrop] = useState<Crop|undefined>();
+
+    const [imageDbDialogOpen, setImageDbDialogOpen] = useState<boolean>(false);
 
     const handleImageChange = (event: any) => {
         const files = (event.currentTarget as HTMLInputElement).files;
@@ -68,16 +72,51 @@ export const NewImageDialog = ({
     };
 
     return <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>{`Upload a ${label} image.`}</DialogTitle>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{`Upload a ${label} image.`} <IconButton onClick={() => { onClose() }}><Cancel/></IconButton></DialogTitle>
         <DialogContent>
+            <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                <Button sx={{ textTransform: 'captalize', marginBottom: '1em'}} color="primary" variant="contained" onClick={() => {
+                    setImageDbDialogOpen(true);
+                }}>
+                    Search image database
+                </Button>
+                <ImageDatabaseDialog open={imageDbDialogOpen} onClose={(imageUrl?: string) => {
+                    if (imageUrl) {
+                        setImageDbDialogOpen(false);
+
+                        const request = new XMLHttpRequest();
+                        request.open('GET', imageUrl, true);
+                        request.responseType = 'blob';
+                        request.onloadend = function() {
+                            const reader = new FileReader();
+                            reader.readAsDataURL(request.response);
+                            reader.onload =  function(e){
+                                const img = new Image();
+                                img.src = reader.result as string;
+                                // console.log('DataURL:', e.target.result);
+                                setImage(img);
+                                // setTimeout(() => {
+                                    onImageUpload(img);
+                                // });
+                            };
+                        };
+                        request.send();
+
+
+                        // img.width = image.naturalWidth * ((size / 100) * scale || 100) || 400;
+                        // if (image.naturalHeight) img.height = image.naturalHeight * ((size / 100) * scale || 100);
+                        // setImage(img);
+                        // setTimeout(() => {
+                        //     onImageUpload(img);
+                        // });
+                        console.log({imageUrl});
+                    }
+                    setImageDbDialogOpen(false);
+                }}/>
+            </Box>
             <FormControl>
-                <FormLabel sx={{ paddingRight: '0.5em', textTransform: 'capitalize' }} id={`image-${label}-label`}>
-                    { label } image
-                    <Tooltip title={`Upload a ${label} image.`}>
-                        <IconButton>
-                            <Info />
-                        </IconButton>
-                    </Tooltip>
+                <FormLabel sx={{ textAlign: 'center', paddingRight: '0.5em', textTransform: 'capitalize' }} id={`image-${label}-label`}>
+                    OR Upload file
                 </FormLabel>
                 <Input
                     id={`image-${label}`}
@@ -87,7 +126,7 @@ export const NewImageDialog = ({
                     type="file"
                     onChange={handleImageChange} />
                 <Button
-                    sx={{ marginLeft: '1em' }}
+                    sx={{ marginLeft: '1em', marginTop: '1em' }}
                     variant="contained"
                     color="warning"
                     disabled={image === null}

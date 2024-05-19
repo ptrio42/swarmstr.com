@@ -5,19 +5,25 @@ import {useNostrEventListContextProvider} from "../../../providers/NostrEventLis
 
 interface EventListWrapperProps {
     children?: any;
+    onReachedListEnd?: () => void
 }
 
-export const EventListWrapper = ({ children }: EventListWrapperProps) => {
+export const EventListWrapper = ({ children, onReachedListEnd = () => {} }: EventListWrapperProps) => {
     const { events, limit, setLimit } = useNostrEventListContextProvider();
 
     const onScrollEnd = () => {
         setLimit(limit + 3);
-        // console.log('reached scroll end', limit);
+
+        if (events && events.length < limit) {
+            console.log('reached scroll end', limit);
+            onReachedListEnd();
+        }
     };
 
     return <InfiniteScroll
         dataLength={events?.slice(0, limit).length || 0}
         next={onScrollEnd}
+        initialScrollY={5000}
         hasMore={true}
         loader={<Box sx={{ display: 'none' }}>Loading...</Box>}
         endMessage={

@@ -48,22 +48,25 @@ export const NoteWrapper = ({ id, children, event, loaded }: NoteWrapperProps) =
         // 3. once event was received from a relay, stop subscription
         // run subs for reactions, zaps & comments in parallel
 
+        console.log('NoteWrapper', {noteVisible, subscribed, connected, loaded});
         if (noteVisible && !subscribed && loaded) {
-            // only subscribe if the event does not exist in the db
-            if (!event) {
-                subscribe(filter);
-            }
-            const opts: NDKSubscriptionOptions = { groupableDelay: 500, closeOnEose: false };
-            const kinds = [1, 7, 9735, 30023, 6, 1985];
-            // subscribe(filter1);
-            for (let i = 0; i < kinds.length; i++) {
-                subscribe({ kinds: [kinds[i]], '#e': [id]}, opts);
-            }
+            // console.log('NoteWrapper subscribing to events...')
+            // // only subscribe if the event does not exist in the db
+            // // if (!event) {
+            // //     subscribe(filter);
+            // // }
+            // const opts: NDKSubscriptionOptions = { groupableDelay: 500, closeOnEose: false };
+            // const kinds = [1, 7, 9735, 30023, 6, 1985];
+            // // subscribe(filter1);
+            // for (let i = 0; i < kinds.length; i++) {
+            //     console.log(`NoteWrapper: subscribing to kind ${kinds[i]} events for note ${id}`)
+            //     subscribe({ kinds: [kinds[i]], '#e': [id]}, opts);
+            // }
 
             setSubscribed(true);
         }
         if (!noteVisible && subscribed) {
-            // console.log(`will stop subs for note ${id} in 3 seconds...`);
+            console.log(`will stop subs for note ${id} in 3 seconds...`);
             setTimeout(() => {
                 subs && subs
                     .forEach((sub: NDKSubscription) => {
@@ -72,9 +75,10 @@ export const NoteWrapper = ({ id, children, event, loaded }: NoteWrapperProps) =
                 setSubscribed(false);
             }, 3000);
         }
-    }, [noteVisible, subscribed, loaded, event]);
+    }, [noteVisible, subscribed, loaded, event, connected]);
 
   return <Card
+      id={id}
       ref={noteRef}
       sx={{
           minWidth: 275,

@@ -12,6 +12,7 @@ import './Home.css';
 import Divider from "@mui/material/Divider";
 import {NoteTags} from "../NoteTags/NoteTags";
 import {request} from "../../../services/request";
+import {RotatingText} from "../../RotatingText/RotatingText";
 
 export const Home = () => {
    const contributors = Config.CONTRIBUTORS;
@@ -29,12 +30,45 @@ export const Home = () => {
 
    return <React.Fragment>
       <Box className="landingPage-box">
-         <img width="23%" src={`${process.env.BASE_URL}/images/swarmstr.png`} alt={Config.SLOGAN}/>
          <Typography variant="h5" component="div" sx={{ fontSize: '1.435rem!important' }}>
             { Config.SLOGAN }
          </Typography>
+
+         <Box sx={{ position: 'relative', height: '236px' }}>
+            <div className={"star"}></div>
+            <Box sx={{ position: 'relative',
+               width: '300px',
+               height: '121px',
+               margin: 'auto',
+               transform: 'translateY(100px)',
+               zIndex: 999 }}>
+               <img className="hiveQueen" width="23%" src={`${process.env.BASE_URL}/images/swarmstr.png`} alt={Config.SLOGAN}/>
+               <img className="hornets" id="hornet1" src={`${process.env.BASE_URL}/images/swarmstr-hornet.png`} width="16px"/>
+               <img className="hornets" id="hornet2" src={`${process.env.BASE_URL}/images/swarmstr-hornet.png`} width="16px"/>
+               <img className="hornets" id="hornet3" src={`${process.env.BASE_URL}/images/swarmstr-hornet.png`} width="16px"/>
+               <img className="hornets" id="hornet4" src={`${process.env.BASE_URL}/images/swarmstr-hornet.png`} width="16px"/>
+            </Box>
+            <img className={"nostrnaut"} width="33%" src={`${process.env.BASE_URL}/images/hexagons.png`} alt={Config.SLOGAN}/>
+         </Box>
          <Box>
-            <h6>Discover content</h6>
+            <RotatingText/>
+         </Box>
+
+         {/*<Box>*/}
+            {/*Our main focus is content discoverability.<br/>*/}
+            {/*Swarmstr indexes notes across popular categories and makes them searchable.<br/>*/}
+         {/*</Box>*/}
+
+         {/*<Box>*/}
+            {/*100% of content on Swarmstr comes from Nostr users.*/}
+         {/*</Box>*/}
+
+         {/*<Box>*/}
+            {/*For content creators we offer built-in tools like markdown editor, image creator and more.*/}
+         {/*</Box>*/}
+
+         <Box>
+            {/*<h6>Discover content</h6>*/}
             <NoteTags explicitlyExpanded={true} styles={{ display: 'block' }} tags={Config.NOSTR_TAGS.map((t: string) => ['t', t])}/>
          </Box>
 

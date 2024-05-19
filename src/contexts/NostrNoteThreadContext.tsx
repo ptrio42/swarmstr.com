@@ -3,9 +3,10 @@ import React, {createContext} from "react";
 
 type NostrNoteThreadContextType = {
     events: NostrEvent[],
-    subscribe: (filter: NDKFilter, opts?: NDKSubscriptionOptions) => void,
+    subscribe: (filter: NDKFilter, opts?: NDKSubscriptionOptions) => any,
+    unsubscribe: (subIds: string[]) => void,
     nevent: string,
-    commentEvents?: NostrEvent[],
+    commentEvents: NostrEvent[],
     loaded: boolean,
     stats: any,
     connected: boolean
@@ -14,8 +15,10 @@ type NostrNoteThreadContextType = {
 export const NostrNoteThreadContext = createContext<NostrNoteThreadContextType>({
     events: [],
     subscribe: () => {},
+    unsubscribe: () => {},
     nevent: '',
     loaded: false,
     stats: {},
-    connected: false
+    connected: false,
+    commentEvents: []
 });

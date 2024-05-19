@@ -1,6 +1,6 @@
 import {EventListWrapper} from "../EventListWrapper/EventListWrapper";
 import {useNostrContext} from "../../../providers/NostrContextProvider";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {Config} from "../../../resources/Config";
 import * as React from "react";
 import {Box, SelectChangeEvent} from "@mui/material";
@@ -18,6 +18,7 @@ import {NostrEventListContextProvider} from "../../../providers/NostrEventListCo
 import {NDKSubscriptionCacheUsage, NostrEvent} from '@nostr-dev-kit/ndk';
 import {NoteEvent} from "../../../models/commons";
 import {TagSelect} from "../TagSelect/TagSelect";
+import {NDKRelay, NDKSubscription} from "@nostr-dev-kit/ndk";
 
 const since =  Math.floor(Date.now() / 1000 - 7 * 24 * 60 * 60);
 const to =  Math.floor(Date.now() / 1000 + 24 * 60 * 60);
@@ -33,25 +34,91 @@ export const RecentNotes = () => {
                 .and(({tags}: NoteEvent) => containsTag(tags, ['t', explicitTag || Config.HASHTAG]))
                 .reverse()
                 .sortBy('created_at');
-            console.log('events', events)
+            console.log('RecentNotes totalEvents: ', events.length)
             return [events, true];
         }, [explicitTag], [location?.state?.events, false]);
 
-     const { subscribe, readRelays, connected, loading, setLoading } = useNostrContext();
+     const { subscribe, readRelays, connected, loading, setLoading, ndk, subs } = useNostrContext();
+
+     const subIds = useRef<string[]>([]);
 
      const navigate = useNavigate();
+
+     const [timesReachedScrollEnd, setTimesReachedScrollEnd] = useState<number>(0);
+
+     const unsubscribe = () => {
+        ndk.pool.connectedRelays().forEach((relay: NDKRelay) => {
+            relay.activeSubscriptions().forEach((subs: NDKSubscription[]) => {
+                subs.forEach((sub: NDKSubscription) => {
+                    if (subIds.current.includes(sub.internalId)) {
+                        sub.stop();
+                        console.log(`Stopping sub ${sub.internalId}`);
+                    }
+                })
+            })
+        });
+    };
+
 
      useEffect(() => {
          if (!loaded || !connected) return;
          console.log('RecentNotes: events loaded')
+         console.log('RecentNotes', { subIds: subIds.current });
+         unsubscribe();
          setLoading(true);
-         subscribe(
-             filter,
-             { closeOnEose: false, groupable: false, cacheUsage: NDKSubscriptionCacheUsage.PARALLEL },
+
+         const now = Math.floor(Date.now() / 1000);
+         // get events between now and latest cached event
+         const sub1Id = subscribe(
+             {
+                 ...filter,
+                 before: now,
+                 ...(events[0] && { since: events[0].created_at }),
+             },
+             { closeOnEose: false, groupable: true, cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST },
              () => {
+                 console.log('RecentNotes: eose');
                  setLoading(false);
-             });
-     }, [loaded, readRelays, connected]);
+         });
+
+         // subscribe to events since now
+         const sub2Id = subscribe(
+             {
+                 ...filter,
+                 since: now
+             },
+             { closeOnEose: false, groupable: true, cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST },
+             () => {
+                setLoading(false);
+            });
+         subIds.current.push(sub1Id, sub2Id);
+     }, [loaded, readRelays, connected, explicitTag]);
+
+     useEffect(() => {
+         if (loaded) {
+             const { pathname, hash, key } = location;
+             console.log('RecentNotes: cached items loaded', {hash})
+
+             if (hash !== '') {
+                 setTimeout(() => {
+                     const id = hash.replace('#', '');
+                     const element = document.getElementById(id);
+                     if (element) {
+                         console.log('RecentNotes: scrolling into view');
+                         element.scrollIntoView();
+                     }
+                 }, 1000);
+             }
+         }
+     }, [loaded]);
+
+     useEffect(() => {
+         console.log('recent notes did mount');
+         return () => {
+             console.log('closing recent notes subscriptions...');
+             unsubscribe();
+         };
+     }, []);
 
     return <Box>
         <Helmet>
@@ -84,7 +151,23 @@ export const RecentNotes = () => {
             />
         </Typography>
         <NostrEventListContextProvider events={events}>
-            <EventListWrapper>
+            <EventListWrapper onReachedListEnd={() => {
+                console.log('onReachedListEnd', {events})
+                if (!events) return;
+                // subscribe to event before last note
+                let i = timesReachedScrollEnd + 1;
+                const subId = subscribe(
+                    {
+                        ...filter,
+                        ...(events[events.length - 1] && {
+                            before: events[events.length - 1].created_at,
+                            since: events[events.length - 1].created_at - (6 * 60 * 60) * i
+                        }),
+                    },
+                    { closeOnEose: true, groupable: false, cacheUsage: NDKSubscriptionCacheUsage.PARALLEL });
+                setTimesReachedScrollEnd(i);
+                subIds.current.push(subId);
+            }}>
                 <EventList floating={false}/>
             </EventListWrapper>
         </NostrEventListContextProvider>

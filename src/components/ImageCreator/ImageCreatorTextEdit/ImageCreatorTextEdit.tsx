@@ -11,6 +11,7 @@ import Box from "@mui/material/Box";
 import MenuItem from "@mui/material/MenuItem";
 import {ImageCreatorWorkItem} from "../ImageCreatorWorkArea/ImageCreatorWorkArea";
 import {useImageCreatorWorkAreaContext} from "../../../providers/ImageCreatorWorkAreaContextProvider";
+import {ImageCreatorTextEditColorPicker} from "./ImageCreatorTextEditColorPicker";
 
 interface ImageCreatorTextEditProps {
     workItem: ImageCreatorWorkItem;
@@ -87,7 +88,7 @@ export const ImageCreatorTextEdit = ({
                     content: event.target.value
                 }) }} />
         </FormControl>
-        <FormControl>
+        <FormControl sx={{ maxWidth: '100px' }}>
             <FormLabel id={`${label}-text-size`}>Font size</FormLabel>
             <Select
                 labelId={`${label}-font-size-select-label`}
@@ -108,43 +109,63 @@ export const ImageCreatorTextEdit = ({
                     Array.from(Array(88), (el, i) => <MenuItem value={i + 12}>{ i + 12 }</MenuItem>)
                 }
             </Select>
-            {/*<Slider*/}
-                {/*aria-label="Primary Text Font Size"*/}
-                {/*value={textSize}*/}
-                {/*valueLabelDisplay="auto"*/}
-                {/*onChange={(_event: any, newSloganFontSize: any) => {*/}
-                    {/*handleTextSizeChange(newSloganFontSize as number);*/}
-                {/*}}*/}
-            {/*/>*/}
         </FormControl>
-        <FormControl>
+        <FormControl sx={{ maxWidth: '63px', margin: '9px' }}>
             <FormLabel id={`${label}-text-color`}>Text color </FormLabel>
-            <Box sx={{ width: '16px', height: '16px', backgroundColor: workItem.styles?.color, border: '1px solid #000' }} onClick={(event: any) => { setTextColorPickerOpen(true); }}></Box>
-            {
-                textColorPickerOpen && <HexColorPicker color={workItem.styles?.color} onChange={(color: string) => { onTextChange({
-                    ...workItem,
-                    styles: {
-                        ...workItem.styles,
-                        color
-                    }
-                });
-                setTextColorPickerOpen(false);
-                }} />
-            }
+            <ImageCreatorTextEditColorPicker
+                selectedColor={workItem.styles?.color}
+                onSelectColor={(color: string) => {
+                    onTextChange({
+                        ...workItem,
+                        styles: {
+                            ...workItem.styles,
+                            color
+                        }
+                    })
+                }}
+            />
         </FormControl>
-        <FormControl>
+        <FormControl sx={{ maxWidth: '63px', margin: '9px' }}>
             <FormLabel id={`${label}-text-color`}>Text shadow color</FormLabel>
-            <Box sx={{ width: '16px', height: '16px', backgroundColor: workItem.styles?.textShadow?.split(' ')[3], border: '1px solid #000' }} onClick={(event: any) => { setTextShadowColorPickerOpen(true); }}></Box>
+            <ImageCreatorTextEditColorPicker
+                selectedColor={workItem.styles?.textShadow?.split(' ')[3]}
+                onSelectColor={(color: string) => {
+                    onTextChange({
+                        ...workItem,
+                        styles: {
+                            ...workItem.styles,
+                            textShadow: `1px 1px 2px ${color}`
+                        }
+                    })
+                }}
+            />
+        </FormControl>
+        <FormControl sx={{ maxWidth: '63px', margin: '9px' }}>
+            <FormLabel id={`${label}-text-color`}>Text background color</FormLabel>
+            <ImageCreatorTextEditColorPicker
+                selectedColor={workItem.styles?.background}
+                onSelectColor={(color: string) => {
+                    onTextChange({
+                        ...workItem,
+                        styles: {
+                            ...workItem.styles,
+                            background: `${color}`
+                        }
+                    })
+                }}
+            />
             {
-                textShadowColorPickerOpen && <HexColorPicker color={workItem.styles?.textShadow?.split(' ')[3]} onChange={(color: string) => { onTextChange({
-                    ...workItem,
-                    styles: {
-                        ...workItem.styles,
-                        textShadow: `1px 1px 2px ${color}`
-                    }
-                });
-                    setTextShadowColorPickerOpen(false);
-                }} />
+                workItem.styles?.background !== 'transparent' && <IconButton
+                    sx={{ position: 'absolute', bottom: '-11px', left: '16px' }}
+                    onClick={() => {
+                        onTextChange({
+                            ...workItem,
+                            styles: {
+                                ...workItem.styles,
+                                background: 'transparent'
+                            }
+                        })
+                    }}><Cancel/></IconButton>
             }
         </FormControl>
     </React.Fragment>

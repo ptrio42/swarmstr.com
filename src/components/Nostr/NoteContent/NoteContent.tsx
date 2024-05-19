@@ -36,12 +36,12 @@ export const NoteContent = ({ event, expanded, floating, nevent, searchString, p
     useEffect(() => {
         if (!!event?.content) {
             let content = event!.content;
-            if (!expanded && !showFullText && content.length > 250) content = content.slice(0, 250) + '...';
+            if (!expanded && !showFullText && content.length > 300) content = content.slice(0, 300) + '...';
             const referencedEventId = valueFromTag(event, 'e');
             if (referencedEventId &&
                 containsTag(event!.tags, ['t', Config.HASHTAG]) &&
-                !(new RegExp(/nostr:note1([a-z0-9]+)/gm).test(event.content) ||
-                    new RegExp(/nostr:nevent1([a-z0-9]+)/gm).test(event.content))) {
+                !(new RegExp(/nostr:note1([a-z0-9]+)/gmi).test(event.content) ||
+                    new RegExp(/nostr:nevent1([a-z0-9]+)/gmi).test(event.content))) {
                 const bech32Id = nip19.noteEncode(referencedEventId);
                 content = `${content}\nnostr:${bech32Id}`;
             }
@@ -70,7 +70,7 @@ export const NoteContent = ({ event, expanded, floating, nevent, searchString, p
             gutterBottom
             variant="body2"
             component="div"
-            {...(!expanded && !floating && { onClick: () => { navigate(`/e/${nevent}`, { state: { events: props.state?.events, event, limit: props.state?.events?.length, previousUrl: location?.pathname} }) } })}
+            {...(!expanded && !floating && { onClick: () => { navigate(`/e/${nevent}`, { state: { events: props.state?.events, event, limit: props.state?.limit, previousUrl: location?.pathname} }) } })}
             {...(floating && { onClick: () => { navigate(`/search/${searchString}?e=${nevent}`) } })}
         >
             <QuestionSummary id={id!}/>

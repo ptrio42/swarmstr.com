@@ -12,6 +12,7 @@ export const NOTE_TYPE: { [key: string]: NoteType } = {
 export interface NoteEvent extends NostrEvent {
     type: NoteType;
     referencedEventId?: string;
+    referencedEventsIds?: string[];
     title?: string;
 }
 
@@ -45,5 +46,9 @@ export interface LabelEvent extends NostrEvent {
 }
 
 export interface ContactListEvent extends NostrEvent {
+}
+
+export interface Interface {
+    
 }
 
