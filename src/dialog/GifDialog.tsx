@@ -40,7 +40,7 @@ export const GifDialog = ({ open, onClose }: GifDialogProps) => {
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
-    return <Dialog sx={{ marginTop: '12em' }} fullScreen={fullScreen} open={open} onClose={() => { onClose && onClose() }}>
+    return <Dialog sx={{ marginTop: '12em', minWidth: '300px', minHeight: '180px' }} fullScreen={fullScreen} open={open} onClose={() => { onClose && onClose() }}>
         <SearchContextManager apiKey={process.env.GIPHY_API_KEY as string}>
             <Gifs onGifClick={(gifUrl?: string) => { onClose && onClose(gifUrl) }}/>
         </SearchContextManager>

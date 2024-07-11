@@ -61,6 +61,13 @@
     height: 9px;
 }
 
+.hiveContainer {
+    overflow-y: hidden;
+    overflow-x: clip;
+    min-height: 270px;
+    position: relative;
+}
+
 .hiveQueen {
     position: absolute;
     top: 10%;
@@ -451,3 +458,4 @@
         box-shadow: 0 0 0 20px rgba(0, 0, 0, 0);
     }
 }
+

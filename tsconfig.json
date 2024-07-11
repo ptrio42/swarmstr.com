@@ -2,7 +2,7 @@
   "include": ["src", "decs.d.ts"],
   "compilerOptions": {
     "module": "esnext",
-    "target": "es6",
+    "target": "es2018",
     "jsx": "react",
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,

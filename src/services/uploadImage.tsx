@@ -21,10 +21,25 @@ export const uploadToNostrCheckMe = async (file: any) => {
     formData.append('publicgallery', file);
 
     const response = await request({
-        url: 'https://nostrcheck.me/api/media.php',
+        url: 'https://nostrcheck.me/api/v2/media',
         method: 'POST',
         body: formData
     });
 
-    return response.data?.URL;
+    console.log('nostrcheck.me response data', { data: response.data })
+
+    return response.data?.nip94_event.tags[0][1];
+};
+
+export const uploadToNostrBuild = async (file: any) => {
+    const formData = new FormData();
+    formData.append('file[]', file);
+
+    const response = await request({
+        url: 'https://nostr.build/api/v2/upload/files',
+        method: 'POST',
+        body: formData
+    });
+
+    return response.data?.data[0].url;
 };

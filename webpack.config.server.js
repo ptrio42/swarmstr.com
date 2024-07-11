@@ -21,14 +21,14 @@ module.exports = {
             'nostr-hooks': path.resolve(__dirname, 'node_modules/nostr-hooks'),
             'domhandler': path.resolve(__dirname, 'node_modules/domhandler'),
             'react-simplemde-editor': path.resolve(__dirname, 'node_modules/react-simplemde-editor'),
-            '@nostr-dev-kit/ndk-cache-redis': path.resolve(__dirname, 'node_modules/@nostr-dev-kit/ndk-cache-redis'),
+            // '@nostr-dev-kit/ndk-cache-redis': path.resolve(__dirname, 'node_modules/@nostr-dev-kit/ndk-cache-redis'),
             // '@uiw/react-md-editor': path.resolve(__dirname, 'node_modules/@uiw/react-md-editor'),
             // '@uiw/react-markdown-preview': path.resolve(__dirname, 'node_modules/@uiw/react-markdown-preview'),
             // 'react-markdown': path.resolve(__dirname, 'node_modules/react-markdown'),
         }
     },
     externals: [nodeExternals({
-        allowlist: [/\.css$/, 'nostr-mux', 'domhandler', 'nostr-hooks', 'nostr-tools', '@nostr-dev-kit/ndk-cache-redis']
+        allowlist: [/\.css$/, 'nostr-mux', 'domhandler', 'nostr-hooks', 'nostr-tools']
     })],
     externalsPresets: {
         node: true

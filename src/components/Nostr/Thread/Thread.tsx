@@ -29,6 +29,7 @@ import {TagSelect} from "../TagSelect/TagSelect";
 import {LoadingAnimation} from "../../LoadingAnimation/LoadingAnimation";
 import {LoadingDialog} from "../../../dialog/LoadingDialog";
 import {useThreadPoolContext} from "../ThreadWrapper/ThreadWrapper";
+import {NoteMeta} from "../NoteMeta/NoteMeta";
 
 interface ThreadProps {
     nevent?: string;
@@ -192,25 +193,7 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating, de
     return (
         <React.Fragment>
             {
-                expanded && <Helmet>
-                    <title>{`Thread ${ nevent } - Swarmstr.com`}</title>
-                    <meta property="description" content={ Config.APP_DESCRIPTION } />
-                    <meta property="keywords" content={ Config.APP_KEYWORDS } />
-
-                    <meta property="og:url" content={process.env.BASE_URL + '/e/' + nevent } />
-                    <meta property="og:type" content="website" />
-                    <meta property="og:title" content={`Thread ${ nevent } - Swarmstr.com`} />
-                    <meta property="og:image" content={ Config.APP_IMAGE } />
-                    <meta property="og:description" content={ Config.APP_DESCRIPTION } />
-
-                    <meta itemProp="name" content={`${ nevent } - Swarmstr.com`} />
-                    <meta itemProp="image" content={ Config.APP_IMAGE } />
-
-                    <meta name="twitter:title" content={`${ nevent } - Swarmstr.com`} />
-                    <meta name="twitter:description" content={ Config.APP_DESCRIPTION } />
-                    <meta name="twitter:image" content={ Config.APP_IMAGE } />
-
-                </Helmet>
+                expanded && parentEvent && <NoteMeta event={parentEvent}/>
             }
 
             <List sx={{ paddingBottom: 0, paddingTop: 0 }} id={`note-thread-${id}`}>

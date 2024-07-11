@@ -96,6 +96,20 @@ export const Config = {
     '1577e4599dd10c863498fe3c20bd82aafaf829a595ce83c5cf8ac3463531b09b',
     '1bc70a0148b3f316da33fe3c89f23e3e71ac4ff998027ec712b905cd24f6a411',
     'f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8'
+  ],
+  NOSTR_ADDRESS_AVAILABLE_DOMAINS: [
+    {
+      name: 'swarmstr.com',
+      price: 0
+    },
+    {
+      name: 'nostrich.love',
+      price: 420
+    },
+    {
+      name: 'thisbitcointhing.com',
+      price: 2100
+    }
   ]
 };
 

@@ -50,11 +50,11 @@ export const NavBar = () => {
         , [userSearchString], []);
 
     const handleNewNoteButtonClick = () => {
-        if (user) {
+        // if (user) {
             setNewNoteDialogOpen(true);
-        } else {
-            setLoginDialogOpen(true);
-        }
+        // } else {
+        //     setLoginDialogOpen(true);
+        // }
     };
 
     const handleUserMenuClose = () => {

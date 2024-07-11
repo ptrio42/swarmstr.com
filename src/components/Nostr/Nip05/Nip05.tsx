@@ -12,6 +12,8 @@ import Button from "@mui/material/Button";
 import {Helmet} from "react-helmet";
 import './Nip05.css';
 import {Config} from "../../../resources/Config";
+import {QrCodeDialog} from "../../../dialog/QRCodeDialog";
+import {useSearchParams} from "react-router-dom";
 
 export const Nip05 = () => {
     const [pubkey, setPubkey] = useState<string>();
@@ -22,6 +24,11 @@ export const Nip05 = () => {
     const [invoice, setInvoice] = useState();
     const [invoiceStatus, setInvoiceStatus] = useState<string|undefined>();
     const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+    const [searchParams, _] = useSearchParams();
+    const [domain, setDomain] = useState<string>(searchParams.get('domain') || Config.NOSTR_ADDRESS_AVAILABLE_DOMAINS[0].name);
+
+
+    const { price } = Config.NOSTR_ADDRESS_AVAILABLE_DOMAINS.find((entry: any) => domain === entry.name) || { price: 0 };
 
     let fallbackTimeout: any;
 
@@ -40,7 +47,7 @@ export const Nip05 = () => {
             return;
         }
         if (name) {
-            checkName(name).then(response => {
+            checkName(name, domain).then(response => {
                 setNameAvailable(response.nameAvailable);
                 if (!response.nameAvailable) {
                     setNameAvailableMessage('Name already registered.')
@@ -51,7 +58,7 @@ export const Nip05 = () => {
             setInvoice(undefined);
             setInvoiceStatus(undefined);
         }
-    }, [name]);
+    }, [name, domain]);
 
     useEffect(() => {
         if (invoiceStatus === 'completed' && fallbackTimeout) {
@@ -83,7 +90,7 @@ export const Nip05 = () => {
     const handleInvoiceStatus = async () => {
         if (name) {
             try {
-                const { status } = await getInvoiceStatus(name);
+                const { status } = await getInvoiceStatus(name!, domain);
 
                 if (status === 'pending') {
                     fallbackTimeout = setTimeout(handleInvoiceStatus, getBackoffTime());
@@ -98,24 +105,48 @@ export const Nip05 = () => {
         }
     };
 
-    const domain = (process.env.BASE_URL || '').replace(/https?:\/\//, '');
+    const domains = Config.NOSTR_ADDRESS_AVAILABLE_DOMAINS.map((d: any) => d.name).join(',');
+
+    const submit = () => {
+        if (pubkey && name) {
+            registerName(pubkey!, name!, domain)
+                .then(data => {
+                    if (data.invoice) {
+                        setInvoice(data.invoice);
+                        setInvoiceStatus(data.status);
+                        setDialogOpen(true);
+                        fallbackTimeout = setTimeout(handleInvoiceStatus, getBackoffTime());
+                    } else {
+                        setInvoiceStatus('completed');
+                    }
+                })
+                .catch(() => {
+                    setInvoiceStatus('failure');
+                })
+        }
+    };
 
     return (
         <React.Fragment>
             <Helmet>
-                <title>Get free { domain } Nostr Address</title>
-                <meta property="description" content={`Get a Nostr address at @${domain}`} />
+                <title>Get { domains } Nostr Address</title>
+                <meta property="description" content={`Get a Nostr address at @${domains}`} />
                 <meta property="keywords" content="nostr, nip05, nostr handle, nostr address" />
 
                 <meta property="og:url" content={`${process.env.BASE_URL}/nostr-address`} />
                 <meta property="og:type" content="website" />
-                <meta property="og:title" content={`Get free ${domain} Nostr Address`} />
-                <meta property="og:description" content={`Get free ${domain} Nostr Address`} />
+                <meta property="og:title" content={`Get ${domains} Nostr Address`} />
+                <meta property="og:description" content={`Get ${domains} Nostr Address`} />
+                <meta property="og:image" content={`${Config.APP_IMAGE}`} />
 
-                <meta itemProp="name" content={`Get free ${domain} Nostr Address`} />
+                <meta itemProp="name" content={`Get ${domains} Nostr Address`} />
 
-                <meta name="twitter:title" content={`Get free ${domain} Nostr Address`} />
-                <meta name="twitter:description" content={`Get free ${domain} Nostr Address`} />
+                <meta name="twitter:card" content="summary" />
+                <meta name="twitter:site" content="@swarmstr" />
+                <meta name="twitter:title" content={`Get ${domains} Nostr Address`} />
+                <meta name="twitter:description" content={`Get ${domains} Nostr Address`} />
+                <meta name="twitter:image:src" content={`${Config.APP_IMAGE}`} />
+                <meta itemProp="image" content={`${Config.APP_IMAGE}`} />
 
             </Helmet>
             <Box sx={{ flexDirection: 'column' }}>
@@ -124,7 +155,7 @@ export const Nip05 = () => {
                     variant="h5"
                     sx={{ margin: '0.33em' }}
                 >
-                    Get a free yourname@{domain} Nostr Address
+                    Get { price === 0 && 'a free ' } yourname@{domain} Nostr Address
                 </Typography>
                 <Typography component="div" sx={{ margin: '0.33em' }}>
                     Human readable identifier for your public key (NIP-05).
@@ -132,9 +163,12 @@ export const Nip05 = () => {
                 <Typography component="div" sx={{ margin: '0.33em' }}>
                     Provide your Nostr pubkey and desired name.
                 </Typography>
-                {/*<Typography component="div" sx={{ margin: '0.33em' }}>*/}
-                    {/*Fee: 420 sats*/}
-                {/*</Typography>*/}
+                {
+                    price > 0 &&
+                        <Typography component="div" sx={{ margin: '0.33em', fontWeight: 'bold' }}>
+                            Fee: {price} sats
+                        </Typography>
+                }
                 <Typography component="div" sx={{ margin: '0.33em' }}>
                     Allowed characters: a-zA-Z0-9_. case insensitive
                 </Typography>
@@ -151,48 +185,60 @@ export const Nip05 = () => {
                             Your handle: {name}@{domain}
                         </Typography>
 
-                        <TextField
-                            sx={{ margin: '0.33em' }}
-                            id="name"
-                            label="Name"
-                            variant="outlined"
-                            value={name}
-                            onChange={(event) => {
-                                setName(event.target.value);
-                            }}
-                            {...(name && name.length > 0 && !nameAvailable) ? { error: true, helperText: nameAvailableMessage } : {error: false}}
-                        />
-                        <TextField
-                            sx={{ margin: '0.33em' }}
-                            id="pubkey"
-                            {...(pubkey && !pubkeyValid) ? { error: true, helperText: 'Invalid pubkey' } : {error: false}}
-                            label="Public key (npub or hex)"
-                            variant="outlined"
-                            value={pubkey}
-                            onChange={(event) => {
-                                setPubkey(event.target.value);
-                            }}
-                        />
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <TextField
+                                sx={{ margin: '0.33em 0' }}
+                                id="name"
+                                label="Name"
+                                variant="outlined"
+                                value={name}
+                                onChange={(event) => {
+                                    setName(event.target.value);
+                                }}
+                                {...(name && name.length > 0 && !nameAvailable) ? { error: true, helperText: nameAvailableMessage } : {error: false}}
+                            />
+                            <Box>@</Box>
+                            <TextField
+                                select
+                                sx={{ margin: '0.33em 0' }}
+                                id="domain"
+                                label="Domain"
+                                variant="outlined"
+                                defaultValue={domain}
+                                SelectProps={{
+                                    native: true,
+                                }}
+                                onChange={(event) => {
+                                    setDomain(event.target.value);
+                                }}
+                            >
+                                {
+                                    Config.NOSTR_ADDRESS_AVAILABLE_DOMAINS.map((domain: any) => <option key={domain.name} value={domain.name}>
+                                        { domain.name }
+                                    </option>)
+                                }
+                            </TextField>
+                        </Box>
+                        <Box>
+                            <TextField
+                                sx={{ margin: '0.33em 0' }}
+                                id="pubkey"
+                                {...(pubkey && !pubkeyValid) ? { error: true, helperText: 'Invalid pubkey' } : {error: false}}
+                                label="Public key (npub or hex)"
+                                variant="outlined"
+                                value={pubkey}
+                                onChange={(event) => {
+                                    setPubkey(event.target.value);
+                                }}
+                            />
+                        </Box>
                     </CardContent>
                     <Button
                         sx={{ width:'50%', alignSelf: 'center', marginBottom: '1em' }}
                         variant="contained"
                         color="secondary"
                         disabled={!pubkey || !pubkeyValid || !name || !nameAvailable || (invoiceStatus && invoiceStatus! === 'completed') || false}
-                        onClick={() => {
-                            if (pubkey && name) {
-                                registerName(pubkey!, name!)
-                                    .then(data => {
-                                        // setInvoice(data.invoice);
-                                        setInvoiceStatus('completed');
-                                        // setDialogOpen(true);
-                                        // fallbackTimeout = setTimeout(handleInvoiceStatus, getBackoffTime());
-                                    })
-                                    .catch(() => {
-                                        setInvoiceStatus('failure');
-                                    })
-                            }
-                        }}
+                        onClick={submit}
                     >
                         Submit
                     </Button>
@@ -208,14 +254,14 @@ export const Nip05 = () => {
                     </Typography>
                 }
             </Box>
-            {/*<QrCodeDialog*/}
-                {/*str={invoice && `lightning:${invoice}` || ''}*/}
-                {/*dialogOpen={dialogOpen}*/}
-                {/*close={() => setDialogOpen(false)}*/}
-                {/*fee={420}*/}
-                {/*status={invoiceStatus}*/}
-                {/*lnbc={invoice}*/}
-            {/*/>*/}
+            <QrCodeDialog
+                str={invoice && `lightning:${invoice}` || ''}
+                dialogOpen={dialogOpen}
+                close={() => setDialogOpen(false)}
+                fee={price}
+                status={invoiceStatus}
+                lnbc={invoice}
+            />
         </React.Fragment>
     );
 };

@@ -13,6 +13,7 @@ import Divider from "@mui/material/Divider";
 import {NoteTags} from "../NoteTags/NoteTags";
 import {request} from "../../../services/request";
 import {RotatingText} from "../../RotatingText/RotatingText";
+import {Helmet} from "react-helmet";
 
 export const Home = () => {
    const contributors = Config.CONTRIBUTORS;
@@ -29,12 +30,33 @@ export const Home = () => {
    }, []);
 
    return <React.Fragment>
+      <Helmet>
+         <title>Swarmstr.com - your knowledge hub for all kinds of minds!</title>
+         <meta property="description" content={`What if Quora/StackOverflow knew who you followed on social media and used that to help scope what kind of questions and answers you saw? That's what Swarmstr does!`} />
+         <meta property="keywords" content="swarmstr, q&a, find answers, quora on nostr, stackoverflow on nostr, nostr, nip05, nostr handle, nostr address" />
+
+         <meta property="og:url" content={`${process.env.BASE_URL}/nostr-address`} />
+         <meta property="og:type" content="website" />
+         <meta property="og:title" content={`Swarmstr.com - your knowledge hub for all kinds of minds!`} />
+         <meta property="og:description" content={`What if Quora/StackOverflow knew who you followed on social media and used that to help scope what kind of questions and answers you saw? That's what Swarmstr does!`} />
+         <meta property="og:image" content={`${Config.APP_IMAGE}`} />
+
+         <meta itemProp="name" content={`Swarmstr.com - your knowledge hub for all kinds of minds!`} />
+
+         <meta name="twitter:card" content="summary" />
+         <meta name="twitter:site" content="@swarmstr" />
+         <meta name="twitter:title" content={`Swarmstr.com - your knowledge hub for all kinds of minds!`} />
+         <meta name="twitter:description" content={`What if Quora/StackOverflow knew who you followed on social media and used that to help scope what kind of questions and answers you saw? That's what Swarmstr does!`} />
+         <meta name="twitter:image:src" content={`${Config.APP_IMAGE}`} />
+         <meta itemProp="image" content={`${Config.APP_IMAGE}`} />
+
+      </Helmet>
       <Box className="landingPage-box">
          <Typography variant="h5" component="div" sx={{ fontSize: '1.435rem!important' }}>
             { Config.SLOGAN }
          </Typography>
 
-         <Box sx={{ position: 'relative', height: '236px' }}>
+         <Box className="hiveContainer">
             <div className={"star"}></div>
             <Box sx={{ position: 'relative',
                width: '300px',
@@ -118,7 +140,7 @@ export const Home = () => {
              className="aboutSwarmstr-button"
              color="secondary"
              component={Link}
-             to={`/e/nevent1qqsyuhzx9h787y6kxc5m7qehqdzhrwnx0ztzcua9e9s878ug73hf6uqpz3mhxue69uhhyetvv9ujuerpd46hxtnfdulvpefd`}
+             to={`/e/nevent1qgsg8panfud0pcg5qcj4yvpu8aau4d7q4j7r2gez203zwp4s4c4jxncpz3mhxue69uhhztnnwashymtnw3ezucm0d5qzp8tqqmw80eudc3ppzfuz26z2ju3kt275aqaug6craleqmmwaljeucm070z`}
          >
             <Info /> &nbsp;Learn more about Swarmstr
          </Button>

@@ -1,24 +1,25 @@
 import {EventListWrapper} from "../EventListWrapper/EventListWrapper";
 import {useNostrContext} from "../../../providers/NostrContextProvider";
+import * as React from "react";
 import {useEffect, useRef, useState} from "react";
 import {Config} from "../../../resources/Config";
-import * as React from "react";
 import {Box, SelectChangeEvent} from "@mui/material";
-import {EventList} from "../EventList/EventList";
+import {EventList, Sort} from "../EventList/EventList";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
 import {containsTag} from "../../../utils/utils";
 import Typography from "@mui/material/Typography";
 import {Backdrop} from "../../Backdrop/Backdrop";
 import './RecentNotes.css';
-import {useLocation, useParams, useNavigate} from "react-router-dom";
+import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {uniq} from 'lodash';
 import {Helmet} from "react-helmet";
 import {NostrEventListContextProvider} from "../../../providers/NostrEventListContextProvider";
-import {NDKSubscriptionCacheUsage, NostrEvent} from '@nostr-dev-kit/ndk';
+import {NDKRelay, NDKSubscription, NDKSubscriptionCacheUsage, NostrEvent} from '@nostr-dev-kit/ndk';
 import {NoteEvent} from "../../../models/commons";
 import {TagSelect} from "../TagSelect/TagSelect";
-import {NDKRelay, NDKSubscription} from "@nostr-dev-kit/ndk";
+import Button from "@mui/material/Button";
+import ButtonGroup from "@mui/material/ButtonGroup";
 
 const since =  Math.floor(Date.now() / 1000 - 7 * 24 * 60 * 60);
 const to =  Math.floor(Date.now() / 1000 + 24 * 60 * 60);
@@ -45,6 +46,8 @@ export const RecentNotes = () => {
      const navigate = useNavigate();
 
      const [timesReachedScrollEnd, setTimesReachedScrollEnd] = useState<number>(0);
+
+     const [sort, setSort] = useState<Sort>(Sort.DEFAULT);
 
      const unsubscribe = () => {
         ndk.pool.connectedRelays().forEach((relay: NDKRelay) => {
@@ -122,25 +125,41 @@ export const RecentNotes = () => {
 
     return <Box>
         <Helmet>
-            <title>Recent notes - { Config.APP_TITLE }</title>
-            <meta property="description" content={`Browse latest notes from #${Config.HASHTAG}`} />
+            <title>Recent from #{explicitTag} - { Config.APP_TITLE }</title>
+            <meta property="description" content={`Browse latest notes from #${explicitTag}`} />
             <meta property="keywords" content={ Config.APP_KEYWORDS } />
 
-            <meta property="og:url" content={ `${process.env.BASE_URL}/recent` } />
+            <meta property="og:url" content={ `${process.env.BASE_URL}/recent/${explicitTag}` } />
             <meta property="og:type" content="website" />
-            <meta property="og:title" content={`Recent notes - ${Config.APP_TITLE}`} />
+            <meta property="og:title" content={`Recent from ${explicitTag} - ${Config.APP_TITLE}`} />
             <meta property="og:image" content={ Config.APP_IMAGE } />
-            <meta property="og:description" content={`Browse latest notes from #${Config.HASHTAG}`} />
+            <meta property="og:description" content={`Browse latest notes from #${explicitTag}`} />
 
-            <meta itemProp="name" content={`Recent notes - ${Config.APP_TITLE}`} />
+            <meta itemProp="name" content={`Recent from #${explicitTag} - ${Config.APP_TITLE}`} />
             <meta itemProp="image" content={ Config.APP_IMAGE }  />
 
-            <meta name="twitter:title" content={`Recent notes - ${Config.APP_TITLE}`} />
-            <meta name="twitter:description" content={`Browse latest notes from #${Config.HASHTAG}`} />
-            <meta name="twitter:image" content={ Config.APP_IMAGE }  />
+            <meta name="twitter:card" content="summary" />
+            <meta name="twitter:website" content="@swarmstr" />
+            <meta name="twitter:title" content={`Recent from #${explicitTag} - ${Config.APP_TITLE}`} />
+            <meta name="twitter:description" content={`Browse latest notes from #${explicitTag}`} />
+            <meta name="twitter:image:src" content={ Config.APP_IMAGE } />
 
         </Helmet>
-        <Typography sx={{ display: 'flex', marginBottom: '0.5em', marginTop: '0.5em', textAlign: 'left', marginLeft: '15px', justifyContent: 'flex-end', marginRight: '1em' }} component="div" variant="body1">
+        <Typography sx={{ display: 'flex', marginBottom: '0.5em', marginTop: '0.5em', textAlign: 'left', marginLeft: '15px', justifyContent: 'space-between', marginRight: '1em' }} component="div" variant="body1">
+
+            <ButtonGroup sx={{ boxShadow: 'none' }} variant="contained" aria-label="recent notes sort">
+                <Button color={'primary'}
+                        sx={{
+                            textTransform: 'lowercase',
+                            padding: '7px',
+                            fontSize: '15px',
+                            ...(sort !== Sort.DEFAULT && { backgroundColor: 'rgba(240, 230, 140, .5)', fontWeight: '300' } || { fontWeight: '400' }) }}
+                        onClick={() => setSort(Sort.DEFAULT)}>recent</Button>
+                <Button
+                    color={'primary'}
+                    sx={{ textTransform: 'lowercase', padding: '7px', fontSize: '15px', ...(sort !== Sort.MOST_ZAPPED && { backgroundColor: 'rgba(240, 230, 140, .5)', fontWeight: '300' } || { fontWeight: '400' }) }}
+                    onClick={() => setSort(Sort.MOST_ZAPPED)}>most zaps</Button>
+            </ButtonGroup>
 
             <TagSelect
                 tags={uniq([...Config.NOSTR_TAGS, explicitTag!])}
@@ -150,7 +169,7 @@ export const RecentNotes = () => {
                 }}
             />
         </Typography>
-        <NostrEventListContextProvider events={events}>
+        <NostrEventListContextProvider events={events} sort={sort}>
             <EventListWrapper onReachedListEnd={() => {
                 console.log('onReachedListEnd', {events})
                 if (!events) return;

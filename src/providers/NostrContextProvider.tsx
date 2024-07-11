@@ -230,17 +230,30 @@ export const NostrContextProvider = ({ children }: any) => {
 
     }, []);
 
+    let loginAttempts = 0;
+
     const signIn = useCallback(async (delay: number = 0) => {
         if (user) {
             console.log({user});
             return user!.pubkey;
         }
-        if (delay >= 100) {
-            console.log('no nip-07 extension...');
-            return;
+
+        const { nostr } = window;
+
+        if (nostr === undefined) {
+            if (loginAttempts <= 3) {
+                loginAttempts += 1;
+                console.log('signIn: attempt: ', loginAttempts)
+                setTimeout(signIn, 100);
+            }
         }
-        if (window.nostr) {
-            console.log(`trying to login...`)
+
+        // if (delay >= 400) {
+        //     console.log('no nip-07 extension...');
+        //     return;
+        // }
+        if (nostr) {
+            console.log(`signIn: trying to login...`)
             try {
                 // ndk.current.signer = new NDKNip07Signer();
 
@@ -248,20 +261,24 @@ export const NostrContextProvider = ({ children }: any) => {
                 const signedInUser: NDKUser = await signer.user();
                 if (signedInUser) {
                     !user && setUser(signedInUser);
-                    signedInUser.ndk = ndk.current;
-                    const profile = await signedInUser.fetchProfile();
+                    // signedInUser.ndk = ndk.current;
+                    // const profile = await signedInUser.fetchProfile();
                     console.log(`NostrContextProvider: logged in as ${signedInUser.npub}`, {signedInUser});
-                    console.log({profile});
+                    // console.log({profile});
 
-                    subscribe({
-                        kinds: [3],
-                        authors: [signedInUser.pubkey]
-                    }, { closeOnEose: true });
+                    // setTimeout(() => {
+                    //     subscribe({
+                    //         kinds: [3],
+                    //         authors: [signedInUser.pubkey]
+                    //     }, { closeOnEose: true });
+                    //
+                    //     subscribe({
+                    //         kinds: [10002],
+                    //         authors: [signedInUser.pubkey]
+                    //     }, { closeOnEose: true });
+                    // });
 
-                    subscribe({
-                        kinds: [10002],
-                        authors: [signedInUser.pubkey]
-                    }, { closeOnEose: true });
+                    loginAttempts = 0;
 
                     return signedInUser.pubkey;
                 }
