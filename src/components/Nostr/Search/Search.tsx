@@ -166,7 +166,7 @@ export const Search = () => {
                 const latestSuggestion = bestResults && bestResults.length > 0 &&
                     sortBy(bestResults, ['created_at']).reverse()[0].created_at;
 
-                getSearchResults(query, tags, latestSuggestion || 0)
+                getSearchResults(query, tags === Config.NOSTR_TAGS ? undefined : tags, latestSuggestion || 0)
                     .then((ids?: string[]|void) => {
                         // const ids = response.data;
                         if (!!ids) {

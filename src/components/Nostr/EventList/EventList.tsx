@@ -11,14 +11,21 @@ import {NostrNoteThreadContextProvider} from "../../../providers/NostrNoteThread
 import {EventSkeleton} from "../EventSkeleton/EventSkeleton";
 import {valueFromTag} from "../../../utils/utils";
 
+export enum Sort {
+    MOST_ZAPPED = 'most_zapped',
+    DEFAULT = 'default',
+    MOST_REACTIONS = 'most_reactions'
+}
+
 interface EventListProps {
     floating?: boolean;
     depth?: number;
     parentId?: string;
     grandparentId?: string;
+    sort?: Sort;
 }
 
-export const EventList = ({ floating = true, depth = -1, parentId, grandparentId }: EventListProps) => {
+export const EventList = ({ floating = true, depth = -1, parentId, grandparentId, sort = Sort.DEFAULT }: EventListProps) => {
 
     const { pathname, hash, key } = useLocation();
     const { events, limit } = useNostrEventListContextProvider();

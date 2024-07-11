@@ -1,22 +1,23 @@
 import {db} from "../db";
-import {ListEvent} from "../models/commons";
+import {ListEvent, ZapEvent} from "../models/commons";
 import {NDKTag, NostrEvent} from "@nostr-dev-kit/ndk";
 import {useLiveQuery} from "dexie-react-hooks";
 import React, {useContext, useEffect, useMemo, useState} from "react";
-import {containsTag, useManageSubs} from "../utils/utils";
-import {Config} from "../resources/Config";
+import {containsTag, useManageSubs, valueFromTag} from "../utils/utils";
 import {useNostrContext} from "./NostrContextProvider";
 import {NostrEventListContext} from "../contexts/NostrEventListContext";
-import {uniq} from 'lodash';
+import {groupBy, orderBy, uniq} from 'lodash';
 import {useLocation} from "react-router";
+import {Sort} from "../components/Nostr/EventList/EventList";
 
 interface NostrEventListContextProviderProps {
     children?: any;
     events: NostrEvent[];
     limit?: number;
+    sort?: Sort;
 }
 
-export const NostrEventListContextProvider = ({ children, ...props }: NostrEventListContextProviderProps) => {
+export const NostrEventListContextProvider = ({ children, sort = Sort.DEFAULT, ...props }: NostrEventListContextProviderProps) => {
 
     const location = useLocation();
 
@@ -51,16 +52,45 @@ export const NostrEventListContextProvider = ({ children, ...props }: NostrEvent
         // console.log(`current limit: ${limit}`)
     }, [limit]);
 
+    //
+    // const reactions = useLiveQuery();
+
     const events = useMemo(() => {
         if (!mutedPubkeys || !mutedEvents || !props.events) return;
         // console.log({propsEvents: props.events});
-        return props?.events
+        const events = props?.events
             .filter(({id, kind, pubkey, tags}) =>
                 !mutedPubkeys.includes(pubkey) &&
                 !mutedEvents.includes(id!) &&
                 !containsTag(tags, ['t', 'nsfw'])
             );
+        // switch (sort) {
+        //     case Sort.MOST_ZAPPED:
+        //     case Sort.MOST_REACTIONS:
+        //     default:
+        // }
+        return events;
     }, [mutedEvents, mutedPubkeys, props.events]);
+
+    const mostZapped = useLiveQuery(
+        async () => {
+            const allEvents = events && await db.zaps
+                .filter(({ zappedNote }: ZapEvent) => events.map(({ id }) => id).includes(zappedNote))
+                .toArray();
+            const grouped = groupBy(allEvents, (event: any) => valueFromTag(event, 'e'));
+            console.log('mostZapped', {grouped});
+            const eventsWithTotalZaps = Object.values(grouped).map((evs: any[], index: number) => ({
+                //@ts-ignore
+                ...(events && events.find(({id}) => id === Object.keys(grouped)[index])),
+                // id: grouped[index],
+                totalZaps: evs.map((zapEvent: ZapEvent) => zapEvent.amount)
+                    .reduce((total: number, current: number) => total + current / 1000, 0)
+            }));
+            console.log('mostZapped', {eventsWithTotalZaps});
+            const sorted = orderBy(eventsWithTotalZaps, ['totalZaps'], ['desc']);
+            console.log('mostZapped', {sorted});
+            return sorted;
+        }, [events]);
 
     useEffect(() => {
         // subscribe to mute lists
@@ -83,7 +113,15 @@ export const NostrEventListContextProvider = ({ children, ...props }: NostrEvent
         }
     }, []);
 
-    return <NostrEventListContext.Provider value={{ events, limit, setLimit }}>
+    useEffect(() => {
+        events && manageSubs.addSub({
+            kinds: [9735],
+            '#e': events!.map(({id}) => id!)
+        }, {closeOnEose: true});
+    }, [events]);
+
+    // @ts-ignore
+    return <NostrEventListContext.Provider value={{ events: sort === Sort.MOST_ZAPPED ? mostZapped?.map(({totalZaps, ...event}) => event) : events, limit, setLimit }}>
         { children }
     </NostrEventListContext.Provider>;
 };

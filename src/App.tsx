@@ -23,6 +23,7 @@ import {Profile} from "./components/Nostr/Profile/Profile";
 import {Home} from "./components/Nostr/Home/Home";
 import {ImageCreator} from "./components/ImageCreator/ImageCreator";
 import {ImageCreatorDialog} from "./dialog/ImageCreatorDialog";
+import {ExternalClientView} from "./pages/ExternalClientView";
 
 const theme = createTheme({
     typography: {
@@ -129,6 +130,7 @@ function App() {
                         <Route path="/e/:nevent" element={<ThreadWrapper/>} />
                         <Route path="/d/:listName" element={<List/>} />
                         <Route path="/p/:npub" element={<Profile/>} />
+                        <Route path="/client" element={<ExternalClientView/>} />
                         {/*<Route path="/image-creator" element={<ImageCreator/>} />*/}
 
                     </Route>

@@ -6,12 +6,20 @@ type ApiRequest = {
     url: string;
     body?: any;
     responseType?: ResponseType;
-    timeout?: number
+    timeout?: number;
+    maxRedirects?: number;
 }
 
 export const request = async (request: ApiRequest, headers?: AxiosRequestHeaders) => {
+
+    // axios.interceptors.response.use((response) => {
+    //     // console.log('axios response: ', JSON.stringify(response))
+    // }, (error) => {
+    //     // console.error('axios response error: ', JSON.stringify(error), {error})
+    // })
+
     try {
-        const { method = 'GET', endpoint, url, body, responseType = 'json', timeout = 60000 } = request;
+        const { method = 'GET', endpoint, url, body, responseType = 'json', timeout = 60000, maxRedirects } = request;
 
         const axiosRequest = {
             timeout,
@@ -19,12 +27,14 @@ export const request = async (request: ApiRequest, headers?: AxiosRequestHeaders
             ...(headers ? { headers } : {}),
             method,
             url,
-            responseType
+            responseType,
+            ...(maxRedirects && { maxRedirects })
         };
 
         const response = await axios(axiosRequest);
         return response;
     } catch (error) {
+        console.error('request.tsx: error', {error})
         throw error;
     }
 };

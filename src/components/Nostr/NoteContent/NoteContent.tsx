@@ -9,7 +9,7 @@ import {NostrEvent} from "@nostr-dev-kit/ndk";
 import {Metadata} from "../Metadata/Metadata";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import { useNavigate } from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import {containsTag, valueFromTag} from "../../../utils/utils";
 import {Config} from "../../../resources/Config";
 import {nip19} from "nostr-tools";
@@ -66,18 +66,23 @@ export const NoteContent = ({ event, expanded, floating, nevent, searchString, p
             />
         </Typography>
         <Typography
-            sx={{ textAlign: 'left', fontSize: '16px', fontWeight: '300', marginTop: '1em!important', wordBreak: 'break-word', ...(!expanded && { cursor: 'pointer' }) }}
+            sx={{ '&:hover': { textDecoration: 'none' }, color: 'unset', margin: 0, padding: 0 }}
             gutterBottom
             variant="body2"
-            component="div"
-            {...(!expanded && !floating && { onClick: () => { navigate(`/e/${nevent}`, { state: { events: props.state?.events, event, limit: props.state?.limit, previousUrl: location?.pathname} }) } })}
-            {...(floating && { onClick: () => { navigate(`/search/${searchString}?e=${nevent}`) } })}
+            component={expanded ? 'div': Link}
+            {...(!expanded && { to: `/e/${nevent}` })}
+            {...(!expanded && { state: { events: props.state?.events, event, limit: props.state?.limit, previousUrl: location?.pathname}}) }
         >
-            <QuestionSummary id={id!}/>
-            {
-                // @ts-ignore
-                parsedContent
-            }
+            <Typography
+                sx={{ textAlign: 'left', fontSize: '16px', fontWeight: '300', marginTop: '1em!important', wordBreak: 'break-word', ...(!expanded && { cursor: 'pointer' }) }}
+                component="div"
+            >
+                <QuestionSummary id={id!}/>
+                {
+                    // @ts-ignore
+                    parsedContent
+                }
+            </Typography>
         </Typography>
         {
             !expanded && event?.content?.length > 250 && <Box>

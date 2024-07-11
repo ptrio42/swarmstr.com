@@ -6,7 +6,7 @@ import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
 import {ListEvent, NOTE_TYPE} from "../../../models/commons";
 import {containsTag} from "../../../utils/utils";
-import {NDKTag, NostrEvent} from '@nostr-dev-kit/ndk'
+import {NDKTag, NostrEvent, NDKEvent} from '@nostr-dev-kit/ndk'
 import {EventList} from "../EventList/EventList";
 import {EventListWrapper} from "../EventListWrapper/EventListWrapper";
 import {Box} from "@mui/material";
@@ -33,7 +33,7 @@ export const List = () => {
     const { pathname, hash, key, ...location } = useLocation();
 
     const events = useLiveQuery(async () => {
-        if (!cachedEvents) return;
+        // if (!cachedEvents) return;
         const list = await db.lists.where({ kind: 30001 })
             .and((list: ListEvent) => !!listName && containsTag(list.tags, ['d', listName!] as NDKTag))
             .sortBy('created_at');
@@ -41,12 +41,14 @@ export const List = () => {
         const filteredNotes = await db.notes
             .filter((nostrEvent: NostrEvent) => eventIds.includes(nostrEvent.id!))
             .toArray();
-        if (cachedEvents) {
-            filteredNotes.push(...cachedEvents?.map((event: NostrEvent) => ({...event, type: NOTE_TYPE.QUESTION})));
-        }
+        // if (cachedEvents) {
+        //     filteredNotes.push(...cachedEvents?.map((event: NostrEvent) => ({...event, type: NOTE_TYPE.QUESTION})));
+        // }
         return orderBy(uniqBy(filteredNotes, 'id')
             .map((nostrEvent: NostrEvent) => ({...nostrEvent, position: eventIds.indexOf(nostrEvent.id!)})), 'position', 'desc')
     }, [listName, cachedEvents], cachedEvents);
+
+    const listNameFormatted = listName?.replace('-', ' ')?.toUpperCase();
 
     const filteredEvents = () => {
         return events?.filter(({content}: NostrEvent) => !searchString ||
@@ -61,7 +63,11 @@ export const List = () => {
             kinds: [30001],
             authors: ['000003a2c8076423148fe15e3ff5f182e0304cff6de499a3f54f5adfe3b014e6'],
             '#d': [listName!]
-        }, { closeOnEose: false, groupable: false });
+        }, { closeOnEose: false, groupable: false }, () => {
+            console.log(`List: total events: ${events?.length}`)
+        }, (event: NDKEvent) => {
+            console.log('List: adding event to list: ', {event});
+        });
 
         request({ url: `${process.env.BASE_URL}/api/cache/${listName}/30001/d` })
             .then(response => {
@@ -72,21 +78,21 @@ export const List = () => {
 
     return <Box>
         <Helmet>
-            <title>{ listName?.replace('-', ' ')?.toUpperCase() } - { Config.APP_TITLE }</title>
-            {/*<meta property="description" content={`Browse latest notes from #${Config.HASHTAG}`} />*/}
+            <title>{ listNameFormatted } - { Config.APP_TITLE }</title>
+            <meta property="description" content={`${listNameFormatted} - browsing a list of ${filteredEvents()?.length}`} />
             <meta property="keywords" content={ Config.APP_KEYWORDS } />
 
             <meta property="og:url" content={ `${process.env.BASE_URL}/d/${listName}` } />
             <meta property="og:type" content="website" />
             <meta property="og:title" content={`${listName?.replace('-', ' ')?.toUpperCase()} - ${Config.APP_TITLE}`} />
             <meta property="og:image" content={ Config.APP_IMAGE } />
-            {/*<meta property="og:description" content={`Browse latest notes from #${Config.HASHTAG}`} />*/}
+            <meta property="og:description" content={`${listNameFormatted} - browsing a list of ${filteredEvents()?.length}`} />
 
             <meta itemProp="name" content={`${listName?.replace('-', ' ')?.toUpperCase()} - ${Config.APP_TITLE}`} />
             <meta itemProp="image" content={ Config.APP_IMAGE }  />
 
             <meta name="twitter:title" content={`${listName?.replace('-', ' ')?.toUpperCase()} - ${Config.APP_TITLE}`} />
-            {/*<meta name="twitter:description" content={`Browse latest notes from #${Config.HASHTAG}`} />*/}
+            <meta name="twitter:description" content={`${listNameFormatted} - browsing a list of ${filteredEvents()?.length}`} />
             <meta name="twitter:image" content={ Config.APP_IMAGE }  />
 
         </Helmet>

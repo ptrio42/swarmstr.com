@@ -6,23 +6,23 @@ export const createInvoice = async (pubkey: string, name: string) => {
         method: 'POST',
         body: {
             pubkey,
-	    nip05: name
+	        nip05: name
         }
     });
     return response.data;
 };
 
-export const checkName = async (name: string) => {
+export const checkName = async (name: string, domain?: string) => {
     const response = await request({
-        url: `${process.env.BASE_URL}/api/check-name/${name}`,
+        url: `${process.env.BASE_URL}/api/check-name/${name}?domain=${domain}`,
         method: 'GET'
     });
     return response.data;
 };
 
-export const registerName = async (pubkey: string, name: string) => {
+export const registerName = async (pubkey: string, name: string, domain?: string) => {
     const response = await request({
-        url: `${process.env.BASE_URL}/api/register-name`,
+        url: `${process.env.BASE_URL}/api/register-name?domain=${domain}`,
         method: 'POST',
         body: {
             pubkey,
@@ -32,10 +32,10 @@ export const registerName = async (pubkey: string, name: string) => {
     return response.data;
 };
 
-export const getInvoiceStatus = async (name: string) => {
+export const getInvoiceStatus = async (name: string, domain: string) => {
     // try {
         const response = await request({
-            url: `https://nostrich.love/invoice-status/${name}`,
+            url: `${process.env.BASE_URL}/api/invoice-status/${name}?domain=${domain}`,
             method: 'GET'
         });
     //

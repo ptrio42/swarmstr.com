@@ -10,12 +10,14 @@ import InputLabel from "@mui/material/InputLabel";
 interface TagSelectProps {
     tags?: string[],
     selectedTag?: string,
-    onTagSelect?: (event: SelectChangeEvent) => void
+    onTagSelect?: (event: SelectChangeEvent) => void,
+    label?: string;
+    displayHash?: boolean;
 }
 
-export const TagSelect = ({ tags = [], onTagSelect = (event: SelectChangeEvent) => {}, selectedTag = '' }: TagSelectProps) => {
+export const TagSelect = ({ tags = [], onTagSelect = (event: SelectChangeEvent) => {}, selectedTag = '', label = 'Browse tags', displayHash = true }: TagSelectProps) => {
     return <FormControl sx={{ minWidth: '140px', width: 'auto!important' }}>
-        <InputLabel id="select-tag-label">Browse tags</InputLabel>
+        <InputLabel id="select-tag-label">{ label }</InputLabel>
         <Select
             id="select-tag"
             labelId="select-tag-label"
@@ -27,7 +29,7 @@ export const TagSelect = ({ tags = [], onTagSelect = (event: SelectChangeEvent) 
             onChange={onTagSelect}
         >
             {
-                tags.map((tag: string) => <MenuItem value={tag}>#{tag}</MenuItem>)
+                tags.map((tag: string) => <MenuItem value={tag}>{ displayHash && '#' }{tag}</MenuItem>)
             }
         </Select>
     </FormControl>

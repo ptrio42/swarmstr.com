@@ -14,7 +14,7 @@ export const EventListWrapper = ({ children, onReachedListEnd = () => {} }: Even
     const onScrollEnd = () => {
         setLimit(limit + 3);
 
-        if (events && events.length < limit) {
+        if (events && events.length <= limit) {
             console.log('reached scroll end', limit);
             onReachedListEnd();
         }

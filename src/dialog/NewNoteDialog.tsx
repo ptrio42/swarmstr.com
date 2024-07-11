@@ -13,7 +13,7 @@ import {nip19} from 'nostr-tools';
 import {differenceWith, uniqBy} from 'lodash';
 import Input from "@mui/material/Input";
 import {GifBox, Image as ImageIcon} from '@mui/icons-material';
-import {uploadToNostrCheckMe} from "../services/uploadImage";
+import {uploadToNostrCheckMe, uploadToNostrBuild} from "../services/uploadImage";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -33,6 +33,7 @@ import {TagChipSelect} from "../components/Nostr/TagChipSelect/TagChipSelect";
 import {ImageCreatorDialog} from "./ImageCreatorDialog";
 import DialogContent from "@mui/material/DialogContent";
 import {LoadingDialog} from "./LoadingDialog";
+import {TagSelect} from "../components/Nostr/TagSelect/TagSelect";
 
 const SWARMSTR_SUB_TAGS: NDKTag[] = [['t', 'enhancement'], ['t', 'bug'], ['t', 'announcement']];
 
@@ -42,6 +43,10 @@ interface TabPanelProps {
     children?: React.ReactNode;
     index: number;
     value: number;
+}
+
+enum MediaProvider {
+    NostrCheckMe = 'nostrcheck.me', NostrBuild = 'nostr.build'
 }
 
 const TabPanel = (props: TabPanelProps) => {
@@ -93,7 +98,7 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
         }
     });
 
-    const { post, setEvent, setImageCreatorDialogOpen, imageCreatorDialogOpen, setSnackbarMessage } = useNostrContext();
+    const { post, setEvent, setImageCreatorDialogOpen, imageCreatorDialogOpen, setSnackbarMessage, user, setLoginDialogOpen } = useNostrContext();
 
     const [tags, setTags] = useState<NDKTag[]>([]);
 
@@ -114,6 +119,8 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
     const [content, setContent] = useState<string>('');
 
     const [loading, setLoading] = useState<boolean>(false);
+
+    const [mediaProvider, setMediaProvider] = useState<MediaProvider>(MediaProvider.NostrCheckMe);
 
     useEffect(() => {
         // const diff = replyTo && differenceWith(replyTo.map((pubkey: string) => (['p', pubkey])), tags, (t1, t2) => t1[0] === t2[0] && t1[1] === t2[1]);
@@ -213,6 +220,15 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
         //     _tags.push(['t', value]);
         // }
         // setTags(_tags);
+    };
+
+    const uploadToMediaProvider = (file: any, uploadFn: (file: any) => Promise<any>) => {
+        uploadFn(file)
+            .then((url: string) => {
+                console.log('fileupload', 'uploaded', {url});
+                formik.setFieldValue('content', formik.values.content + `\n${url}`);
+                setLoading(false);
+            });
     };
 
     return <React.Fragment><Dialog fullWidth={true} fullScreen={fullScreen} open={open} onClose={() => { console.log('close') }}>
@@ -326,7 +342,8 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
                     if (image) {
                         // fileInputRef.current!.value = image;
                         // fileInputRef.current?.click();
-                        uploadToNostrCheckMe(image)
+                        // uploadToNostrCheckMe(image)
+                        uploadToNostrBuild(image)
                             .then((url: string) => {
                                 console.log({content: formik.values.content, url});
                                 formik.setFieldValue('content', formik.values.content + `\n${url}`);
@@ -348,6 +365,15 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
             />
         </DialogContent>
             <DialogActions>
+                <TagSelect
+                    tags={Object.values(MediaProvider)}
+                    selectedTag={mediaProvider}
+                    onTagSelect={(event: SelectChangeEvent) => {
+                        setMediaProvider(event.target.value as MediaProvider);
+                    }}
+                    label={'Media Provider'}
+                    displayHash={false}
+                />
                 <form>
                     <input
                         style={{ display: 'none' }}
@@ -360,12 +386,29 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
                             const files = (event.currentTarget as HTMLInputElement).files;
                             if (files && files.length > 0) {
                                 setLoading(true);
-                                uploadToNostrCheckMe(files[0])
-                                    .then((url: string) => {
-                                        console.log('uploaded')
-                                        formik.setFieldValue('content', formik.values.content + `\n${url}`);
-                                        setLoading(false);
-                                    });
+
+                                let uploadFn: (file: any) => Promise<string>;
+
+                                console.log('fileupload media provider', {mediaProvider})
+                                switch (mediaProvider) {
+                                    case MediaProvider.NostrBuild:
+                                        uploadToNostrBuild(files[0])
+                                            .then((url: string) => {
+                                                console.log('fileupload', 'uploaded', {url});
+                                                formik.setFieldValue('content', formik.values.content + `\n${url}`);
+                                                setLoading(false);
+                                            });
+                                        return;
+                                    default:
+                                    case MediaProvider.NostrCheckMe:
+                                        uploadToNostrCheckMe(files![0])
+                                            .then((url: string) => {
+                                                console.log('fileupload', 'uploaded', {url});
+                                                formik.setFieldValue('content', formik.values.content + `\n${url}`);
+                                                setLoading(false);
+                                            });
+                                        return;
+                                }
                             }
                         }} />
                         <Button color="warning" onClick={() => {
@@ -384,19 +427,26 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
                 <Button sx={{ textTransform: 'capitalize', borderRadius: '18px' }} variant="outlined" color="secondary" autoFocus onClick={handleClose}>
                     Cancel
                 </Button>
-                <Button  sx={{ textTransform: 'capitalize', borderRadius: '18px' }} variant="contained" color="warning" onClick={() => {
-                    setLoading(true);
-                    post(formik.values.content, tags, kind)
-                        .then(() => {
-                            formik.setFieldValue('content', '');
-                            formik.setFieldValue('title', '');
-                            setEvent(undefined);
-                            setLoading(false);
-                            onClose && onClose();
-                        })
-                }} autoFocus>
-                    Post
-                </Button>
+                {
+                    user && <Button  sx={{ textTransform: 'capitalize', borderRadius: '18px' }} variant="contained" color="warning" onClick={() => {
+                        setLoading(true);
+                        post(formik.values.content, tags, kind)
+                            .then(() => {
+                                formik.setFieldValue('content', '');
+                                formik.setFieldValue('title', '');
+                                setEvent(undefined);
+                                setLoading(false);
+                                onClose && onClose();
+                            })
+                    }} autoFocus>
+                        Post
+                    </Button>
+                }
+                {
+                    !user && <Button sx={{ textTransform: 'capitalize' }} color="primary" variant="contained" onClick={() => { setLoginDialogOpen(true); }}>
+                        Login
+                    </Button>
+                }
             </DialogActions>
         </Dialog>
         <GifDialog open={gifDialogOpen} onClose={(gifUrl?: string) => {

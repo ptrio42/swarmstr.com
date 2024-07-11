@@ -2,7 +2,7 @@ This project is experimental. Use at your own risk!
 
 #### What is Swarmstr?
 
-[Swarmstr](https://swarmstr.com) is a q&a nostr web client.
+[Swarmstr](https://swarmstr.com) is a bit like Quora or StackOverflow but as social media commons built on top of Nostr.
 
 React front-end is served by express.
 

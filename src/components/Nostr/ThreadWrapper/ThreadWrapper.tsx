@@ -16,28 +16,30 @@ export const ThreadWrapper = () => {
     });
 
     return (
-        <ThreadPoolContext.Provider value={{ highlightedNote, setHighlightedNote }}>
-            <NostrNoteThreadContextProvider>
-                <NostrNoteThreadContext.Consumer>
-                    {
-                        ({ nevent, events }) => (
-                            <NoteThread
-                                key={`${nevent}-thread`}
-                                nevent={nevent}
-                                expanded={true}
-                                floating={false}
-                                depth={1}
-                            >
-                                <NostrNoteContextProvider thread={true}>
-                                    <Note key={`${nevent}-content`} nevent={nevent} expanded={true}/>
-                                </NostrNoteContextProvider>
-                            </NoteThread>
-                        )
-                    }
-                </NostrNoteThreadContext.Consumer>
-                <Backdrop open={showPreloader} />
-            </NostrNoteThreadContextProvider>
-        </ThreadPoolContext.Provider>
+        <React.Fragment>
+            <ThreadPoolContext.Provider value={{ highlightedNote, setHighlightedNote }}>
+                <NostrNoteThreadContextProvider>
+                    <NostrNoteThreadContext.Consumer>
+                        {
+                            ({ nevent, events }) => (
+                                <NoteThread
+                                    key={`${nevent}-thread`}
+                                    nevent={nevent}
+                                    expanded={true}
+                                    floating={false}
+                                    depth={1}
+                                >
+                                    <NostrNoteContextProvider thread={true}>
+                                        <Note key={`${nevent}-content`} nevent={nevent} expanded={true}/>
+                                    </NostrNoteContextProvider>
+                                </NoteThread>
+                            )
+                        }
+                    </NostrNoteThreadContext.Consumer>
+                    <Backdrop open={showPreloader} />
+                </NostrNoteThreadContextProvider>
+            </ThreadPoolContext.Provider>
+        </React.Fragment>
     );
 };
 
