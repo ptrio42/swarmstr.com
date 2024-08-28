@@ -1,19 +1,18 @@
 import {ChatBubbleOutline} from "@mui/icons-material";
-import React from "react";
+import React, {memo} from "react";
 import {Button} from "@mui/material";
 import Tooltip from "@mui/material/Tooltip";
 import Badge from "@mui/material/Badge";
 import {useNostrContext} from "../../../providers/NostrContextProvider";
-import {useNostrNoteThreadContext} from "../../../providers/NostrNoteThreadContextProvider";
-import {NostrEvent} from "@nostr-dev-kit/ndk";
+import {NostrEvent} from "nostr-tools";
 
 interface ReplyButtonProps {
     event?: NostrEvent;
+    totalReplies?: number;
 }
 
-export const ReplyButton = ({ event }: ReplyButtonProps) => {
+const ReplyButton = ({ event, totalReplies }: ReplyButtonProps) => {
     const { setLoginDialogOpen, user, setNewReplyDialogOpen, setEvent } = useNostrContext();
-    const { commentEvents } = useNostrNoteThreadContext();
 
     if (!event) {
         return null;
@@ -22,8 +21,7 @@ export const ReplyButton = ({ event }: ReplyButtonProps) => {
     return <React.Fragment>
         <Tooltip title="Add new answer">
             <Button
-                color="secondary"
-                sx={{ textTransform: 'none' }}
+                sx={{ textTransform: 'none', padding: 0, minWidth: 'unset', color: '#909090', '&:hover': { color: '#000' } }}
                 onClick={() => {
                     if (user) {
                         setEvent(event);
@@ -33,14 +31,18 @@ export const ReplyButton = ({ event }: ReplyButtonProps) => {
                     }
                 }}
             >
-                <Badge
-                    badgeContent={commentEvents?.length}
-                    color="primary"
-                    className="comments-count"
-                >
-                    <ChatBubbleOutline sx={{ fontSize: 18 }} />
-                </Badge>
+                <ChatBubbleOutline sx={{ fontSize: 27 }} />
+                {totalReplies}
+                {/*<Badge*/}
+                    {/*badgeContent={totalReplies || 0 }*/}
+                    {/*color="primary"*/}
+                    {/*className="comments-count"*/}
+                {/*>*/}
+                    {/**/}
+                {/*</Badge>*/}
             </Button>
         </Tooltip>
     </React.Fragment>
 };
+
+export default memo(ReplyButton);

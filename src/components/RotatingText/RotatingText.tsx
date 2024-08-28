@@ -26,24 +26,24 @@ export const RotatingText = () => {
                 currentWordIndex === maxWordIndex ? words[0] : words[currentWordIndex + 1];
             // rotate out letters of current word
             Array.from(currentWord.children).forEach((letter: any, i: number) => {
-                setTimeout(() => {
-                    letter.className = "letter out";
-                }, i * 80);
+                // setTimeout(() => {
+                //     letter.className = "letter out";
+                // }, i * 80);
             });
             // reveal and rotate in letters of next word
             (nextWord as HTMLElement).style.opacity = "1";
             Array.from(nextWord.children).forEach((letter: any, i: number) => {
                 letter.className = "letter behind";
-                setTimeout(() => {
-                    letter.className = "letter in";
-                }, 340 + i * 80);
+                // setTimeout(() => {
+                //     letter.className = "letter in";
+                // }, 340 + i * 80);
             });
             currentWordIndex =
                 currentWordIndex === maxWordIndex ? 0 : currentWordIndex + 1;
         };
 
         rotateText();
-        setInterval(rotateText, 4000);
+        // setInterval(rotateText, 4000);
 
     }, []);
 

@@ -6,13 +6,15 @@ import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../../db";
 import {containsTag} from "../../../utils/utils";
 import IconButton from "@mui/material/IconButton";
-import {NostrEvent, NDKTag} from "@nostr-dev-kit/ndk";
+import {NDKTag} from "@nostr-dev-kit/ndk";
 import ThumbsUpDownIcon from '@mui/icons-material/ThumbsUpDown';
 import {LabelEvent} from "../../../models/commons";
 import Badge from "@mui/material/Badge";
 import {isNumber} from "util";
 import Tooltip from "@mui/material/Tooltip";
 import {CircularProgressWithLabel} from "../../CircularProgressWithLabel/CircularProgressWithLabel";
+import ZapButton from "../ZapButton/ZapButton";
+import {NostrEvent} from "nostr-tools";
 
 interface NoteScoreBoxProps {
     id: string;
@@ -108,6 +110,7 @@ export const NoteScoreBox = ({ id, event }: NoteScoreBoxProps) => {
                 <CircularProgressWithLabel sx={{ width: '35px', height: '35px' }} value={quality} color={quality >= 50 ? 'success' : 'error'} />
             </Tooltip>
         }
+        {/*<ZapButton event={event}/>*/}
         {/*{*/}
             {/*quality !== undefined && <Badge sx={{ textWrap: 'nowrap', marginTop: '1em' }}color={quality >= 50 ? 'success' : 'error'} badgeContent={`${quality}%`}>*/}
                 {/*<Tooltip title="Note rating">*/}

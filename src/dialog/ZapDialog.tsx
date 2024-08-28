@@ -1,3 +1,4 @@
+import {NostrEvent} from "nostr-tools";
 import {Dialog} from "@mui/material";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -5,9 +6,8 @@ import React, {useState} from "react";
 import {nFormatter} from "../utils/utils";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
-import {NostrEvent} from "@nostr-dev-kit/ndk";
+import {NDKEvent} from "@nostr-dev-kit/ndk";
 import DialogActions from "@mui/material/DialogActions";
-import Divider from "@mui/material/Divider";
 import {useNostrContext} from "../providers/NostrContextProvider";
 import {Cancel as CancelIcon, Comment} from "@mui/icons-material";
 import Box from "@mui/material/Box";
@@ -15,6 +15,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import Input from "@mui/material/Input";
 import './ZapDialog.css';
 import {LoadingDialog} from "./LoadingDialog";
+import {zapEvent} from "../services/nostr/zap";
 
 interface ZapDialogProps {
     open: boolean,
@@ -65,7 +66,7 @@ export const ZapDialog = ({ open, event, onClose }: ZapDialogProps) => {
 
     const [selectedZapAmount, setSelectedZapAmount] = useState<number>(21);
 
-    const { zap, setSnackbarMessage } = useNostrContext();
+    const { setSnackbarMessage, ndk } = useNostrContext();
 
     const [zapComment, setZapComment] = useState<string>('');
 
@@ -78,6 +79,20 @@ export const ZapDialog = ({ open, event, onClose }: ZapDialogProps) => {
     const handleSelectZapAmount = (amount: number) => {
         setSelectedZapAmount(amount);
     };
+
+    const handleZap = () => {
+        setLoading(true);
+        console.log('zapDialog', {event});
+        event && zapEvent(ndk, new NDKEvent(ndk, event!), selectedZapAmount, () => {
+            setLoading(false);
+            setSnackbarMessage({ type: 'success', message: 'Zapped!' });
+            handleClose();
+        }, (error: any) => {
+            console.error('ZapDialog', {error});
+            setLoading(false);
+            setSnackbarMessage({ type: 'error', message: error.message });
+        }, zapComment);
+    }
 
     if (!event) {
         return null;
@@ -149,19 +164,7 @@ export const ZapDialog = ({ open, event, onClose }: ZapDialogProps) => {
                 </Button>
                 <Button
                     variant="contained"
-                    onClick={() => {
-                        setLoading(true);
-                        console.log('zapDialog', {event});
-                        event && zap(event!, selectedZapAmount, () => {
-                            setLoading(false);
-                            setSnackbarMessage({ type: 'success', message: 'Zapped!' });
-                            handleClose();
-                        }, (error: any) => {
-                            console.error('ZapDialog', {error});
-                            setLoading(false);
-                            setSnackbarMessage({ type: 'error', message: error.message });
-                        }, zapComment);
-                    }}
+                    onClick={handleZap}
                 >
                     Zap { nFormatter(selectedZapAmount, 0) || '???' } sats!
                 </Button>

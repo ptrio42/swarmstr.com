@@ -22,16 +22,16 @@ export class NostrStore extends Dexie {
     contactLists!: Table<ContactListEvent>;
 
     constructor() {
-        super('swarmstrDB');
-        this.version(18).stores({
-            notes: '++id, pubkey, title, content, type, referencedEventId, *tags, created_at, *referencedEventsIds',
+        super('swarmstr2DB');
+        this.version(21).stores({
+            notes: '++id, *pubkey, *kind, title, content, type, referencedEventId, *tags, created_at, *referencedEventsIds, *replaceableEventId',
             // posts: '++id, pubkey, title, content, type, referencedEventId, tags',
             zaps: '++id, amount, zappedNote, zapper, zappee, referencedEventId',
             reactions: '++id, reactedToEventId, content, pubkey',
             users: '++id, pubkey, content',
             reposts: '++id, pubkey, repostedEventId',
             lists: '++id, kind, tags, content, pubkey',
-            labels: '++id, kind, tags, pubkey, created_at, referencedEventId',
+            labels: '++id, kind, tags, pubkey, created_at, referencedEventId, labelName',
             contactLists: '++id, kind, pubkey, created_at'
             // events: '++id, tags, pubkey, kind, content' // Primary key and indexed props
         });

@@ -1,5 +1,8 @@
 .select-tag.MuiInputBase-root {
     padding: 0!important;
+    background: #f8f2c6;
+    border-radius: 32px;
+    font-size: 15px;
 }
 
 .select-tag.MuiInputBase-root div {
@@ -10,3 +13,4 @@
 #select-tag-label {
     margin-top: -7px!important;
 }
+

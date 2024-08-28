@@ -21,7 +21,6 @@ import QRCode from "react-qr-code";
 import html2canvas from 'html2canvas';
 import {LoadingAnimation} from "../LoadingAnimation/LoadingAnimation";
 import './ImageCreator.css';
-import {Helmet} from "react-helmet";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
 import RadioGroup from "@mui/material/RadioGroup";
@@ -149,7 +148,7 @@ const initialImageProps: ImageProps = {
     mainImage: null,
     satsAmount: 0,
     copies: 1,
-    backgroundImage: null,
+    backgroundImage: { src: `${process.env.BASE_URL}/images/blank-img.png`, naturalWidth: 1024, naturalHeight: 1024 },
     backgroundImageSize: 100,
     type: ImageFormat.Sticker,
     footer: '',
@@ -225,13 +224,13 @@ export const ImageCreator = ({
 
     const { workItems, selectWorkItem, addOrEditWorkItem, selectedWorkItem } = useImageCreatorWorkAreaContext();
 
-    // useEffect(() => {
-    //     setQrCodeRefs((qrCodeRefs) =>
-    //         Array(imageProps.copies)
-    //             .fill(undefined)
-    //             .map((_, i) => qrCodeRefs[i] || createRef())
-    //     );
-    // }, [imageProps.copies]);
+    useEffect(() => {
+        setQrCodeRefs((qrCodeRefs) =>
+            Array(imageProps.copies)
+                .fill(undefined)
+                .map((_, i) => qrCodeRefs[i] || createRef())
+        );
+    }, []);
 
     useEffect(() => {
         setImageProps((props) => ({

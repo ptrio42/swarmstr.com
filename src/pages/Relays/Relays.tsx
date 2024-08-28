@@ -1,4 +1,4 @@
-import {useNostrContext} from "../../../providers/NostrContextProvider";
+import {useNostrContext} from "../../providers/NostrContextProvider";
 import {Box} from "@mui/material";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -18,7 +18,7 @@ import TableBody from "@mui/material/TableBody";
 import IconButton from "@mui/material/IconButton";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import {noteContentToHtml} from "../../../services/note2html";
+import {noteContentToHtml} from "../../services/note2html";
 import "./Relays.css";
 
 interface RelayTableItem {
@@ -72,17 +72,17 @@ const RelayTableRow = ({ row, relay } : { row: RelayTableItem, relay?: NDKRelay}
             open && <TableRow>
                 <TableCell colSpan={4}>
                     Subscriptions
-                    <List className={"relaySubscriptions"} id={`${relay.url}-subscriptions`}>
-                        {
-                            [...relay.activeSubscriptions().entries()].map(([filters, subscriptions]: any) =>
-                                <ListItem>
-                                    <Box sx={{ color: '#0f0f0f', maxWidth: '400px' }}>{ noteContentToHtml('```' + JSON.stringify(filters) + '```') }</Box>
-                                    {/*filter: {JSON.stringify(filter)}*/}
-                                    {/*subId: {subscription.subId}*/}
-                                </ListItem>
-                            )
-                        }
-                    </List>
+                    {/*<List className={"relaySubscriptions"} id={`${relay.url}-subscriptions`}>*/}
+                        {/*{*/}
+                            {/*[...relay.activeSubscriptions().entries()].map(([filters, subscriptions]: any) =>*/}
+                                {/*<ListItem>*/}
+                                    {/*<Box sx={{ color: '#0f0f0f', maxWidth: '400px' }}>{ noteContentToHtml('```' + JSON.stringify(filters) + '```') }</Box>*/}
+                                    {/*/!*filter: {JSON.stringify(filter)}*!/*/}
+                                    {/*/!*subId: {subscription.subId}*!/*/}
+                                {/*</ListItem>*/}
+                            {/*)*/}
+                        {/*}*/}
+                    {/*</List>*/}
                 </TableCell>
             </TableRow>
         }
@@ -105,28 +105,28 @@ export const Relays = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {
-                        ndk.pool.urls().map((url: string) => <RelayTableRow relay={ndk.pool
-                            .connectedRelays()
-                            .find((relay: NDKRelay) => relay.url === url)} row={{
-                            url,
-                            connected: ndk.pool.connectedRelays()
-                                .findIndex((relay: NDKRelay) => relay.url === url) > -1,
-                            noOfSubs: [
-                                // @ts-ignore
-                                ...ndk.pool
-                                    .connectedRelays()
-                                    .find((relay: NDKRelay) => relay.url === url)
-                                    ?.activeSubscriptions().entries() || []
-                            ].filter((sub: any) => !!sub).length,
-                            // @ts-ignore
-                            // filters: [...ndk.pool
-                            //     .connectedRelays()
-                            //     .find((relay: NDKRelay) => relay.url === url)
-                            //     ?.activeSubscriptions().entries()]
-                            //     .map(([filters, subscriptions]: any) => JSON.stringify(filters)).join(',')
-                        }}/>)
-                    }
+                    {/*{*/}
+                        {/*ndk.pool.urls().map((url: string) => <RelayTableRow relay={ndk.pool*/}
+                            {/*.connectedRelays()*/}
+                            {/*.find((relay: NDKRelay) => relay.url === url)} row={{*/}
+                            {/*url,*/}
+                            {/*connected: ndk.pool.connectedRelays()*/}
+                                {/*.findIndex((relay: NDKRelay) => relay.url === url) > -1,*/}
+                            {/*noOfSubs: [*/}
+                                {/*// @ts-ignore*/}
+                                {/*...ndk.pool*/}
+                                    {/*.connectedRelays()*/}
+                                    {/*.find((relay: NDKRelay) => relay.url === url)*/}
+                                    {/*?.subs.entries() || []*/}
+                            {/*].filter((sub: any) => !!sub).length,*/}
+                            {/*// @ts-ignore*/}
+                            {/*// filters: [...ndk.pool*/}
+                            {/*//     .connectedRelays()*/}
+                            {/*//     .find((relay: NDKRelay) => relay.url === url)*/}
+                            {/*//     ?.activeSubscriptions().entries()]*/}
+                            {/*//     .map(([filters, subscriptions]: any) => JSON.stringify(filters)).join(',')*/}
+                        {/*}}/>)*/}
+                    {/*}*/}
                 </TableBody>
             </Table>
         </TableContainer>
@@ -138,18 +138,18 @@ export const Relays = () => {
                 false && ndk.pool.connectedRelays().map((relay: NDKRelay) =>
                     <ListItem>
                         {relay.url}
-                        <List id={`${relay.url}-subscriptions`}>
-                            {
-                                [...relay.activeSubscriptions().entries()].map(([filters, subscriptions]: any) =>
-                                    <ListItem>
-                                        <Box sx={{ color: '#0f0f0f' }}>{JSON.stringify(filters)}</Box>
-                                        <Box>Subscriptions: {subscriptions.length}</Box>
-                                        {/*filter: {JSON.stringify(filter)}*/}
-                                        {/*subId: {subscription.subId}*/}
-                                    </ListItem>
-                                )
-                            }
-                        </List>
+                        {/*<List id={`${relay.url}-subscriptions`}>*/}
+                            {/*{*/}
+                                {/*[...relay.subs.entries()].map(([filters, subscriptions]: any) =>*/}
+                                    {/*<ListItem>*/}
+                                        {/*<Box sx={{ color: '#0f0f0f' }}>{JSON.stringify(filters)}</Box>*/}
+                                        {/*<Box>Subscriptions: {subscriptions.length}</Box>*/}
+                                        {/*/!*filter: {JSON.stringify(filter)}*!/*/}
+                                        {/*/!*subId: {subscription.subId}*!/*/}
+                                    {/*</ListItem>*/}
+                                {/*)*/}
+                            {/*}*/}
+                        {/*</List>*/}
                     </ListItem>
                 )
             }

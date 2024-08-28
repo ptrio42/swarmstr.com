@@ -10,20 +10,19 @@ import Switch from "@mui/material/Switch";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import {ThemeContext, themes} from "./contexts/ThemeContext";
-import {Nip05} from "./components/Nostr/Nip05/Nip05";
+import {Nip05} from "./pages/Nip05/Nip05";
 import {ThemeContextWrapper} from "./theme/ThemeContextWrapper";
-import {Search} from "./components/Nostr/Search/Search";
+import {Search} from "./pages/Search/Search";
 import {NostrFeedContextProvider} from "./providers/NostrFeedContextProvider";
 import {NostrContextProvider} from "./providers/NostrContextProvider";
 import {ThreadWrapper} from "./components/Nostr/ThreadWrapper/ThreadWrapper";
-import {RecentNotes} from "./components/Nostr/RecentNotes/RecentNotes";
+import {RecentNotes} from "./pages/RecentNotes/RecentNotes";
 import {Nostr} from "./components/Nostr/Nostr";
-import {List} from "./components/Nostr/List/List";
-import {Profile} from "./components/Nostr/Profile/Profile";
-import {Home} from "./components/Nostr/Home/Home";
-import {ImageCreator} from "./components/ImageCreator/ImageCreator";
-import {ImageCreatorDialog} from "./dialog/ImageCreatorDialog";
+import {List} from "./pages/List/List";
+import {Profile} from "./pages/Profile/Profile";
+import {Home} from "./pages/Home/Home";
 import {ExternalClientView} from "./pages/ExternalClientView";
+import {HelmetProvider} from "react-helmet-async";
 
 const theme = createTheme({
     typography: {
@@ -121,22 +120,24 @@ function App() {
     <div className="App">
         <ThemeProvider theme={theme}>
             <NavBar />
-            <Box className="AppContent" sx={{ maxWidth: '640px', margin: '0 auto' }}>
-                <Routes>
-                    <Route path="/" element={<Nostr/>}>
-                        <Route path="/" element={<Home/>} />
-                        <Route path="/search/:searchString?" element={<NostrFeedContextProvider><Search/></NostrFeedContextProvider>}/>
-                        <Route path="/recent/:explicitTag?" element={<RecentNotes/>} />
-                        <Route path="/e/:nevent" element={<ThreadWrapper/>} />
-                        <Route path="/d/:listName" element={<List/>} />
-                        <Route path="/p/:npub" element={<Profile/>} />
-                        <Route path="/client" element={<ExternalClientView/>} />
-                        {/*<Route path="/image-creator" element={<ImageCreator/>} />*/}
+            <HelmetProvider>
+                <Box className="AppContent" sx={{ maxWidth: '672px', margin: '0 auto' }}>
+                    <Routes>
+                        <Route path="/" element={<Nostr/>}>
+                            <Route path="/" element={<Home/>} />
+                            <Route path="/search/:searchString?" element={<NostrFeedContextProvider><Search/></NostrFeedContextProvider>}/>
+                            <Route path="/recent/:explicitTag?/:sort?" element={<RecentNotes/>} />
+                            <Route path="/e/:nevent" element={<ThreadWrapper/>} />
+                            <Route path="/d/:listName" element={<List/>} />
+                            <Route path="/p/:npub" element={<Profile/>} />
+                            <Route path="/client" element={<ExternalClientView/>} />
+                            {/*<Route path="/image-creator" element={<ImageCreator/>} />*/}
 
-                    </Route>
-                    <Route path="/nostr-address" element={<Nip05/>} />
-                </Routes>
-            </Box>
+                        </Route>
+                        <Route path="/nostr-address" element={<Nip05/>} />
+                    </Routes>
+                </Box>
+            </HelmetProvider>
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                 <ThemeContext.Consumer>
                     {

@@ -16,7 +16,7 @@ export const LoadingAnimation = ({ isLoading, loadingText }: LoadingAnimationPro
                 {/*isLoading &&*/}
                 <Box className={`animationImageContainer ${isLoading ? 'dataSyncInProgress' : '' }`}>
                     <img
-                        width="72px"
+                        width="50px"
                         alt={isLoading ? 'Syncing data...' : 'Swarmstr'}
                         src={Config.LOGO_IMG}
                     />

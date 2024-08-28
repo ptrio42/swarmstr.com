@@ -10,14 +10,13 @@ import NDK, {
     NDKSubscriptionOptions,
     NDKTag,
     NDKUser,
-    NostrEvent,
     zapInvoiceFromEvent
 } from "@nostr-dev-kit/ndk";
 import {Config} from "../resources/Config";
 import {NostrContext} from "../contexts/NostrContext";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../db";
-import {nip19} from "nostr-tools";
+import {nip19, NostrEvent} from "nostr-tools";
 import {groupBy, uniq} from 'lodash';
 import {ContactListEvent, NOTE_TYPE} from "../models/commons";
 import TimeAgo from 'javascript-time-ago'
@@ -26,14 +25,14 @@ import {GetInfoResponse, requestProvider, WebLNProvider} from "webln";
 import {NoteLabel, Thumb, thumbsDownTags, thumbsUpTags} from "../dialog/NewLabelDialog";
 import {signAndPublishEvent} from "../services/nostr";
 import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";
-import {handleNDKEvent, valueFromTag} from "../utils/utils";
+import {useManageSubs, valueFromTag} from "../utils/utils";
+import {getUserRelays} from "../services/nostr/user";
+import {DEFAULT_USER_RELAYS, subscribe} from "../services/nostr/relays";
 
 TimeAgo.addDefaultLocale(en);
 
 const cacheAdapter = new NDKCacheAdapterDexie({ dbName: 'swarmstrDB_cache_1' });
 const signer = new NDKNip07Signer();
-
-const DEFAULT_RELAYS = { readRelays: Config.CLIENT_READ_RELAYS, writeRelays: Config.CLIENT_WRITE_RELAYS };
 
 type SnackbarMessageType = 'error' | 'success';
 
@@ -42,26 +41,28 @@ export interface SnackbarMessage {
     message: string
 }
 
+// const zap = (nostr)
+
 export const NostrContextProvider = ({ children }: any) => {
 
-    const ndk = useRef<NDK>(new NDK({ explicitRelayUrls: uniq(Object.values(DEFAULT_RELAYS).flat(2)) }));
+    const ndk = useRef<NDK>(new NDK({ explicitRelayUrls: uniq(Object.values(DEFAULT_USER_RELAYS).flat(2)) }));
 
     const [user, setUser] = useState<NDKUser>();
 
     const { readRelays, writeRelays } = useLiveQuery(
         async () => {
-            if (!user) return DEFAULT_RELAYS;
+            if (!user) return DEFAULT_USER_RELAYS;
             const lists = await db.contactLists
                 .where({ pubkey: user.pubkey })
                 .reverse()
                 .sortBy('created_at');
             return getUserRelays(lists[0]);
         }
-    , [user?.pubkey], DEFAULT_RELAYS);
+    , [user?.pubkey], DEFAULT_USER_RELAYS);
 
-    const contacts = useLiveQuery(
-        async () => await db.contactLists.toArray()
-    , []);
+    // const contacts = useLiveQuery(
+    //     async () => await db.contactLists.toArray()
+    // , []);
 
     const [query, setQuery] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
@@ -80,11 +81,13 @@ export const NostrContextProvider = ({ children }: any) => {
 
     const [ tags, setTags ] = useState(Config.NOSTR_TAGS);
 
-    const subs = useRef<NDKSubscription[]>([]);
-
     const [connected, setConnected] = useState(false);
 
     const [snackbarMessage, setSnackbarMessage] = useState<SnackbarMessage|undefined>();
+
+    // const [cachedEvents, setCachedEvents] = useState<NostrEvent[]>();
+
+    // const savedEvents = useRef<NostrEvent[]>([]);
 
     useEffect(() => {
         console.log('NostrContextProvider: relayUrls changed', {writeRelays, readRelays});
@@ -107,11 +110,11 @@ export const NostrContextProvider = ({ children }: any) => {
                     console.error('unable to connect', {error})
                 });
         }
-    }, [readRelays, writeRelays]);
+    }, [readRelays, writeRelays, user?.pubkey]);
 
-    useEffect(() => {
-        console.log('user contacts: ', {contacts})
-    }, [contacts]);
+    // useEffect(() => {
+    //     console.log('user contacts: ', {contacts})
+    // }, [contacts]);
 
     useEffect(() => {
     //     console.log('NostrContextProvider: connecting to relays');
@@ -127,9 +130,17 @@ export const NostrContextProvider = ({ children }: any) => {
         return () => {
             console.log(`unsubscribing...`);
             // subscription.current?.stop();
-            unsubscribe();
+            // unsubscribe();
         }
     }, []);
+
+    // const saveEvent = (event: NostrEvent) => {
+    //     savedEvents.current.push(event);
+    // };
+    //
+    // const clearSavedEvents = () => {
+    //     savedEvents.current = [];
+    // };
 
     const addTag = (tag: string) => {
         setTags([
@@ -143,92 +154,6 @@ export const NostrContextProvider = ({ children }: any) => {
             ...tags.filter((t) => t !== tag)
         ])
     };
-
-
-    const getUserRelays = useCallback((contactList: ContactListEvent) => {
-        console.log({contactList})
-        try {
-            const relayList = JSON.parse(contactList.content);
-            let relays: any = groupBy(Object.keys(relayList)
-                .map((url: string) => ([
-                    {
-                        url,
-                        permission: {
-                            key: 'read',
-                            value: relayList[url]?.read
-                        },
-                    },
-                    {
-                        url,
-                        permission: {
-                            key: 'write',
-                            value: relayList[url]?.write
-                        },
-                    }
-                ]))
-                .flat(2)
-                .filter((relay: any) => relay.permission.value), 'permission.key');
-            const { read, write } = relays;
-            relays = {
-                readRelays: read.map((relay: any) => relay.url),
-                writeRelays: write.map((relay: any) => `${relay.url}${relay.url[relay.url.length - 1] !== '/' ? '/' : ''}`)
-            };
-            return relays;
-        } catch (error) {
-            return DEFAULT_RELAYS;
-        }
-    }, []);
-
-    const subscribe = useCallback((
-        filter: NDKFilter,
-        opts: NDKSubscriptionOptions = {closeOnEose: false, groupable: false},
-        onEose?: () => void,
-        onEvent?: (event: NDKEvent) => void,
-        relayUrls?: string[]
-    ) => {
-        const notesReadRelays: NDKRelaySet = NDKRelaySet.fromRelayUrls(relayUrls || readRelays, ndk.current);
-        // notesReadRelays.values().forEach((relay: NDKRelay) => relay.connect()
-        const sub: NDKSubscription = ndk.current
-            .subscribe(filter, {...opts, cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY}, notesReadRelays);
-        // sub.on('event', onEvent);
-        sub.on('event', (event: NDKEvent) => {
-            // console.log('NostrContextProvider: event', {event})
-            // if (event.kind === 0) console.log('NostrContextProvider: kind 0')
-            // if (event.kind === 0) db.users.put(event.rawEvent());
-
-            handleNDKEvent(event, filter);
-
-            onEvent && onEvent(event);
-            // handle user
-            // if (event.kind === 0) db.users.put(event.rawEvent());
-            // if (event.kind === 1 || event.kind === 30023) db.notes.put({ ...event.rawEvent(), type: NOTE_TYPE.QUESTION });
-            // if (event.kind === 30000 || event.kind === 10000 || event.kind === 30001) db.lists.put(event.rawEvent());
-            //
-            // if (event.kind === 3) db.contactLists.put(event.rawEvent());
-            //
-            // if (event.kind === 1985) {
-            //     db.labels.put({ ...event.rawEvent(), referencedEventId: valueFromTag(event.rawEvent(), 'e') });
-            //     console.log('similar question: ', {event})
-            // }
-        });
-        sub.on('eose', () => {
-           console.log('NostrContextPRovider: received eose');
-           onEose && onEose();
-        });
-        sub.start()
-            .then(() => {
-                // console.log(`NostrContextProvider: subscribe: started subscription ${sub.subId} with filter: ${JSON.stringify(filter)} and relaySet: ${relayUrls.join(',')}`)
-            });
-        subs.current.push(sub);
-        return sub.internalId;
-        // subscription.current = sub;
-    }, [readRelays]);
-
-    const unsubscribe = useCallback(() => {
-        subs.current.forEach((sub: NDKSubscription) => sub.stop());
-
-
-    }, []);
 
     let loginAttempts = 0;
 
@@ -296,49 +221,26 @@ export const NostrContextProvider = ({ children }: any) => {
     }, []);
 
     const post = useCallback(async (content: string, tags: NDKTag[], kind: number = 1) => {
-
         await signAndPublishEvent({
             content,
             tags,
             kind,
             created_at: 0,
             pubkey: ''
-        }, writeRelays, ndk.current, 0, () => {
+        } as NostrEvent, writeRelays, ndk.current, 0, () => {
             setSnackbarMessage({ message: 'Note posted!' });
         }, (error: any) => {
             setSnackbarMessage({ message: error.message });
         });
-
-        console.log('done!')
-
-        // try {
-        // const event = new NDKEvent(ndk.current);
-        // event.kind = kind;
-        // event.content = content;
-        // event.tags = tags;
-        // event.created_at = Math.floor(Date.now() / 1000) + 5;
-        // console.log(`signing & publishing new event`, {event})
-        // // console.log({writeRelays: relayUrls.write})
-        // ndk.current.assertSigner()
-        //     .then(() => {
-        //         event.sign(ndk.current.signer!)
-        //             .then(() => {
-        //                 event.publish(NDKRelaySet.fromRelayUrls(relayUrls.write, ndk.current))
-        //                     .then(() => {
-        //                         console.log('question published!');
-        //                     })
-        //             })
-        //             .catch((e) => {})
-        //     })
-        //     .catch((e) => {});
     }, [writeRelays]);
 
-    const addReaction = useCallback((id: string, content: string) => {
+    const addReaction = useCallback((nostrEvent: NostrEvent, content: string) => {
         const event = new NDKEvent(ndk.current);
         event.kind = 7;
         event.content = content;
         event.tags = [
-            ['e', id]
+            ['e', nostrEvent.id!],
+            ['p', nostrEvent.pubkey]
         ];
         console.log('NostrContextProvider: addReaction: ', {writeRelays}, {connectedrelays: ndk.current.pool.connectedRelays().map(({url}) => url)})
         // ndk.current.assertSigner()
@@ -357,74 +259,6 @@ export const NostrContextProvider = ({ children }: any) => {
             // })
             // .catch((e) => {})
     }, [writeRelays]);
-
-    const zap = useCallback(
-        (
-            nostrEvent: NostrEvent,
-            amount: number,
-            callback?: () => void,
-            onError?: (error: any) => void,
-            comment?: string
-        ) => {
-        const event = new NDKEvent(ndk.current, nostrEvent);
-
-        // ndk.current.assertSigner()
-        //     .then(() => {
-                event.zap(amount * 1000, comment)
-                    .then((paymentRequest: string|null) => {
-                        console.log('zap request...', {paymentRequest});
-                        if (!paymentRequest) {
-                            onError && onError({ message: 'No payment request received.' });
-                            return;
-                        }
-
-                        requestProvider()
-                            .then((webln: WebLNProvider) => {
-                                webln.sendPayment(paymentRequest)
-                                    .then(() => {
-                                        console.log('zapped');
-                                        setCurrentEvent(undefined);
-                                        callback && callback();
-                                    })
-                                    .catch((error) => {
-                                        onError && onError(error);
-                                        console.error(`unable to zap`);
-                                        const a = document.createElement('a');
-                                        a.href = `lightning:${paymentRequest}`;
-                                        a.click();
-                                    })
-                            })
-                            .catch((error: any) => {
-                                onError && onError(error);
-                                console.error(`unable to request ln provider`)
-                                const a = document.createElement('a');
-                                a.href = `lightning:${paymentRequest}`;
-                                a.click();
-                            })
-                    })
-                    .catch((error: any) => {
-                        onError && onError(error);
-                        console.error(`problem getting zap request`, {error});
-
-                        const zapInvoice = zapInvoiceFromEvent(event);
-                        console.log('zapInvoice', {zapInvoice})
-
-                        // if (window.webln) {
-                        //     (async () => {
-                        //         await window.webln.enable();
-                        //         const info: GetInfoResponse = await window.webln.getInfo();
-                        //         console.log("Your node pubkey is", info.node.pubkey);
-                        //         // await window.webln.sendPayment(pay)
-                        //     })();
-                        // } else {
-                        //     console.warn("WebLN not enabled");
-                        // }
-                    })
-            // })
-            // .catch((error) => {
-            //     console.error('unable to assert signer...');
-            // })
-    }, []);
 
     const boost = useCallback((nostrEvent: NostrEvent) => {
         const event = new NDKEvent(ndk.current);
@@ -583,14 +417,14 @@ export const NostrContextProvider = ({ children }: any) => {
                 // @ts-ignore
                 <NostrContext.Provider
                     value={{
-                        ndk: ndk.current, user, subscribe, signIn, post, loginDialogOpen,
+                        ndk: ndk.current, user, signIn, post, loginDialogOpen,
                         setLoginDialogOpen, newNoteDialogOpen, setNewNoteDialogOpen, label, newLabelDialogOpen,
-                        setNewLabelDialogOpen, boost, payInvoice, addReaction, zap, unsubscribe,
+                        setNewLabelDialogOpen, boost, payInvoice, addReaction,
                         writeRelays, readRelays, query, setQuery,
                         loading, setLoading, zapDialogOpen, setZapDialogOpen, newReplyDialogOpen, setNewReplyDialogOpen,
                         event: currentEvent, setEvent: setCurrentEvent, selectedLabelName, setSelectedLabelName,
                         addTag, removeTag, tags, connected, relayListDialogOpen, setRelayListDialogOpen, setImageCreatorDialogOpen,
-                        imageCreatorDialogOpen, setTags, snackbarMessage, setSnackbarMessage, subs: subs.current
+                        imageCreatorDialogOpen, setTags, snackbarMessage, setSnackbarMessage,
                     }}>
                     {children}
                 </NostrContext.Provider>

@@ -40,7 +40,7 @@ export const Nostr = () => {
             open={newReplyDialogOpen}
             onClose={() => setNewReplyDialogOpen(false)}
             event={event}
-            explicitTags={[['t', Config.REPLIES_HASHTAG]]} label="Your reply..."
+            label="Your reply..."
         />
         <NewLabelDialog
             open={newLabelDialogOpen}

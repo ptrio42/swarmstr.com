@@ -6,14 +6,13 @@ import CardContent from "@mui/material/CardContent";
 import Card from "@mui/material/Card";
 import TextField from "@mui/material/TextField";
 import { nip19 } from 'nostr-tools';
-import {checkName, createInvoice, getInvoiceStatus, registerName} from '../../../services/invoices';
+import {checkName, getInvoiceStatus, registerName} from '../../services/invoices';
 import Button from "@mui/material/Button";
-// import {QrCodeDialog} from "../Metadata/Metadata";
-import {Helmet} from "react-helmet";
 import './Nip05.css';
-import {Config} from "../../../resources/Config";
-import {QrCodeDialog} from "../../../dialog/QRCodeDialog";
+import {Config} from "../../resources/Config";
+import {QrCodeDialog} from "../../dialog/QRCodeDialog";
 import {useSearchParams} from "react-router-dom";
+import {HtmlHead} from "../../components/Html/HtmlHead";
 
 export const Nip05 = () => {
     const [pubkey, setPubkey] = useState<string>();
@@ -128,27 +127,11 @@ export const Nip05 = () => {
 
     return (
         <React.Fragment>
-            <Helmet>
-                <title>Get { domains } Nostr Address</title>
-                <meta property="description" content={`Get a Nostr address at @${domains}`} />
-                <meta property="keywords" content="nostr, nip05, nostr handle, nostr address" />
-
-                <meta property="og:url" content={`${process.env.BASE_URL}/nostr-address`} />
-                <meta property="og:type" content="website" />
-                <meta property="og:title" content={`Get ${domains} Nostr Address`} />
-                <meta property="og:description" content={`Get ${domains} Nostr Address`} />
-                <meta property="og:image" content={`${Config.APP_IMAGE}`} />
-
-                <meta itemProp="name" content={`Get ${domains} Nostr Address`} />
-
-                <meta name="twitter:card" content="summary" />
-                <meta name="twitter:site" content="@swarmstr" />
-                <meta name="twitter:title" content={`Get ${domains} Nostr Address`} />
-                <meta name="twitter:description" content={`Get ${domains} Nostr Address`} />
-                <meta name="twitter:image:src" content={`${Config.APP_IMAGE}`} />
-                <meta itemProp="image" content={`${Config.APP_IMAGE}`} />
-
-            </Helmet>
+            <HtmlHead
+                title={`Get a Nostr Address - Swarmstr`}
+                description={`Get a Nostr address at @${domains}`}
+                url={`${process.env.BASE_URL}/nostr-address`}
+            />
             <Box sx={{ flexDirection: 'column' }}>
                 <Typography
                     component="div"

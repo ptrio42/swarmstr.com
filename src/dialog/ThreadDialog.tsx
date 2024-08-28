@@ -1,12 +1,10 @@
 import {Dialog, useTheme} from "@mui/material";
-import {NostrNoteThreadContext} from "../contexts/NostrNoteThreadContext";
-import {NoteThread} from "../components/Nostr/Thread/Thread";
+import NoteThread from "../components/Nostr/Thread/Thread";
 import {NostrNoteContextProvider} from "../providers/NostrNoteContextProvider";
-import {Note} from "../components/Nostr/Note/Note";
-import {NostrNoteThreadContextProvider} from "../providers/NostrNoteThreadContextProvider";
+import Note from "../components/Nostr/Note/Note";
+import NostrNoteThreadContextProvider from "../providers/NostrNoteThreadContextProvider";
 import React from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import Button from "@mui/material/Button";
 
 interface ThreadDialogProps {
     open: boolean;

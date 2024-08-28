@@ -2,16 +2,23 @@ import {CopyAll, Label, Launch, MoreHoriz, QrCodeScanner, Share} from "@mui/icon
 import React, {useState} from "react";
 import {IconButton, MenuItem} from "@mui/material";
 import Menu from "@mui/material/Menu";
-import {NostrEvent} from "@nostr-dev-kit/ndk";
+import {nip19, NostrEvent} from "nostr-tools";
 
 // TODO: snackbar, new label, show qr
 
 interface EventMenuProps {
-    nevent: string;
+    nevent?: string;
     event?: NostrEvent;
 }
 
 export const EventMenu = ({nevent, event}: EventMenuProps) => {
+
+    if (!nevent && !event) return;
+
+    if (!nevent) {
+        nevent = nip19.neventEncode({id: event!.id!})
+    }
+
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
     const open = Boolean(anchorEl);
@@ -33,13 +40,13 @@ export const EventMenu = ({nevent, event}: EventMenuProps) => {
 
     return <React.Fragment>
         <IconButton
-            color="secondary"
+            sx={{ padding: 0, color: '#909090' }}
             aria-controls={open ? 'account-menu' : undefined}
             aria-haspopup="true"
             aria-expanded={open ? 'true' : undefined}
             onClick={handleOpen}
         >
-            <MoreHoriz sx={{ fontSize: 18 }} />
+            <MoreHoriz sx={{ fontSize: 27 }} />
         </IconButton>
         <Menu
             anchorEl={anchorEl}

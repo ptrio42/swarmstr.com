@@ -113,20 +113,20 @@ export const SearchBar = ({
                                 <Metadata pubkey={suggestion} variant={'link'} />
                             </MenuItem>)
                         }
-                        {
-                            // @ts-ignore
-                            Config.NOSTR_TAGS
-                                .map((tag) => <MenuItem>
-                                    <Checkbox
-                                        onChange={() => {
-                                            !!tags && tags.includes(tag) ? removeTag(tag) : addTag(tag)
-                                        }}
-                                        // @ts-ignore
-                                        checked={!!tags && tags.includes(tag) ? 'checked': ''}
-                                    />
-                                    {tag}
-                                </MenuItem>)
-                        }
+                        {/*{*/}
+                            {/*// @ts-ignore*/}
+                            {/*Config.NOSTR_TAGS*/}
+                                {/*.map((tag) => <MenuItem>*/}
+                                    {/*<Checkbox*/}
+                                        {/*onChange={() => {*/}
+                                            {/*!!tags && tags.includes(tag) ? removeTag(tag) : addTag(tag)*/}
+                                        {/*}}*/}
+                                        {/*// @ts-ignore*/}
+                                        {/*checked={!!tags && tags.includes(tag) ? 'checked': ''}*/}
+                                    {/*/>*/}
+                                    {/*{tag}*/}
+                                {/*</MenuItem>)*/}
+                        {/*}*/}
                 </Box></ClickAwayListener>
             }
         </List>

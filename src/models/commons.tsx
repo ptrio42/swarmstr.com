@@ -1,4 +1,4 @@
-import {NostrEvent} from "@nostr-dev-kit/ndk";
+import {NostrEvent} from "nostr-tools";
 
 export type NoteType = 'question' | 'answer' | 'question_quote' | 'note' | undefined;
 
@@ -13,6 +13,7 @@ export interface NoteEvent extends NostrEvent {
     type: NoteType;
     referencedEventId?: string;
     referencedEventsIds?: string[];
+    replaceableEventId?: string;
     title?: string;
 }
 
@@ -43,6 +44,7 @@ export interface ListEvent extends NostrEvent {
 
 export interface LabelEvent extends NostrEvent {
     referencedEventId?: string;
+    labelName?: string;
 }
 
 export interface ContactListEvent extends NostrEvent {

@@ -5,7 +5,7 @@ import Toolbar from '@mui/material/Toolbar';
 import {Link, useNavigate} from "react-router-dom";
 import Button from '@mui/material/Button';
 import {
-    Create
+    Create, Notifications as NotificationsIcon
 } from '@mui/icons-material';
 import './NavBar.css';
 import {useNostrContext} from "../../providers/NostrContextProvider";
@@ -20,8 +20,11 @@ import {nip19} from 'nostr-tools';
 import {LoadingAnimation} from "../LoadingAnimation/LoadingAnimation";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../../db";
-import {NostrEvent} from "@nostr-dev-kit/ndk";
+import {NostrEvent} from "nostr-tools";
 import {uniqBy} from "lodash";
+import IconButton from "@mui/material/IconButton";
+import Popover from "@mui/material/Popover";
+import {Notifications} from "../Notifications/Notifications";
 
 export const NavBar = () => {
     const { user, setLoginDialogOpen, setNewNoteDialogOpen, query, loading, ndk, setRelayListDialogOpen } = useNostrContext();
@@ -29,6 +32,19 @@ export const NavBar = () => {
 
     const [userMenuAnchorEl, setUserMenuAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(userMenuAnchorEl);
+
+    const [notificationsAnchorEl, setNotificationsAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+
+    const handleNotificationsClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setNotificationsAnchorEl(event.currentTarget);
+        // update last time viewed
+    };
+
+    const handleNotificationsClose = () => {
+        setNotificationsAnchorEl(null);
+    };
+
+    const notificationsOpen = Boolean(notificationsAnchorEl);
 
     const [userSearchString, setUserSearchString] = useState<string>('');
 
@@ -38,14 +54,14 @@ export const NavBar = () => {
                 try {
                     const metadata = JSON.parse(content);
                     // console.log('NavBar: metadata: ', {metadata}, {userSearchString})
-                    return new RegExp(userSearchString, 'gi')
+                    return new RegExp(userSearchString, 'gmi')
                         .test(`${metadata.name}:${metadata.displayName}:${metadata.display_name}:${metadata.username}`)
                 } catch (e) {
                     return false;
                 }
             })
-            .distinct()
-            .limit(5)
+            // .distinct()
+            // .limit(5)
             .toArray() : []
         , [userSearchString], []);
 
@@ -65,11 +81,16 @@ export const NavBar = () => {
         setUserMenuAnchorEl(event.currentTarget);
     };
 
+    const handleRelaysDialogOpen = () => () => {
+        handleUserMenuClose();
+        setRelayListDialogOpen(true)
+    };
+
     return (
         <Box sx={{ flexGrow: 1 }}>
             <AppBar
                 className="navbar"
-                position="static"
+                position="fixed"
             >
                 <Toolbar sx={{ justifyContent: 'space-between', width: '100%', maxWidth: '640px', margin: 'auto', padding: 0, position: 'relative' }}>
                     {/*<Badge>*/}
@@ -77,7 +98,7 @@ export const NavBar = () => {
                             {/*<img width="64px" height="64px" alt={Config.APP_TITLE} src={Config.LOGO_IMG}/>*/}
                             {/*<Box sx={{ width: '64px', height: '64px', overflow: 'visible', display: 'flex' }}><LoadingAnimation isLoading={true}/></Box>*/}
                             {/*{*/}
-                                <Box sx={{ width: '64px', height: '64px' }}><LoadingAnimation isLoading={loading}/></Box>
+                                <Box sx={{ width: '50px', height: '64px' }}><LoadingAnimation isLoading={loading}/></Box>
                             {/*}*/}
                         </Link>
                     {/*</Badge>*/}
@@ -92,13 +113,63 @@ export const NavBar = () => {
                             onSilentQueryChange={({ target: {value} }) => {
                                 setUserSearchString(decodeURIComponent(value))
                             }}
-                            searchSuggestions={uniqBy(searchSuggestions.map(({pubkey}) => pubkey), 'pubkey')}
+                            searchSuggestions={uniqBy(searchSuggestions, 'pubkey').map(({pubkey}) => pubkey)}
                         />
                     </Box>
 
-                    <Box sx={{ display: 'flex', alignItems: 'center', paddingTop: '7px' }}>
-                        <Badge badgeContent={`${ndk.pool.stats().connected}/${ndk.pool.stats().total}`} color={ndk.pool.stats().connected > 0 ? 'success' : 'error'}>
-                            <Button variant="text" onClick={handleUserMenuOpen}>
+                    <Box sx={{
+                        width: '96px',
+                        minWidth: '96px!important',
+                        display: 'flex',
+                        justifyContent: 'space-around',
+                        marginTop: '7px'
+                    }}>
+                        <Button
+                            className="newNote-button"
+                            sx={{
+                                textTransform: 'math-auto',
+                                fontWeight: '400',
+                                fontSize: '16px',
+                                borderRadius: '18px!important',
+                                padding: '5px 8px',
+                                width: 'auto'
+                            }}
+                            color="warning"
+                            variant="contained"
+                            onClick={handleNewNoteButtonClick}
+                        >
+                            <Create sx={{ paddingLeft: '2px'}} />
+                        </Button>
+
+                        <IconButton sx={{ width: '42px', border: '1px solid' }} onClick={handleNotificationsClick}>
+                            <NotificationsIcon sx={{ fontSize: 27 }}/>
+                        </IconButton>
+                        <Popover
+                            id={'user-notifications'}
+                            open={notificationsOpen}
+                            anchorEl={notificationsAnchorEl}
+                            onClose={handleNotificationsClose}
+                            anchorOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right',
+                            }}
+                            classes={{
+                                paper: 'userNotifications_paper'
+                            }}
+                        >
+                            { user && <Notifications pubkey={user.pubkey} /> }
+                        </Popover>
+                    </Box>
+
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            paddingTop: '7px'
+                        }}
+                    >
+                        <Badge variant="dot" color={ndk.pool.stats().connected > 0 ? 'success' : 'error'}>
+                            <Button sx={{ padding: 0, width: 'unset', minWidth: 'unset' }} variant="text" onClick={handleUserMenuOpen}>
                                 {
                                     !user && <Avatar alt="Not logged in" src={`${process.env.BASE_URL}/images/nostr-logo.webp`} />
                                 }
@@ -110,30 +181,6 @@ export const NavBar = () => {
 
                     </Box>
 
-                    <Box sx={{
-                        width: '64px',
-                        minWidth: '64px!important',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        marginTop: '7px'
-                    }}>
-                        <Button
-                            className="newNote-button"
-                            sx={{
-                                textTransform: 'math-auto',
-                                fontWeight: '400',
-                                fontSize: '16px',
-                                borderRadius: '18px!important',
-                                padding: '5px 8px', width: 'auto'
-                            }}
-                            color="warning"
-                            variant="contained"
-                            onClick={handleNewNoteButtonClick}
-                        >
-                            <Create sx={{ paddingLeft: '2px'}} />
-                        </Button>
-                    </Box>
-
                     <Menu
                         id="user-menu"
                         anchorEl={userMenuAnchorEl}
@@ -142,7 +189,11 @@ export const NavBar = () => {
                     >
                         { !user && <MenuItem onClick={() => { setLoginDialogOpen(true); handleUserMenuClose(); }}>Login</MenuItem> }
                         { user && <MenuItem onClick={() => { handleUserMenuClose(); navigate(`/p/${nip19.npubEncode(user.pubkey)}`) }}>Profile</MenuItem> }
-                        <MenuItem onClick={() => { handleUserMenuClose(); setRelayListDialogOpen(true) }}>Relays</MenuItem>
+                        <MenuItem>
+                            <Badge onClick={handleRelaysDialogOpen} badgeContent={`${ndk.pool.stats().connected}/${ndk.pool.stats().total}`} color={ndk.pool.stats().connected > 0 ? 'success' : 'error'}>
+                                Relays
+                            </Badge>
+                        </MenuItem>
                     </Menu>
                 </Toolbar>
             </AppBar>

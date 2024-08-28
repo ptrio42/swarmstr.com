@@ -1,4 +1,5 @@
-import {NDKFilter, NostrEvent, NDKTag} from "@nostr-dev-kit/ndk";
+import {NDKFilter, NDKTag} from "@nostr-dev-kit/ndk";
+import {NostrEvent} from "nostr-tools";
 import React, {useEffect, useState} from "react";
 import {useNostrContext} from "../providers/NostrContextProvider";
 import {Dialog, SelectChangeEvent} from "@mui/material";

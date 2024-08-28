@@ -15,7 +15,7 @@ export const TimeAgo = ({ timestamp }: TimeAgoProps) => {
 
     return <Typography
         sx={{
-            fontSize: '16px',
+            fontSize: '15px',
             fontWeight: 'bold',
             color: '#000',
             display: 'flex',
@@ -28,7 +28,7 @@ export const TimeAgo = ({ timestamp }: TimeAgoProps) => {
         component="div"
     >
         <Typography component="div" sx={{ position: 'absolute', top: '0.25em', right: '16px', textAlign: 'end' }}>
-            <Typography sx={{ fontSize: '14px', fontWeight: '300', paddingLeft: '8px', margin: '1em 0' }}>
+            <Typography sx={{ fontSize: '14px', fontWeight: '300', paddingLeft: '8px' }}>
                 {
                     <Tooltip title={new Date(timestamp).toLocaleString()}>
                         <ReactTimeAgo date={timestamp} />

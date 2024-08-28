@@ -13,23 +13,23 @@ interface TagSelectProps {
     onTagSelect?: (event: SelectChangeEvent) => void,
     label?: string;
     displayHash?: boolean;
+    formatLabelFn?: (item: string) => string;
 }
 
-export const TagSelect = ({ tags = [], onTagSelect = (event: SelectChangeEvent) => {}, selectedTag = '', label = 'Browse tags', displayHash = true }: TagSelectProps) => {
+export const TagSelect = ({ tags = [], onTagSelect = (event: SelectChangeEvent) => {}, selectedTag = '', label, displayHash = true, formatLabelFn }: TagSelectProps) => {
     return <FormControl sx={{ minWidth: '140px', width: 'auto!important' }}>
-        <InputLabel id="select-tag-label">{ label }</InputLabel>
+        { label && <InputLabel id="select-tag-label">{ label }</InputLabel> }
         <Select
             id="select-tag"
-            labelId="select-tag-label"
             className="select-tag"
             color="secondary"
             sx={{ padding: 0 }}
             value={selectedTag}
-            label="Browse tags"
             onChange={onTagSelect}
+            { ... label && { label, labelId: 'select-tag-label' }}
         >
             {
-                tags.map((tag: string) => <MenuItem value={tag}>{ displayHash && '#' }{tag}</MenuItem>)
+                tags.map((tag: string) => <MenuItem value={tag}>{ displayHash && '#' }{formatLabelFn ? formatLabelFn(tag) : tag}</MenuItem>)
             }
         </Select>
     </FormControl>

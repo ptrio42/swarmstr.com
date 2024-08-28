@@ -8,10 +8,9 @@ import './NewNoteDialog.css';
 import {DialogActions, SelectChangeEvent} from "@mui/material";
 import Button from "@mui/material/Button";
 import {useNostrContext} from "../providers/NostrContextProvider";
-import {NDKTag, NostrEvent} from "@nostr-dev-kit/ndk";
-import {nip19} from 'nostr-tools';
+import {NDKTag} from "@nostr-dev-kit/ndk";
+import {nip19, NostrEvent} from 'nostr-tools';
 import {differenceWith, uniqBy} from 'lodash';
-import Input from "@mui/material/Input";
 import {GifBox, Image as ImageIcon} from '@mui/icons-material';
 import {uploadToNostrCheckMe, uploadToNostrBuild} from "../services/uploadImage";
 import Tabs from "@mui/material/Tabs";
@@ -20,14 +19,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import Typography from "@mui/material/Typography";
 import {GifDialog} from "./GifDialog";
-import Select from "@mui/material/Select";
-import OutlinedInput from "@mui/material/OutlinedInput";
-import Chip from "@mui/material/Chip";
-import MenuItem from "@mui/material/MenuItem";
 import {Config} from "../resources/Config";
-import {TAG_EMOJIS} from "../components/Nostr/NoteTags/NoteTags";
-import InputLabel from "@mui/material/InputLabel";
-import FormControl from "@mui/material/FormControl";
 import CompareIcon from '@mui/icons-material/Compare';
 import {TagChipSelect} from "../components/Nostr/TagChipSelect/TagChipSelect";
 import {ImageCreatorDialog} from "./ImageCreatorDialog";
@@ -122,6 +114,49 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
 
     const [mediaProvider, setMediaProvider] = useState<MediaProvider>(MediaProvider.NostrCheckMe);
 
+    const handleFileUpload = (event: any) => {
+        const files = (event.currentTarget as HTMLInputElement).files || event.clipboardData.files;
+        if (files && files.length > 0) {
+            setLoading(true);
+
+            let uploadFn: (file: any) => Promise<string>;
+
+            console.log('fileupload media provider', {mediaProvider})
+            switch (mediaProvider) {
+                case MediaProvider.NostrBuild:
+                    uploadToNostrBuild(files[0])
+                        .then((url: string) => {
+                            console.log('fileupload', 'uploaded', {url});
+                            formik.setFieldValue('content', formik.values.content + `\n${url}`);
+                            setLoading(false);
+                        });
+                    return;
+                default:
+                case MediaProvider.NostrCheckMe:
+                    uploadToNostrCheckMe(files![0])
+                        .then((url: string) => {
+                            console.log('fileupload', 'uploaded', {url});
+                            formik.setFieldValue('content', formik.values.content + `\n${url}`);
+                            setLoading(false);
+                        });
+                    return;
+            }
+        }
+    };
+
+    useEffect(() => {
+        const handlePaste = (e: any) => {
+            if (fileInputRef.current) {
+                fileInputRef.current.files = e.clipboardData.files;
+                console.log('NewNoteDialog.tsx', {fileInputRef})
+            }
+        };
+        window.addEventListener('paste', handleFileUpload);
+        return () => {
+            window.removeEventListener('paste', handleFileUpload);
+        };
+    }, []);
+
     useEffect(() => {
         // const diff = replyTo && differenceWith(replyTo.map((pubkey: string) => (['p', pubkey])), tags, (t1, t2) => t1[0] === t2[0] && t1[1] === t2[1]);
         // diff && diff.length > 0 && tags.current.push(...(diff));
@@ -151,6 +186,13 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
             // @ts-ignore
             .map(({data}) => ['e', data?.id || data]);
 
+        const qTags: NDKTag[] = [];
+        if (eTags.length > 0 && !event) {
+            for (let i = 0; i < eTags.length; i++) {
+                qTags.push(['q', eTags[i][1]]);
+            }
+        }
+
         const tTags = content.match(/\B(\#[a-zA-Z0-9]+\b)(?!;)/gm)
             ?.map((match: string) => ['t', match.replace('#', '')]);
         // console.log({tags: [eTags, tTags, explicitTags]})
@@ -159,12 +201,14 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
             [
                 ...(eTags || []),
                 ...(tTags || []),
-                ...(explicitTags || [])
+                ...(explicitTags || []),
+                ...(qTags || [])
             ].filter((t) => !!t && t.length > 0)
-            , '[1]');
+            , (tag: NDKTag) => tag.join());
 
         if (event && event.id) {
-            _tags.push(['e', event.id])
+            _tags.push(['e', event.id]);
+            _tags.push(['p', event.pubkey]);
         }
 
         // @ts-ignore
@@ -382,35 +426,7 @@ export const NewNoteDialog = ({ open, onClose, label, event, ...props }: NewNote
                         key="upload-image"
                         type="file"
                         ref={fileInputRef}
-                        onChange={(event: any) => {
-                            const files = (event.currentTarget as HTMLInputElement).files;
-                            if (files && files.length > 0) {
-                                setLoading(true);
-
-                                let uploadFn: (file: any) => Promise<string>;
-
-                                console.log('fileupload media provider', {mediaProvider})
-                                switch (mediaProvider) {
-                                    case MediaProvider.NostrBuild:
-                                        uploadToNostrBuild(files[0])
-                                            .then((url: string) => {
-                                                console.log('fileupload', 'uploaded', {url});
-                                                formik.setFieldValue('content', formik.values.content + `\n${url}`);
-                                                setLoading(false);
-                                            });
-                                        return;
-                                    default:
-                                    case MediaProvider.NostrCheckMe:
-                                        uploadToNostrCheckMe(files![0])
-                                            .then((url: string) => {
-                                                console.log('fileupload', 'uploaded', {url});
-                                                formik.setFieldValue('content', formik.values.content + `\n${url}`);
-                                                setLoading(false);
-                                            });
-                                        return;
-                                }
-                            }
-                        }} />
+                        onChange={handleFileUpload} />
                         <Button color="warning" onClick={() => {
                             console.log({fileInpuRef: fileInputRef.current})
                             fileInputRef.current?.click();

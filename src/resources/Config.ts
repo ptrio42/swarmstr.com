@@ -23,7 +23,7 @@ export const Config = {
   REPLIES_HASHTAG: 'asknostr-reply',
   // SLOGAN: 'Find answers to your questions. Assist others in resolving theirs.',
   SLOGAN: 'Welcome to SWARMSTR, free and open source web nostr client.',
-  LOGO_IMG: `${process.env.BASE_URL}/images/swarmstr.png`,
+  LOGO_IMG: `${process.env.BASE_URL}/images/swarmstrv1.png`,
   SEARCH_RELAY: `wss://search.swarmstr.com`,
   SEARCH_RELAY_PUBLISH: `wss://search.swarmstr.com?api_key=${process.env.SEARCHNOS_API_KEY}`,
   SERVER_RELAYS: [
@@ -72,6 +72,8 @@ export const Config = {
     'wss://relay.snort.social',
     'wss://nostr.mutinywallet.com',
     'wss://purplerelay.com',
+    'wss://relay.nostr.bg',
+    'wss://nostr.mom'
     // 'wss://search.swarmstr.com',
     // 'wss://user-search.swarmstr.com'
   ],
@@ -100,6 +102,10 @@ export const Config = {
   NOSTR_ADDRESS_AVAILABLE_DOMAINS: [
     {
       name: 'swarmstr.com',
+      price: 0
+    },
+    {
+      name: 'biblestr.com',
       price: 0
     },
     {

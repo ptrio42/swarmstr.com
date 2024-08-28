@@ -43,14 +43,12 @@
 .dataSyncInProgress {
     animation: pulse-animation 2s infinite;
     border-radius: 50%;
-    top: 14px;
-    left: 8px;
 }
 
 .dataSyncInProgress img {
     animation: tilt-shaking 0.21s infinite;
-    left: -14px;
-    top: -14px;
+    left: -4px;
+    /*top: -14px;*/
 }
 
 .staticLogoContainer {

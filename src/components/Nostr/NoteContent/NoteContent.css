@@ -1,0 +1,11 @@
+.noteContent br:first-of-type, .noteContent br:last-of-type {
+    display: none;
+}
+
+.noteContent {
+    text-align: left;
+    font-size: 15px;
+    font-weight: 300;
+    word-break: break-word;
+    padding: 0 2px;
+}

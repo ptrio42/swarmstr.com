@@ -5,25 +5,19 @@ import React from 'react'
 import {renderToString} from 'react-dom/server'
 import App from "../src/App";
 import {StaticRouter} from "react-router-dom/server";
-import {Helmet, HelmetData} from "react-helmet";
-import {nip19} from 'nostr-tools';
+import {Helmet, HelmetData, HelmetProvider, HelmetServerState} from "react-helmet-async";
+import {nip19, NostrEvent} from 'nostr-tools';
 import {Config, SERVER_RELAYS} from "../src/resources/Config";
 import NDK, {
     NDKEvent,
     NDKFilter, NDKRelay, NDKRelaySet, NDKSubscription,
     NDKSubscriptionCacheUsage,
-    NDKSubscriptionOptions, NDKTag,
-    NostrEvent, NDKPrivateKeySigner, serialize
+    NDKSubscriptionOptions, NDKTag, NDKPrivateKeySigner, serialize
 } from '@nostr-dev-kit/ndk';
-import getEventHash from '@nostr-dev-kit/ndk';
-import NDKCacheAdapter from '@nostr-dev-kit/ndk'
-// import RedisAdapter from "@nostr-dev-kit/ndk-cache-redis";
-import {uniqBy, groupBy, forOwn, debounce, sortBy, isArray} from 'lodash';
+import {uniqBy, groupBy, forOwn, debounce, sortBy, isArray, chunk, orderBy} from 'lodash';
 import {containsAnyTag, containsTag, valueFromTag} from "../src/utils/utils";
 import { HfInference } from "@huggingface/inference";
-import {request} from "../src/services/request";
-import {Buffer} from "buffer";
-import NDKRedisCacheAdapter from "@nostr-dev-kit/ndk-cache-redis";
+// import NDKRedisCacheAdapter from "@nostr-dev-kit/ndk-cache-redis";
 
 
 const { Configuration, OpenAIApi } = require("openai");
@@ -36,7 +30,13 @@ const hf = new HfInference(process.env.HF_ACCESS_TOKEN);
 (global as any).WebSocket = require('ws');
 import {searchImageDatabase} from "../src/services/pixabay";
 import {createInvoice} from "./paymentProcessors/ZebedeePaymentProcessor";
+import {request} from "../src/services/request";
+import {getEventsAsPromise} from "../src/services/nostr/relays";
+import {getTagValuesFromEvent} from "../src/utils/nostr";
+import {Buffer} from "buffer";
 // import {forOwn} from 'lodash';
+
+import linkPreviewGenerator from "link-preview-generator";
 
 
 // import WebSocket, { WebSocketServer } from 'ws';
@@ -174,16 +174,20 @@ const manifest = fs.readFileSync(
 );
 const assets = JSON.parse(manifest);
 
+const helmetContext: {
+    helmet?: HelmetServerState;
+} = {};
+
 // only subscribe to events since given timestamp
 // default 7 days
     const EVENTS_SINCE = Math.floor(Date.now() / 1000 - 7 * 24 * 60 * 60);
 
 // const cacheAdapter = new RedisAdapter();
-const cacheAdapter = new NDKRedisCacheAdapter();
+// const cacheAdapter = new NDKRedisCacheAdapter();
 
 // ndk instance used to subscribe to events with a given HASHTAG
 // @ts-ignore
-const ndk = new NDK({ explicitRelayUrls: [...SERVER_RELAYS, Config.SEARCH_RELAY_PUBLISH, Config.SEARCH_RELAY] }, cacheAdapter);
+const ndk = new NDK({ explicitRelayUrls: [...SERVER_RELAYS, Config.SEARCH_RELAY_PUBLISH, Config.SEARCH_RELAY, 'wss://search.nostr.band'] });
 
 // ndk instance used to publish events to search relay
 // const ndkSearchnos = new NDK({ explicitRelayUrls: [Config.SEARCH_RELAY_PUBLISH+'/'] });
@@ -258,7 +262,8 @@ const publishToSearchRelay = async (event: NDKEvent, eventId?: string) => {
 };
 
 const handleHashTagEvent = async (event: NDKEvent) => {
-    const nostrEvent = event.rawEvent();
+    // @ts-ignore
+    const nostrEvent: NostrEvent = event.rawEvent();
     const { tags } = nostrEvent;
     const referencedEventId = valueFromTag(nostrEvent, 'e');
     if (containsAnyTag(tags, Config.NOSTR_TAGS.map((t: string) => ['t', t]))) {
@@ -380,11 +385,11 @@ ndk.pool.on('flapping', (flapping) => {
 
 (async () => {
     //initially subscribe to hashtag events
-    subscribe({
-        kinds: [1, 30023],
-        '#t': Config.NOSTR_TAGS,
-        since: EVENTS_SINCE,
-    }, { closeOnEose: false, groupable: false, cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST });
+    // subscribe({
+    //     kinds: [1, 30023],
+    //     '#t': Config.NOSTR_TAGS,
+    //     since: EVENTS_SINCE,
+    // }, { closeOnEose: false, groupable: false, cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST });
 
     // const searchRelay = await Relay.connect(Config.SEARCH_RELAY_PUBLISH)
     // console.log('server.tsx: connected to search relay')
@@ -556,7 +561,7 @@ const getAIQuestionsSuggestions = (search: string, tags?: string[], since?: numb
         const events: NDKEvent[] = [];
         // websocket.send('nostr: searching for notes...');
         const sub = ndk
-            .subscribe(filter, { closeOnEose: true }, NDKRelaySet.fromRelayUrls([`${Config.SEARCH_RELAY}/`], ndk));
+            .subscribe(filter, { closeOnEose: true }, NDKRelaySet.fromRelayUrls([`${Config.SEARCH_RELAY}/`, 'wss://relay.nostr.band/'], ndk));
 
         sub
             .on('event', async (event: NDKEvent) => {
@@ -966,48 +971,118 @@ const getEvents = (filter: NDKFilter) => {
     }))
 };
 
-const getMeta = (content: string, helmet: HelmetData, path: string) => {
-    // if (event) {
-        try {
-            // const {content} = event;
-            // let length = content;
-            let title = content.replace(/#\[([0-9]+)\]/g, '').slice(0, content.indexOf('?') > -1 ? content.indexOf('?') + 1 : content.length);
-            if (title.length > 150) title = `${title.slice(0, 150)}...`;
-            console.log('question title', {title})
-            return {
-                ...helmet,
-                title: {
-                    ...helmet.title,
-                    toString(): string {
-                        return `<title>${title} - Swarmstr.com</title>`;
-                    }
-                },
-                meta: {
-                    ...helmet.meta,
-                    toString(): string {
-                        return `<meta property="og:title" content="${title} - Swarmstr.com" />` +
-                            `<meta itemProp="name" content="${title} - Swarmstr.com" />` +
-                            `<meta name="twitter:title" content="${title} - Swarmstr.com" />` +
-                            `<meta name="twitter:image:src" content="${Config.APP_IMAGE}" />` +
-                            `<meta name="twitter:card" content="summary" />` +
-                            `<meta name="twitter:site" content="@swarmstr" />` +
-                            `<meta name="description" content="${content.slice(0, 500)}" />` +
-                            `<meta property="og:description" content="${content.slice(0, 500)}" />` +
-                            `<meta name="twitter:description" content="${content.slice(0, 500)}" />` +
-                            `<meta property="og:url" content="${process.env.BASE_URL}${path}" />` +
-                            `<meta property="og:image" content="${Config.APP_IMAGE}" />` +
-                            `<meta itemProp="image" content="${Config.APP_IMAGE}" />`;
-                    }
-                }
-            };
-        } catch (e) {
-            return helmet;
-        }
-    // }
+// const getMeta = (content: string, helmet: HelmetData, path: string) => {
+//     // if (event) {
+//         try {
+//             // const {content} = event;
+//             // let length = content;
+//             let title = content.replace(/#\[([0-9]+)\]/g, '').slice(0, content.indexOf('?') > -1 ? content.indexOf('?') + 1 : content.length);
+//             if (title.length > 150) title = `${title.slice(0, 150)}...`;
+//             console.log('question title', {title})
+//             return {
+//                 ...helmet,
+//                 title: {
+//                     ...helmet.title,
+//                     toString(): string {
+//                         return `<title>${title} - Swarmstr.com</title>`;
+//                     }
+//                 },
+//                 meta: {
+//                     ...helmet.meta,
+//                     toString(): string {
+//                         return `<meta property="og:title" content="${title} - Swarmstr.com" />` +
+//                             `<meta itemProp="name" content="${title} - Swarmstr.com" />` +
+//                             `<meta name="twitter:title" content="${title} - Swarmstr.com" />` +
+//                             `<meta name="twitter:image:src" content="${Config.APP_IMAGE}" />` +
+//                             `<meta name="twitter:card" content="summary" />` +
+//                             `<meta name="twitter:site" content="@swarmstr" />` +
+//                             `<meta name="description" content="${content.slice(0, 500)}" />` +
+//                             `<meta property="og:description" content="${content.slice(0, 500)}" />` +
+//                             `<meta name="twitter:description" content="${content.slice(0, 500)}" />` +
+//                             `<meta property="og:url" content="${process.env.BASE_URL}${path}" />` +
+//                             `<meta property="og:image" content="${Config.APP_IMAGE}" />` +
+//                             `<meta itemProp="image" content="${Config.APP_IMAGE}" />`;
+//                     }
+//                 }
+//             };
+//         } catch (e) {
+//             return helmet;
+//         }
+//     // }
+// };
+
+const getEventsStats = async (eventIds: string[]) => {
+    const stats: any = await Promise.all(
+        // @ts-ignore
+        chunk(eventIds, 10).map((_ids: string[]) => request({
+            url: `https://api.nostr.band/v0/stats/event/batch?objects=${_ids.join(',')}`,
+            method: 'GET'
+        }))
+    );
+    const arr = stats.map(({data: { stats }}: any) => Object.values(stats)).flat(2);
+    console.log('server.tsx: getEventsStats: ', {stats: arr});
+    return arr;
 };
 
+// supported prop names: t, d, e, p
+server.get('/api/stats', async (req, res) => {
+    // look up cache for given prop name, value and time period
+    // if cache exists, use the latest note created_at as since in filter when starting sub
+    // otherwise use time period
+    // create new subscription using prop name, value and created_at/timePeriod
+    // on eose, get zaps, comments, reactions for each event received and store the results as numbers
+    // update cache with new data
+    // return stats
+    // @ts-ignore
+    const filter = req.query.filter && JSON.parse(Buffer.from(req.query.filter!, 'base64').toString());
+    // const filter = {
+    //     [`#${propName}`]: [propValue],
+    //     // kinds: [1, 30023],
+    //     ...(!!timePeriod && { since: Math.floor(Date.now() / 1000) - (+timePeriod) * 24 * 3600 })
+    // };
+
+    const events = await getEventsAsPromise(ndk, filter as NDKFilter);
+    let ids = [];
+    if (filter['#d']) {
+        ids = getTagValuesFromEvent(events[0], 'e');
+    } else {
+        ids = events.map(({id}) => id);
+    }
+    console.log('server.tsx: ids: ', {ids});
+
+    // time period 1D, 7D, 30D
+
+    // let stats = {};
+
+    const stats = ids && await getEventsStats(ids);
+    res.json(stats);
+
+    // ids && chunk(ids, 10)
+    // // @ts-ignore
+    //     .forEach((_ids: string[]) => {
+    //         request({
+    //             url: `https://api.nostr.band/v0/stats/event/batch?objects=${_ids.join(',')}`,
+    //             method: 'GET'
+    //         }).then((response: {data: any}) => {
+    //             console.log('server.tsx: nostr.band stats: ', {stats});
+    //             stats = {
+    //                 ...stats,
+    //                 ...response.data.stats
+    //             };
+    //         })
+    //     });
+    // console.log('server.tsx: stats: ', {stats});
+});
+
+server.get('/api/preview', async (req, res) => {
+    const {url} = req.query;
+    console.log('server.tsx: url', {url})
+    const previewData = await linkPreviewGenerator(`${url}`);
+    res.json(previewData);
+});
+
 server.get('/*', async (req, res) => {
-    let helmet = Helmet.renderStatic();
+
     const path = req.originalUrl;
     const {host} = req.headers;
 
@@ -1023,25 +1098,25 @@ server.get('/*', async (req, res) => {
         // @ts-ignore
         const { id } = eventPointer?.data;
 
-        if (id) {
-            // @ts-ignore
-            const [event] = await getEvents({ ids: [id] });
-            // @ts-ignore
-            // const event = await redisClient.get(id);
-            console.log('#redis: ', {id, event})
-            helmet = getMeta(event?.content, helmet, `/e/${nevent}`);
-        } else {
-            let content = '';
-            let path = '';
-            if (pathArr[pathArr.length - 2] === 'recent') {
-                content = `Recent from ${pathArr[pathArr.length - 1]}`;
-                path = `/recent/${pathArr[pathArr.length - 1]}`;
-            } else {
-                content = 'Your knowledge hub for all kinds of minds';
-                path = '/';
-            }
-            helmet = getMeta(content, helmet, path);
-        }
+        // if (id) {
+        //     // @ts-ignore
+        //     const [event] = await getEvents({ ids: [id] });
+        //     // @ts-ignore
+        //     // const event = await redisClient.get(id);
+        //     console.log('#redis: ', {id, event})
+        //     helmet = getMeta(event?.content, helmet, `/e/${nevent}`);
+        // } else {
+        //     let content = '';
+        //     let path = '';
+        //     if (pathArr[pathArr.length - 2] === 'recent') {
+        //         content = `Recent from ${pathArr[pathArr.length - 1]}`;
+        //         path = `/recent/${pathArr[pathArr.length - 1]}`;
+        //     } else {
+        //         content = 'Your knowledge hub for all kinds of minds';
+        //         path = '/';
+        //     }
+        //     helmet = getMeta(content, helmet, path);
+        // }
     } catch (error) {
         console.error({error});
     }
@@ -1049,9 +1124,12 @@ server.get('/*', async (req, res) => {
     const component =
         renderToString(
         <StaticRouter location={path}>
-            <App/>
+            <HelmetProvider context={helmetContext}>
+                <App/>
+            </HelmetProvider>
         </StaticRouter>
     );
+    const {helmet} = helmetContext;
     res.render('client', { assets, component, helmet, baseUrl })
 });
 

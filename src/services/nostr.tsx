@@ -1,4 +1,5 @@
-import NDK, {NDKEvent, NDKRelaySet, NostrEvent} from "@nostr-dev-kit/ndk";
+import NDK, {NDKEvent, NDKRelaySet} from "@nostr-dev-kit/ndk";
+import {NostrEvent} from "nostr-tools";
 
 export const signAndPublishEvent = async (
     nostrEvent: NostrEvent,

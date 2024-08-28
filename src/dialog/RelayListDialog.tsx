@@ -1,5 +1,5 @@
 import {Box, Dialog} from "@mui/material";
-import {Relays} from "../components/Nostr/Relays/Relays";
+import {Relays} from "../pages/Relays/Relays";
 import React from 'react';
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";

@@ -1,15 +1,17 @@
-import NDK, {NDKEvent, NDKFilter, NDKSubscriptionOptions, NDKSubscription, NDKTag, NDKUser, NostrEvent} from '@nostr-dev-kit/ndk';
 import React, {createContext} from "react";
+import {NostrEvent} from "nostr-tools";
+import NDK, {NDKEvent, NDKFilter, NDKSubscriptionOptions, NDKSubscription, NDKTag, NDKUser} from '@nostr-dev-kit/ndk';
+
 import {NoteLabel, Thumb} from "../dialog/NewLabelDialog";
 import {SnackbarMessage} from "../providers/NostrContextProvider";
 
 type NostrContextType = {
     ndk: NDK,
     user?: NDKUser,
-    events?: NostrEvent[],
-    subscribe: (filter: NDKFilter, opts: NDKSubscriptionOptions, onEose?: () => void, onEvent?: (event: NDKEvent) => void, relayUrls?: string[]) => any,
-    unsubscribe: () => void,
-    signIn: () => Promise<string|undefined>
+    cachedEvents?: NostrEvent[],
+    // subscribe: (ndk: NDK, filter: NDKFilter, opts: NDKSubscriptionOptions, onEose?: () => void, onEvent?: (event: NDKEvent) => void, relayUrls?: string[]) => any,
+    // unsubscribe: () => void,
+    signIn: () => Promise<string | undefined>
     post: (content: string, tags: NDKTag[], kind?: number) => Promise<void>,
     loginDialogOpen: boolean,
     setLoginDialogOpen: (open: boolean) => void,
@@ -18,8 +20,8 @@ type NostrContextType = {
     label: (thumb: Thumb, label: NoteLabel, nostrEvent: NostrEvent, pubkey: string, content: string, additionalLabels?: string[], callback?: () => void, onError?: (error: any) => void) => void,
     newLabelDialogOpen: boolean,
     setNewLabelDialogOpen: (open: boolean) => void,
-    addReaction: (id: string, content: string) => void,
-    zap: (nostrEvent: NostrEvent, amount: number, callback?: () => void, onError?: (error: any) => void, comment?: string) => void,
+    addReaction: (nostrEvent: NostrEvent, content: string) => void,
+
     boost: (nostrEvent: NostrEvent) => void,
     payInvoice: (paymentRequest: string) => void,
     writeRelays: string[],
@@ -47,14 +49,17 @@ type NostrContextType = {
     setTags: (tags: string[]) => void,
     snackbarMessage?: SnackbarMessage,
     setSnackbarMessage: (message?: SnackbarMessage) => void,
-    subs: NDKSubscription[]
+    // subs: NDKSubscription[],
+    // setCachedEvents: (value: SetStateAction<NostrEvent[] | undefined>) => void,
+    // savedEvents?: NostrEvent[],
+    // saveEvent: (event: NostrEvent) => void,
+    // clearSavedEvents: () => void
 }
 
 export const NostrContext = createContext<NostrContextType>({
     ndk: new NDK(),
-    events: [],
-    subscribe: () => {},
-    unsubscribe: () => {},
+    // subscribe: () => {},
+    // unsubscribe: () => {},
     signIn: async () => '',
     post: async () => undefined,
     loginDialogOpen: false,
@@ -65,7 +70,6 @@ export const NostrContext = createContext<NostrContextType>({
     newLabelDialogOpen: false,
     setNewLabelDialogOpen: () => {},
     addReaction: () => {},
-    zap: () => {},
     boost: () => {},
     payInvoice: () => {},
     writeRelays: [],
@@ -90,5 +94,8 @@ export const NostrContext = createContext<NostrContextType>({
     setImageCreatorDialogOpen: () => {},
     setTags: () => {},
     setSnackbarMessage: () => {},
-    subs: []
+    // subs: [],
+    // setCachedEvents: () => {},
+    // saveEvent: () => {},
+    // clearSavedEvents: () => {}
 });

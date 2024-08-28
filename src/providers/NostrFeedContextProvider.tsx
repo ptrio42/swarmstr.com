@@ -6,8 +6,7 @@ import NDK, {
     NDKRelay,
     NDKRelaySet, NDKSubscription,
     NDKSubscriptionOptions,
-    NDKTag,
-    NostrEvent
+    NDKTag
 } from "@nostr-dev-kit/ndk";
 import {NostrFeedContext} from '../contexts/NostrFeedContext';
 import {Config, CLIENT_RELAYS} from "../resources/Config";
@@ -15,6 +14,7 @@ import { nip19 } from 'nostr-tools';
 import {db} from "../db";
 import {NOTE_TYPE, NoteEvent} from "../models/commons";
 import {sortBy} from 'lodash';
+import {NostrEvent} from "nostr-tools";
 
 const subs: NDKSubscription[] = [];
 
@@ -61,29 +61,29 @@ export const NostrFeedContextProvider = ({ children }: any) => {
     }, []);
 
     const onEvent = (event: NDKEvent) => {
-        const nostrEvent = event.rawEvent();
-        // simple feed filtering based on specific text
-        if (!nostrEvent.content.includes('nsfw') &&
-            !nostrEvent.content.includes('Just deployed https://swarmstr.com build') &&
-            !nostrEvent.content.includes('beta.uselessshit.co') &&
-            !nostrEvent.content.includes('dev.uselessshit.co') &&
-            !nostrEvent.content.includes('Let me introduce my good friend') &&
-            !nostrEvent.content.includes('and unlock exciting privileges within the community') &&
-            !nostrEvent.content.includes('Swarmstr is a simple Q&A #nostr client') &&
-            !nostrEvent.content.includes('Swarmstr is a free and open source Q&A') &&
-            !nostrEvent.content.includes('Swarmstr is a simple Q&A web-client') &&
-            nostrEvent.id !== 'c923482fe63f362677b3d9ba3e9006e3feb4bff8fc73421793c36c56fc3178be' &&
-            nostrEvent.id !== 'fdd786beca7debac7026aa6686077fae10d93888d6fb56220c8cacfdb46b9295' &&
-            !nostrEvent.content.includes('an early release so expect some bugs')) {
-            db.notes.put({
-                ...nostrEvent,
-                type: NOTE_TYPE.QUESTION
-            });
-            setEvents((prevState: NostrEvent[]) => ([
-                ...prevState,
-                nostrEvent
-            ]));
-        }
+        // const nostrEvent = event.rawEvent();
+        // // simple feed filtering based on specific text
+        // if (!nostrEvent.content.includes('nsfw') &&
+        //     !nostrEvent.content.includes('Just deployed https://swarmstr.com build') &&
+        //     !nostrEvent.content.includes('beta.uselessshit.co') &&
+        //     !nostrEvent.content.includes('dev.uselessshit.co') &&
+        //     !nostrEvent.content.includes('Let me introduce my good friend') &&
+        //     !nostrEvent.content.includes('and unlock exciting privileges within the community') &&
+        //     !nostrEvent.content.includes('Swarmstr is a simple Q&A #nostr client') &&
+        //     !nostrEvent.content.includes('Swarmstr is a free and open source Q&A') &&
+        //     !nostrEvent.content.includes('Swarmstr is a simple Q&A web-client') &&
+        //     nostrEvent.id !== 'c923482fe63f362677b3d9ba3e9006e3feb4bff8fc73421793c36c56fc3178be' &&
+        //     nostrEvent.id !== 'fdd786beca7debac7026aa6686077fae10d93888d6fb56220c8cacfdb46b9295' &&
+        //     !nostrEvent.content.includes('an early release so expect some bugs')) {
+        //     db.notes.put({
+        //         ...nostrEvent,
+        //         type: NOTE_TYPE.QUESTION
+        //     });
+        //     setEvents((prevState: NostrEvent[]) => ([
+        //         ...prevState,
+        //         nostrEvent
+        //     ]));
+        // }
     };
 
     const clearEvents = () => {
@@ -93,7 +93,7 @@ export const NostrFeedContextProvider = ({ children }: any) => {
         setEvents([]);
     };
 
-    const memoValue = useMemo(() => ({ subscribe, loading, events, clearEvents, query, setQuery, startSubs, stopSubs }), [events, query, loading]);
+    const memoValue = useMemo(() => ({ loading, events, clearEvents, query, setQuery, startSubs, stopSubs }), [events, query, loading]);
 
     const connectToRelays = useCallback(async () => {
         // try {

@@ -1,16 +1,15 @@
-import {useLiveQuery} from "dexie-react-hooks";
-import {db} from "../../../db";
-import {useCallback} from "react";
-import {RepostEvent} from "../../../models/commons";
-import {useNostrContext} from "../../../providers/NostrContextProvider";
-import React from "react";
+import React, {useCallback, useMemo} from "react";
+import {NostrEvent} from "nostr-tools";
+
 import {Loop} from "@mui/icons-material";
 import {Button} from "@mui/material";
-import {NostrEvent} from "@nostr-dev-kit/ndk";
 import Badge from "@mui/material/Badge";
 
+import {useNostrContext} from "../../../providers/NostrContextProvider";
+import {useNostrNoteThreadContext} from "../../../providers/NostrNoteThreadContextProvider";
+
 interface BoostButtonProps {
-    id: string;
+    id?: string;
     event: NostrEvent;
 }
 
@@ -18,18 +17,23 @@ export const BoostButton = ({ id, event }: BoostButtonProps) => {
 
     const { user, setLoginDialogOpen, boost } = useNostrContext();
 
-    const boosts = useLiveQuery(async () =>
-        await db.reposts
-            .where({ repostedEventId: id })
-            .toArray()
-        , [id], []);
+    const {events} = useNostrNoteThreadContext();
+
+    const boosts = useMemo(() => (events || []).filter(({kind}: NostrEvent) => kind === 6), [events]);
+    const totalBoosts = useMemo(() => boosts?.length || 0, [boosts]);
 
     const boosted = useCallback(() => {
         return user && boosts
-            .find(({pubkey}: RepostEvent) => pubkey === user!.pubkey);
-    }, [boosts]);
+            .find(({pubkey}: NostrEvent) => pubkey === user!.pubkey);
+    }, [boosts, user]);
 
-    return <Button sx={{ minWidth: '21px' }} color="secondary" onClick={() => {
+    return <Button
+        sx={{
+            minWidth: 'unset',
+            padding: 0,
+            '&:hover': { color: '#3db645' },
+            ...(boosted() ? {color: '#3db645'} : {color: '#909090' })
+        }} onClick={() => {
         // console.log('boost', {event});
         if (user) {
             boost(event);
@@ -37,18 +41,19 @@ export const BoostButton = ({ id, event }: BoostButtonProps) => {
             setLoginDialogOpen(true);
         }
     }}>
-        {
-            boosts.length >= 1 && <React.Fragment>
-                <Badge className="reposts-count"
-                       sx={{ opacity: boosted() ? 1 : 0.5 }}
-                       color="primary"
-                       badgeContent={boosts.length}>
-                    <Loop sx={{ fontSize: 18 }} />
-                </Badge>
-            </React.Fragment>
-        }
-        {
-            boosts.length === 0 && <Loop sx={{ fontSize: 18, opacity: boosted() ? 1 : 0.5 }} />
-        }
+        {/*{*/}
+            {/*totalBoosts >= 1 && <React.Fragment>*/}
+                {/*<Badge className="reposts-count"*/}
+                       {/*sx={{ opacity: boosted() ? 1 : 0.5 }}*/}
+                       {/*color="primary"*/}
+                       {/*badgeContent={totalBoosts}>*/}
+                    <Loop sx={{ fontSize: 27 }} />
+        {totalBoosts}
+                {/*</Badge>*/}
+            {/*</React.Fragment>*/}
+        {/*}*/}
+        {/*{*/}
+            {/*totalBoosts === 0 && <Loop sx={{ fontSize: 27, opacity: boosted() ? 1 : 0.5 }} />*/}
+        {/*}*/}
     </Button>
 };

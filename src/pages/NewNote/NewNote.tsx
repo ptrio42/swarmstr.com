@@ -1,4 +1,4 @@
-import {uploadToNostrBuild, uploadToNostrCheckMe} from "../../../services/uploadImage";
+import {uploadToNostrBuild, uploadToNostrCheckMe} from "../../services/uploadImage";
 import {useState} from "react";
 import {useFormik} from "formik";
 

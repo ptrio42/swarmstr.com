@@ -1,7 +1,6 @@
-import {Helmet} from "react-helmet";
+import {Helmet} from "react-helmet-async";
 import React from "react";
-import {NostrEvent} from "@nostr-dev-kit/ndk";
-import {nip19} from "nostr-tools";
+import {nip19, NostrEvent} from "nostr-tools";
 import {Config} from "../../../resources/Config";
 
 export const NoteMeta = ({ event }: { event: NostrEvent }) => {

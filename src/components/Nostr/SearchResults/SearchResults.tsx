@@ -1,22 +1,30 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Box} from "@mui/material";
 import './SearchResults.css';
 import Snackbar from "@mui/material/Snackbar";
-import {nip05, nip19} from 'nostr-tools';
-import {NostrEvent} from "@nostr-dev-kit/ndk";
+import {nip05, nip19, NostrEvent} from 'nostr-tools';
 import {EventListWrapper} from "../EventListWrapper/EventListWrapper";
-import {NostrEventListContextProvider} from "../../../providers/NostrEventListContextProvider";
+import NostrEventListContextProvider from "../../../providers/NostrEventListContextProvider";
+import {EventStore} from "../EventStore/EventStore";
+import {NDKFilter} from "@nostr-dev-kit/ndk/dist";
 
 interface SearchResultsProps {
+    filter: NDKFilter;
     children?: any;
     resultsCount?: number;
     search?: any;
     results: NostrEvent[];
 }
 
-export const SearchResults = ({ children, search, results }: SearchResultsProps) => {
+export const SearchResults = ({ children, search, results, filter }: SearchResultsProps) => {
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
     const [snackbarMessage, setSnackBarMessage] = useState<string>('');
+
+    const eventStore = EventStore({filter});
+
+    useEffect(() => {
+        eventStore.addEvents(results);
+    }, [results]);
 
     return (
         <React.Fragment>
@@ -33,7 +41,7 @@ export const SearchResults = ({ children, search, results }: SearchResultsProps)
             >
                 { search }
             </Box>
-            <NostrEventListContextProvider events={results}>
+            <NostrEventListContextProvider eventStore={eventStore}>
                 <EventListWrapper>
                     { children }
                 </EventListWrapper>

@@ -1,5 +1,10 @@
 .navbar {
   background-color: #FFF !important;
+  z-index: 99999;
+  width: 100%;
+  left: 0;
+  top: 0;
+  height: 69px;
 }
 
 .theme--dark .navbar {
@@ -66,4 +71,11 @@ header {
 
 .logo img {
   position: absolute;
+}
+
+.userNotifications_paper {
+  max-width: 33%;
+  right: 0!important;
+  left: unset!important;
+  top: 63px!important;
 }

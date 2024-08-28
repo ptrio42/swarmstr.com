@@ -10,6 +10,7 @@ import Badge from "@mui/material/Badge";
 import { uniqBy } from 'lodash';
 import './Reactions.css';
 import {Event as NostrEvent} from "nostr-mux";
+import Box from "@mui/material/Box";
 
 export enum ReactionType {
     UP = 'Up',
@@ -148,17 +149,21 @@ export const Reactions = ({ reactions = [], handleReaction, type, placeholder, r
             color="primary" sx={{ opacity: reacted ? 1 : 0.5 }}
             className="reactions-count"
         >
-            { uniqBy(reactions.map(r => r.event), 'content')
-                .map((e: NostrEvent) =>
-                    e
-                        .content
-                        .replace('-', '👎')
-                        .replace('+', '💜')
-                )
-            }
-            {
-                reactions.length === 0 && placeholder
-            }
+            {/*{ uniqBy(reactions.map(r => r.event), 'content')*/}
+                {/*.map((e: NostrEvent) => <Box>*/}
+                    {/*{*/}
+                        {/*e*/}
+                            {/*.content*/}
+                            {/*.replace('-', '👎')*/}
+                            {/*.replace('+', '💜')*/}
+                    {/*}*/}
+                    {/*</Box>*/}
+                {/*)*/}
+            {/*}*/}
+            {/*{*/}
+                {/*reactions.length === 0 && placeholder*/}
+            {/*}*/}
+            { placeholder }
         </Badge>
         <Popper
             sx={{

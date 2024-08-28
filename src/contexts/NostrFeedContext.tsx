@@ -1,9 +1,9 @@
 import React, {createContext} from "react";
-import NDK, {NDKEvent, NDKFilter, NDKRelaySet, NDKSubscriptionOptions, NostrEvent} from "@nostr-dev-kit/ndk";
-import Dexie from "dexie";
+import NDK, {NDKEvent, NDKFilter, NDKRelaySet, NDKSubscriptionOptions} from "@nostr-dev-kit/ndk";
+import {NostrEvent} from "nostr-tools";
 
 type NostrFeedContextType = {
-    subscribe: (filter: NDKFilter, opts?: NDKSubscriptionOptions) => void,
+    // subscribe: (filter: NDKFilter, opts?: NDKSubscriptionOptions) => void,
     loading: boolean,
     clearEvents: () => void,
     events: NostrEvent[],
@@ -14,7 +14,7 @@ type NostrFeedContextType = {
 }
 
 export const NostrFeedContext = createContext<NostrFeedContextType>({
-    subscribe: () => {},
+    // subscribe: () => {},
     loading: true,
     clearEvents: () => {},
     events: [],

@@ -1,35 +1,28 @@
-import {Note} from "../Note/Note";
+import Note from "../Note/Note";
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {ListItem, SelectChangeEvent} from "@mui/material";
+import {Box, ListItem, SelectChangeEvent} from "@mui/material";
 import List from "@mui/material/List";
-import {Link, useNavigate, useLocation} from "react-router-dom";
-import { nip19 } from 'nostr-tools';
-import {Helmet} from "react-helmet";
+import {useLocation, useNavigate} from "react-router-dom";
+import {nip19, NostrEvent} from 'nostr-tools';
 import Button from "@mui/material/Button";
 import {ArrowBack} from "@mui/icons-material";
-import {decodeEventPointer, useNostrNoteThreadContext} from "../../../providers/NostrNoteThreadContextProvider";
-import {NDKEvent, NDKFilter, NostrEvent, NDKTag} from "@nostr-dev-kit/ndk";
+import NostrNoteThreadContextProvider, {useNostrNoteThreadContext} from "../../../providers/NostrNoteThreadContextProvider";
+import {NDKEvent, NDKFilter, NDKTag} from "@nostr-dev-kit/ndk";
 import {NostrNoteContextProvider} from "../../../providers/NostrNoteContextProvider";
-import {useLiveQuery} from "dexie-react-hooks";
-import {db} from "../../../db";
-import {containsTag, noteIsVisible, useScrollBlock, valueFromTag} from "../../../utils/utils";
+import {useManageSubs, valueFromTag} from "../../../utils/utils";
 import Typography from "@mui/material/Typography";
-import {NewLabelDialog} from "../../../dialog/NewLabelDialog";
 import {useNostrContext} from "../../../providers/NostrContextProvider";
-import {request} from "../../../services/request";
-import ButtonGroup from "@mui/material/ButtonGroup";
-import { orderBy, chunk, uniqBy } from 'lodash';
 import './Thread.css';
 import {Config} from "../../../resources/Config";
 import {EventListWrapper} from "../EventListWrapper/EventListWrapper";
-import {EventList} from "../EventList/EventList";
-import {NostrEventListContextProvider} from "../../../providers/NostrEventListContextProvider";
-import {EventPointer} from "nostr-tools/lib/types/nip19";
+import EventList, {Sort} from "../EventList/EventList";
+import NostrEventListContextProvider from "../../../providers/NostrEventListContextProvider";
 import {TagSelect} from "../TagSelect/TagSelect";
-import {LoadingAnimation} from "../../LoadingAnimation/LoadingAnimation";
-import {LoadingDialog} from "../../../dialog/LoadingDialog";
-import {useThreadPoolContext} from "../ThreadWrapper/ThreadWrapper";
 import {NoteMeta} from "../NoteMeta/NoteMeta";
+import {subscribe} from "../../../services/nostr/relays";
+import {EventListSort} from "../EventListSort/EventListSort";
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
 
 interface ThreadProps {
     nevent?: string;
@@ -47,6 +40,7 @@ interface ThreadProps {
         events?: NostrEvent[]
     };
     depth?: number;
+    showReplies?: boolean;
 }
 
 // export const decodeNevent = (nevent: string): EventPointer => {
@@ -59,102 +53,141 @@ interface ThreadProps {
 //     return decoded;
 // };
 
-export const NoteThread = ({ nevent, data = {}, children, expanded, floating, depth = 0, ...props }: ThreadProps) => {
-    // @ts-ignore
-    const { id } = nevent && decodeEventPointer(nevent);
+const NoteThread = ({ data = {}, children, expanded, floating, depth = 0, showReplies = false, ...props }: ThreadProps) => {
+    const { id, pubkey, kind, nevent, event, eventStore, visible } = useNostrNoteThreadContext();
 
-    const threadRef = useRef(null);
+    // const threadRef = useRef(null);
 
-    const threadIsVisible = noteIsVisible(threadRef);
+    // const threadIsVisible = noteIsVisible(threadRef);
 
-    const filter: NDKFilter = { kinds: [1, 7, 9735, 30023, 6, 1985], '#e': [id] };
+    // const filter: NDKFilter = { kinds: [1, 7, 9735, 30023, 6, /*1985*/], '#e': [id] };
 
-    const parentEvent = useLiveQuery(async () => db.notes.get({id}));
+    // const [event, loaded] = useLiveQuery(async () => {
+    //     const event = await db.notes.get({id});
+    //     console.log('Thread: event: ', {event})
+    //     return [event, true];
+    // }, [id], [undefined, false]);
+
+    const parentEvent = useMemo(() => event, [event]);
 
     const parentNevents = useMemo(() => {
-        if (!parentEvent || !valueFromTag(parentEvent, 'e')) return [];
-        console.log('Thread: ', {parentId: valueFromTag(parentEvent, 'e')})
-        return parentEvent
-            .tags
-                .filter((tag: NDKTag) => tag[0] === 'e')
+        if (!event || !valueFromTag(event!, 'e')) return [];
+        console.log('Thread: ', {parentId: valueFromTag(event!, 'e')})
+        let identifiers: string[] = [];
+        try {
+            identifiers = event!
+                .tags
+                .filter((tag: NDKTag) => tag[0] === 'e' && !!tag[1])
                 .map((tag: NDKTag) => nip19.neventEncode({ id: tag[1] }));
-    }, [id, parentEvent]);
+        } catch (error) {
+            console.error('parentNevents: ', {error});
+        }
+        return identifiers;
+    }, [id, event]);
 
-    const { subscribe, unsubscribe, commentEvents, stats, connected, loaded } = useNostrNoteThreadContext();
+    if (parentNevents.includes(nip19.neventEncode({id}))) return;
 
-    const { highlightedNote, setHighlightedNote } = useThreadPoolContext();
+    // const parentEvent = useMemo(() => event, [loaded]);
+
+    // const events = useLiveQuery(async () => {
+    //     const events = await db.notes
+    //         .where('referencedEventsIds').equals(id).toArray();
+    //     console.log('Thread: events: ', {events});
+    //     return events;
+    // }, [id]);
+
+    // const commentEvents = useMemo(() => events, [events?.length || 0]);
+
+    const commentEvents = useMemo(() => eventStore.getEvents()
+        // @ts-ignore
+        ?.filter(({kind, ...event}) => (kind === 1 || kind === 30023) && event.id !== id &&
+            !event.tags.includes(['q', id] as NDKTag)
+        )
+    , [eventStore, visible]);
+
+
+
+    // const { stats, connected, loaded } = useNostrNoteThreadContext();
+    const {ndk, connected} = useNostrContext();
+    const {addSub, stopAllSubs} = useManageSubs({ndk, subscribe});
+
+    // const { highlightedNote, setHighlightedNote } = useThreadPoolContext();
 
     const navigate = useNavigate();
 
-    const [sort, setSort] = useState<'score' | 'zap' | 'recent'>('score');
+    const [sort, setSort] = useState<Sort>(Sort.MOST_ZAPPED);
 
     const location = useLocation();
 
-    const subIds = useRef<string[]>([]);
+    // const subIds = useRef<string[]>([]);
 
-    const [blockScroll, allowScroll] = useScrollBlock();
+    // const [blockScroll, allowScroll] = useScrollBlock();
 
-    const calculateScore = useCallback((id: string) => {
-        if (!stats) return 0;
+    // const [largeSubTime, setLargeSubTime] = useState<number>();
 
-        const { zaps , reaction_count, repost_count, report_count } = stats[id] || { zaps: { count: 0 }, reaction_count: 0, repost_count: 0, report_count: 0 };
-        return ((+zaps?.msats/10000 || 0) + ((reaction_count || 0) * 0.5) + ((repost_count || 0) * 0.25)) - (report_count || 0);
-    }, [stats]);
+    // useEffect(() => {
+    //     if (threadIsVisible && !(pubkey && kind === 30023)) {
+    //         if (!parentEvent) {
+    //             // addSub({ ids: [id] }, { closeOnEose: true, groupable: true, groupableDelay: 100 });
+    //             // console.log('Thread: addSub: ', { ids: [id] })
+    //         }
+    //         // addSub({...filter, /*...(commentEvents!.length > 0) && { since: commentEvents[0]?.created_at }*/}, { groupable: true, closeOnEose: true, groupableDelay: 100 });
+    //         // addSub({...filter, since: largeSubTime || Math.floor(Date.now() / 1000)}, { groupable: false, closeOnEose: false });
+    //         // console.log(`Thread: starting sub ${id}`);
+    //         // subIds.current.push(subId);
+    //     }
+    //     if (!threadIsVisible) {
+    //         console.log(`Thread: stopping subs ${subIds.current.join(',')}`);
+    //         stopAllSubs();
+    //     }
+    // }, [threadIsVisible]);
 
-    const filteredCommentEvents = useMemo(() => {
-        console.log('NoteThread: commentEvents', {commentEvents})
-        // if (!sort || !connected || !stats) return [];
+    useEffect(() => {
+        if (!connected) return;
+        // get root note and comment notes
+        // getEventsAsPromise(ndk, filter)
+        //     .then((events: NostrEvent[]) => {
+        //         console.log('Thread: event: ', {events});
+        //         if (events) {
+        //             setCommentEvents(events!.filter(({kind}) => kind === 1 || kind === 30023));
+        //         }
+        //     });
+
+        // getEventsAsPromise(ndk, { ids: [id] })
+        //     .then((events: NostrEvent[]) => {
+        //         console.log('Thread: event: ', {events});
+        //         if (events[0]) {
+        //             setParentEvent(events[0]);
+        //         }
+        //     });
+        // const time = Math.floor(Date.now() / 1000);
         // @ts-ignore
-        return (orderBy(commentEvents
-            // .filter(({tags}) => tags.filter((tag: NDKTag) => tag[0] === 'e').length >= (parentNevent ? depth + 1 : depth))
-            .filter((e) => !!e), ({created_at, ..._event}: NostrEvent) => {
-            switch (sort) {
-                case 'score':
-                    const score = calculateScore(_event.id!);
-                    return score;
-                case 'zap':
-                    return stats && stats[_event.id!] && stats[_event.id!].zaps ? +stats[_event.id!].zaps.msats : 0;
-                case 'recent':
-                    return created_at;
-            }
-        }, (sort === 'score' || sort === 'zap') ? 'desc' : 'asc') || [])
-    }, [commentEvents, sort, stats, connected]);
-
-    useEffect(() => {
-        if (connected && threadIsVisible) {
-            const subId = subscribe(filter, { groupable: false, closeOnEose: false });
-            console.log(`Thread: starting sub ${subId}`);
-            subIds.current.push(subId);
-        }
-        if (!threadIsVisible && subIds.current.length > 0) {
-            console.log(`Thread: stopping subs ${subIds.current.join(',')}`);
-            unsubscribe(subIds.current);
-        }
-    }, [connected, threadIsVisible]);
-
-    useEffect(() => {
+        // addSub({...filter}, { groupable: true, closeOnEose: true, groupableDelay: 100 });
+        // console.log(`Thread: sub ${id}`);
+        // setLargeSubTime(time);
         return () => {
-            unsubscribe(subIds.current);
+            console.log(`Thread: sub ${id} closing`);
+            stopAllSubs();
         };
-    }, []);
+    }, [connected]);
 
-    useEffect(() => {
-        console.log(`Thread: loaded status changed`, {loaded});
-        if (parentNevents.length > 0 && loaded && expanded) {
-            console.log('Thread: ', {parentNevents, loaded, expanded})
-            setHighlightedNote({id, depth});
-            // blockScroll();
-            // navigate(`#${id}`);
-        }
-    }, [!loaded]);
+    // useEffect(() => {
+    //     console.log(`Thread: loaded status changed`, {loaded});
+    //     if (parentNevents.length > 0 && loaded && expanded) {
+    //         console.log('Thread: ', {parentNevents, loaded, expanded})
+    //         setHighlightedNote({id, depth});
+    //         // blockScroll();
+    //         // navigate(`#${id}`);
+    //     }
+    // }, [!loaded]);
 
-    useEffect(() => {
-        if (loaded && highlightedNote && highlightedNote.depth < depth) {
-            console.log(`Thread: notes below level ${depth} loaded...`);
-            allowScroll();
-            navigate(`#${highlightedNote.id}`);
-        }
-    }, [loaded]);
+    // useEffect(() => {
+    //     if (loaded && highlightedNote && highlightedNote.depth < depth) {
+    //         console.log(`Thread: notes below level ${depth} loaded...`);
+    //         allowScroll();
+    //         navigate(`#${highlightedNote.id}`);
+    //     }
+    // }, [loaded]);
 
     // useEffect(() => {
     //     console.log(`Thread: `, {depth}, {highlightedNote});
@@ -164,11 +197,11 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating, de
     //     }
     // }, [highlightedNote, !loaded]);
 
-    useEffect(() => {
-        console.log('Thread: ', {highlightedNote, id})
-    }, [highlightedNote])
+    // useEffect(() => {
+    //     console.log('Thread: ', {highlightedNote, id})
+    // }, [highlightedNote])
 
-    const goBack = () => {
+    const goBack = useCallback(() => {
         const previousUrl = location?.state?.previousUrl;
         console.log('Thread: previousUrl', {previousUrl})
         const opts = { preventScrollReset: true, replace: false };
@@ -176,19 +209,23 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating, de
             // navigate(`${previousUrl}#${id}`, opts);
             // navigate(-1);
             navigate(`${previousUrl}#${id}`, { ...opts, state: {
-                id,
-                ...(location?.state?.limit && {
-                    // events: location?.state?.events.slice(0, location?.state?.limit),
-                    limit: location?.state?.limit
-                })
-            }});
+                    id,
+                    ...(location?.state?.limit && {
+                        // events: location?.state?.events.slice(0, location?.state?.limit),
+                        limit: location?.state?.limit
+                    })
+                }});
         } else if (new RegExp(/\/d\//).test(previousUrl)) {
             navigate(`${previousUrl}#${id}`);
         } else {
             console.log('Thread: navigate(-1)')
             navigate(-1);
         }
-    };
+    }, [location]);
+
+    useEffect(() => {
+        console.log('Thread: events: commentEvents', {commentEvents});
+    }, [commentEvents])
 
     return (
         <React.Fragment>
@@ -196,7 +233,7 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating, de
                 expanded && parentEvent && <NoteMeta event={parentEvent}/>
             }
 
-            <List sx={{ paddingBottom: 0, paddingTop: 0 }} id={`note-thread-${id}`}>
+            <List sx={{ padding: 0 }} id={`note-thread-${id}`}>
 
                 {
                     expanded && <ListItem key={'nostr-resources-nav-back'} sx={{ justifyContent: 'space-between' }}>
@@ -223,65 +260,121 @@ export const NoteThread = ({ nevent, data = {}, children, expanded, floating, de
                 }
                 {
                     expanded && parentNevents && parentNevents.map((nevent: string, i: number) => <ListItem className="replyParent">
-                        <NoteThread
-                            key={`${nevent}-thread`}
-                            nevent={nevent}
-                            floating={false}
-                            depth={i}
-                        >
-                            <NostrNoteContextProvider>
-                                <Note key={`${nevent}-content`} nevent={nevent} floating={false}/>
-                            </NostrNoteContextProvider>
-                        </NoteThread>
+                        <NostrNoteThreadContextProvider nevent={nevent}>
+                            <NoteThread
+                                key={`${nevent}-thread`}
+                                nevent={nevent}
+                                floating={false}
+                                depth={i}
+                                // expanded={expanded}
+                            >
+                                <NostrNoteContextProvider>
+                                    <Note key={`${nevent}-content`} nevent={nevent} floating={false}/>
+                                </NostrNoteContextProvider>
+                            </NoteThread>
+                        </NostrNoteThreadContextProvider>
                         {/*<Link to={`/e/${parentNevent}#${id}`}>Load more</Link>*/}
                     </ListItem>)
                 }
                 <ListItem
-                    ref={threadRef}
                     key={`${id}-container`}
                     className={expanded ? 'rootNote-container' : ''}
                     sx={{
-                        paddingTop: 0,
-                        paddingBottom: 0,
+                        padding: 0,
                         ...(expanded && parentNevents && parentNevents.length > 0 && { width: `${100 - depth * 10}%!important`, margin: 'auto' })
                     }}>
                     {children}
                 </ListItem>
                 {
-                    expanded && <ListItem
-                        key={`${id}-replySort`}
-                        sx={{
-                            justifyContent: 'flex-end',
-                            ...(parentNevents && parentNevents.length > 0 && { width: `${100 - depth * 10}%!important`, margin: 'auto' })
-                        }}>
-                        <ButtonGroup sx={{ boxShadow: 'none' }} variant="contained" aria-label="reply sort">
-                            <Button
-                                color={'primary'}
-                                sx={{ textTransform: 'capitalize', padding: '7px', fontSize: '15px',
-                                    ...(sort !== 'score' && { backgroundColor: 'rgba(240, 230, 140, .5)', fontWeight: '300' } || { fontWeight: '400' }) }}
-                                onClick={() => setSort('score')}
-                            >Best answers
-                            </Button>
-                            <Button color={'primary'}
-                                    sx={{ textTransform: 'capitalize', padding: '7px', fontSize: '15px', ...(sort !== 'zap' && { backgroundColor: 'rgba(240, 230, 140, .5)', fontWeight: '300' } || { fontWeight: '400' }) }}  onClick={() => setSort('zap')}>Most zapped</Button>
-                            <Button color={'primary'} sx={{ textTransform: 'capitalize', padding: '7px', fontSize: '15px', ...(sort !== 'recent' && { backgroundColor: 'rgba(240, 230, 140, .5)', fontWeight: '300' } || { fontWeight: '400' }) }}  onClick={() => setSort('recent')}>Date added</Button>
-                        </ButtonGroup>
-                    </ListItem>
-                }
-                {
-                    loaded && expanded && <List key={`${nevent}-answers`} sx={{ width: '90%', margin: 'auto' }}>
-                        { !commentEvents && <Typography className="thread-repliesPlaceholder" component="div" variant="body1">Loading answers...</Typography> }
-                        { (commentEvents && commentEvents.length === 0) && <Typography className="thread-repliesPlaceholder" component="div" variant="body1">No answers yet...</Typography> }
+                    (expanded || !expanded && showReplies) && <List key={`${nevent}-answers`} sx={{ width: '90%', margin: 'auto', padding: '0!important' }}>
+                        { !commentEvents && <Typography className="thread-repliesPlaceholder" component="div" variant="body1">Loading notes...</Typography> }
+                        { (commentEvents && commentEvents.length === 0 && !showReplies) && <Typography className="thread-repliesPlaceholder" component="div" variant="body1">No replies yet...</Typography> }
 
-                        <NostrEventListContextProvider limit={10} events={filteredCommentEvents}>
+
+                        <NostrEventListContextProvider limit={10} eventStore={eventStore}>
+                            { expanded && commentEvents.length > 0 && <EventListSort/> }
                             <EventListWrapper>
-                                <EventList parentId={id} grandparentId={parentEvent && valueFromTag(parentEvent, 'e')} depth={(parentNevents.length > 0 ? depth + parentNevents.length : depth)} floating={floating}/>
+                                <EventList expanded={showReplies} parentId={id} grandparentId={parentEvent && valueFromTag(parentEvent!, 'e')} depth={(parentNevents.length > 0 ? depth + parentNevents.length : depth)} floating={floating}/>
                             </EventListWrapper>
                         </NostrEventListContextProvider>
                     </List>
+                }
+                {
+                    expanded && <ListItem sx={{ flexDirection: 'column' }}>
+                        {/*<Typography variant="h6" component="div">Reply</Typography>*/}
+                        <TextField
+                            sx={{ width: '100%' }}
+                            id="content"
+                            name="content"
+                            label={ 'Write a quick reply...' }
+                            multiline
+                            rows={5}
+                            // value={''}
+                            onChange={(event: any) => {
+                                // console.log('content event', {event}, formik.values.content)
+                                // formik.setFieldValue('content', event.target.value);
+                                // setContent(event.target.value);
+                                // formik.handleChange(event);
+                            }}
+                            InputProps={{
+                                endAdornment: <InputAdornment position="end"><Button
+                                    sx={{
+                                        textTransform: 'capitalize',
+                                        borderRadius: '18px'
+                                    }}
+                                    variant="contained"
+                                    color="warning"
+                                    onClick={() => {
+                                        // setLoading(true);
+                                        // post(formik.values.content, tags, kind)
+                                        //     .then(() => {
+                                        //         formik.setFieldValue('content', '');
+                                        //         formik.setFieldValue('title', '');
+                                        //         setEvent(undefined);
+                                        //         setLoading(false);
+                                        //         onClose && onClose();
+                                        //     })
+                                    }} autoFocus
+                                >
+                                    Add reply
+                                </Button></InputAdornment>
+                            }}
+                        />
+                        {/*<Box*/}
+                        {/*sx={{*/}
+                        {/*padding: '3px',*/}
+                        {/*textAlign: 'right',*/}
+                        {/*width: '100%'*/}
+                        {/*}}*/}
+                        {/*>*/}
+                        {/*<Button*/}
+                        {/*sx={{*/}
+                        {/*textTransform: 'capitalize',*/}
+                        {/*borderRadius: '18px'*/}
+                        {/*}}*/}
+                        {/*variant="contained"*/}
+                        {/*color="warning"*/}
+                        {/*onClick={() => {*/}
+                        {/*// setLoading(true);*/}
+                        {/*// post(formik.values.content, tags, kind)*/}
+                        {/*//     .then(() => {*/}
+                        {/*//         formik.setFieldValue('content', '');*/}
+                        {/*//         formik.setFieldValue('title', '');*/}
+                        {/*//         setEvent(undefined);*/}
+                        {/*//         setLoading(false);*/}
+                        {/*//         onClose && onClose();*/}
+                        {/*//     })*/}
+                        {/*}} autoFocus*/}
+                        {/*>*/}
+                        {/*Add reply*/}
+                        {/*</Button>*/}
+                        {/*</Box>*/}
+                    </ListItem>
                 }
             </List>
             {/*<LoadingDialog open={!loaded}/>*/}
         </React.Fragment>
     );
 };
+
+export default React.memo(NoteThread);

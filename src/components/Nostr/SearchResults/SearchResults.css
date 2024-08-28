@@ -1,14 +1,3 @@
-a {
-    word-break: break-word;
-    color: #989500;
-    text-decoration: none;
-    padding-left: 0.1em;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
 .guide-info {
     align-items: center;
     font-size: 13px !important;

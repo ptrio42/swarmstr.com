@@ -1,25 +1,18 @@
-import React, {useEffect, useRef, useState} from "react";
-import {nip19} from 'nostr-tools';
-import './Note.css';
-import {useLocation} from "react-router-dom";
-import {NDKFilter, NDKRelaySet, NDKSubscription, NostrEvent, NDKSubscriptionOptions} from "@nostr-dev-kit/ndk";
-import {useNostrNoteContext} from "../../../providers/NostrNoteContextProvider";
-import {uniqBy} from 'lodash';
-import {useLiveQuery} from "dexie-react-hooks";
-import {db} from "../../../db";
-import {Config} from "../../../resources/Config";
+import React, {memo} from "react";
+import {NDKFilter, NDKRelaySet, NDKSubscription, NDKSubscriptionOptions} from "@nostr-dev-kit/ndk";
+import {nip19, NostrEvent} from 'nostr-tools';
 import {useParams} from "react-router-dom";
-import {NoteActions} from "../NoteActions/NoteActions";
-import {NoteContent} from "../NoteContent/NoteContent";
-import {NoteScoreBox} from "../NoteScoreBox/NoteScoreBox";
-import {NoteWrapper} from "../NoteWrapper/NoteWrapper";
-import {NoteTags} from "../NoteTags/NoteTags";
-import {decodeEventPointer} from "../../../providers/NostrNoteThreadContextProvider";
+
+import './Note.css';
+import NoteActions from "../NoteActions/NoteActions";
+import NoteContent from "../NoteContent/NoteContent";
+import NoteWrapper from "../NoteWrapper/NoteWrapper";
+import {useNostrNoteThreadContext} from "../../../providers/NostrNoteThreadContextProvider";
 
 interface NoteProps {
     pinned?: boolean;
     isRead?: boolean;
-    nevent: string;
+    nevent?: string;
     context?: 'feed' | 'thread';
     expanded?: boolean;
     event?: NostrEvent
@@ -31,32 +24,38 @@ interface NoteProps {
     children?: any;
 }
 
-export const Note = ({ nevent, context, pinned, isRead, expanded, floating, children, ...props }: NoteProps
+const Note = ({ nevent, context, pinned, isRead, expanded, floating = false, children, ...props }: NoteProps
 ) => {
-        // @ts-ignore
-    const { id } = decodeEventPointer(nevent);
+    const { event } = useNostrNoteThreadContext();
     const { searchString } = useParams();
-    const location = useLocation();
+    // const location = useLocation();
 
-    const [event, loaded] = useLiveQuery(async () => {
-        const event = await db.notes.get({ id });
-        return [event || props?.event, true];
-    }, [id], [props?.event || (!!id && location?.state?.event?.id === id && location?.state?.event), false]);
+    // const [event, loaded] = useLiveQuery(async () => {
+    //     const res = !(pubkey && kind === 30023) ? await db.notes.get({ id }) : await db.notes.where({ replaceableEventId: id }).toArray();
+    //     return [Array.isArray(res) ? res[0] : res || props?.event, true];
+    // }, [id], [props?.event || (!!id && location?.state?.event?.id === id && location?.state?.event), false]);
+    //
+    // const eventMemo = useMemo(() => event, [loaded]);
 
-    return <NoteWrapper id={id} event={event} loaded={loaded}>
-        <NoteScoreBox id={id} event={event}/>
+    if (!event) return;
+
+    return <NoteWrapper id={event?.id} pubkey={event?.pubkey} kind={event?.kind}>
+        {/*<NoteScoreBox id={id} event={eventMemo}/>*/}
         <NoteContent
-            nevent={nevent}
+            // nevent={nevent}
             event={event}
             expanded={expanded}
             floating={floating}
             searchString={searchString}
             props={props}
         />
-        <NoteTags styles={{ paddingLeft: '50px', display: 'block' }} tags={uniqBy(event?.tags?.filter((t: string[]) => Config.NOSTR_TAGS.includes(t[1])).map((t: string[]) => [t[0], t[1].toLowerCase()]), (t: string[]) => t[1])}/>
-        <NoteActions
-            nevent={nevent}
-            event={event}
-        />
+        {/*<NoteTags styles={{ paddingLeft: '50px', display: 'block' }} tags={uniqBy(event?.tags?.filter((t: string[]) => Config.NOSTR_TAGS.includes(t[1])).map((t: string[]) => [t[0], t[1].toLowerCase()]), (t: string[]) => t[1])}/>*/}
+        {
+            [1, 30023].includes(event.kind) && <NoteActions
+                event={event}
+            />
+        }
     </NoteWrapper>;
 };
+
+export default memo(Note);
